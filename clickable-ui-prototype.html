@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KimuntuPro AI - Interactive Prototype</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        /* Header */
+        .header {
+            background-color: #007bff;
+            color: white;
+            padding: 1rem 0;
+        }
+
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        /* Main Container */
+        .main-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+            display: flex;
+            gap: 2rem;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: white;
+            border: 1px solid #ddd;
+            width: 250px;
+            padding: 1rem;
+        }
+
+        .sidebar h3 {
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-menu li {
+            margin: 0.5rem 0;
+        }
+
+        .nav-menu a {
+            display: block;
+            padding: 0.5rem;
+            text-decoration: none;
+            color: #333;
+            border: 1px solid transparent;
+        }
+
+        .nav-menu a:hover {
+            background-color: #f0f0f0;
+        }
+
+        .nav-menu a.active {
+            background-color: #007bff;
+            color: white;
+        }
+
+        /* Content Area */
+        .content-area {
+            flex: 1;
+            background: white;
+            border: 1px solid #ddd;
+            padding: 2rem;
+        }
+
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+        }
+
+        .section-subtitle {
+            color: #666;
+            margin-bottom: 2rem;
+        }
+
+        /* Simple Cards */
+        .simple-card {
+            border: 1px solid #ddd;
+            padding: 1rem;
+            margin: 1rem 0;
+            background-color: #f9f9f9;
+        }
+
+        .simple-card h3 {
+            margin-bottom: 0.5rem;
+        }
+
+        /* Forms */
+        .form-group {
+            margin: 1rem 0;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+        }
+
+        .btn {
+            background-color: #007bff;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            cursor: pointer;
+            margin: 0.5rem 0.5rem 0.5rem 0;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+        }
+
+        /* Clickable highlight utility */
+        .clickable { position: relative; transition: box-shadow 0.2s ease, transform 0.05s ease; }
+        .clickable:focus { outline: 2px solid #80bfff; outline-offset: 2px; }
+        .clickable:hover { box-shadow: 0 0 0 3px rgba(0,123,255,0.15) inset; }
+        .clickable:active { transform: translateY(1px); }
+
+        /* Lists */
+        .simple-list {
+            list-style: none;
+        }
+
+        .simple-list li {
+            padding: 0.5rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .simple-list li:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-container">
+            <a class="logo clickable" href="/Users/tedinator1738/Desktop/CapStone Project/homepage-navigation.html">KimuntuPro AI</a>
+            <div class="user-info">
+                <a class="clickable" href="/Users/tedinator1738/Desktop/CapStone Project/homepage-navigation.html">Home</a>
+                <a class="clickable" href="/Users/tedinator1738/Desktop/CapStone Project/login-signup-mockup.html">Login</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <h3>Navigation</h3>
+            <ul class="nav-menu">
+                <li><a href="#" class="active clickable" onclick="showSection('dashboard', event)">Dashboard</a></li>
+                <li><a href="#" class="clickable" onclick="showSection('career', event)">Career Tools</a></li>
+                <li><a href="#" class="clickable" onclick="showSection('business', event)">Business Tools</a></li>
+                <li><a href="#" class="clickable" onclick="showSection('legal', event)">Legal Assistance</a></li>
+                <li><a href="#" class="clickable" onclick="showSection('ai-chat', event)">AI Assistant</a></li>
+                <li><a href="#" class="clickable" onclick="showSection('profile', event)">Profile</a></li>
+                <li><a href="#" class="clickable" onclick="showSection('settings', event)">Settings</a></li>
+            </ul>
+        </nav>
+
+        <!-- Content Area -->
+        <main class="content-area">
+            <!-- Dashboard Section -->
+            <section class="content-section active" id="dashboard">
+                <h1 class="section-title">Dashboard</h1>
+                <p class="section-subtitle">Your AI-powered success hub</p>
+
+                <div class="simple-card">
+                    <h3>Profile Completion</h3>
+                    <p>Your profile is 65% complete. Complete your profile to unlock more features.</p>
+                    <button class="btn">Complete Profile</button>
+                </div>
+
+                <div class="simple-card">
+                    <h3>Recent Activity</h3>
+                    <ul class="simple-list">
+                        <li>Updated your CV</li>
+                        <li>Applied to 3 jobs</li>
+                        <li>Completed business plan draft</li>
+                    </ul>
+                </div>
+
+                <div class="simple-card">
+                    <h3>Quick Actions</h3>
+                    <button class="btn">Create CV</button>
+                    <button class="btn">Find Jobs</button>
+                    <button class="btn">Business Plan</button>
+                </div>
+            </section>
+
+            <!-- Career Section -->
+            <section class="content-section" id="career">
+                <h1 class="section-title">Career Tools</h1>
+                <p class="section-subtitle">AI-powered career development tools</p>
+
+                <div class="simple-card">
+                    <h3>AI CV Builder</h3>
+                    <p>Create professional resumes with AI optimization.</p>
+                    <button class="btn">Start Building</button>
+                </div>
+
+                <div class="simple-card">
+                    <h3>Job Matching</h3>
+                    <p>Find jobs that match your skills and experience.</p>
+                    <button class="btn">Find Jobs</button>
+                </div>
+
+                <div class="simple-card">
+                    <h3>Interview Prep</h3>
+                    <p>Practice interviews with AI feedback.</p>
+                    <button class="btn">Start Practice</button>
+                </div>
+            </section>
+
+            <!-- Business Section -->
+            <section class="content-section" id="business">
+                <h1 class="section-title">Business Tools</h1>
+                <p class="section-subtitle">Comprehensive business development tools</p>
+
+                <div class="simple-card">
+                    <h3>Business Plan Builder</h3>
+                    <p>Create professional business plans with AI assistance.</p>
+                    <button class="btn">Create Plan</button>
+                </div>
+
+                <div class="simple-card">
+                    <h3>Funding Finder</h3>
+                    <p>Find funding opportunities for your business.</p>
+                    <button class="btn">Find Funding</button>
+                </div>
+
+                <div class="simple-card">
+                    <h3>Website Builder</h3>
+                    <p>Build your business website with AI help.</p>
+                    <button class="btn">Build Website</button>
+                </div>
+            </section>
+
+            <!-- Legal Section -->
+            <section class="content-section" id="legal">
+                <h1 class="section-title">Legal Assistance</h1>
+                <p class="section-subtitle">AI-powered legal support for Canada and the United States</p>
+
+                <div class="simple-card">
+                    <h3 id="legal-tabs">Jurisdiction</h3>
+                    <div style="margin-top: 0.5rem;">
+                        <button class="btn clickable" onclick="showLegalTab('canada', event)">Canada</button>
+                        <button class="btn clickable" onclick="showLegalTab('us', event)">United States</button>
+                    </div>
+                </div>
+
+                <div class="simple-card" id="canada-legal" style="display: none;">
+                    <h3>Canada Legal Services</h3>
+                    <ul class="simple-list">
+                        <li><a class="clickable" id="ca-family" href="#" onclick="openLegalFeature('ca-family')">Family Law</a></li>
+                        <li><a class="clickable" id="ca-criminal" href="#" onclick="openLegalFeature('ca-criminal')">Criminal Law</a></li>
+                        <li><a class="clickable" id="ca-business" href="#" onclick="openLegalFeature('ca-business')">Business Law</a></li>
+                        <li><a class="clickable" id="ca-consumer" href="#" onclick="openLegalFeature('ca-consumer')">Consumer Rights</a></li>
+                        <li><a class="clickable" id="ca-immigration" href="#" onclick="openLegalFeature('ca-immigration')">Immigration & Refugee</a></li>
+                        <li><a class="clickable" id="ca-labor" href="#" onclick="openLegalFeature('ca-labor')">Labor Law</a></li>
+                        <li><a class="clickable" id="ca-civil" href="#" onclick="openLegalFeature('ca-civil')">Civil Litigation</a></li>
+                    </ul>
+                </div>
+
+                <div class="simple-card" id="us-legal" style="display: none;">
+                    <h3>US Legal Services</h3>
+                    <ul class="simple-list">
+                        <li><a class="clickable" id="us-family" href="#" onclick="openLegalFeature('us-family')">Family Law</a></li>
+                        <li><a class="clickable" id="us-criminal" href="#" onclick="openLegalFeature('us-criminal')">Criminal Law</a></li>
+                        <li><a class="clickable" id="us-business" href="#" onclick="openLegalFeature('us-business')">Business Law</a></li>
+                        <li><a class="clickable" id="us-consumer" href="#" onclick="openLegalFeature('us-consumer')">Consumer Rights</a></li>
+                        <li><a class="clickable" id="us-immigration" href="#" onclick="openLegalFeature('us-immigration')">Immigration & Refugee</a></li>
+                        <li><a class="clickable" id="us-labor" href="#" onclick="openLegalFeature('us-labor')">Labor Law</a></li>
+                        <li><a class="clickable" id="us-civil" href="#" onclick="openLegalFeature('us-civil')">Civil Litigation</a></li>
+                    </ul>
+                </div>
+
+                <div class="simple-card" id="legal-tools">
+                    <h3>Tools</h3>
+                    <div class="form-group">
+                        <label>Document Generation</label>
+                        <input type="text" placeholder="Describe the document you need (e.g., NDA, Lease)">
+                        <button class="btn clickable" onclick="alert('Document generation prototype triggered')">Generate</button>
+                    </div>
+                    <div class="form-group">
+                        <label>Case Analysis</label>
+                        <textarea rows="3" placeholder="Paste case details or question"></textarea>
+                        <button class="btn clickable" onclick="alert('Case analysis prototype triggered')">Analyze</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- AI Chat Section -->
+            <section class="content-section" id="ai-chat">
+                <h1 class="section-title">AI Assistant</h1>
+                <p class="section-subtitle">Chat with your AI assistant</p>
+
+                <div class="simple-card">
+                    <h3>Chat Interface</h3>
+                    <div class="form-group">
+                        <textarea placeholder="Type your message here..." rows="4"></textarea>
+                    </div>
+                    <button class="btn">Send Message</button>
+                </div>
+
+                <div class="simple-card">
+                    <h3>Recent Conversations</h3>
+                    <ul class="simple-list">
+                        <li>Career advice session</li>
+                        <li>Business plan discussion</li>
+                        <li>Legal question about contracts</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Profile Section -->
+            <section class="content-section" id="profile">
+                <h1 class="section-title">Profile</h1>
+                <p class="section-subtitle">Manage your account information</p>
+
+                <div class="simple-card">
+                    <h3>Personal Information</h3>
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" value="John Doe">
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" value="john.doe@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Phone</label>
+                        <input type="tel" value="+1 (555) 123-4567">
+                    </div>
+                    <button class="btn">Save Changes</button>
+                </div>
+
+                <div class="simple-card">
+                    <h3>Preferences</h3>
+                    <div class="form-group">
+                        <label>Notification Settings</label>
+                        <select>
+                            <option>Email notifications</option>
+                            <option>SMS notifications</option>
+                            <option>No notifications</option>
+                        </select>
+                    </div>
+                    <button class="btn">Update Preferences</button>
+                </div>
+            </section>
+
+            <!-- Settings Section -->
+            <section class="content-section" id="settings">
+                <h1 class="section-title">Settings</h1>
+                <p class="section-subtitle">Configure your application settings</p>
+
+                <div class="simple-card">
+                    <h3>Account Settings</h3>
+                    <div class="form-group">
+                        <label>Change Password</label>
+                        <input type="password" placeholder="New password">
+                    </div>
+                    <button class="btn">Change Password</button>
+                </div>
+
+                <div class="simple-card">
+                    <h3>Privacy Settings</h3>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox"> Share data for AI improvement
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox"> Allow analytics tracking
+                        </label>
+                    </div>
+                    <button class="btn">Save Settings</button>
+                </div>
+
+                <div class="simple-card">
+                    <h3>Danger Zone</h3>
+                    <button class="btn" style="background-color: #dc3545;">Delete Account</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        function showSection(sectionName, event) {
+            // Hide all content sections
+            const sections = document.querySelectorAll('.content-section');
+            sections.forEach(section => section.classList.remove('active'));
+            
+            // Remove active class from all nav links
+            const navLinks = document.querySelectorAll('.nav-menu a');
+            navLinks.forEach(link => link.classList.remove('active'));
+            
+            // Show selected content section
+            document.getElementById(sectionName).classList.add('active');
+            
+            // Add active class to clicked nav link
+            if (event && event.target) {
+                event.target.classList.add('active');
+            }
+        }
+
+        function showLegalTab(tab, event) {
+            document.getElementById('canada-legal').style.display = (tab === 'canada') ? 'block' : 'none';
+            document.getElementById('us-legal').style.display = (tab === 'us') ? 'block' : 'none';
+            if (tab) location.hash = 'legal-' + tab;
+        }
+
+        function openLegalFeature(featureId) {
+            alert('Open legal feature: ' + featureId + ' (prototype)');
+        }
+
+        // Deep links for legal sections and main sections
+        window.addEventListener('load', () => {
+            const hash = (location.hash || '').replace('#','');
+            if (!hash) return;
+            if (hash.startsWith('legal')) {
+                showSection('legal');
+                if (hash === 'legal-canada') showLegalTab('canada');
+                if (hash === 'legal-us') showLegalTab('us');
+                // Feature deep link e.g., legal-feature:us-family
+                if (hash.startsWith('legal-feature:')) {
+                    const id = hash.split(':')[1];
+                    openLegalFeature(id);
+                }
+            } else {
+                showSection(hash);
+            }
+        });
+    </script>
+</body>
+</html>
