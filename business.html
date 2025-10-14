@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>KimuntuPro AI - Business Track</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    :root{
+      --primary:#2563eb;--primary-dark:#1e40af;--secondary:#7c3aed;
+      --success:#10b981;--danger:#ef4444;--warning:#f59e0b;
+      --dark:#1f2937;--light:#f3f4f6;--white:#ffffff;
+      --gradient:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+      --shadow:0 4px 20px rgba(0,0,0,.1);
+      --shadow-lg:0 10px 40px rgba(0,0,0,.2);
+      --radius:16px;--radius-sm:8px;
+    }
+    html{scroll-behavior:smooth}
+    body{
+      font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+      background:var(--gradient);min-height:100vh;color:var(--dark);
+    }
+
+    /* Layout */
+    .container{max-width:1400px;margin:0 auto;padding:0 1rem}
+    .main-layout{display:flex;min-height:100vh;gap:1rem;padding:1rem}
+    .sidebar{width:240px;background:rgba(255,255,255,.95);backdrop-filter:blur(10px);
+      border-radius:var(--radius);padding:1rem;box-shadow:var(--shadow);height:fit-content;position:sticky;top:1rem}
+    .main-content{flex:1;background:rgba(255,255,255,.95);backdrop-filter:blur(10px);
+      border-radius:var(--radius);padding:2rem;box-shadow:var(--shadow);min-height:80vh}
+
+    /* Navigation */
+    nav{background:rgba(255,255,255,.98);backdrop-filter:blur(10px);box-shadow:var(--shadow);
+      position:sticky;top:0;z-index:1000;padding:1rem 0}
+    .nav-inner{display:flex;justify-content:space-between;align-items:center}
+    .logo{font-size:1.5rem;font-weight:800;background:var(--gradient);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;text-decoration:none}
+    .nav-tabs{display:flex;gap:.5rem}
+    .nav-tab{padding:.75rem 1.25rem;border-radius:var(--radius-sm);text-decoration:none;
+      font-weight:600;transition:.3s;color:var(--dark)}
+    .nav-tab:hover{background:var(--light)}
+    .nav-tab.active{background:var(--gradient);color:#fff}
+    .profile-avatar{width:40px;height:40px;background:var(--gradient);border-radius:50%;
+      display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700}
+
+    /* Sidebar */
+    .sidebar h3{font-size:1.125rem;margin-bottom:1rem;color:var(--dark)}
+    .sidebar-menu{list-style:none}
+    .sidebar-menu li{margin-bottom:.5rem}
+    .sidebar-menu a{display:block;padding:.75rem 1rem;border-radius:var(--radius-sm);
+      text-decoration:none;color:var(--dark);font-weight:500;transition:.3s}
+    .sidebar-menu a:hover{background:var(--light);color:var(--primary)}
+    .sidebar-menu a.active{background:var(--gradient);color:#fff}
+
+    /* Cards */
+    .card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);
+      padding:1.5rem;margin-bottom:1.5rem;transition:.3s}
+    .card:hover{box-shadow:var(--shadow-lg)}
+
+    /* Hero */
+    .hero{text-align:center;margin-bottom:2rem}
+    .hero h1{font-size:2.5rem;margin-bottom:.5rem;background:var(--gradient);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .hero p{font-size:1.125rem;color:#6b7280;margin-bottom:1.5rem}
+
+    /* Buttons */
+    .btn{display:inline-flex;align-items:center;padding:.75rem 1.5rem;
+      border-radius:var(--radius-sm);font-weight:600;text-decoration:none;
+      border:none;cursor:pointer;transition:.3s;gap:.5rem}
+    .btn-primary{background:var(--gradient);color:#fff}
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+    .btn-secondary{background:var(--light);color:var(--dark)}
+    .btn-secondary:hover{background:#e5e7eb}
+    .btn-group{display:flex;gap:1rem;flex-wrap:wrap}
+
+    /* KPI Dashboard */
+    .kpi-section{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:2rem}
+    .kpi-card{background:#fff;border-radius:var(--radius);padding:1.25rem;
+      box-shadow:var(--shadow);text-align:center;transition:.3s}
+    .kpi-card:hover{box-shadow:var(--shadow-lg)}
+    .kpi-number{font-size:2rem;font-weight:800;color:var(--primary);margin-bottom:.25rem}
+    .kpi-label{font-size:.9rem;color:#6b7280;margin-bottom:.5rem}
+    .kpi-subtitle{font-size:.8rem;color:var(--warning);font-style:italic}
+
+    /* Quick Actions Grid */
+    .quick-actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;margin-bottom:2rem}
+    .action-card{background:#fff;border-radius:var(--radius);padding:1.5rem;
+      box-shadow:var(--shadow);transition:.3s;text-align:center;position:relative}
+    .action-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-lg)}
+    .action-card .icon{font-size:2.5rem;margin-bottom:1rem;display:block}
+    .action-card h3{font-size:1.125rem;margin-bottom:.5rem;color:var(--dark)}
+    .action-card p{color:#6b7280;font-size:.9rem;margin-bottom:1rem}
+    .coming-soon{position:absolute;top:.5rem;right:.5rem;background:var(--warning);
+      color:#fff;padding:.25rem .5rem;border-radius:12px;font-size:.7rem;font-weight:600}
+
+    /* Skeleton Loading */
+    .skeleton{background:linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%);
+      background-size:200% 100%;animation:shimmer 2s infinite}
+    @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+    /* ProLaunch Section */
+    .prolaunch-section{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);
+      padding:2rem;margin-bottom:2rem;border-left:4px solid var(--secondary)}
+    .prolaunch-section h2{color:var(--secondary);margin-bottom:.5rem}
+    .prolaunch-section .subtitle{color:#6b7280;margin-bottom:1.5rem}
+    .feature-list{list-style:none;margin-bottom:1.5rem;display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.5rem}
+    .feature-list li{display:flex;align-items:center;gap:.5rem;padding:.5rem 0}
+    .feature-list li::before{content:"▸";color:var(--secondary);font-weight:bold}
+    .radio-group{margin-bottom:1.5rem}
+    .radio-group h4{margin-bottom:.75rem;color:var(--dark)}
+    .radio-options{display:flex;gap:1rem;flex-wrap:wrap}
+    .radio-option{display:flex;align-items:center;gap:.5rem}
+    .radio-option input[type="radio"]{margin:0}
+    .radio-option label{cursor:pointer;font-weight:500}
+
+    /* Lists */
+    .step-list{list-style:none;margin-bottom:2rem}
+    .step-list li{padding:.75rem 0;border-bottom:1px solid #e5e7eb;display:flex;
+      align-items:center;gap:.75rem}
+    .step-list li:last-child{border-bottom:none}
+    .step-list .step-number{width:24px;height:24px;background:var(--primary);
+      color:#fff;border-radius:50%;display:flex;align-items:center;
+      justify-content:center;font-size:.8rem;font-weight:600}
+
+    .activity-list{list-style:none}
+    .activity-list li{padding:.75rem;background:var(--light);border-radius:var(--radius-sm);
+      margin-bottom:.5rem;font-size:.9rem;display:flex;justify-content:space-between;align-items:center}
+    .activity-time{color:#6b7280;font-size:.8rem}
+
+    /* CSS-only Modal using :target */
+    .modal{position:fixed;top:0;left:0;width:100%;height:100%;
+      background:rgba(0,0,0,.5);z-index:2000;display:none;
+      align-items:center;justify-content:center;padding:1rem}
+    .modal:target{display:flex}
+    .modal-content{background:#fff;border-radius:var(--radius);
+      padding:2rem;max-width:500px;width:100%;position:relative;
+      animation:modalSlide .3s ease}
+    @keyframes modalSlide{from{opacity:0;transform:translateY(-50px)}to{opacity:1;transform:translateY(0)}}
+    .modal-close{position:absolute;top:1rem;right:1rem;background:none;
+      border:none;font-size:1.5rem;cursor:pointer;color:#6b7280;text-decoration:none}
+    .modal h2{margin-bottom:1rem;text-align:center}
+
+    /* AI Assistant Drawer */
+    .ai-assistant{position:fixed;bottom:2rem;right:2rem;z-index:1500}
+    .ai-toggle{width:60px;height:60px;background:var(--gradient);
+      border-radius:50%;border:none;cursor:pointer;box-shadow:var(--shadow-lg);
+      color:#fff;font-size:1.5rem;transition:.3s}
+    .ai-toggle:hover{transform:scale(1.1)}
+
+    .ai-drawer{position:fixed;bottom:0;right:0;width:350px;height:0;
+      background:#fff;border-radius:var(--radius) var(--radius) 0 0;
+      box-shadow:var(--shadow-lg);transition:.3s;overflow:hidden}
+    #ai-toggle:checked + .ai-toggle + .ai-drawer{height:400px;bottom:0}
+    #ai-toggle{display:none}
+    .ai-header{padding:1rem;border-bottom:1px solid #e5e7eb;font-weight:600}
+    .ai-content{padding:1rem;color:#6b7280}
+
+    /* Responsive */
+    @media (max-width:768px){
+      .main-layout{flex-direction:column;gap:.5rem;padding:.5rem}
+      .sidebar{width:100%;position:relative;top:auto}
+      .hero h1{font-size:2rem}
+      .quick-actions{grid-template-columns:1fr}
+      .kpi-section{grid-template-columns:1fr}
+      .btn-group{justify-content:center}
+      .ai-drawer{width:100%;right:0}
+      .radio-options{flex-direction:column}
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav>
+    <div class="container nav-inner">
+      <a href="#" class="logo">KimuntuPro AI</a>
+      <div class="nav-tabs">
+        <a href="#" class="nav-tab">Career</a>
+        <a href="#" class="nav-tab active">Business</a>
+        <a href="#" class="nav-tab">Legal</a>
+      </div>
+      <div class="profile-avatar">BP</div>
+    </div>
+  </nav>
+
+  <!-- Main Layout -->
+  <div class="main-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar" role="navigation" aria-label="Business navigation">
+      <h3>Business Track</h3>
+      <ul class="sidebar-menu">
+        <li><a href="#dashboard" class="active">📊 Dashboard</a></li>
+        <li><a href="#ai-tools">🤖 AI Tools</a></li>
+        <li><a href="#templates">📋 Templates</a></li>
+        <li><a href="#funding">💰 Funding</a></li>
+      </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content" role="main">
+      <!-- Hero Section -->
+      <section class="hero">
+        <h1>Business Track</h1>
+        <p>Plan, fund, and grow with AI.</p>
+        <a href="#coming-soon" class="btn btn-primary">
+          <span>🚀</span> Start Business Plan
+        </a>
+      </section>
+
+      <!-- KPI/Executive Summary -->
+      <section class="kpi-section" role="region" aria-label="Executive dashboard">
+        <div class="kpi-card">
+          <div class="kpi-number">47</div>
+          <div class="kpi-label">Prospects</div>
+          <div class="kpi-subtitle">Daily summary via email (coming soon)</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-number">12</div>
+          <div class="kpi-label">Open Tasks</div>
+          <div class="kpi-subtitle">Daily summary via email (coming soon)</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-number">3</div>
+          <div class="kpi-label">Upcoming Meetings</div>
+          <div class="kpi-subtitle">Daily summary via email (coming soon)</div>
+        </div>
+      </section>
+
+      <!-- Quick Actions -->
+      <section class="quick-actions" role="region" aria-label="Quick actions">
+        <div class="action-card">
+          <span class="icon">📈</span>
+          <h3>Business Plan Generator</h3>
+          <p>Basic plan (Medium/Pro coming soon)</p>
+          <a href="#coming-soon" class="btn btn-primary">Generate Plan</a>
+        </div>
+
+        <div class="action-card">
+          <div class="coming-soon">Coming Soon</div>
+          <span class="icon">🔍</span>
+          <h3>Competitor Analysis</h3>
+          <p>AI-powered market intelligence and competitor insights</p>
+          <a href="#coming-soon" class="btn btn-primary">Analyze Market</a>
+        </div>
+
+        <div class="action-card">
+          <div class="coming-soon">Coming Soon</div>
+          <span class="icon">🎯</span>
+          <h3>Marketing Suite (SEO • Email • Social)</h3>
+          <p>Comprehensive digital marketing automation</p>
+          <a href="#coming-soon" class="btn btn-primary">Launch Campaign</a>
+        </div>
+
+        <div class="action-card">
+          <span class="icon">💰</span>
+          <h3>Funding Strategy</h3>
+          <p>Grants + capital options</p>
+          <a href="#coming-soon" class="btn btn-primary">Find Funding</a>
+        </div>
+
+        <div class="action-card">
+          <div class="coming-soon">Coming Soon</div>
+          <span class="icon">🌐</span>
+          <h3>AI Website Builder</h3>
+          <p>Professional websites with AI-powered design</p>
+          <a href="#coming-soon" class="btn btn-primary">Build Website</a>
+        </div>
+      </section>
+
+      <!-- ProLaunch Virtual Company -->
+      <section class="prolaunch-section" role="region" aria-label="ProLaunch Virtual Company">
+        <h2>ProLaunch Virtual Company</h2>
+        <p class="subtitle">Run CEO, HR, Finance, Sales, Admin & Support with AI.</p>
+
+        <ul class="feature-list">
+          <li>Admin emails & scheduling</li>
+          <li>Cold calling & appointment setting</li>
+          <li>Invoices & payroll</li>
+          <li>Executive reports</li>
+        </ul>
+
+        <div class="radio-group">
+          <h4>Choose your preferred name:</h4>
+          <div class="radio-options">
+            <div class="radio-option">
+              <input type="radio" id="orgai" name="prolaunch-name" value="orgai">
+              <label for="orgai">ProLaunch OrgAI</label>
+            </div>
+            <div class="radio-option">
+              <input type="radio" id="teamai" name="prolaunch-name" value="teamai" checked>
+              <label for="teamai">ProLaunch TeamAI</label>
+            </div>
+            <div class="radio-option">
+              <input type="radio" id="smartoffice" name="prolaunch-name" value="smartoffice">
+              <label for="smartoffice">ProLaunch SmartOffice</label>
+            </div>
+          </div>
+        </div>
+
+        <a href="#coming-soon" class="btn btn-primary">Get Early Access</a>
+      </section>
+
+      <!-- Next Steps -->
+      <section class="card">
+        <h2 style="margin-bottom:1rem">📋 Next Steps</h2>
+        <ol class="step-list" role="list">
+          <li>
+            <span class="step-number">1</span>
+            <span>Define target customer</span>
+          </li>
+          <li>
+            <span class="step-number">2</span>
+            <span>Draft Lean Canvas (v1)</span>
+          </li>
+          <li>
+            <span class="step-number">3</span>
+            <span>Set up digital presence plan (domain, landing, socials)</span>
+          </li>
+        </ol>
+      </section>
+
+      <!-- Recent Activity -->
+      <section class="card">
+        <h2 style="margin-bottom:1rem">🕒 Recent Activity</h2>
+        <ul class="activity-list" role="list">
+          <li>
+            <div>Created draft: Business Plan</div>
+            <div class="activity-time">2 hours ago</div>
+          </li>
+          <li>
+            <div>Saved: Funding strategy draft</div>
+            <div class="activity-time">1 day ago</div>
+          </li>
+          <li>
+            <div>Reviewed: Digital presence checklist</div>
+            <div class="activity-time">3 days ago</div>
+          </li>
+        </ul>
+      </section>
+    </main>
+  </div>
+
+  <!-- AI Assistant -->
+  <div class="ai-assistant">
+    <input type="checkbox" id="ai-toggle">
+    <label for="ai-toggle" class="ai-toggle" aria-label="Open AI assistant">🤖</label>
+    <div class="ai-drawer" role="complementary" aria-label="AI assistant">
+      <div class="ai-header">AI Business Assistant</div>
+      <div class="ai-content">
+        <p>How can I help your business today?</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CSS-only Modal using :target -->
+  <div class="modal" id="coming-soon" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-content">
+      <a href="#" class="modal-close" aria-label="Close modal">&times;</a>
+      <h2 id="modal-title">Coming Soon!</h2>
+      <p style="text-align:center;color:#6b7280;margin-bottom:1.5rem">
+        This feature is currently in development. Stay tuned for updates!
+      </p>
+      <div class="btn-group" style="justify-content:center">
+        <a href="#" class="btn btn-primary">Got it</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
