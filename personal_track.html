@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>KimuntuPro AI - Personal Track</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    :root{
+      --primary:#0369a1;
+      --primary-dark:#075985;
+      --secondary:#0284c7;
+      --success:#10b981;
+      --danger:#ef4444;
+      --warning:#f59e0b;
+      --dark:#1f2937;
+      --light:#cff4fc;
+      --white:#ffffff;
+      --gradient:linear-gradient(135deg,#0284c7 0%,#0369a1 100%);
+      --shadow:0 4px 20px rgba(0,0,0,.1);
+      --shadow-lg:0 10px 40px rgba(0,0,0,.2);
+      --radius:16px;
+      --radius-sm:8px;
+    }
+    html{scroll-behavior:smooth}
+    body{
+      font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+      background:var(--gradient);
+      min-height:100vh;color:var(--dark);
+    }
+    .container{max-width:1400px;margin:0 auto;padding:0 1rem}
+    .main-layout{display:flex;min-height:100vh;gap:1rem;padding:1rem}
+    .sidebar{width:240px;background:rgba(255,255,255,.95);backdrop-filter:blur(10px);
+      border-radius:var(--radius);padding:1rem;box-shadow:var(--shadow);height:fit-content;position:sticky;top:1rem}
+    .main-content{flex:1;background:rgba(255,255,255,.95);backdrop-filter:blur(10px);
+      border-radius:var(--radius);padding:2rem;box-shadow:var(--shadow);min-height:80vh}
+    nav{background:rgba(255,255,255,.98);backdrop-filter:blur(10px);box-shadow:var(--shadow);
+      position:sticky;top:0;z-index:1000;padding:1rem 0}
+    .nav-inner{display:flex;justify-content:space-between;align-items:center}
+    .logo{display:flex;align-items:center;gap:.5rem;text-decoration:none}
+    .nav-tabs{display:flex;gap:.5rem}
+    .nav-tab{padding:.75rem 1.25rem;border-radius:var(--radius-sm);text-decoration:none;
+      font-weight:600;transition:.3s;color:var(--dark)}
+    .nav-tab:hover{background:var(--light)}
+    .nav-tab.active{background:var(--gradient);color:#fff}
+    .profile-avatar{width:40px;height:40px;background:var(--gradient);border-radius:50%;
+      display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700}
+    .sidebar h3{font-size:1.125rem;margin-bottom:1rem;color:var(--dark)}
+    .sidebar-menu{list-style:none}
+    .sidebar-menu li{margin-bottom:.5rem}
+    .sidebar-menu a{display:block;padding:.75rem 1rem;border-radius:var(--radius-sm);
+      text-decoration:none;color:var(--dark);font-weight:500;transition:.3s}
+    .sidebar-menu a:hover{background:var(--light);color:var(--primary)}
+    .sidebar-menu a.active{background:var(--gradient);color:#fff}
+    .card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);
+      padding:1.5rem;margin-bottom:1.5rem;transition:.3s}
+    .card:hover{box-shadow:var(--shadow-lg)}
+    .hero{text-align:center;margin-bottom:2rem}
+    .hero h1{font-size:2.5rem;margin-bottom:.5rem;background:var(--gradient);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .hero p{font-size:1.125rem;color:#6b7280;margin-bottom:1.5rem}
+    .btn{display:inline-flex;align-items:center;padding:.75rem 1.5rem;
+      border-radius:var(--radius-sm);font-weight:600;text-decoration:none;
+      border:none;cursor:pointer;transition:.3s;gap:.5rem}
+    .btn-primary{background:var(--gradient);color:#fff}
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+    .btn-secondary{background:var(--light);color:var(--dark)}
+    .btn-secondary:hover{background:#e5e7eb}
+    .btn-group{display:flex;gap:1rem;flex-wrap:wrap}
+    .feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;margin-top:1rem}
+    .feature-card{padding:1.5rem}
+    .feature-title{font-weight:800;margin:.5rem 0}
+    .muted{color:#6b7280}
+    .feature-list{list-style:none;margin-top:.5rem;color:#374151}
+    .feature-list li{display:flex;gap:.5rem;align-items:flex-start;margin:.375rem 0}
+    .feature-list li::before{content:"✓";color:var(--success);font-weight:800}
+    .about-grid{display:grid;grid-template-columns:1fr;gap:1rem;margin-top:1rem}
+    @media (min-width:900px){.about-grid{grid-template-columns:1fr 1fr}}
+    footer{color:#fff;text-align:center;padding:2rem 0;opacity:.9}
+    @media (max-width:768px){
+      .main-layout{flex-direction:column;gap:.5rem;padding:.5rem}
+      .sidebar{width:100%;position:relative;top:auto}
+      .hero h1{font-size:2rem}
+      .feature-grid{grid-template-columns:1fr}
+      .btn-group{justify-content:center}
+    }
+  </style>
+</head>
+  <body>
+    <!-- NAV -->
+    <nav>
+      <div class="container nav-inner">
+        <a href="#" class="logo">
+          <img src="kimuntu_logo_black.png" alt="KimuntuPro AI Logo" style="height:48px;width:140px;object-fit:cover;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.12);background:#000;" />
+        </a>
+        <div class="nav-tabs">
+          <a href="#personal" class="nav-tab active">Personal</a>
+          <a href="#business" class="nav-tab">Business</a>
+          <a href="#legal" class="nav-tab">Legal</a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Layout -->
+    <div class="main-layout">
+      <!-- Sidebar -->
+      <aside class="sidebar" role="navigation" aria-label="Personal navigation">
+        <h3>Personal Track</h3>
+        <ul class="sidebar-menu">
+          <li><a href="#features" class="active">🧑‍💼 Features</a></li>
+          <li><a href="#about">❓ Why Us</a></li>
+          <li><a href="#privacy">🔒 Privacy</a></li>
+        </ul>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="main-content" role="main">
+        <!-- Hero Section -->
+        <section class="hero">
+          <h1>Personal Track</h1>
+          <p>Level up your career with a CV Builder, Job Matching Platform, and Interview Simulator powered by AI.</p>
+          <div class="btn-group" style="justify-content:center;">
+            <a href="#features" class="btn btn-primary">See Features</a>
+            <a href="#about" class="btn btn-secondary">Learn More</a>
+          </div>
+        </section>
+
+        <!-- Features Section -->
+        <section id="features">
+          <div class="card" style="padding:1.5rem">
+            <h2 style="margin-bottom:.25rem">Personal Track Features</h2>
+            <p class="muted">Focused tools to help you get started and succeed in your career journey.</p>
+            <div class="feature-grid" aria-label="Personal Features">
+              <button class="card feature-card btn" onclick="showFeature('cv')" style="text-align:left;cursor:pointer">
+                <h3 class="feature-title">CV Builder</h3>
+                <ul class="feature-list">
+                  <li>Create a professional CV in minutes</li>
+                  <li>Guided sections and expert tips</li>
+                  <li>Export and share easily</li>
+                </ul>
+              </button>
+              <button class="card feature-card btn" onclick="showFeature('jobmatch')" style="text-align:left;cursor:pointer">
+                <h3 class="feature-title">Job Matching Platform</h3>
+                <ul class="feature-list">
+                  <li>Discover jobs tailored to your profile</li>
+                  <li>AI-powered matching and recommendations</li>
+                  <li>Track applications in one place</li>
+                </ul>
+              </button>
+              <button class="card feature-card btn" onclick="showFeature('interview')" style="text-align:left;cursor:pointer">
+                <h3 class="feature-title">Interview Simulator</h3>
+                <ul class="feature-list">
+                  <li>Practice with realistic interview scenarios</li>
+                  <li>Sentiment analysis and facial recognition</li>
+                  <li>Instant feedback and tailored questions</li>
+                  <li>Industry standards and best practices</li>
+                </ul>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Why Us Section -->
+        <section id="about">
+          <div class="card" style="padding:2rem">
+            <h2 style="text-align:center;margin-bottom:1rem">Why Choose Kimuntu ProLaunch AI</h2>
+            <ul class="feature-list" style="margin-bottom:1.5rem;list-style:none;padding:0;text-align:left;display:inline-block;">
+              <li style="margin-bottom:0.5rem;">✅ <strong>All-in-One Platform:</strong> Career, business, legal, and innovation tools — in one intelligent hub.</li>
+              <li style="margin-bottom:0.5rem;">✅ <strong>AI-Powered Precision:</strong> Personalized solutions for every user.</li>
+              <li style="margin-bottom:0.5rem;">✅ <strong>Secure &amp; Compliant:</strong> GDPR, CCPA, and PIPEDA standards.</li>
+              <li style="margin-bottom:0.5rem;">✅ <strong>Accessible &amp; Multilingual:</strong> Available in English, French, and Spanish.</li>
+              <li style="margin-bottom:0.5rem;">✅ <strong>Future-Ready:</strong> Designed to empower people and organizations for the next era of intelligent innovation.</li>
+            </ul>
+            <p style="font-weight:600;font-size:1.1em;color:var(--primary);margin-top:1rem;">✨ Kimuntu ProLaunch AI — Where Ambition Meets Artificial Intelligence.</p>
+          </div>
+        </section>
+
+        <!-- Privacy Section -->
+        <section id="privacy">
+          <div class="card" style="padding:1.5rem;text-align:center">
+            <h3 style="margin-bottom:0.5rem">Privacy First</h3>
+            <p class="muted">
+              Your information is never shared. Backed by Firebase and AWS for maximum security.
+            </p>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <footer>
+      © <span id="year"></span> KimuntuPro AI — All rights reserved.
+    </footer>
+
+    <div id="feature-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.45);z-index:9999;align-items:center;justify-content:center;">
+      <div style="background:#fff;border-radius:18px;max-width:900px;width:75vw;height:75vh;min-height:400px;display:flex;flex-direction:column;box-shadow:0 8px 32px rgba(0,0,0,0.18);position:relative;overflow:auto;">
+        <button onclick="closeFeature()" style="position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:1.5rem;cursor:pointer;color:#333">&times;</button>
+        <div id="feature-content" style="padding:2.5rem 2rem 1.5rem 2rem;text-align:left;flex:0 0 auto;"></div>
+        <div id="feature-outline" style="padding:0 2rem 2rem 2rem;flex:1 1 auto;overflow:auto;"></div>
+      </div>
+    </div>
+
+    <script>
+      document.getElementById('year').textContent = new Date().getFullYear();
+
+      function showFeature(type) {
+        var modal = document.getElementById('feature-modal');
+        var content = document.getElementById('feature-content');
+        var outline = document.getElementById('feature-outline');
+        var details = {
+          cv: `<h2 style='text-align:center;margin-bottom:0.5rem;'>CV Builder</h2><p style='text-align:center;'>Build a standout CV with our guided tool. Get expert tips for every section and export your CV for easy sharing. Perfect for students and professionals ready to showcase their experience.</p>`,
+          jobmatch: `<h2 style='text-align:center;margin-bottom:0.5rem;'>Job Matching Platform</h2><p style='text-align:center;'>Find jobs that fit your skills and goals. Our AI matches you to opportunities and helps you track your applications, so you never miss a chance.</p>`,
+          interview: `<h2 style='text-align:center;margin-bottom:0.5rem;'>Interview Simulator</h2><p style='text-align:center;'>Practice interviews in a realistic, AI-powered environment. Advanced features include sentiment analysis, facial recognition, and instant feedback. Get tailored questions based on your industry and experience, and learn best practices to stand out in any interview.</p>`
+        };
+        var outlines = {
+          cv: `<div style='text-align:center;'>
+            <h3 style='margin-bottom:0.5rem;'>General Outline</h3>
+            <div style='margin-top:2rem;padding:2rem;background:#f6f8fa;border-radius:12px;max-width:500px;display:inline-block;'>
+              <div style='margin-bottom:1rem;'>
+                <label style='font-weight:600;'>Job Link:</label><br>
+                <input type='text' placeholder='Paste job posting URL...' style='width:100%;padding:0.5rem;border-radius:8px;border:1px solid #ccc;'>
+              </div>
+              <div style='margin-bottom:1rem;'>
+                <label style='font-weight:600;'>Upload Resume:</label><br>
+                <input type='file' style='margin-top:0.5rem;'>
+              </div>
+              <div style='margin-bottom:1rem;'>
+                <label style='font-weight:600;'>Skills You Have:</label><br>
+                <input type='text' placeholder='e.g. Python, Communication, Excel...' style='width:100%;padding:0.5rem;border-radius:8px;border:1px solid #ccc;'>
+                <ul style='margin-top:0.5rem;text-align:left;font-size:0.95em;color:#374151;'>
+                  <li>Python</li>
+                  <li>Communication</li>
+                  <li>Excel</li>
+                  <li>Project Management</li>
+                  <li>Teamwork</li>
+                </ul>
+              </div>
+              <button style='background:var(--primary);color:#fff;padding:0.75rem 1.5rem;border:none;border-radius:8px;font-weight:700;cursor:pointer;'>Tailor My CV</button>
+            </div>
+            <div style='margin-top:2.5rem;'>
+              <h3 style='margin-bottom:0.5rem;'>How It Works</h3>
+              <ul style='margin:0 auto 1.5rem auto;display:inline-block;text-align:left;'>
+                <li><strong>Personal Info:</strong> Name, contact, LinkedIn, etc.</li>
+                <li><strong>Education:</strong> Schools, degrees, dates</li>
+                <li><strong>Experience:</strong> Jobs, internships, achievements</li>
+                <li><strong>Skills:</strong> Technical, soft skills, languages</li>
+                <li><strong>Certifications & Awards:</strong> Relevant recognitions</li>
+                <li><strong>Export:</strong> Download as PDF or share link</li>
+              </ul>
+            </div>
+          </div>`,
+          jobmatch: `<div style='text-align:center;'>
+            <h3 style='margin-bottom:0.5rem;'>General Outline</h3>
+            <div style='margin-top:2rem;padding:2rem;background:#f6f8fa;border-radius:12px;max-width:500px;display:inline-block;'>
+              <div style='margin-bottom:1rem;'>
+                <label style='font-weight:600;'>Your Skills:</label><br>
+                <input type='text' placeholder='e.g. Python, Marketing...' style='width:100%;padding:0.5rem;border-radius:8px;border:1px solid #ccc;'>
+              </div>
+              <div style='margin-bottom:1rem;'>
+                <label style='font-weight:600;'>Work Type:</label><br>
+                <select style='width:100%;padding:0.5rem;border-radius:8px;border:1px solid #ccc;'>
+                  <option>Online</option>
+                  <option>Hybrid</option>
+                  <option>In Person</option>
+                </select>
+              </div>
+              <div style='margin-bottom:1rem;'>
+                <label style='font-weight:600;'>Salary:</label><br>
+                <input type='number' placeholder='e.g. 60000' style='width:60%;padding:0.5rem;border-radius:8px;border:1px solid #ccc;'>
+                <select style='width:38%;padding:0.5rem;border-radius:8px;border:1px solid #ccc;margin-left:2%;'>
+                  <option>USD</option>
+                  <option>CAD</option>
+                  <option>EUR</option>
+                  <option>GBP</option>
+                  <option>Other</option>
+                </select>
+              </div>
+              <div style='margin-bottom:1rem;'>
+                <label style='font-weight:600;'>Location:</label><br>
+                <input type='text' placeholder='e.g. Toronto, Remote...' style='width:100%;padding:0.5rem;border-radius:8px;border:1px solid #ccc;'>
+              </div>
+              <button style='background:var(--primary);color:#fff;padding:0.75rem 1.5rem;border:none;border-radius:8px;font-weight:700;cursor:pointer;'>Find Jobs</button>
+            </div>
+            <div style='margin-top:2.5rem;'>
+              <h3 style='margin-bottom:0.5rem;'>How It Works</h3>
+              <ul style='margin:0 auto 1.5rem auto;display:inline-block;text-align:left;'>
+                <li><strong>Profile Setup:</strong> Enter skills, experience, preferences</li>
+                <li><strong>AI Matching:</strong> See jobs tailored to your profile</li>
+                <li><strong>Recommendations:</strong> Get daily/weekly job suggestions</li>
+                <li><strong>Application Tracker:</strong> Manage and track job applications</li>
+                <li><strong>Notifications:</strong> Alerts for new matches and deadlines</li>
+              </ul>
+            </div>
+          </div>`,
+          interview: `<div style='text-align:center;'>
+            <h3 style='margin-bottom:0.5rem;'>General Outline</h3>
+            <div style='margin-top:2rem;padding:2rem;background:#f6f8fa;border-radius:12px;max-width:500px;display:inline-block;'>
+              <div style='margin-bottom:1rem;'>
+                <label style='font-weight:600;'>Company Website:</label><br>
+                <input type='text' placeholder='Paste company URL...' style='width:100%;padding:0.5rem;border-radius:8px;border:1px solid #ccc;'>
+              </div>
+              <div style='margin-bottom:1rem;'>
+                <label style='font-weight:600;'>Industry:</label><br>
+                <input type='text' placeholder='e.g. Technology, Finance...' style='width:100%;padding:0.5rem;border-radius:8px;border:1px solid #ccc;'>
+              </div>
+              <div style='margin-bottom:1rem;'>
+                <label style='font-weight:600;'>Job Role:</label><br>
+                <input type='text' placeholder='e.g. Software Engineer, Analyst...' style='width:100%;padding:0.5rem;border-radius:8px;border:1px solid #ccc;'>
+              </div>
+              <button style='background:var(--primary);color:#fff;padding:0.75rem 1.5rem;border:none;border-radius:8px;font-weight:700;cursor:pointer;'>Start Simulation</button>
+            </div>
+            <div style='margin-top:2.5rem;'>
+              <h3 style='margin-bottom:0.5rem;'>How It Works</h3>
+              <ul style='margin:0 auto 1.5rem auto;display:inline-block;text-align:left;'>
+                <li><strong>Scenario Selection:</strong> Choose industry, role, difficulty</li>
+                <li><strong>Live Simulation:</strong> Answer questions via text or video</li>
+                <li><strong>Sentiment Analysis:</strong> Real-time feedback on tone and confidence</li>
+                <li><strong>Facial Recognition:</strong> Analyze expressions and engagement</li>
+                <li><strong>Tailored Questions:</strong> AI adapts questions to your background</li>
+                <li><strong>Industry Standards:</strong> Benchmark answers against best practices</li>
+                <li><strong>Summary & Feedback:</strong> Get actionable tips for improvement</li>
+              </ul>
+            </div>
+          </div>`
+        };
+        content.innerHTML = details[type] || '';
+        outline.innerHTML = outlines[type] || '';
+        modal.style.display = 'flex';
+      }
+      function closeFeature() {
+        document.getElementById('feature-modal').style.display = 'none';
+      }
+    </script>
+  </body>
+</html>
