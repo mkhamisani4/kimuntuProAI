@@ -528,7 +528,7 @@ const App = () => {
       case 'business':
         return <BusinessTrack t={t} />;
       case 'legal':
-        return <LegalTrack t={t} />;
+        return <LegalTrack t={t} language={language} />;
       case 'documents':
         return <Documents t={t} />;
       case 'support':
