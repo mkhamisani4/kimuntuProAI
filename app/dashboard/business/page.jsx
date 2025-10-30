@@ -1,8 +1,19 @@
-import BusinessTrack from '@/components/BusinessTrack';
-import { translations } from '@/lib/translations';
+import Hero from '@/components/business/Hero';
+import KPISection from '@/components/business/KPISection';
+import QuickActions from '@/components/business/QuickActions';
+import ProLaunchSection from '@/components/business/ProLaunchSection';
+import NextSteps from '@/components/business/NextSteps';
+import RecentActivity from '@/components/business/RecentActivity';
 
 export default function BusinessPage() {
-  const t = translations.en; // Default to English for now
-
-  return <BusinessTrack t={t} />;
+  return (
+    <div>
+      <Hero />
+      <KPISection />
+      <QuickActions />
+      <ProLaunchSection />
+      <NextSteps />
+      <RecentActivity />
+    </div>
+  );
 }
