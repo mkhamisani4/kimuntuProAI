@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 import { Scale, Shield, FileText, FileCheck, X } from 'lucide-react';
 

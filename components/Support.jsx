@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { HelpCircle, Mail } from 'lucide-react';
 
