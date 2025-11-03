@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { FileText, Target, Zap, BookOpen, TrendingUp, Scale, Briefcase, Users, ChevronRight } from 'lucide-react';
 
