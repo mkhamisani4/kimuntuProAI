@@ -112,17 +112,22 @@ The resume MUST fit on EXACTLY ONE PAGE ONLY. This is ABSOLUTELY NON-NEGOTIABLE.
 - If you cannot fit everything on one page, prioritize the most relevant content
 
 **STEP 1: DEEP JOB DESCRIPTION ANALYSIS (DO THIS FIRST)**
-Before writing anything, thoroughly analyze the job description:
-- **Extract ALL technologies mentioned**: Programming languages, frameworks, tools, platforms, databases, cloud services, etc.
-- **Identify key methodologies**: Agile, Scrum, DevOps, CI/CD, TDD, etc.
-- **List required skills**: Both technical and soft skills explicitly mentioned
-- **Note responsibilities**: What will the person actually do day-to-day?
-- **Identify preferred qualifications**: What would make someone stand out?
-- **Extract industry-specific terms**: Domain-specific terminology and jargon
-- **Note metrics/outcomes they value**: What kind of impact do they care about?
-- **Identify team structure mentions**: Collaboration, cross-functional, remote, etc.
-- **Extract company values/culture**: Innovation, customer-focused, data-driven, etc.
+Before writing anything, thoroughly analyze the job description. Extract EVERYTHING that will be used throughout the resume:
+
+- **Extract ALL technologies mentioned**: Programming languages, frameworks, tools, platforms, databases, cloud services, etc. - These MUST appear in bullet points
+- **Identify key methodologies**: Agile, Scrum, DevOps, CI/CD, TDD, etc. - Use these exact terms
+- **List required skills**: Both technical and soft skills explicitly mentioned - Reference these in bullets
+- **Note responsibilities**: What will the person actually do day-to-day? - Rewrite bullets to show you did these
+- **Identify preferred qualifications**: What would make someone stand out? - Emphasize these in bullets
+- **Extract industry-specific terms**: Domain-specific terminology and jargon - Use these exact phrases
+- **Note metrics/outcomes they value**: What kind of impact do they care about? - Include similar metrics
+- **Identify team structure mentions**: Collaboration, cross-functional, remote, etc. - Use these terms
+- **Extract company values/culture**: Innovation, customer-focused, data-driven, etc. - Match this tone
 - **Note any specific requirements**: Years of experience, certifications, education level
+- **Extract action verbs they use**: "develop", "implement", "design", "manage", etc. - Use these same verbs
+- **Identify their tone**: Technical, business-focused, innovative, collaborative, etc. - Match this exactly
+- **Note their language style**: Formal, casual, technical jargon, business terms, etc. - Mirror this style
+- **Extract key phrases**: "scalable solutions", "high-performance", "user-centric", etc. - Use these phrases
 
 **STEP 2: SKILLS SECTION - INCLUDE ABSOLUTELY EVERYTHING (CRITICAL - NO FILTERING)**
 Create a LONG, comprehensive skills section. This is the MOST IMPORTANT requirement - include EVERYTHING. Do NOT filter, do NOT prioritize, do NOT omit anything. Include ALL skills from ALL sources:
@@ -172,37 +177,53 @@ Create a LONG, comprehensive skills section. This is the MOST IMPORTANT requirem
 
 - Use the section heading "SKILLS" (not "TECHNICAL SKILLS")
 
-**STEP 3: DETAILED BULLET POINT TAILORING (HIGHEST PRIORITY)**
-Each bullet point MUST be completely rewritten to be HIGHLY specific to the job description. This is the most critical aspect:
+**STEP 3: DETAILED BULLET POINT TAILORING (HIGHEST PRIORITY - KEYWORD & SENTIMENT MATCHING)**
+Each bullet point MUST be completely rewritten to be HIGHLY specific to the job description. This is the MOST CRITICAL aspect. The goal is to make EVERY bullet point reference job description keywords and match the job description's sentiment.
 
 For EACH bullet point, follow this process:
-1. **Identify job-relevant elements**: What specific technologies, methodologies, or responsibilities from the job description relate to this experience?
-2. **Extract keywords**: What exact terms, phrases, or technologies does the job description use that you can incorporate?
+1. **Extract keywords from job description**: Identify ALL relevant keywords, phrases, technologies, methodologies, and terminology from the job description that relate to this experience. TRY TO INCLUDE AS MUCH JOB DESCRIPTION KEYWORDS IN THE BULLET POINTS OF THE NEW RESUME.
+2. **Identify sentiment/tone**: Determine the job description's tone (technical, business-focused, innovative, collaborative, data-driven, customer-centric, etc.)
 3. **Rewrite the bullet** to:
-   - **Start with action verbs** that match the job's tone (e.g., if job says "develop", use "Developed"; if job says "implement", use "Implemented")
-   - **Include specific technologies** from the job description (e.g., if job mentions React, TypeScript, AWS - include these in relevant bullets)
-   - **Use exact terminology** from the job description (e.g., if they say "microservices architecture", use that exact phrase)
-   - **Connect to job responsibilities**: Show how your work demonstrates what they're looking for
-   - **Include relevant metrics**: If the job values metrics, include numbers (e.g., "improved performance by 40%", "reduced costs by $50K")
-   - **Show methodology alignment**: If job mentions Agile/Scrum/DevOps, show how you used these
-   - **Demonstrate impact**: Explain the business/technical impact in terms relevant to the role
-   - **Make it specific**: Instead of "worked on projects", say "Developed scalable microservices using React and Node.js that processed 1M+ requests daily"
+   - **Use EXACT action verbs** from the job description (if job says "develop", use "Developed"; if job says "implement", use "Implemented"; if job says "design", use "Designed")
+   - **Include MULTIPLE keywords** from the job description in each bullet (aim for 3-5 keywords per bullet)
+   - **Use EXACT terminology** from the job description (if they say "microservices architecture", use that exact phrase; if they say "scalable solutions", use that phrase)
+   - **Match their tone/sentiment**: If job is technical, be technical; if job is business-focused, emphasize business impact; if job is innovative, use innovative language
+   - **Use their phrases**: If job mentions "high-performance systems", use that phrase; if job mentions "user-centric design", use that phrase
+   - **Reference their responsibilities**: Show how your work directly addresses what they're looking for
+   - **Include similar metrics**: If job values performance metrics, include performance numbers; if job values business metrics, include business numbers
+   - **Show methodology alignment**: If job mentions Agile/Scrum/DevOps, explicitly mention these methodologies
+   - **Demonstrate impact in their terms**: Use their language to describe impact (e.g., if they say "customer satisfaction", use that phrase)
+   - **Make it read like it was written for THIS job**: Every bullet should sound like it was custom-written for this specific position
 
-4. **Example transformations**:
+4. **CRITICAL - KEYWORD DENSITY**: 
+   - **MOST bullet points (at least 80%)** should reference 3-5 keywords from the job description
+   - **EVERY bullet point** should reference at least 1-2 keywords from the job description
+   - **Keywords should appear naturally** throughout the resume, not just in one section
+   - **Use the SAME terminology** the job description uses - don't paraphrase, use their exact words
+
+5. **CRITICAL - SENTIMENT MATCHING**:
+   - **Match their tone exactly**: If job description is enthusiastic, be enthusiastic; if it's formal, be formal; if it's technical, be technical
+   - **Use their style**: If they use short sentences, use short sentences; if they use detailed descriptions, use detailed descriptions
+   - **Match their values**: If they emphasize innovation, emphasize innovation; if they emphasize collaboration, emphasize collaboration
+   - **Use their adjectives**: If they say "scalable", use "scalable"; if they say "robust", use "robust"; if they say "cutting-edge", use "cutting-edge"
+
+6. **Example transformations**:
    - Generic: "Developed web applications"
-   - Tailored (if job mentions React, TypeScript, AWS): "Developed responsive web applications using React and TypeScript, deployed on AWS with CI/CD pipelines, serving 10K+ daily active users"
+   - Tailored (if job mentions React, TypeScript, AWS, scalable, high-performance): "Developed scalable, high-performance web applications using React and TypeScript, deployed on AWS with CI/CD pipelines, serving 10K+ daily active users and improving response times by 40%"
    
    - Generic: "Managed team projects"
-   - Tailored (if job mentions Agile, stakeholder management): "Led cross-functional Agile teams of 5+ developers, managing stakeholder requirements and delivering features in 2-week sprints"
+   - Tailored (if job mentions Agile, stakeholder management, cross-functional, collaboration): "Led cross-functional Agile teams of 5+ developers, collaborating with stakeholders to manage requirements and deliver features in 2-week sprints, improving team velocity by 30%"
 
    - Generic: "Worked with databases"
-   - Tailored (if job mentions PostgreSQL, data optimization): "Optimized PostgreSQL database queries reducing query time by 60%, implementing indexing strategies for high-traffic applications"
+   - Tailored (if job mentions PostgreSQL, data optimization, performance, scalability): "Optimized PostgreSQL database queries for improved performance and scalability, reducing query time by 60% through indexing strategies for high-traffic applications processing 1M+ requests daily"
 
-5. **Every bullet must**:
-   - Reference at least one specific technology, methodology, or responsibility from the job description
-   - Use terminology that matches the job description's language
+7. **Every bullet MUST**:
+   - Reference at least 1-2 keywords from the job description (preferably 3-5)
+   - Use terminology that EXACTLY matches the job description's language
+   - Match the sentiment/tone of the job description
    - Show clear relevance to what the employer is looking for
-   - Be specific enough that it reads like it was written for this exact job
+   - Sound like it was written specifically for this exact job
+   - Use the same action verbs, adjectives, and phrases as the job description
 
 **STEP 4: EXPERIENCE SECTION TAILORING**
 - **Reorder experiences**: Put the most relevant experience first (based on job description requirements)
@@ -255,11 +276,17 @@ For EACH bullet point, follow this process:
 **STEP 9: FINAL TAILORING CHECKLIST**
 Before finalizing, ensure:
 - ✓ Every major requirement from the job description is addressed in at least one bullet point
-- ✓ Key technologies from the job description appear throughout the resume
-- ✓ Terminology matches the job description's language
+- ✓ Key technologies from the job description appear throughout the resume (in bullets, not just skills)
+- ✓ Terminology EXACTLY matches the job description's language (use their exact words)
+- ✓ At least 80% of bullet points reference 3-5 keywords from the job description
+- ✓ ALL bullet points reference at least 1-2 keywords from the job description
+- ✓ The sentiment/tone matches the job description exactly (technical, business-focused, innovative, etc.)
+- ✓ Action verbs match the job description's style
+- ✓ Adjectives and phrases match the job description's language
 - ✓ Skills section includes relevant skills from both user experience AND job description
 - ✓ Bullet points are specific and descriptive, not generic
 - ✓ The resume reads like it was written specifically for this job
+- ✓ Keywords from the job description appear naturally throughout the resume
 - ✓ All content fits on one page
 
 **RESUME STRUCTURE** (in this exact order):
@@ -301,7 +328,7 @@ ${personalProjects ? `Personal Projects: ${personalProjects}` : ''}
 ${education ? `Education: ${education}` : ''}
 ${miscInfo ? `Miscellaneous Information: ${miscInfo}` : ''}
 
-Generate a highly tailored, one-page resume that perfectly matches this job description.`;
+Generate a highly tailored, one-page resume that perfectly matches this job description, really make sure to incorporate the keywords and sentiment of the job description. Make each bullet point sound like it was custom-written specifically for this exact job and make it descriptive.`;
 
   try {
     const completion = await openai.chat.completions.create({
@@ -309,7 +336,7 @@ Generate a highly tailored, one-page resume that perfectly matches this job desc
       messages: [
         {
           role: 'system',
-          content: 'You are an expert resume writer specializing in creating highly tailored, one-page resumes that perfectly match specific job descriptions. You excel at deeply analyzing job descriptions, extracting all relevant skills and requirements, and completely rewriting every bullet point to be highly specific and descriptive. You are skilled at combining skills from user experience with skills from job descriptions to create comprehensive, tailored resumes that read like they were custom-written for each specific job.'
+          content: 'You are an expert resume writer specializing in creating highly tailored, one-page resumes that perfectly match specific job descriptions. You excel at deeply analyzing job descriptions to extract ALL keywords, phrases, terminology, and sentiment. You completely rewrite every bullet point to reference 3-5 keywords from the job description and match the job description\'s exact tone, style, and language. You use the same action verbs, adjectives, and phrases as the job description. You are skilled at combining skills from user experience with skills from job descriptions to create comprehensive, tailored resumes where every bullet point sounds like it was custom-written specifically for this exact job.'
         },
         {
           role: 'user',
