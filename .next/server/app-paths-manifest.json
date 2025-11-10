@@ -1,0 +1,11 @@
+{
+  "/page": "app/page.js",
+  "/auth/login/page": "app/auth/login/page.js",
+  "/dashboard/page": "app/dashboard/page.js",
+  "/dashboard/overview/page": "app/dashboard/overview/page.js",
+  "/dashboard/career/page": "app/dashboard/career/page.js",
+  "/dashboard/legal/page": "app/dashboard/legal/page.js",
+  "/dashboard/business/page": "app/dashboard/business/page.js",
+  "/dashboard/documents/page": "app/dashboard/documents/page.js",
+  "/dashboard/support/page": "app/dashboard/support/page.js"
+}
