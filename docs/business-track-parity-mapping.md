@@ -414,5 +414,3 @@ This migration preserves the **structure and functionality** of the Business Tra
 4. Run lint and build outputs
 
 ---
-
-Generated with Claude Code

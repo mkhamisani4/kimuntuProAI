@@ -452,6 +452,3 @@ Production build results:
 - [Tailwind CSS with Next.js](https://tailwindcss.com/docs/guides/nextjs)
 
 ---
-
-**Migration completed successfully!** 🎉
-For questions or issues, contact the development team.
