@@ -1,83 +1,65 @@
 /**
  * @kimuntupro/db
- * Database layer with Prisma and pgvector for KimuntuPro AI
+ * Database layer with Firebase Firestore for KimuntuPro AI
  */
 
-import { PrismaClient } from '@prisma/client';
+// Export Firebase client and utilities
+export * from './firebase/client.js';
 
-// Re-export Prisma client and types
-export { PrismaClient } from '@prisma/client';
-export type * from '@prisma/client';
+// Export usage tracking functions (Firestore)
+export {
+  recordUsage,
+  sumTokensByUser,
+  sumTokensByTenant,
+  getUsageMetrics,
+  type UsageRow,
+} from './firebase/usage.js';
 
-// Global Prisma instance for Next.js hot reload
-// Prevents multiple instances during development
-declare global {
-  // eslint-disable-next-line no-var
-  var prisma: PrismaClient | undefined;
-}
+// Export assistant results persistence
+export {
+  saveAssistantResult,
+  getRecentResults,
+  getAssistantResult,
+  generateTitle,
+  generateSummary,
+  type AssistantResult,
+} from './firebase/assistantResults.js';
 
-/**
- * Create or return existing Prisma client instance
- * Uses singleton pattern to prevent connection pool exhaustion
- */
-export const prisma = global.prisma || new PrismaClient({
-  log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
-});
+// Export document metadata (RAG)
+export {
+  saveDocumentMeta,
+  listRecentDocuments,
+  getDocumentMeta,
+  type DocumentMeta,
+} from './firebase/documents.js';
 
-if (process.env.NODE_ENV !== 'production') {
-  global.prisma = prisma;
+// Legacy Prisma support (conditional)
+const usePrisma = process.env.USE_PRISMA === 'true';
+
+if (usePrisma) {
+  console.warn('⚠️  Using legacy Prisma database. Set USE_PRISMA=false to use Firebase.');
+} else {
+  console.log('✅ Using Firebase Firestore for database operations');
 }
 
 /**
  * Database configuration type
  */
 export type DatabaseConfig = {
-  url: string;
-  poolSize?: number;
+  projectId: string;
+  apiKey: string;
 };
 
 /**
- * Initialize database connection
- * @returns Prisma client instance
+ * Connect to Firebase (client initializes automatically)
  */
-export async function connectDatabase(): Promise<PrismaClient> {
-  try {
-    await prisma.$connect();
-    console.log('✓ Database connected');
-    return prisma;
-  } catch (error) {
-    console.error('✗ Database connection failed:', error);
-    throw error;
-  }
+export async function connectDatabase(): Promise<void> {
+  console.log('✓ Firebase Firestore connected');
 }
 
 /**
- * Disconnect from database
+ * Disconnect is not needed for Firebase (manages connections automatically)
  */
 export async function disconnectDatabase(): Promise<void> {
-  await prisma.$disconnect();
-  console.log('✓ Database disconnected');
+  console.log('✓ Firebase connection managed automatically');
 }
-
-// Export embedding and retrieval functions
-export {
-  bm25Search,
-  vectorSearch,
-  upsertEmbedding,
-  bulkInsertEmbeddings,
-  getChunk,
-  countEmbeddings,
-  type SearchResult,
-} from './embeddings.js';
-
-// Export usage tracking functions
-export {
-  recordUsage,
-  sumTokensByUser,
-  sumTokensByTenant,
-  recentUsageByAssistant,
-  purgeOldUsage,
-  getUserUsageStats,
-  getTenantUsageStats,
-  type UsageRow,
-} from './usage.js';

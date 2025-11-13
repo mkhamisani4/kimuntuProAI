@@ -7,7 +7,7 @@ import type { AssistantResponse, AssistantSource } from '@kimuntupro/shared';
  * Validation issue
  */
 export interface ValidationIssue {
-    code: 'NO_SOURCES_SECTION' | 'MISSING_CITATION_TARGET' | 'UNMAPPED_CITATION_MARKER' | 'UNSUPPORTED_SOURCE_TYPE' | 'UNSUPPORTED_RECENCY' | 'UNGROUNDED_NUMBER' | 'SUSPICIOUS_MAGNITUDE' | 'PROMPT_INJECTION_DETECTED' | 'PII_LEAKAGE' | 'EMPTY_REQUIRED_SECTION';
+    code: 'NO_SOURCES_SECTION' | 'MISSING_CITATION_TARGET' | 'UNMAPPED_CITATION_MARKER' | 'UNSUPPORTED_SOURCE_TYPE' | 'UNSUPPORTED_RECENCY' | 'UNGROUNDED_NUMBER' | 'SUSPICIOUS_MAGNITUDE' | 'PROMPT_INJECTION_DETECTED' | 'PII_LEAKAGE' | 'EMPTY_REQUIRED_SECTION' | 'MISSING_SECTION_CITATION';
     message: string;
     meta?: Record<string, any>;
     severity: 'warning' | 'error';
@@ -38,6 +38,15 @@ export declare function extractCitationMarkers(text: string): string[];
  */
 export declare function validateCitationMapping(rawText: string, ragSources: AssistantSource[], webSources: AssistantSource[]): ValidationIssue[];
 /**
+ * Validate that each section contains at least one citation (Phase 5)
+ * Required when retrieval or web search is used
+ *
+ * @param response - Assistant response
+ * @param requirePerSectionCitations - Whether to enforce citations per section
+ * @returns Array of validation issues
+ */
+export declare function validatePerSectionCitations(response: AssistantResponse, requirePerSectionCitations: boolean): ValidationIssue[];
+/**
  * Validate citations in response
  * Combines all citation checks
  *
@@ -47,6 +56,7 @@ export declare function validateCitationMapping(rawText: string, ragSources: Ass
  */
 export declare function validateCitations(response: AssistantResponse, context: {
     requireSourcesSection: boolean;
+    requirePerSectionCitations?: boolean;
 }): ValidationIssue[];
 /**
  * Find section by name (case-insensitive)

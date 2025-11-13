@@ -42,6 +42,11 @@ export interface AssistantResponse {
         tokensUsed: number;
         latencyMs: number;
         cost: number;
+        toolInvocations?: {
+            retrieval?: number;
+            webSearch?: number;
+            finance?: number;
+        };
     };
 }
 /**

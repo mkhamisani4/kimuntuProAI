@@ -74,4 +74,27 @@ export declare function getCurrentQuotaUsage(params: {
     };
     resetsAtISO: string;
 }>;
+/**
+ * Log usage after a successful request (Phase 5)
+ * Records usage to database for tracking and analytics
+ *
+ * @param params - Usage parameters
+ * @returns Promise resolving when logged
+ */
+export declare function logRequestUsage(params: {
+    tenantId: string;
+    userId: string;
+    assistant: string;
+    model: string;
+    tokensIn: number;
+    tokensOut: number;
+    costCents: number;
+    latencyMs: number;
+    toolInvocations?: {
+        retrieval?: number;
+        webSearch?: number;
+        finance?: number;
+    };
+    requestId?: string;
+}): Promise<void>;
 //# sourceMappingURL=quota.d.ts.map

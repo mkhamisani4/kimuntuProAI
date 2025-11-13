@@ -1,5 +1,5 @@
 /**
- * Tests for Quota Enforcement Module (Step 11)
+ * Tests for Quota Enforcement Module (Step 11 + Phase 5)
  */
 
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
@@ -9,6 +9,7 @@ import {
   assertQuotasOk,
   assertPerRequestCapsOk,
   getCurrentQuotaUsage,
+  logRequestUsage, // Phase 5: New function
 } from '../../src/usage/quota.js';
 import { QuotaError } from '@kimuntupro/shared';
 
@@ -16,6 +17,7 @@ import { QuotaError } from '@kimuntupro/shared';
 vi.mock('@kimuntupro/db', () => ({
   sumTokensByUser: vi.fn(),
   sumTokensByTenant: vi.fn(),
+  recordUsage: vi.fn(), // Phase 5: Mock new function
 }));
 
 describe('checkQuotas', () => {
@@ -369,6 +371,161 @@ describe('getCurrentQuotaUsage', () => {
 
     expect(usage.user.tokensUsed).toBe(110000);
     expect(usage.user.tokensRemaining).toBe(0); // Should be max(0, ...)
+  });
+});
+
+describe('logRequestUsage (Phase 5)', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('should log usage to database', async () => {
+    const { recordUsage } = await import('@kimuntupro/db');
+    vi.mocked(recordUsage).mockResolvedValue();
+
+    await logRequestUsage({
+      tenantId: 'tenant1',
+      userId: 'user1',
+      assistant: 'streamlined_plan',
+      model: 'gpt-4o-mini',
+      tokensIn: 1000,
+      tokensOut: 2000,
+      costCents: 25,
+      latencyMs: 3500,
+      toolInvocations: {
+        retrieval: 1,
+        webSearch: 0,
+      },
+      requestId: 'req-123',
+    });
+
+    expect(recordUsage).toHaveBeenCalledTimes(1);
+    expect(recordUsage).toHaveBeenCalledWith({
+      tenantId: 'tenant1',
+      userId: 'user1',
+      assistant: 'streamlined_plan',
+      model: 'gpt-4o-mini',
+      tokensIn: 1000,
+      tokensOut: 2000,
+      totalTokens: 3000,
+      costCents: 25,
+      latencyMs: 3500,
+      toolInvocations: {
+        retrieval: 1,
+        webSearch: 0,
+      },
+      requestId: 'req-123',
+    });
+  });
+
+  it('should calculate total tokens correctly', async () => {
+    const { recordUsage } = await import('@kimuntupro/db');
+    vi.mocked(recordUsage).mockResolvedValue();
+
+    await logRequestUsage({
+      tenantId: 'tenant1',
+      userId: 'user1',
+      assistant: 'market_analysis',
+      model: 'gpt-4o-mini',
+      tokensIn: 1500,
+      tokensOut: 2500,
+      costCents: 30,
+      latencyMs: 4000,
+    });
+
+    const callArgs = vi.mocked(recordUsage).mock.calls[0][0];
+    expect(callArgs.totalTokens).toBe(4000);
+  });
+
+  it('should handle missing tool invocations', async () => {
+    const { recordUsage } = await import('@kimuntupro/db');
+    vi.mocked(recordUsage).mockResolvedValue();
+
+    await logRequestUsage({
+      tenantId: 'tenant1',
+      userId: 'user1',
+      assistant: 'exec_summary',
+      model: 'gpt-4o-mini',
+      tokensIn: 800,
+      tokensOut: 1200,
+      costCents: 20,
+      latencyMs: 2500,
+      // toolInvocations not provided
+    });
+
+    const callArgs = vi.mocked(recordUsage).mock.calls[0][0];
+    expect(callArgs.toolInvocations).toEqual({});
+  });
+
+  it('should not throw on database errors', async () => {
+    const { recordUsage } = await import('@kimuntupro/db');
+    vi.mocked(recordUsage).mockRejectedValue(new Error('DB connection failed'));
+
+    // Should not throw - usage tracking is non-blocking
+    await expect(
+      logRequestUsage({
+        tenantId: 'tenant1',
+        userId: 'user1',
+        assistant: 'streamlined_plan',
+        model: 'gpt-4o-mini',
+        tokensIn: 1000,
+        tokensOut: 2000,
+        costCents: 25,
+        latencyMs: 3500,
+      })
+    ).resolves.toBeUndefined();
+  });
+
+  it('should log console message on success', async () => {
+    const { recordUsage } = await import('@kimuntupro/db');
+    vi.mocked(recordUsage).mockResolvedValue();
+
+    const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+
+    await logRequestUsage({
+      tenantId: 'tenant1',
+      userId: 'user1',
+      assistant: 'streamlined_plan',
+      model: 'gpt-4o-mini',
+      tokensIn: 1000,
+      tokensOut: 2000,
+      costCents: 25,
+      latencyMs: 3500,
+    });
+
+    expect(consoleLogSpy).toHaveBeenCalledWith(
+      expect.stringContaining('[Usage] Logged usage for streamlined_plan')
+    );
+    expect(consoleLogSpy).toHaveBeenCalledWith(
+      expect.stringContaining('3000 tokens')
+    );
+
+    consoleLogSpy.mockRestore();
+  });
+
+  it('should log console error on failure', async () => {
+    const { recordUsage } = await import('@kimuntupro/db');
+    vi.mocked(recordUsage).mockRejectedValue(new Error('DB error'));
+
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    await logRequestUsage({
+      tenantId: 'tenant1',
+      userId: 'user1',
+      assistant: 'streamlined_plan',
+      model: 'gpt-4o-mini',
+      tokensIn: 1000,
+      tokensOut: 2000,
+      costCents: 25,
+      latencyMs: 3500,
+    });
+
+    // console.error is called with multiple arguments, check the first one
+    expect(consoleErrorSpy).toHaveBeenCalled();
+    const errorCall = consoleErrorSpy.mock.calls[0];
+    expect(errorCall[0]).toContain('[Usage] Failed to log usage');
+
+    consoleErrorSpy.mockRestore();
   });
 });
 

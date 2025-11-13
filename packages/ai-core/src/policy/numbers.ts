@@ -121,13 +121,13 @@ export function isNumberGrounded(
   value: number,
   financeJson: any,
   tolerance: {
-    currencyPct: number; // Default: 0.01 (1%)
+    currencyPct: number; // Default: 0.02 (2%) - Phase 5 requirement
     percentagePp: number; // Default: 0.5 (0.5 percentage points)
-    countPct: number; // Default: 0.005 (0.5%)
+    countPct: number; // Default: 0.01 (1%)
   } = {
-    currencyPct: 0.01,
+    currencyPct: 0.02,
     percentagePp: 0.5,
-    countPct: 0.005,
+    countPct: 0.01,
   }
 ): boolean {
   if (!financeJson) return false;

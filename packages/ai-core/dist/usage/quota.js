@@ -3,7 +3,7 @@
  * Enforces per-user, per-tenant, and per-request quotas
  */
 import { QuotaError } from '@kimuntupro/shared';
-import { sumTokensByUser, sumTokensByTenant } from '@kimuntupro/db';
+import { sumTokensByUser, sumTokensByTenant, recordUsage } from '@kimuntupro/db';
 /**
  * Get start of day in UTC
  *
@@ -196,5 +196,35 @@ export async function getCurrentQuotaUsage(params) {
         },
         resetsAtISO,
     };
+}
+/**
+ * Log usage after a successful request (Phase 5)
+ * Records usage to database for tracking and analytics
+ *
+ * @param params - Usage parameters
+ * @returns Promise resolving when logged
+ */
+export async function logRequestUsage(params) {
+    const { tenantId, userId, assistant, model, tokensIn, tokensOut, costCents, latencyMs, toolInvocations = {}, requestId, } = params;
+    try {
+        await recordUsage({
+            tenantId,
+            userId,
+            assistant,
+            model,
+            tokensIn,
+            tokensOut,
+            totalTokens: tokensIn + tokensOut,
+            costCents,
+            latencyMs,
+            toolInvocations,
+            requestId,
+        });
+        console.log(`[Usage] Logged usage for ${assistant}: ${tokensIn + tokensOut} tokens, ${costCents}¢, ${latencyMs}ms`);
+    }
+    catch (error) {
+        // Log but don't throw - usage tracking should not block requests
+        console.error('[Usage] Failed to log usage:', error.message);
+    }
 }
 //# sourceMappingURL=quota.js.map

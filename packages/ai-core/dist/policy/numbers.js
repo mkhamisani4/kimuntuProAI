@@ -89,9 +89,9 @@ export function extractNumbers(text, section) {
  * @returns True if grounded
  */
 export function isNumberGrounded(value, financeJson, tolerance = {
-    currencyPct: 0.01,
+    currencyPct: 0.02,
     percentagePp: 0.5,
-    countPct: 0.005,
+    countPct: 0.01,
 }) {
     if (!financeJson)
         return false;

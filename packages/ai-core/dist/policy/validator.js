@@ -15,6 +15,8 @@ function loadPolicyConfig() {
         requireSources: process.env.POLICY_REQUIRE_SOURCES !== 'false',
         strictNumbers: process.env.POLICY_STRICT_NUMBERS !== 'false',
         blockPII: process.env.POLICY_BLOCK_PII_IN_OUTPUT !== 'false',
+        enforce: process.env.POLICY_ENFORCE === 'true', // Phase 5: Default false for backward compatibility
+        requirePerSectionCitations: process.env.POLICY_REQUIRE_SECTION_CITATIONS === 'true', // Phase 5
     };
 }
 /**
@@ -129,6 +131,7 @@ export function validateOutput(response, context) {
     // 1. Citation validation
     const citationIssues = validateCitationsInternal(response, {
         requireSourcesSection: config.requireSources,
+        requirePerSectionCitations: config.requirePerSectionCitations, // Phase 5
     });
     issues.push(...citationIssues);
     // 2. Number validation
@@ -148,8 +151,18 @@ export function validateOutput(response, context) {
         const sectionIssues = validateRequiredSections(response, context.requiredSections);
         issues.push(...sectionIssues);
     }
-    // Determine validity (no errors)
-    const valid = !issues.some((i) => i.severity === 'error');
+    // Determine validity
+    // Phase 5: When POLICY_ENFORCE=true, errors block the response
+    // Otherwise, only log warnings/errors but allow response through
+    let valid;
+    if (config.enforce) {
+        // Strict mode: Any error-severity issue blocks the response
+        valid = !issues.some((i) => i.severity === 'error');
+    }
+    else {
+        // Permissive mode: Log issues but don't block (backward compatible)
+        valid = true;
+    }
     // Build disclaimer
     const disclaimer = buildDisclaimer(context.assistant, issues, {
         webSources,

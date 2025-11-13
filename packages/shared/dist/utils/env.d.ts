@@ -62,7 +62,7 @@ declare const EnvSchema: z.ZodObject<{
     FEATURE_MARKET_ANALYSIS_ENABLED: boolean;
     BATCH_ENABLED: boolean;
     BATCH_CHECK_INTERVAL_MS: number;
-    LOG_LEVEL: "debug" | "info" | "warn" | "error";
+    LOG_LEVEL: "error" | "debug" | "info" | "warn";
     ENABLE_USAGE_TRACKING: boolean;
     ENABLE_POLICY_VALIDATION: boolean;
     ENABLE_PROMPT_CACHING: boolean;
@@ -94,7 +94,7 @@ declare const EnvSchema: z.ZodObject<{
     FEATURE_MARKET_ANALYSIS_ENABLED?: boolean | undefined;
     BATCH_ENABLED?: boolean | undefined;
     BATCH_CHECK_INTERVAL_MS?: number | undefined;
-    LOG_LEVEL?: "debug" | "info" | "warn" | "error" | undefined;
+    LOG_LEVEL?: "error" | "debug" | "info" | "warn" | undefined;
     ENABLE_USAGE_TRACKING?: boolean | undefined;
     ENABLE_POLICY_VALIDATION?: boolean | undefined;
     ENABLE_PROMPT_CACHING?: boolean | undefined;

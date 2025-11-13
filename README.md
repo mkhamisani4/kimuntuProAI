@@ -1,5 +1,7 @@
 # Kimuntu ProLaunch AI
 
+**Version:** Alpha v1.0.0 (January 2025)
+
 **Empowering Your Future with AI**
 
 A comprehensive platform for career development, business growth, and legal assistance powered by cutting-edge artificial intelligence.

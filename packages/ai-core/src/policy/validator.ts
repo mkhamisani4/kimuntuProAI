@@ -36,12 +36,16 @@ function loadPolicyConfig(): {
   requireSources: boolean;
   strictNumbers: boolean;
   blockPII: boolean;
+  enforce: boolean; // Phase 5: Block requests on policy violations
+  requirePerSectionCitations: boolean; // Phase 5: Citation per section
 } {
   return {
     recentMonths: Number(process.env.POLICY_RECENT_MONTHS ?? 9),
     requireSources: process.env.POLICY_REQUIRE_SOURCES !== 'false',
     strictNumbers: process.env.POLICY_STRICT_NUMBERS !== 'false',
     blockPII: process.env.POLICY_BLOCK_PII_IN_OUTPUT !== 'false',
+    enforce: process.env.POLICY_ENFORCE === 'true', // Phase 5: Default false for backward compatibility
+    requirePerSectionCitations: process.env.POLICY_REQUIRE_SECTION_CITATIONS === 'true', // Phase 5
   };
 }
 
@@ -197,6 +201,7 @@ export function validateOutput(
   // 1. Citation validation
   const citationIssues = validateCitationsInternal(response, {
     requireSourcesSection: config.requireSources,
+    requirePerSectionCitations: config.requirePerSectionCitations, // Phase 5
   });
   issues.push(...citationIssues);
 
@@ -232,8 +237,17 @@ export function validateOutput(
     issues.push(...sectionIssues);
   }
 
-  // Determine validity (no errors)
-  const valid = !issues.some((i) => i.severity === 'error');
+  // Determine validity
+  // Phase 5: When POLICY_ENFORCE=true, errors block the response
+  // Otherwise, only log warnings/errors but allow response through
+  let valid: boolean;
+  if (config.enforce) {
+    // Strict mode: Any error-severity issue blocks the response
+    valid = !issues.some((i) => i.severity === 'error');
+  } else {
+    // Permissive mode: Log issues but don't block (backward compatible)
+    valid = true;
+  }
 
   // Build disclaimer
   const disclaimer = buildDisclaimer(
