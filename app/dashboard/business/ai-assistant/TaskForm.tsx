@@ -3,25 +3,32 @@
 /**
  * TaskForm Component
  * Input form for selecting assistant type and entering prompts
+ * Enhanced with character counter, validation, and toast notifications
  */
 
 import { useState, useEffect } from 'react';
 import { auth } from '@/lib/firebase';
+import { toast } from '@/components/ai/Toast';
 import type { AssistantResult } from './page';
 
 interface TaskFormProps {
   onResult: (result: AssistantResult) => void;
   onError: (error: { type: 'quota' | 'auth' | 'server'; message: string; resetsAt?: string }) => void;
+  assistant?: 'streamlined_plan' | 'exec_summary' | 'market_analysis';
+  onLoadingChange?: (isLoading: boolean) => void;
 }
 
 type AssistantType = 'streamlined_plan' | 'exec_summary' | 'market_analysis';
 
-export default function TaskForm({ onResult, onError }: TaskFormProps) {
-  const [assistant, setAssistant] = useState<AssistantType>('streamlined_plan');
+export default function TaskForm({ onResult, onError, assistant: assistantProp, onLoadingChange }: TaskFormProps) {
+  const [assistant, setAssistant] = useState<AssistantType>(assistantProp || 'streamlined_plan');
   const [input, setInput] = useState('');
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
+  // Character limit for input
+  const MAX_INPUT_LENGTH = 1000;
 
   // Finance fields for exec_summary
   const [arpu, setArpu] = useState('99');
@@ -70,17 +77,28 @@ export default function TaskForm({ onResult, onError }: TaskFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Validation
     if (!input.trim()) {
-      onError({ type: 'server', message: 'Please enter a prompt' });
+      toast.error('Please enter a prompt before generating');
+      return;
+    }
+
+    if (input.length > MAX_INPUT_LENGTH) {
+      toast.error(`Prompt is too long. Maximum ${MAX_INPUT_LENGTH} characters`);
       return;
     }
 
     if (!currentUserId) {
+      toast.error('Please sign in to use the AI assistant');
       onError({ type: 'auth', message: 'Please sign in to use the AI assistant' });
       return;
     }
 
     setIsLoading(true);
+    onLoadingChange?.(true);
+
+    // Show loading toast
+    const toastId = toast.loading('Generating your response...');
 
     try {
       // Build request body
@@ -137,18 +155,21 @@ export default function TaskForm({ onResult, onError }: TaskFormProps) {
       }
 
       // Success
+      toast.success('✓ Response generated successfully', { id: toastId });
       onResult({
         sections: data.sections,
         sources: data.sources || [],
         meta: data.meta,
       });
     } catch (error: any) {
+      toast.error('Failed to generate response', { id: toastId });
       onError({
         type: 'server',
         message: error.message || 'Network error',
       });
     } finally {
       setIsLoading(false);
+      onLoadingChange?.(false);
     }
   };
 
@@ -180,14 +201,35 @@ export default function TaskForm({ onResult, onError }: TaskFormProps) {
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Prompt
           </label>
-          <textarea
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder={currentTask.placeholder}
-            rows={6}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-            disabled={isLoading}
-          />
+          <div className="relative">
+            <textarea
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder={currentTask.placeholder}
+              rows={6}
+              maxLength={MAX_INPUT_LENGTH}
+              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:border-transparent resize-none ${
+                input.length > MAX_INPUT_LENGTH
+                  ? 'border-red-500 focus:ring-red-500'
+                  : 'border-gray-300 focus:ring-blue-500'
+              }`}
+              disabled={isLoading}
+              aria-label="Prompt input"
+            />
+            {/* Character Counter */}
+            <div
+              className={`absolute bottom-2 right-2 text-xs ${
+                input.length > MAX_INPUT_LENGTH
+                  ? 'text-red-600 font-semibold'
+                  : input.length > MAX_INPUT_LENGTH * 0.9
+                  ? 'text-amber-600'
+                  : 'text-gray-500'
+              }`}
+              data-testid="character-counter"
+            >
+              {input.length}/{MAX_INPUT_LENGTH}
+            </div>
+          </div>
         </div>
 
         {/* Advanced Options (Finance Fields for #109) */}
@@ -285,12 +327,13 @@ export default function TaskForm({ onResult, onError }: TaskFormProps) {
         {/* Submit Button */}
         <button
           type="submit"
-          disabled={isLoading || !input.trim()}
+          disabled={isLoading || !input.trim() || input.length > MAX_INPUT_LENGTH}
           className={`w-full py-3 px-6 rounded-lg font-medium transition-colors ${
-            isLoading || !input.trim()
+            isLoading || !input.trim() || input.length > MAX_INPUT_LENGTH
               ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
               : 'bg-blue-600 text-white hover:bg-blue-700'
           }`}
+          aria-label="Run Assistant"
         >
           {isLoading ? (
             <span className="flex items-center justify-center">

@@ -24,6 +24,7 @@ export interface AssistantResult {
     tokensOut: number;
     costCents: number;
     latencyMs: number;
+    timestamp?: string; // ISO timestamp for web search data freshness
   };
 }
 

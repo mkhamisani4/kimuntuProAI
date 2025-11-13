@@ -1,34 +1,23 @@
 /**
  * @kimuntupro/db
- * Database layer with Prisma and pgvector for KimuntuPro AI
+ * Database layer with Firebase Firestore for KimuntuPro AI
  */
-import { PrismaClient } from '@prisma/client';
-export { PrismaClient } from '@prisma/client';
-export type * from '@prisma/client';
-declare global {
-    var prisma: PrismaClient | undefined;
-}
-/**
- * Create or return existing Prisma client instance
- * Uses singleton pattern to prevent connection pool exhaustion
- */
-export declare const prisma: PrismaClient<import(".prisma/client").Prisma.PrismaClientOptions, never, import("@prisma/client/runtime/library").DefaultArgs>;
+export * from './firebase/client.js';
+export { recordUsage, sumTokensByUser, sumTokensByTenant, getUsageMetrics, type UsageRow, } from './firebase/usage.js';
+export { saveAssistantResult, getRecentResults, getAssistantResult, generateTitle, generateSummary, type AssistantResult, } from './firebase/assistantResults.js';
 /**
  * Database configuration type
  */
 export type DatabaseConfig = {
-    url: string;
-    poolSize?: number;
+    projectId: string;
+    apiKey: string;
 };
 /**
- * Initialize database connection
- * @returns Prisma client instance
+ * Connect to Firebase (client initializes automatically)
  */
-export declare function connectDatabase(): Promise<PrismaClient>;
+export declare function connectDatabase(): Promise<void>;
 /**
- * Disconnect from database
+ * Disconnect is not needed for Firebase (manages connections automatically)
  */
 export declare function disconnectDatabase(): Promise<void>;
-export { bm25Search, vectorSearch, upsertEmbedding, bulkInsertEmbeddings, getChunk, countEmbeddings, type SearchResult, } from './embeddings.js';
-export { recordUsage, sumTokensByUser, sumTokensByTenant, recentUsageByAssistant, purgeOldUsage, getUserUsageStats, getTenantUsageStats, type UsageRow, } from './usage.js';
 //# sourceMappingURL=index.d.ts.map

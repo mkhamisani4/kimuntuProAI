@@ -3,16 +3,62 @@
 /**
  * ResultViewer Component
  * Displays assistant response sections and metadata
+ * Enhanced with loading skeleton, retry functionality, and animations
  */
 
+import { useState } from 'react';
 import type { AssistantResult } from './page';
 import SourceList from './SourceList';
+import LoadingSkeleton from '@/components/ai/LoadingSkeleton';
+import ExportDropdown from '@/components/ai/ExportDropdown';
+import DataBadge from '@/components/ai/DataBadge';
+import { toast } from '@/components/ai/Toast';
 
 interface ResultViewerProps {
-  result: AssistantResult;
+  result: AssistantResult | null;
+  isLoading?: boolean;
+  error?: { message: string; type: string } | null;
+  onRetry?: () => void;
+  assistantType?: string;
 }
 
-export default function ResultViewer({ result }: ResultViewerProps) {
+export default function ResultViewer({ result, isLoading, error, onRetry, assistantType = 'streamlined_plan' }: ResultViewerProps) {
+  const [isAnimating, setIsAnimating] = useState(false);
+
+  // Show loading skeleton
+  if (isLoading) {
+    return <LoadingSkeleton sections={5} />;
+  }
+
+  // Show error state with retry
+  if (error && !result) {
+    return (
+      <div className="bg-white/5 backdrop-blur border border-red-500/50 rounded-2xl p-8 text-center">
+        <div className="text-red-400 mb-4">
+          <svg className="w-16 h-16 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <h3 className="text-lg font-semibold text-white mb-2">Generation Failed</h3>
+          <p className="text-sm text-gray-400">{error.message}</p>
+        </div>
+        {onRetry && (
+          <button
+            onClick={onRetry}
+            className="mt-4 px-6 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-lg font-medium hover:shadow-lg transition-all"
+            data-testid="retry-button"
+          >
+            Try Again
+          </button>
+        )}
+      </div>
+    );
+  }
+
+  // No result yet
+  if (!result) {
+    return null;
+  }
+
   // Extract sections (excluding Sources if it exists as a section key)
   const sectionEntries = Object.entries(result.sections).filter(
     ([key]) => key.toLowerCase() !== 'sources'
@@ -23,6 +69,13 @@ export default function ResultViewer({ result }: ResultViewerProps) {
 
   // Format latency
   const latencySeconds = (result.meta.latencyMs / 1000).toFixed(2);
+
+  // Copy to clipboard handler
+  const handleCopy = () => {
+    const text = sectionEntries.map(([title, content]) => `## ${title}\n\n${content}`).join('\n\n');
+    navigator.clipboard.writeText(text);
+    toast.success('✓ Copied to clipboard');
+  };
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200">
@@ -45,13 +98,17 @@ export default function ResultViewer({ result }: ResultViewerProps) {
         </div>
       </div>
 
-      {/* Sections */}
+      {/* Sections with fade-in animation */}
       <div className="p-6 space-y-6">
         {sectionEntries.length === 0 ? (
           <p className="text-gray-500 italic">No sections returned</p>
         ) : (
-          sectionEntries.map(([title, content]) => (
-            <div key={title} className="pb-6 border-b border-gray-100 last:border-b-0">
+          sectionEntries.map(([title, content], index) => (
+            <div
+              key={title}
+              className="pb-6 border-b border-gray-100 last:border-b-0 animate-fadeIn"
+              style={{ animationDelay: `${index * 100}ms` }}
+            >
               <h3 className="text-lg font-semibold text-gray-900 mb-3">{title}</h3>
               <div className="prose prose-sm max-w-none text-gray-700 whitespace-pre-wrap">
                 {content}
@@ -60,27 +117,38 @@ export default function ResultViewer({ result }: ResultViewerProps) {
           ))
         )}
 
-        {/* Sources Section */}
+        {/* Sources Section with Data Badge */}
         {result.sources && result.sources.length > 0 && (
           <div className="pt-6 border-t-2 border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Sources</h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">Sources</h3>
+              <DataBadge
+                timestamp={result.meta.timestamp}
+                isLive={result.sources.some(s => s.type === 'web')}
+              />
+            </div>
             <SourceList sources={result.sources} />
           </div>
         )}
       </div>
 
-      {/* Copy Button (nice-to-have) */}
-      <div className="p-4 border-t border-gray-200 bg-gray-50">
+      {/* Export Actions */}
+      <div className="p-4 border-t border-gray-200 bg-gray-50 flex items-center justify-between">
         <button
-          onClick={() => {
-            const text = sectionEntries.map(([title, content]) => `## ${title}\n\n${content}`).join('\n\n');
-            navigator.clipboard.writeText(text);
-            alert('Copied to clipboard!');
-          }}
-          className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+          onClick={handleCopy}
+          className="text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors"
+          data-testid="copy-button"
         >
           📋 Copy to Clipboard
         </button>
+        <ExportDropdown
+          sections={result.sections}
+          metadata={{
+            assistantType,
+            model: result.meta.model,
+            generatedAt: new Date(),
+          }}
+        />
       </div>
     </div>
   );

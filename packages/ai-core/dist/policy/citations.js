@@ -97,6 +97,41 @@ export function validateCitationMapping(rawText, ragSources, webSources) {
     return issues;
 }
 /**
+ * Validate that each section contains at least one citation (Phase 5)
+ * Required when retrieval or web search is used
+ *
+ * @param response - Assistant response
+ * @param requirePerSectionCitations - Whether to enforce citations per section
+ * @returns Array of validation issues
+ */
+export function validatePerSectionCitations(response, requirePerSectionCitations) {
+    const issues = [];
+    if (!requirePerSectionCitations) {
+        return issues;
+    }
+    // Only enforce if sources are available
+    if (response.sources.length === 0) {
+        return issues;
+    }
+    // Check each section (excluding Sources section itself)
+    for (const [sectionName, sectionContent] of Object.entries(response.sections)) {
+        if (sectionName.toLowerCase() === 'sources') {
+            continue; // Skip Sources section
+        }
+        // Check for citation markers [R1], [W2], etc.
+        const hasCitation = /\[[RW]\d+\]/.test(sectionContent);
+        if (!hasCitation) {
+            issues.push({
+                code: 'MISSING_SECTION_CITATION',
+                message: `Section '${sectionName}' must include at least one source citation when retrieval/web search is used`,
+                meta: { section: sectionName },
+                severity: 'error',
+            });
+        }
+    }
+    return issues;
+}
+/**
  * Validate citations in response
  * Combines all citation checks
  *
@@ -119,6 +154,11 @@ export function validateCitations(response, context) {
     const webSources = response.sources.filter((s) => s.type === 'web');
     const mappingIssues = validateCitationMapping(response.rawModelOutput, ragSources, webSources);
     issues.push(...mappingIssues);
+    // Phase 5: Validate each section has at least one citation
+    if (context.requirePerSectionCitations) {
+        const perSectionIssues = validatePerSectionCitations(response, true);
+        issues.push(...perSectionIssues);
+    }
     return issues;
 }
 /**

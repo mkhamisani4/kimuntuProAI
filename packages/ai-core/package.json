@@ -25,6 +25,14 @@
     "./orchestration/middleware": {
       "types": "./dist/orchestration/middleware.d.ts",
       "import": "./dist/orchestration/middleware.js"
+    },
+    "./logging": {
+      "types": "./dist/logging/logger.d.ts",
+      "import": "./dist/logging/logger.js"
+    },
+    "./usage": {
+      "types": "./dist/usage/quota.d.ts",
+      "import": "./dist/usage/quota.js"
     }
   },
   "scripts": {
@@ -36,6 +44,7 @@
   },
   "dependencies": {
     "openai": "^4.67.0",
+    "tavily": "^1.0.2",
     "zod": "^3.23.8",
     "zod-to-json-schema": "^3.23.0"
   },

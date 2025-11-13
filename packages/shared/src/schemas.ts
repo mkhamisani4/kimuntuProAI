@@ -43,6 +43,13 @@ export const AssistantResponseSchema = z.object({
       tokensUsed: z.number().int().nonnegative(),
       latencyMs: z.number().int().nonnegative(),
       cost: z.number().nonnegative(),
+      toolInvocations: z
+        .object({
+          retrieval: z.number().int().nonnegative().optional(),
+          webSearch: z.number().int().nonnegative().optional(),
+          finance: z.number().int().nonnegative().optional(),
+        })
+        .optional(),
     })
     .optional(),
 });

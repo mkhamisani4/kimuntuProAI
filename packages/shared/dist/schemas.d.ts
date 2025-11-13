@@ -70,16 +70,39 @@ export declare const AssistantResponseSchema: z.ZodObject<{
         tokensUsed: z.ZodNumber;
         latencyMs: z.ZodNumber;
         cost: z.ZodNumber;
+        toolInvocations: z.ZodOptional<z.ZodObject<{
+            retrieval: z.ZodOptional<z.ZodNumber>;
+            webSearch: z.ZodOptional<z.ZodNumber>;
+            finance: z.ZodOptional<z.ZodNumber>;
+        }, "strip", z.ZodTypeAny, {
+            retrieval?: number | undefined;
+            webSearch?: number | undefined;
+            finance?: number | undefined;
+        }, {
+            retrieval?: number | undefined;
+            webSearch?: number | undefined;
+            finance?: number | undefined;
+        }>>;
     }, "strip", z.ZodTypeAny, {
         model: string;
         tokensUsed: number;
         latencyMs: number;
         cost: number;
+        toolInvocations?: {
+            retrieval?: number | undefined;
+            webSearch?: number | undefined;
+            finance?: number | undefined;
+        } | undefined;
     }, {
         model: string;
         tokensUsed: number;
         latencyMs: number;
         cost: number;
+        toolInvocations?: {
+            retrieval?: number | undefined;
+            webSearch?: number | undefined;
+            finance?: number | undefined;
+        } | undefined;
     }>>;
 }, "strip", z.ZodTypeAny, {
     assistant: "streamlined_plan" | "exec_summary" | "financial_overview" | "market_analysis";
@@ -97,6 +120,11 @@ export declare const AssistantResponseSchema: z.ZodObject<{
         tokensUsed: number;
         latencyMs: number;
         cost: number;
+        toolInvocations?: {
+            retrieval?: number | undefined;
+            webSearch?: number | undefined;
+            finance?: number | undefined;
+        } | undefined;
     } | undefined;
 }, {
     assistant: "streamlined_plan" | "exec_summary" | "financial_overview" | "market_analysis";
@@ -114,6 +142,11 @@ export declare const AssistantResponseSchema: z.ZodObject<{
         tokensUsed: number;
         latencyMs: number;
         cost: number;
+        toolInvocations?: {
+            retrieval?: number | undefined;
+            webSearch?: number | undefined;
+            finance?: number | undefined;
+        } | undefined;
     } | undefined;
 }>;
 export declare const PlannerInputSchema: z.ZodObject<{
@@ -195,25 +228,25 @@ export declare const UsageMetricSchema: z.ZodObject<{
 }, "strip", z.ZodTypeAny, {
     model: string;
     latencyMs: number;
-    tokensIn: number;
-    tokensOut: number;
-    costCents: number;
     toolInvocations: {
         retrieval: number;
         webSearch: number;
         finance: number;
     };
+    tokensIn: number;
+    tokensOut: number;
+    costCents: number;
 }, {
     model: string;
     latencyMs: number;
-    tokensIn: number;
-    tokensOut: number;
-    costCents: number;
     toolInvocations: {
         retrieval: number;
         webSearch: number;
         finance: number;
     };
+    tokensIn: number;
+    tokensOut: number;
+    costCents: number;
 }>;
 export declare const UsageLogEntrySchema: z.ZodObject<{
     model: z.ZodString;
@@ -245,14 +278,14 @@ export declare const UsageLogEntrySchema: z.ZodObject<{
     userId: string;
     model: string;
     latencyMs: number;
-    tokensIn: number;
-    tokensOut: number;
-    costCents: number;
     toolInvocations: {
         retrieval: number;
         webSearch: number;
         finance: number;
     };
+    tokensIn: number;
+    tokensOut: number;
+    costCents: number;
     id: string;
     assistantType: "streamlined_plan" | "exec_summary" | "financial_overview" | "market_analysis" | null;
     createdAt: Date;
@@ -261,14 +294,14 @@ export declare const UsageLogEntrySchema: z.ZodObject<{
     userId: string;
     model: string;
     latencyMs: number;
-    tokensIn: number;
-    tokensOut: number;
-    costCents: number;
     toolInvocations: {
         retrieval: number;
         webSearch: number;
         finance: number;
     };
+    tokensIn: number;
+    tokensOut: number;
+    costCents: number;
     id: string;
     assistantType: "streamlined_plan" | "exec_summary" | "financial_overview" | "market_analysis" | null;
     createdAt: Date;

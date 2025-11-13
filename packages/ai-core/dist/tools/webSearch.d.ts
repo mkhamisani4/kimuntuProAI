@@ -1,18 +1,18 @@
 /**
  * Unified Web Search Entry Point
- * Delegates to OpenAI's built-in web search tool
+ * Delegates to either OpenAI or Tavily based on configuration
  */
 import type { OpenAIClient } from '../llm/client.js';
 import { type WebSearchOptions, type WebSearchResponse, type WebSearchResult } from './openaiWebSearch.js';
 /**
- * Perform web search
- * @param client - OpenAI client instance
+ * Perform web search using configured provider
+ * @param client - OpenAI client instance (only needed for OpenAI provider)
  * @param options - Search options
  * @returns Search results
  */
-export declare function webSearch(client: OpenAIClient, options: WebSearchOptions): Promise<WebSearchResponse>;
+export declare function webSearch(client: OpenAIClient | null, options: WebSearchOptions): Promise<WebSearchResponse>;
 /**
- * Build web search tools for OpenAI client
+ * Build web search tools for configured provider
  * @returns Tool definition array
  */
 export declare function buildWebSearchTools(): any[];

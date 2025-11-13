@@ -21,10 +21,11 @@ import {
   type EmbeddingFn,
 } from '../retrieval/hybrid.js';
 import {
-  webSearchWithOpenAI,
-  buildOpenAIWebSearchTools,
+  webSearch,
+  buildWebSearchTools,
   type WebSearchResult,
-} from '../tools/openaiWebSearch.js';
+} from '../tools/webSearch.js';
+import { webSearchWithTavily } from '../tools/tavilySearch.js';
 import {
   buildFinancialModel,
   validateFinancialInputs,
@@ -144,10 +145,13 @@ async function prepareWebSearch(
       ? plan.query_terms.join(' ')
       : request.input;
 
+    // Use unified webSearch which delegates to configured provider (OpenAI or Tavily)
     const client = new OpenAIClient();
-    const result = await webSearchWithOpenAI(client, {
+    const maxResults = Number(process.env.WEBSEARCH_MAX_RESULTS ?? Number(process.env.OPENAI_WEB_SEARCH_MAX_RESULTS ?? 8));
+
+    const result = await webSearch(client, {
       query,
-      n: Number(process.env.OPENAI_WEB_SEARCH_MAX_RESULTS ?? 8),
+      n: maxResults,
       tenantId: options.tenantId,
       userId: options.userId,
     });
@@ -264,13 +268,23 @@ export async function execute(options: ExecuteOptions): Promise<AssistantRespons
   const tools: any[] = [];
   const toolHandlers: Record<string, any> = {};
 
-  // Web search tool
+  // Web search tool (supports both OpenAI and Tavily)
   if (plan.requires_web_search) {
-    const webTools = buildOpenAIWebSearchTools();
-    tools.push(...webTools.map((t: any) => t.spec));
+    const webTools = buildWebSearchTools();
+    tools.push(...webTools);
 
-    // Web search is handled by OpenAI's built-in tool
-    // No need for manual handler
+    // Add Tavily handler if using Tavily provider
+    // OpenAI uses built-in tool that doesn't require a handler
+    if (process.env.WEBSEARCH_PROVIDER === 'tavily') {
+      toolHandlers['web_search'] = async (args: any) => {
+        const result = await webSearchWithTavily(args.query, {
+          n: args.n || Number(process.env.WEBSEARCH_MAX_RESULTS ?? 10),
+          tenantId: options.tenantId,
+          userId: options.userId,
+        });
+        return JSON.stringify(result);
+      };
+    }
   }
 
   // Finance tool
@@ -321,6 +335,13 @@ export async function execute(options: ExecuteOptions): Promise<AssistantRespons
       console.warn('Missing required sections:', sectionValidation.missing);
     }
 
+    // Calculate tool invocations
+    const toolInvocationsCount = {
+      retrieval: retrievalResult ? 1 : 0,
+      webSearch: response.toolCalls?.filter((t) => t.name === 'web_search').length ?? 0,
+      finance: response.toolCalls?.filter((t) => t.name === 'finance_calc').length ?? 0,
+    };
+
     // Build assistant response
     const assistantResponse: AssistantResponse = {
       assistant: request.assistant,
@@ -332,6 +353,7 @@ export async function execute(options: ExecuteOptions): Promise<AssistantRespons
         tokensUsed: response.tokensIn + response.tokensOut,
         latencyMs: response.latencyMs,
         cost: response.costCents / 100,
+        toolInvocations: toolInvocationsCount,
       },
     };
 
@@ -379,11 +401,7 @@ export async function execute(options: ExecuteOptions): Promise<AssistantRespons
         tokensOut: response.tokensOut,
         costCents: response.costCents,
         latencyMs: totalLatencyMs,
-        toolInvocations: {
-          retrieval: retrievalResult ? 1 : 0,
-          webSearch: response.toolCalls?.filter((t) => t.name === 'web_search').length ?? 0,
-          finance: response.toolCalls?.filter((t) => t.name === 'finance_calc').length ?? 0,
-        },
+        toolInvocations: toolInvocationsCount,
       };
 
       onUsage(usageMetric);
