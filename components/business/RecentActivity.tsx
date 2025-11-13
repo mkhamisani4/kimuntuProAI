@@ -30,7 +30,14 @@ export default function RecentActivity({ tenantId, limit = 5 }: RecentActivityPr
         setError(null);
       } catch (err: any) {
         console.error('[RecentActivity] Failed to fetch results:', err);
+        // Handle permission errors gracefully - likely no data yet or security rules need configuration
+        if (err.code === 'permission-denied' || err.message?.includes('permission')) {
+          console.log('[RecentActivity] No access to results yet - this is normal for new users');
+          setResults([]);
+          setError(null);
+        } else {
         setError('Failed to load recent activity');
+        }
       } finally {
         setLoading(false);
       }
