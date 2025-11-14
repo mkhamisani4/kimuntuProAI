@@ -2,11 +2,12 @@
 
 /**
  * DataBadge Component (Phase 4)
- * Shows data freshness indicator: 📚 Knowledge Base or 🌐 Live Data
+ * Shows data freshness indicator: Knowledge Base or Live Data
  * Uses date-fns for relative time formatting
  */
 
 import { formatDistanceToNow } from 'date-fns';
+import { Globe, Book } from 'lucide-react';
 
 export interface DataBadgeProps {
   timestamp?: string;
@@ -27,20 +28,22 @@ export default function DataBadge({ timestamp, isLive }: DataBadgeProps) {
 
     return (
       <span
-        className="inline-flex items-center gap-1 px-2 py-1 bg-emerald-100 text-emerald-700 text-xs rounded-full font-medium"
+        className="inline-flex items-center gap-1 px-2 py-1 bg-emerald-500/20 text-emerald-300 text-xs rounded-full font-medium border border-emerald-500/30"
         data-testid="data-badge-live"
       >
-        🌐 Live Data · {relativeTime}
+        <Globe className="w-3 h-3" />
+        Live Data · {relativeTime}
       </span>
     );
   }
 
   return (
     <span
-      className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full font-medium"
+      className="inline-flex items-center gap-1 px-2 py-1 bg-gray-500/20 text-gray-300 text-xs rounded-full font-medium border border-gray-500/30"
       data-testid="data-badge-knowledge"
     >
-      📚 Knowledge Base
+      <Book className="w-3 h-3" />
+      Knowledge Base
     </span>
   );
 }

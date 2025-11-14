@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, DollarSign } from 'lucide-react';
 
 export default function FundingStrategyPage() {
   return (
@@ -25,7 +25,9 @@ export default function FundingStrategyPage() {
 
       <div className="bg-white/5 backdrop-blur border border-gray-800 rounded-2xl p-8">
         <div className="text-center py-12">
-          <div className="text-6xl mb-4">💰</div>
+          <div className="text-emerald-400 mb-4 flex justify-center">
+            <DollarSign className="w-20 h-20" />
+          </div>
           <h2 className="text-2xl font-bold text-white mb-4">Coming Soon</h2>
           <p className="text-gray-400 mb-8 max-w-2xl mx-auto">
             Our Funding Strategy tool is currently in development.

@@ -8,14 +8,8 @@ export * from './firebase/client.js';
 export { recordUsage, sumTokensByUser, sumTokensByTenant, getUsageMetrics, } from './firebase/usage.js';
 // Export assistant results persistence
 export { saveAssistantResult, getRecentResults, getAssistantResult, generateTitle, generateSummary, } from './firebase/assistantResults.js';
-// Legacy Prisma support (conditional)
-const usePrisma = process.env.USE_PRISMA === 'true';
-if (usePrisma) {
-    console.warn('⚠️  Using legacy Prisma database. Set USE_PRISMA=false to use Firebase.');
-}
-else {
-    console.log('✅ Using Firebase Firestore for database operations');
-}
+// Export document metadata (RAG)
+export { saveDocumentMeta, listRecentDocuments, getDocumentMeta, } from './firebase/documents.js';
 /**
  * Connect to Firebase (client initializes automatically)
  */

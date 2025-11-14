@@ -78,6 +78,8 @@ async function handleBatch(req: NextRequest): Promise<NextResponse> {
             assistant: item.plannerInput.assistant,
             input: item.plannerInput.input,
             extra: item.plannerInput.extra,
+            tenantId,
+            userId,
           };
 
           // Execute with quota check

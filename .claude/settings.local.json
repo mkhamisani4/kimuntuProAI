@@ -19,7 +19,10 @@
       "Bash(curl:*)",
       "Bash(python -m json.tool:*)",
       "Bash(psql:*)",
-      "Bash(dir packagesai-corenode_modulestavily)"
+      "Bash(dir packagesai-corenode_modulestavily)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(rm:*)"
     ],
     "deny": [],
     "ask": []

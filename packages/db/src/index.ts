@@ -33,15 +33,6 @@ export {
   type DocumentMeta,
 } from './firebase/documents.js';
 
-// Legacy Prisma support (conditional)
-const usePrisma = process.env.USE_PRISMA === 'true';
-
-if (usePrisma) {
-  console.warn('⚠️  Using legacy Prisma database. Set USE_PRISMA=false to use Firebase.');
-} else {
-  console.log('✅ Using Firebase Firestore for database operations');
-}
-
 /**
  * Database configuration type
  */

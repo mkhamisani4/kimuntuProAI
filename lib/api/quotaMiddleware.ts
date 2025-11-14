@@ -145,13 +145,13 @@ export function withQuotaGuard(
 ): RouteHandler {
   return async (req: NextRequest): Promise<NextResponse> => {
     // Clone the request so we can read the body multiple times
-    const reqClone = req.clone();
+    const reqClone = req.clone() as NextRequest;
 
     // Extract quota params from request
     const params = await extractQuotaParams(reqClone, options.for);
 
     if (!params.ok) {
-      return params.response;
+      return (params as { ok: false; response: NextResponse }).response;
     }
 
     // Check quotas using middleware
@@ -164,18 +164,19 @@ export function withQuotaGuard(
 
     if (!quotaCheck.ok) {
       // Return 429 with quota error details
+      const errorCheck = quotaCheck as { ok: false; error: string; resetsAtISO?: string };
       return NextResponse.json(
         {
           error: 'quota_exceeded',
-          message: quotaCheck.error,
-          resetsAt: quotaCheck.resetsAtISO,
+          message: errorCheck.error,
+          resetsAt: errorCheck.resetsAtISO,
         },
         {
           status: 429,
           headers: {
-            'Retry-After': quotaCheck.resetsAtISO
+            'Retry-After': errorCheck.resetsAtISO
               ? Math.ceil(
-                  (new Date(quotaCheck.resetsAtISO).getTime() - Date.now()) / 1000
+                  (new Date(errorCheck.resetsAtISO).getTime() - Date.now()) / 1000
                 ).toString()
               : '3600',
           },

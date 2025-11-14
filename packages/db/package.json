@@ -12,27 +12,17 @@
     }
   },
   "scripts": {
-    "build": "npm run db:generate && tsc",
+    "build": "tsc",
     "type-check": "tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest",
-    "db:generate": "prisma generate",
-    "db:migrate": "prisma migrate dev",
-    "db:migrate:create": "prisma migrate dev --create-only",
-    "db:deploy": "prisma migrate deploy",
-    "db:reset": "prisma migrate reset",
-    "db:studio": "prisma studio",
-    "db:seed": "tsx prisma/seed.ts",
-    "db:push": "prisma db push"
+    "test:watch": "vitest"
   },
   "dependencies": {
-    "@prisma/client": "^5.22.0",
     "firebase": "^10.14.1",
     "firebase-admin": "^13.6.0"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
-    "prisma": "^5.22.0",
     "typescript": "^5.6.0",
     "vitest": "^2.0.0"
   }

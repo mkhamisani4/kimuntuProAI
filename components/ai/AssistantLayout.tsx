@@ -12,7 +12,7 @@ import Toast from './Toast';
 interface AssistantLayoutProps {
   title: string;
   description: string;
-  icon: string;
+  icon: React.ReactNode;
   backHref?: string;
   children: React.ReactNode;
 }
@@ -58,7 +58,7 @@ export default function AssistantLayout({
         {/* Header with Icon, Title, and Description */}
         <div className="mb-8">
           <div className="flex items-start gap-4 mb-4">
-            <span className="text-6xl" aria-hidden="true">{icon}</span>
+            <div className="text-emerald-400 flex-shrink-0" aria-hidden="true">{icon}</div>
             <div className="flex-1">
               <h1 className="text-4xl font-bold text-white mb-2">
                 {title}
