@@ -101,16 +101,16 @@ export default function RecentActivity({ tenantId, limit = 5 }: RecentActivityPr
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h2 className="text-xl font-semibold mb-4">Recent Activity</h2>
+      <div className="bg-white/5 backdrop-blur border border-gray-800 rounded-2xl p-6">
+        <h2 className="text-xl font-semibold mb-4 text-gray-100">Recent Activity</h2>
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="animate-pulse flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+            <div key={i} className="animate-pulse flex items-center justify-between p-4 bg-white/10 rounded-lg">
               <div className="flex-1">
-                <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                <div className="h-4 bg-white/20 rounded w-3/4 mb-2"></div>
+                <div className="h-3 bg-white/20 rounded w-1/2"></div>
               </div>
-              <div className="h-8 w-20 bg-gray-200 rounded"></div>
+              <div className="h-8 w-20 bg-white/20 rounded"></div>
             </div>
           ))}
         </div>
@@ -120,18 +120,18 @@ export default function RecentActivity({ tenantId, limit = 5 }: RecentActivityPr
 
   if (error) {
     return (
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h2 className="text-xl font-semibold mb-4">Recent Activity</h2>
-        <div className="text-red-600 text-sm">{error}</div>
+      <div className="bg-white/5 backdrop-blur border border-gray-800 rounded-2xl p-6">
+        <h2 className="text-xl font-semibold mb-4 text-gray-100">Recent Activity</h2>
+        <div className="text-red-400 text-sm">{error}</div>
       </div>
     );
   }
 
   if (results.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h2 className="text-xl font-semibold mb-4">Recent Activity</h2>
-        <div className="text-gray-500 text-sm py-8 text-center">
+      <div className="bg-white/5 backdrop-blur border border-gray-800 rounded-2xl p-6">
+        <h2 className="text-xl font-semibold mb-4 text-gray-100">Recent Activity</h2>
+        <div className="text-gray-400 text-sm py-8 text-center">
           No activity yet. Generate your first business plan or analysis to get started!
         </div>
       </div>
@@ -139,13 +139,13 @@ export default function RecentActivity({ tenantId, limit = 5 }: RecentActivityPr
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <h2 className="text-xl font-semibold mb-4">Recent Activity</h2>
+    <div className="bg-white/5 backdrop-blur border border-gray-800 rounded-2xl p-6">
+      <h2 className="text-xl font-semibold mb-4 text-gray-100">Recent Activity</h2>
       <div className="space-y-3">
         {results.map((result) => (
           <div
             key={result.id}
-            className="flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+            className="flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
             onClick={() => handleOpen(result)}
           >
             <div className="flex-1 min-w-0">
@@ -157,21 +157,21 @@ export default function RecentActivity({ tenantId, limit = 5 }: RecentActivityPr
                 >
                   {getAssistantLabel(result.assistant)}
                 </span>
-                <span className="text-xs text-gray-500">
+                <span className="text-xs text-gray-400">
                   {formatRelativeTime(result.createdAt)}
                 </span>
               </div>
-              <h3 className="text-sm font-medium text-gray-900 truncate" title={result.title}>
+              <h3 className="text-sm font-medium text-gray-100 truncate" title={result.title}>
                 {result.title}
               </h3>
               {result.summary && (
-                <p className="text-xs text-gray-600 line-clamp-2 mt-1">
+                <p className="text-xs text-gray-300 line-clamp-2 mt-1">
                   {result.summary}
                 </p>
               )}
             </div>
             <button
-              className="ml-4 px-3 py-1.5 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors flex-shrink-0"
+              className="ml-4 px-3 py-1.5 bg-emerald-600 text-white text-sm rounded hover:bg-emerald-700 transition-colors flex-shrink-0"
               onClick={(e) => {
                 e.stopPropagation();
                 handleOpen(result);

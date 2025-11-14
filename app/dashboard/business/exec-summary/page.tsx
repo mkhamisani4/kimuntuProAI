@@ -5,18 +5,59 @@
  * Creates financial overviews with 12-month projections
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import AssistantLayout from '@/components/ai/AssistantLayout';
 import TaskForm from '@/app/dashboard/business/ai-assistant/TaskForm';
 import ResultViewer from '@/app/dashboard/business/ai-assistant/ResultViewer';
 import type { AssistantResult } from '@/app/dashboard/business/ai-assistant/page';
+import { getAssistantResult } from '@kimuntupro/db';
 
 export default function ExecSummaryPage() {
+  const searchParams = useSearchParams();
   const [result, setResult] = useState<AssistantResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [errorType, setErrorType] = useState<'quota' | 'auth' | 'server' | null>(null);
   const [resetsAt, setResetsAt] = useState<string | null>(null);
+
+  // Load saved result from URL parameter
+  useEffect(() => {
+    const resultId = searchParams.get('resultId');
+    if (resultId) {
+      setIsLoading(true);
+      getAssistantResult(resultId)
+        .then((savedResult) => {
+          if (savedResult) {
+            setResult({
+              sections: savedResult.sections,
+              sources: savedResult.sources,
+              meta: {
+                model: savedResult.metadata?.model || 'unknown',
+                tokensIn: 0,
+                tokensOut: savedResult.metadata?.tokensUsed || 0,
+                costCents: Math.round((savedResult.metadata?.cost || 0) * 100),
+                latencyMs: savedResult.metadata?.latencyMs || 0,
+                timestamp: savedResult.createdAt?.toISOString() || new Date().toISOString(),
+                toolInvocations: {},
+                resultId: savedResult.id,
+              },
+            });
+          } else {
+            setError('Saved result not found');
+            setErrorType('server');
+          }
+        })
+        .catch((err) => {
+          console.error('Failed to load saved result:', err);
+          setError('Failed to load saved result');
+          setErrorType('server');
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    }
+  }, [searchParams]);
 
   const handleResult = (newResult: AssistantResult) => {
     setResult(newResult);
