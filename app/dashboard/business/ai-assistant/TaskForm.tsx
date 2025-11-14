@@ -174,31 +174,43 @@ export default function TaskForm({ onResult, onError, assistant: assistantProp, 
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+    <div className="bg-white/5 backdrop-blur border border-gray-800 rounded-2xl p-6">
       <form onSubmit={handleSubmit}>
         {/* Task Selector */}
-        <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Select Task
-          </label>
-          <select
-            value={assistant}
-            onChange={(e) => setAssistant(e.target.value as AssistantType)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            disabled={isLoading}
-          >
-            {tasks.map((task) => (
-              <option key={task.value} value={task.value}>
-                {task.label}
-              </option>
-            ))}
-          </select>
-          <p className="mt-2 text-sm text-gray-500">{currentTask.description}</p>
-        </div>
+        {!assistantProp ? (
+          /* Show dropdown only on generic AI assistant page */
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-gray-200 mb-2">
+              Select Task
+            </label>
+            <select
+              value={assistant}
+              onChange={(e) => setAssistant(e.target.value as AssistantType)}
+              className="w-full px-4 py-2 border border-gray-600 bg-white/10 text-gray-100 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+              disabled={isLoading}
+            >
+              {tasks.map((task) => (
+                <option key={task.value} value={task.value}>
+                  {task.label}
+                </option>
+              ))}
+            </select>
+            <p className="mt-2 text-sm text-gray-400">{currentTask.description}</p>
+          </div>
+  
+        ) : (
+          /* Show task name as static header on dedicated pages */
+          <div className="mb-6">
+            <h3 className="text-lg font-semibold text-gray-100 mb-1">
+              {currentTask.label}
+            </h3>
+            <p className="text-sm text-gray-400">{currentTask.description}</p>
+          </div>
+        )}
 
         {/* Input Textarea */}
         <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-gray-200 mb-2">
             Prompt
           </label>
           <div className="relative">
@@ -210,8 +222,8 @@ export default function TaskForm({ onResult, onError, assistant: assistantProp, 
               maxLength={MAX_INPUT_LENGTH}
               className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:border-transparent resize-none ${
                 input.length > MAX_INPUT_LENGTH
-                  ? 'border-red-500 focus:ring-red-500'
-                  : 'border-gray-300 focus:ring-blue-500'
+                  ? 'border-red-500 focus:ring-red-500 bg-white/10 text-gray-100'
+                  : 'border-gray-600 bg-white/10 text-gray-100 focus:ring-emerald-500'
               }`}
               disabled={isLoading}
               aria-label="Prompt input"
@@ -330,8 +342,8 @@ export default function TaskForm({ onResult, onError, assistant: assistantProp, 
           disabled={isLoading || !input.trim() || input.length > MAX_INPUT_LENGTH}
           className={`w-full py-3 px-6 rounded-lg font-medium transition-colors ${
             isLoading || !input.trim() || input.length > MAX_INPUT_LENGTH
-              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              : 'bg-blue-600 text-white hover:bg-blue-700'
+              ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
+              : 'bg-emerald-600 text-white hover:bg-emerald-700'
           }`}
           aria-label="Run Assistant"
         >
