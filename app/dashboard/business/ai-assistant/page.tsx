@@ -6,6 +6,7 @@
  */
 
 import { useState } from 'react';
+import { ArrowLeft, Clock, Lock, AlertTriangle, X } from 'lucide-react';
 import TaskForm from './TaskForm';
 import ResultViewer from './ResultViewer';
 import UsageBadge from './UsageBadge';
@@ -85,10 +86,25 @@ export default function AIAssistantPage() {
           >
             <div className="flex items-start justify-between">
               <div className="flex-1">
-                <p className="font-semibold">
-                  {errorType === 'quota' && '⏱️ Quota Exceeded'}
-                  {errorType === 'auth' && '🔒 Authentication Required'}
-                  {errorType === 'server' && '⚠️ Server Error'}
+                <p className="font-semibold flex items-center gap-2">
+                  {errorType === 'quota' && (
+                    <>
+                      <Clock className="w-5 h-5" />
+                      Quota Exceeded
+                    </>
+                  )}
+                  {errorType === 'auth' && (
+                    <>
+                      <Lock className="w-5 h-5" />
+                      Authentication Required
+                    </>
+                  )}
+                  {errorType === 'server' && (
+                    <>
+                      <AlertTriangle className="w-5 h-5" />
+                      Server Error
+                    </>
+                  )}
                 </p>
                 <p className="mt-1 text-sm">{error}</p>
                 {resetsAt && (
@@ -102,7 +118,7 @@ export default function AIAssistantPage() {
                 className="ml-4 text-gray-500 hover:text-gray-700"
                 aria-label="Dismiss error"
               >
-                ✕
+                <X className="w-5 h-5" />
               </button>
             </div>
           </div>
@@ -121,7 +137,10 @@ export default function AIAssistantPage() {
             {!result && !error && (
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
                 <div className="text-gray-400 text-lg">
-                  <p className="mb-2">👈 Select a task and enter your prompt</p>
+                  <p className="mb-2 flex items-center gap-2">
+                    <ArrowLeft className="w-4 h-4" />
+                    Select a task and enter your prompt
+                  </p>
                   <p className="text-sm">Results will appear here</p>
                 </div>
               </div>

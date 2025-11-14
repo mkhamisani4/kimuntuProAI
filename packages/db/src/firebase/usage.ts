@@ -71,14 +71,14 @@ export async function recordUsage(row: UsageRow): Promise<void> {
 /**
  * Sum tokens by user since a given time
  *
- * @param userId - User ID to sum for
- * @param since - Start date (inclusive)
+ * @param options - Object with userId and since date
  * @returns Total tokens (in + out)
  */
-export async function sumTokensByUser(
-  userId: string,
-  since: Date
-): Promise<number> {
+export async function sumTokensByUser(options: {
+  userId: string;
+  since: Date;
+}): Promise<number> {
+  const { userId, since } = options;
   try {
     const q = query(
       collection(db, 'usage_logs'),
@@ -103,14 +103,14 @@ export async function sumTokensByUser(
 /**
  * Sum tokens by tenant since a given time
  *
- * @param tenantId - Tenant ID to sum for
- * @param since - Start date (inclusive)
+ * @param options - Object with tenantId and since date
  * @returns Total tokens (in + out)
  */
-export async function sumTokensByTenant(
-  tenantId: string,
-  since: Date
-): Promise<number> {
+export async function sumTokensByTenant(options: {
+  tenantId: string;
+  since: Date;
+}): Promise<number> {
+  const { tenantId, since } = options;
   try {
     const q = query(
       collection(db, 'usage_logs'),

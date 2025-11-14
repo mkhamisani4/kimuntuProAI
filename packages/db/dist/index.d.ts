@@ -5,6 +5,7 @@
 export * from './firebase/client.js';
 export { recordUsage, sumTokensByUser, sumTokensByTenant, getUsageMetrics, type UsageRow, } from './firebase/usage.js';
 export { saveAssistantResult, getRecentResults, getAssistantResult, generateTitle, generateSummary, type AssistantResult, } from './firebase/assistantResults.js';
+export { saveDocumentMeta, listRecentDocuments, getDocumentMeta, type DocumentMeta, } from './firebase/documents.js';
 /**
  * Database configuration type
  */

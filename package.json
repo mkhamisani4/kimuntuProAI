@@ -13,7 +13,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "npm run build:packages && next build",
-    "build:packages": "npm run build --workspace=packages/shared && npm run build --workspace=packages/db && npm run build --workspace=packages/ai-core",
+    "build:packages": "npm run build --workspace=packages/shared && npm run build --workspace=packages/db && npm run build --workspace=packages/rag-core && npm run build --workspace=packages/ai-core",
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc -b packages/shared/tsconfig.json packages/db/tsconfig.json packages/ai-core/tsconfig.json",

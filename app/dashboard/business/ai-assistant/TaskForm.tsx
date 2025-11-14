@@ -7,6 +7,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { Check, ChevronDown, ChevronRight } from 'lucide-react';
 import { auth } from '@/lib/firebase';
 import { toast } from '@/components/ai/Toast';
 import type { AssistantResult } from './page';
@@ -155,7 +156,7 @@ export default function TaskForm({ onResult, onError, assistant: assistantProp, 
       }
 
       // Success
-      toast.success('✓ Response generated successfully', { id: toastId });
+      toast.success('Response generated successfully', { id: toastId });
       onResult({
         sections: data.sections,
         sources: data.sources || [],
@@ -250,83 +251,84 @@ export default function TaskForm({ onResult, onError, assistant: assistantProp, 
             <button
               type="button"
               onClick={() => setShowAdvanced(!showAdvanced)}
-              className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+              className="text-sm text-emerald-400 hover:text-emerald-300 font-medium flex items-center gap-2"
             >
-              {showAdvanced ? '▼' : '▶'} Advanced Options (Financial Inputs)
+              {showAdvanced ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+              Advanced Options (Financial Inputs)
             </button>
 
             {showAdvanced && (
-              <div className="mt-4 p-4 bg-gray-50 rounded-lg space-y-4">
+              <div className="mt-4 p-4 bg-white/5 border border-gray-700 rounded-lg space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">
+                    <label className="block text-xs font-medium text-gray-300 mb-1">
                       ARPU ($/month)
                     </label>
                     <input
                       type="number"
                       value={arpu}
                       onChange={(e) => setArpu(e.target.value)}
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded"
+                      className="w-full px-3 py-2 text-sm border border-gray-600 bg-white/10 text-gray-100 rounded"
                       disabled={isLoading}
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">
+                    <label className="block text-xs font-medium text-gray-300 mb-1">
                       COGS (%)
                     </label>
                     <input
                       type="number"
                       value={cogs}
                       onChange={(e) => setCogs(e.target.value)}
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded"
+                      className="w-full px-3 py-2 text-sm border border-gray-600 bg-white/10 text-gray-100 rounded"
                       disabled={isLoading}
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">
+                    <label className="block text-xs font-medium text-gray-300 mb-1">
                       Churn Rate (%)
                     </label>
                     <input
                       type="number"
                       value={churn}
                       onChange={(e) => setChurn(e.target.value)}
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded"
+                      className="w-full px-3 py-2 text-sm border border-gray-600 bg-white/10 text-gray-100 rounded"
                       disabled={isLoading}
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">
+                    <label className="block text-xs font-medium text-gray-300 mb-1">
                       New Customers/Month
                     </label>
                     <input
                       type="number"
                       value={newCustomers}
                       onChange={(e) => setNewCustomers(e.target.value)}
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded"
+                      className="w-full px-3 py-2 text-sm border border-gray-600 bg-white/10 text-gray-100 rounded"
                       disabled={isLoading}
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">
+                    <label className="block text-xs font-medium text-gray-300 mb-1">
                       S&M Spend ($/month)
                     </label>
                     <input
                       type="number"
                       value={smSpend}
                       onChange={(e) => setSmSpend(e.target.value)}
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded"
+                      className="w-full px-3 py-2 text-sm border border-gray-600 bg-white/10 text-gray-100 rounded"
                       disabled={isLoading}
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">
+                    <label className="block text-xs font-medium text-gray-300 mb-1">
                       Projection Months
                     </label>
                     <input
                       type="number"
                       value={months}
                       onChange={(e) => setMonths(e.target.value)}
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded"
+                      className="w-full px-3 py-2 text-sm border border-gray-600 bg-white/10 text-gray-100 rounded"
                       disabled={isLoading}
                     />
                   </div>

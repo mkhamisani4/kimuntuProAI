@@ -7,6 +7,7 @@
  */
 
 import { useState } from 'react';
+import { Copy } from 'lucide-react';
 import type { AssistantResult } from './page';
 import SourceList from './SourceList';
 import LoadingSkeleton from '@/components/ai/LoadingSkeleton';
@@ -78,11 +79,11 @@ export default function ResultViewer({ result, isLoading, error, onRetry, assist
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+    <div className="bg-white/5 backdrop-blur border border-gray-700 rounded-2xl shadow-lg">
       {/* Header with Metadata */}
-      <div className="p-6 border-b border-gray-200 bg-gray-50">
-        <h2 className="text-xl font-semibold text-gray-900 mb-3">Results</h2>
-        <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+      <div className="p-6 border-b border-gray-700 bg-white/5">
+        <h2 className="text-xl font-semibold text-white mb-3">Results</h2>
+        <div className="flex flex-wrap gap-4 text-sm text-gray-300">
           <div>
             <span className="font-medium">Model:</span> {result.meta.model}
           </div>
@@ -101,16 +102,16 @@ export default function ResultViewer({ result, isLoading, error, onRetry, assist
       {/* Sections with fade-in animation */}
       <div className="p-6 space-y-6">
         {sectionEntries.length === 0 ? (
-          <p className="text-gray-500 italic">No sections returned</p>
+          <p className="text-gray-400 italic">No sections returned</p>
         ) : (
           sectionEntries.map(([title, content], index) => (
             <div
               key={title}
-              className="pb-6 border-b border-gray-100 last:border-b-0 animate-fadeIn"
+              className="pb-6 border-b border-gray-700 last:border-b-0 animate-fadeIn"
               style={{ animationDelay: `${index * 100}ms` }}
             >
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">{title}</h3>
-              <div className="prose prose-sm max-w-none text-gray-700 whitespace-pre-wrap">
+              <h3 className="text-lg font-semibold text-white mb-3">{title}</h3>
+              <div className="prose prose-sm max-w-none text-gray-300 whitespace-pre-wrap">
                 {content}
               </div>
             </div>
@@ -119,9 +120,9 @@ export default function ResultViewer({ result, isLoading, error, onRetry, assist
 
         {/* Sources Section with Data Badge */}
         {result.sources && result.sources.length > 0 && (
-          <div className="pt-6 border-t-2 border-gray-200">
+          <div className="pt-6 border-t-2 border-gray-700">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">Sources</h3>
+              <h3 className="text-lg font-semibold text-white">Sources</h3>
               <DataBadge
                 timestamp={result.meta.timestamp}
                 isLive={result.sources.some(s => s.type === 'web')}
@@ -133,13 +134,14 @@ export default function ResultViewer({ result, isLoading, error, onRetry, assist
       </div>
 
       {/* Export Actions */}
-      <div className="p-4 border-t border-gray-200 bg-gray-50 flex items-center justify-between">
+      <div className="p-4 border-t border-gray-700 bg-white/5 flex items-center justify-between">
         <button
           onClick={handleCopy}
-          className="text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors"
+          className="flex items-center gap-2 text-sm text-emerald-400 hover:text-emerald-300 font-medium transition-colors"
           data-testid="copy-button"
         >
-          📋 Copy to Clipboard
+          <Copy className="w-4 h-4" />
+          Copy to Clipboard
         </button>
         <ExportDropdown
           sections={result.sections}

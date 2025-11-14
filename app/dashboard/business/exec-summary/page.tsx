@@ -7,6 +7,7 @@
 
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { DollarSign, Clock, Lock, AlertTriangle, X, ArrowLeft } from 'lucide-react';
 import AssistantLayout from '@/components/ai/AssistantLayout';
 import TaskForm from '@/app/dashboard/business/ai-assistant/TaskForm';
 import ResultViewer from '@/app/dashboard/business/ai-assistant/ResultViewer';
@@ -39,8 +40,6 @@ export default function ExecSummaryPage() {
                 costCents: Math.round((savedResult.metadata?.cost || 0) * 100),
                 latencyMs: savedResult.metadata?.latencyMs || 0,
                 timestamp: savedResult.createdAt?.toISOString() || new Date().toISOString(),
-                toolInvocations: {},
-                resultId: savedResult.id,
               },
             });
           } else {
@@ -91,7 +90,7 @@ export default function ExecSummaryPage() {
     <AssistantLayout
       title="Executive Summary + Financials"
       description="Financial overview with 12-month projections and runway analysis"
-      icon="💰"
+      icon={<DollarSign className="w-16 h-16" />}
       backHref="/dashboard/business"
     >
       {/* Error Banner */}
@@ -107,10 +106,25 @@ export default function ExecSummaryPage() {
         >
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <p className="font-semibold">
-                {errorType === 'quota' && '⏱️ Quota Exceeded'}
-                {errorType === 'auth' && '🔒 Authentication Required'}
-                {errorType === 'server' && '⚠️ Server Error'}
+              <p className="font-semibold flex items-center gap-2">
+                {errorType === 'quota' && (
+                  <>
+                    <Clock className="w-5 h-5" />
+                    Quota Exceeded
+                  </>
+                )}
+                {errorType === 'auth' && (
+                  <>
+                    <Lock className="w-5 h-5" />
+                    Authentication Required
+                  </>
+                )}
+                {errorType === 'server' && (
+                  <>
+                    <AlertTriangle className="w-5 h-5" />
+                    Server Error
+                  </>
+                )}
               </p>
               <p className="mt-1 text-sm">{error}</p>
               {resetsAt && (
@@ -124,7 +138,7 @@ export default function ExecSummaryPage() {
               className="ml-4 text-gray-400 hover:text-white transition-colors"
               aria-label="Dismiss error"
             >
-              ✕
+              <X className="w-5 h-5" />
             </button>
           </div>
         </div>
@@ -154,7 +168,10 @@ export default function ExecSummaryPage() {
           {!result && !error && !isLoading && (
             <div className="bg-white/5 backdrop-blur border border-gray-800 rounded-2xl p-12 text-center">
               <div className="text-gray-400 text-lg">
-                <p className="mb-2">👈 Enter your financial details</p>
+                <p className="mb-2 flex items-center gap-2">
+                  <ArrowLeft className="w-4 h-4" />
+                  Enter your financial details
+                </p>
                 <p className="text-sm">Your executive summary will appear here</p>
               </div>
             </div>
