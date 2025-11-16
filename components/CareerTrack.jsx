@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
-import { FileText, Target, Users, Shield, X, Loader2, Download, Copy, Check, Mail } from 'lucide-react';
-import { tailorResume, extractResumeText, generateCoverLetter } from '../services/openaiService';
+import React, { useState, useEffect, useRef } from 'react';
+import { FileText, Target, Users, Shield, X, Loader2, Download, Copy, Check, Mail, MessageCircle, Send } from 'lucide-react';
+import { tailorResume, extractResumeText, generateCoverLetter, chatJobAssistant } from '../services/openaiService';
 import jsPDF from 'jspdf';
 import { Document, Packer, Paragraph, TextRun } from 'docx';
 import { saveAs } from 'file-saver';
@@ -20,6 +20,21 @@ const CareerTrack = ({ language }) => {
   const [copiedCoverLetter, setCopiedCoverLetter] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [showCoverLetterSuccess, setShowCoverLetterSuccess] = useState(false);
+  const [chatMessages, setChatMessages] = useState([]);
+  const [chatInput, setChatInput] = useState('');
+  const [chatResumeFile, setChatResumeFile] = useState(null);
+  const [chatCoverLetterFile, setChatCoverLetterFile] = useState(null);
+  const [chatJobDescription, setChatJobDescription] = useState('');
+  const [chatResumeText, setChatResumeText] = useState('');
+  const [chatCoverLetterText, setChatCoverLetterText] = useState('');
+  const chatMessagesEndRef = useRef(null);
+  
+  // Auto-scroll chat to bottom when new messages are added
+  useEffect(() => {
+    if (chatMessagesEndRef.current) {
+      chatMessagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [chatMessages, isLoading]);
   
   // Career Track Translations
   const careerTranslations = {
@@ -58,6 +73,14 @@ const CareerTrack = ({ language }) => {
         'Professional formatting and tone'
       ],
       coverLetterDesc: 'Create compelling, job-specific cover letters that highlight your relevant experience and skills. Our AI analyzes the job description and crafts a personalized letter that matches the employer\'s tone and incorporates key keywords.',
+      jobChatbot: 'ProLaunch AI Assistant',
+      jobChatbotItems: [
+        'Ask questions about your resume',
+        'Get cover letter feedback',
+        'Analyze job descriptions',
+        'Career guidance and advice'
+      ],
+      jobChatbotDesc: 'Get instant answers to any job search or career-related questions. Upload your resume or cover letter for personalized feedback, ask about job descriptions, or get career advice.',
       privacyFirst: 'Privacy First',
       privacyDesc: 'Your information is never shared. Backed by Firebase and AWS for maximum security.'
     },
@@ -96,6 +119,14 @@ const CareerTrack = ({ language }) => {
         'Formatage et ton professionnels'
       ],
       coverLetterDesc: 'Créez des lettres de motivation convaincantes et spécifiques à l\'emploi qui mettent en valeur votre expérience et vos compétences pertinentes. Notre IA analyse la description de poste et rédige une lettre personnalisée qui correspond au ton de l\'employeur et intègre les mots-clés essentiels.',
+      jobChatbot: 'Assistant IA ProLaunch',
+      jobChatbotItems: [
+        'Posez des questions sur votre CV',
+        'Obtenez des commentaires sur votre lettre de motivation',
+        'Analysez les descriptions de poste',
+        'Conseils de carrière et orientation'
+      ],
+      jobChatbotDesc: 'Obtenez des réponses instantanées à toutes vos questions sur la recherche d\'emploi ou la carrière. Téléchargez votre CV ou votre lettre de motivation pour des commentaires personnalisés, posez des questions sur les descriptions de poste ou obtenez des conseils de carrière.',
       privacyFirst: 'Confidentialité avant tout',
       privacyDesc: 'Vos informations ne sont jamais partagées. Soutenu par Firebase et AWS pour une sécurité maximale.'
     }
@@ -563,6 +594,74 @@ const CareerTrack = ({ language }) => {
     }
   };
 
+  const handleChatResumeFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setChatResumeFile(file);
+      try {
+        const text = await extractResumeText(file);
+        setChatResumeText(text);
+      } catch (err) {
+        console.error('Error extracting resume text:', err);
+        setError('Failed to extract text from resume file.');
+      }
+    }
+  };
+
+  const handleChatCoverLetterFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setChatCoverLetterFile(file);
+      if (file.type === 'text/plain') {
+        const text = await file.text();
+        setChatCoverLetterText(text);
+      } else {
+        setError('Cover letter file must be a .txt file.');
+      }
+    }
+  };
+
+  const handleChatSubmit = async (e) => {
+    e.preventDefault();
+    if (!chatInput.trim()) return;
+
+    const userMessage = chatInput.trim();
+    setChatInput('');
+    setIsLoading(true);
+    setError(null);
+
+    // Add user message to chat
+    const newUserMessage = { role: 'user', content: userMessage };
+    setChatMessages(prev => [...prev, newUserMessage]);
+
+    try {
+      // Build conversation history (last 10 messages for context)
+      const recentHistory = chatMessages.slice(-10).map(msg => ({
+        role: msg.role,
+        content: msg.content
+      }));
+
+      const response = await chatJobAssistant({
+        message: userMessage,
+        conversationHistory: recentHistory,
+        resumeText: chatResumeText,
+        coverLetterText: chatCoverLetterText,
+        jobDescription: chatJobDescription
+      });
+
+      // Add assistant response to chat
+      const assistantMessage = { role: 'assistant', content: response };
+      setChatMessages(prev => [...prev, assistantMessage]);
+    } catch (err) {
+      console.error('Error getting chat response:', err);
+      setError(err.message || 'Failed to get response. Please try again.');
+      // Remove the user message if there was an error
+      setChatMessages(prev => prev.slice(0, -1));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const generatePDFFromText = (resumeText) => {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
@@ -879,6 +978,13 @@ const CareerTrack = ({ language }) => {
     setCopiedCoverLetter(false);
     setShowSuccess(false);
     setShowCoverLetterSuccess(false);
+    setChatMessages([]);
+    setChatInput('');
+    setChatResumeFile(null);
+    setChatCoverLetterFile(null);
+    setChatJobDescription('');
+    setChatResumeText('');
+    setChatCoverLetterText('');
   };
 
   const closeFeature = () => {
@@ -893,6 +999,13 @@ const CareerTrack = ({ language }) => {
     setCopiedCoverLetter(false);
     setShowSuccess(false);
     setShowCoverLetterSuccess(false);
+    setChatMessages([]);
+    setChatInput('');
+    setChatResumeFile(null);
+    setChatCoverLetterFile(null);
+    setChatJobDescription('');
+    setChatResumeText('');
+    setChatCoverLetterText('');
   };
 
   const features = [
@@ -981,6 +1094,24 @@ const CareerTrack = ({ language }) => {
           { label: 'Tailored Questions', desc: 'AI adapts questions to your background' },
           { label: 'Industry Standards', desc: 'Benchmark answers against best practices' },
           { label: 'Summary & Feedback', desc: 'Get actionable tips for improvement' }
+        ]
+      }
+    },
+    {
+      id: 'jobchatbot',
+      title: t.jobChatbot,
+      icon: MessageCircle,
+      items: t.jobChatbotItems,
+      description: t.jobChatbotDesc,
+      outline: {
+        title: 'General Outline',
+        formTitle: 'ProLaunch AI Assistant',
+        inputs: [],
+        howItWorks: [
+          { label: 'Upload Context', desc: 'Optionally upload resume, cover letter, or job description' },
+          { label: 'Ask Questions', desc: 'Ask anything about resumes, cover letters, job descriptions, or career advice' },
+          { label: 'Get Instant Answers', desc: 'Receive detailed, personalized responses' },
+          { label: 'Continuous Conversation', desc: 'Have a natural conversation with context' }
         ]
       }
     }
@@ -1541,7 +1672,7 @@ const CareerTrack = ({ language }) => {
                     </ul>
                   </div>
                 </div>
-              ) : (
+              ) : selectedFeature.id !== 'jobchatbot' ? (
                 <div className="bg-gray-900/50 rounded-2xl p-6 mb-6">
                   <h3 className="text-xl font-bold text-white mb-4 text-center">{selectedFeature.outline.formTitle}</h3>
                   
@@ -1598,9 +1729,122 @@ const CareerTrack = ({ language }) => {
                     </button>
                   </form>
                 </div>
-              )}
+              ) : null}
 
-              {selectedFeature.id !== 'cv' && selectedFeature.id !== 'coverletter' && (
+              {selectedFeature.id === 'jobchatbot' ? (
+                <div className="space-y-6">
+                  <div className="bg-gray-900/50 rounded-2xl p-6">
+                    <h3 className="text-xl font-bold text-white mb-4 text-center">ProLaunch AI Assistant</h3>
+                    
+                    {/* Context Upload Section */}
+                    <div className="mb-6 space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-300 mb-2">
+                          Upload Resume (Optional)
+                        </label>
+                        <input
+                          type="file"
+                          accept=".txt,.pdf"
+                          onChange={handleChatResumeFileChange}
+                          className="w-full bg-white/5 border border-gray-700 rounded-xl px-4 py-2 text-white text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-emerald-500/20 file:text-emerald-400 hover:file:bg-emerald-500/30"
+                        />
+                        {chatResumeFile && (
+                          <p className="mt-2 text-sm text-emerald-400">✓ {chatResumeFile.name}</p>
+                        )}
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-300 mb-2">
+                          Upload Cover Letter (Optional - .txt only)
+                        </label>
+                        <input
+                          type="file"
+                          accept=".txt"
+                          onChange={handleChatCoverLetterFileChange}
+                          className="w-full bg-white/5 border border-gray-700 rounded-xl px-4 py-2 text-white text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-emerald-500/20 file:text-emerald-400 hover:file:bg-emerald-500/30"
+                        />
+                        {chatCoverLetterFile && (
+                          <p className="mt-2 text-sm text-emerald-400">✓ {chatCoverLetterFile.name}</p>
+                        )}
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-300 mb-2">
+                          Job Description (Optional)
+                        </label>
+                        <textarea
+                          value={chatJobDescription}
+                          onChange={(e) => setChatJobDescription(e.target.value)}
+                          placeholder="Paste a job description here for context..."
+                          className="w-full bg-white/5 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 min-h-[100px]"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Chat Interface */}
+                    <div className="bg-black/50 rounded-xl p-4 mb-4" style={{ height: '600px', display: 'flex', flexDirection: 'column' }}>
+                      <div className="flex-1 overflow-y-auto mb-4 space-y-4">
+                        {chatMessages.length === 0 ? (
+                          <div className="text-center text-gray-400 mt-8">
+                            <MessageCircle className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                            <p>Ask me anything about resumes, cover letters, job descriptions, or career advice!</p>
+                            <p className="text-sm mt-2">You can upload your resume or cover letter above for personalized feedback.</p>
+                          </div>
+                        ) : (
+                          chatMessages.map((msg, idx) => (
+                            <div
+                              key={idx}
+                              className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                            >
+                              <div
+                                className={`max-w-[80%] rounded-lg px-4 py-2 ${
+                                  msg.role === 'user'
+                                    ? 'bg-emerald-500/20 text-emerald-100'
+                                    : 'bg-white/5 text-gray-200'
+                                }`}
+                              >
+                                <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                              </div>
+                            </div>
+                          ))
+                        )}
+                        {isLoading && (
+                          <div className="flex justify-start">
+                            <div className="bg-white/5 text-gray-200 rounded-lg px-4 py-2">
+                              <Loader2 className="w-4 h-4 animate-spin inline mr-2" />
+                              <span className="text-sm">Thinking...</span>
+                            </div>
+                          </div>
+                        )}
+                        <div ref={chatMessagesEndRef} />
+                      </div>
+                      <form onSubmit={handleChatSubmit} className="flex gap-2">
+                        <input
+                          type="text"
+                          value={chatInput}
+                          onChange={(e) => setChatInput(e.target.value)}
+                          placeholder="Ask a question..."
+                          className="flex-1 bg-white/5 border border-gray-700 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                          disabled={isLoading}
+                        />
+                        <button
+                          type="submit"
+                          disabled={isLoading || !chatInput.trim()}
+                          className="px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-black font-bold rounded-lg hover:from-emerald-600 hover:to-teal-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                        >
+                          <Send className="w-4 h-4" />
+                        </button>
+                      </form>
+                    </div>
+
+                    {error && (
+                      <div className="bg-red-500/10 border border-red-500/50 rounded-xl p-4">
+                        <p className="text-red-400 text-sm">{error}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ) : selectedFeature.id !== 'cv' && selectedFeature.id !== 'coverletter' && selectedFeature.id !== 'jobchatbot' && (
                 <div className="bg-gray-900/50 rounded-2xl p-6">
                   <h3 className="text-xl font-bold text-white mb-4 text-center">How It Works</h3>
                   <ul className="space-y-3">
