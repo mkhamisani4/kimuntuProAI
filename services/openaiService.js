@@ -361,3 +361,233 @@ Generate a highly tailored, one-page resume that perfectly matches this job desc
   }
 };
 
+/**
+ * Generate a tailored cover letter based on user's resume, skills, experience, and job description
+ */
+export const generateCoverLetter = async ({
+  jobDescription,
+  resumeText = '',
+  name = '',
+  skills = '',
+  experience = '',
+  education = '',
+  additionalInfo = ''
+}) => {
+  const prompt = `You are an expert cover letter writer. Generate a professional, compelling, and HUMAN cover letter that:
+- Is tailored specifically to the job description provided
+- Incorporates keywords and phrases from the job description naturally
+- Highlights relevant skills and experience from the user's background
+- Demonstrates genuine interest in the role and company
+- Is professional, comprehensive, engaging, and AUTHENTICALLY HUMAN (approximately 5-6 paragraphs to fill one full page)
+- Uses a respectful, warm, and natural tone - sound like a real person writing, not a robot
+- References specific requirements from the job description
+- Shows how the candidate's experience aligns with the role
+- Includes forward-looking statements about what the candidate could accomplish in the role
+
+**COVER LETTER STRUCTURE:**
+1. **Opening Paragraph**: 
+   - Express genuine, respectful interest in the position
+   - Mention where you learned about the role (if applicable)
+   - Briefly state why you're interested in a warm, human way
+   - Keep it concise (2-3 sentences)
+   - Sound natural and authentic, not robotic or overly formal
+
+2. **Body Paragraph(s)**: 
+   - This is the MOST IMPORTANT section - make it DETAILED, SPECIFIC, COMPREHENSIVE, and IMPRESSIVE
+   - **CRITICAL - Length Requirement**: The cover letter MUST fill approximately one full page. Make paragraphs LONG and DETAILED. Aim for 4-5 substantial body paragraphs, each 4-6 sentences long. Do not be brief - be thorough and expansive.
+   - **CRITICAL - WOW Factor - Focus on Future Impact and Achievements**: This is NOT a resume recap. Instead, paint a VISION of what you WILL achieve and the TRANSFORMATION you'll bring. Focus HEAVILY on forward-looking impact, potential, and what you CAN and WILL accomplish. Use bold, confident language about future outcomes: "I will [specific impressive action] that will [specific transformative impact]", "I am positioned to [achieve specific goal] that will [deliver specific value]", "I will drive [specific outcome] that directly addresses [their challenge/goal]". Make the hiring manager excited about what you'll bring, not just what you've done.
+   - **CRITICAL - Strategic Value Proposition**: Don't just list past experiences - show how your background positions you to deliver EXCEPTIONAL future results. Frame everything as: "My [education/experience/skills] has equipped me to [achieve impressive future outcome] that will [deliver specific transformative value]". Make it about potential and vision, not just history.
+   - **CRITICAL - Bold Achievement Statements**: Include confident, impressive statements about what you WILL accomplish. Use phrases like: "I will [specific impressive action] to [achieve specific transformative goal]", "I am ready to [deliver specific high-impact result] that will [create specific value]", "I will leverage [background] to [achieve specific outcome] that directly addresses [their specific challenge]". Be bold and confident (while respectful) - show ambition and vision.
+   - **CRITICAL - Transformative Impact Focus**: Emphasize how you'll TRANSFORM their situation, not just fill a role. Show how you'll solve their biggest challenges, exceed their goals, and deliver exceptional value. Use language like: "I will transform [specific area] by [specific action] that will [deliver specific impressive outcome]", "I will elevate [specific function] to [specific higher level] through [specific approach]".
+   - Connect your background to SPECIFIC future achievements and transformative outcomes, not just past experiences
+   - For each point, show how your background positions you to deliver EXCEPTIONAL future results: "My [education/experience/skills] positions me to [achieve specific impressive outcome] that will [deliver specific transformative value] because [strategic connection]"
+   - Use forward-looking metrics and outcomes: "I will drive [specific improvement] that will result in [specific impressive metric/outcome]", "I will deliver [specific result] that will [create specific value]"
+   - Don't just recap the resume - show STRATEGIC VISION: "While my [background] demonstrates [capability], I am excited to apply this to [achieve specific impressive future outcome] that will [deliver specific transformative value] for your team"
+   - Incorporate SPECIFIC goals, challenges, and needs from the job description and show how you'll EXCEED them
+   - Show clear vision for transformation: "I will leverage my [background] to [achieve specific impressive goal] that will [deliver specific transformative impact] for [specific stakeholder/business area]"
+   - Make it detailed and impressive - explain the FUTURE IMPACT and TRANSFORMATION you'll deliver, not just what you did in the past
+   - Expand on each point: Paint a picture of the future value you'll create, describe the transformation you'll drive, explain the exceptional outcomes you'll deliver, detail the strategic impact you'll have
+   - Focus on WHAT EXCEPTIONAL VALUE you WILL create for their SPECIFIC needs mentioned in the job description
+   - Use 4-5 body paragraphs, each focusing on different aspects of the TRANSFORMATION and EXCEPTIONAL VALUE you'll deliver, showing vision and potential
+   - Each paragraph should be substantial (4-6 sentences minimum) to ensure the letter fills a full page
+   - **CRITICAL - Human Tone with Confidence**: Write in a natural, respectful, warm, and authentic way, but with CONFIDENCE and VISION. Sound like a real person with ambition and strategic thinking. Use varied sentence structure. Be genuine, sincere, and impressive. Show respect for the company while demonstrating you're ready to deliver exceptional results.
+
+3. **Closing Paragraph**:
+   - Include bold, forward-looking statements about what you WILL accomplish: "I am ready to [specific impressive action] that will [deliver specific transformative impact] for [specific goal from job description]", "I will bring [specific exceptional value] that will [achieve specific impressive outcome]"
+   - Express genuine enthusiasm and CONFIDENCE in your ability to deliver exceptional results
+   - Express desire for an interview with conviction
+   - Professional, warm, but confident closing
+   - Keep it brief (2-3 sentences)
+   - Sound authentic, human, and impressive - show you're ready to make a significant impact
+
+**FORMATTING:**
+- Use professional business letter format
+- **CRITICAL - Letter Structure**: Start with the sender's name at the top (if name is provided), then greeting, then paragraphs, then closing
+- Include proper greeting (Dear Hiring Manager, or Dear [Company Name] Team, if company name is mentioned)
+- Include proper closing (Sincerely, [Name])
+- **CRITICAL - Paragraph Formatting (MANDATORY)**: 
+  * ABSOLUTELY DO NOT use empty lines, blank lines, or double line breaks between ANY elements
+  * ABSOLUTELY DO NOT skip lines between paragraphs - this is FORBIDDEN
+  * The spacing between "Dear Hiring Manager," and the first paragraph is the CORRECT spacing - use that same single-line spacing throughout
+  * Start each new paragraph on the IMMEDIATE next line with NO indentation - all paragraphs should be left-aligned
+  * Paragraphs MUST flow directly one after another with ZERO blank lines between them
+  * Use ONLY single line breaks to separate paragraphs
+  * Example format:
+    [Name]
+    Dear Hiring Manager,
+    [First paragraph text here with single line break after greeting, no blank line]
+    [Second paragraph starts here with no indentation, single line break before, no blank line]
+    [Third paragraph starts here with no indentation, single line break before, no blank line]
+    Sincerely,
+    [Name]
+- Keep paragraphs detailed, comprehensive, and expansive (approximately 600-800 words total to fill one full page)
+- Each body paragraph should be 4-6 sentences long - be thorough, not brief
+- Expand on experiences with context about business challenges, the VALUE you delivered, the IMPACT on stakeholders/customers/business, and detailed measurable results
+- Focus on IMPACT and VALUE creation, not technical implementation details
+- Use clear, professional, but NATURAL and HUMAN language
+- Match the tone of the job description (formal, casual, technical, etc.) while maintaining a warm, respectful, authentic human voice
+- Sound like a real person writing, not an AI or template
+- Be respectful, genuine, and sincere throughout
+- **DO NOT include contact information** (email, phone, LinkedIn, address) in the cover letter body - only include name in the closing signature
+
+**KEY REQUIREMENTS:**
+- Extract ALL keywords, phrases, goals, challenges, and needs from the job description
+- Reference SPECIFIC goals, responsibilities, challenges, and business needs mentioned in the job description
+- Use the same action verbs and language style as the job description
+- Show genuine, respectful enthusiasm with CONFIDENCE and VISION - demonstrate you're ready to deliver exceptional results
+- Make it personal, specific, AUTHENTICALLY HUMAN, and IMPRESSIVE - avoid generic templates, robotic language, and resume recitation
+- Write in a natural, conversational yet professional tone with CONFIDENCE and STRATEGIC VISION - like a real person with ambition would write
+- Include bold, forward-looking statements about what you WILL accomplish: "I will [specific impressive action] that will [deliver specific transformative impact] to help [achieve specific goal]", "I am ready to [deliver specific exceptional value] that will [create specific impressive outcome]"
+- Focus on FUTURE TRANSFORMATION and EXCEPTIONAL VALUE you WILL deliver, not just past experiences or technical skills
+- Emphasize how you will EXCEED their SPECIFIC goals mentioned in the job description and deliver transformative impact
+- **CRITICAL - Strategic Background Integration**: Seamlessly blend education, experience, and skills throughout the cover letter, but frame them as FOUNDATION for FUTURE ACHIEVEMENTS, not just past accomplishments. Don't treat them as separate sections - weave them together to show how your complete background positions you to deliver EXCEPTIONAL future results. For example: "My [degree/major] from [institution] and [experience] have equipped me to [achieve specific impressive future outcome] that will [deliver specific transformative value], directly addressing your need for [job requirement/goal]."
+- **CRITICAL - Future-Focused Value Proposition**: For every experience, education, or skill you mention, show how it positions you to deliver EXCEPTIONAL FUTURE IMPACT. Don't just say "I have experience with X" - say "My [experience/education/skills] with X positions me to [achieve specific impressive future outcome] that will [deliver specific transformative value] for [specific goal/requirement from job description] because [strategic connection showing future potential]"
+- **CRITICAL - Vision Over History**: Be detailed in explaining the FUTURE VALUE and TRANSFORMATION you WILL deliver, not just past accomplishments. Instead of "I worked on projects using technology X," say "I will leverage my [education/experience/skills] to [achieve specific impressive future outcome] that will [deliver specific transformative impact - e.g., transform operations, drive exceptional growth, create breakthrough results], which demonstrates my readiness to [exceed specific job requirement/goal from job description] because [explanation of how your future impact will address their needs]"
+- **CRITICAL - Exceed Job Description Goals**: Reference SPECIFIC goals, challenges, responsibilities, and needs mentioned in the job description, and show how you will EXCEED them and deliver transformative impact. Don't just address their needs - show how you'll elevate their situation. Mix education, experience, and skills together to show a comprehensive strategic value proposition that positions you for exceptional future achievements.
+- **CRITICAL - Paragraph Spacing (MANDATORY - NO EXCEPTIONS)**: ABSOLUTELY FORBIDDEN to use empty lines, blank lines, or line skips between paragraphs. This is a CRITICAL requirement. Instead, start each new paragraph on the IMMEDIATE next line with NO indentation - all paragraphs should be left-aligned. Paragraphs MUST flow directly one after another with ZERO blank lines between them. Use ONLY single line breaks, NEVER double spacing or empty lines. The output must have NO blank lines between paragraphs - if you see a blank line, you have made an error.
+- **CRITICAL - No Contact Info**: DO NOT include any contact information (email, phone, LinkedIn, address) in the cover letter body. Only include the name in the closing signature (e.g., "Sincerely, [Name]"). The cover letter should contain only the letter content itself.
+
+Job Description:
+${jobDescription}
+
+${resumeText ? `Resume/Background Information:\n${resumeText}` : ''}
+
+${name ? `Name: ${name}` : ''}
+${skills ? `Skills: ${skills}` : ''}
+${experience ? `Experience: ${experience}` : ''}
+${education ? `Education: ${education}` : ''}
+${additionalInfo ? `Additional Information: ${additionalInfo}` : ''}
+
+Generate a highly tailored cover letter that perfectly matches this job description. Make sure to incorporate keywords and sentiment from the job description throughout the letter. 
+
+IMPORTANT FORMATTING REMINDER: 
+- Start with [Name] at the top if name is provided
+- Use the EXACT same spacing between "Dear Hiring Manager," and the first paragraph throughout the entire letter
+- NO blank lines anywhere - only single line breaks
+- NO indentation - all paragraphs should be left-aligned
+- **CRITICAL - Length**: Make the cover letter LONG and DETAILED to fill approximately one full page. Use 4-5 substantial body paragraphs, each 4-6 sentences long. Be comprehensive and thorough, not brief. Expand on each experience, education, and skill with context about business challenges, the VALUE you delivered, the IMPACT on stakeholders/customers/business, and detailed measurable results.
+- **CRITICAL - Focus**: Emphasize IMPACT, VALUE, and alignment with SPECIFIC goals from the job description. Less focus on technical details, more focus on business impact, value creation, and how you can help them achieve their specific objectives.
+- **CRITICAL - Integration**: Seamlessly mix education, experience, and skills throughout the body paragraphs. Don't separate them - show how your complete background (education + experience + skills) creates value and impact that addresses their specific needs.
+- **CRITICAL - Human & Respectful Tone**: Write in a natural, warm, respectful, and authentically human way. Sound like a real person writing a genuine letter, not a robot or template. Be respectful of the company and opportunity. Include forward-looking statements naturally: "If given this opportunity, I would be honored to [specific contribution] that would [specific impact]" or "I am excited about the possibility of [contributing to specific goal]". Make these statements sound genuine and respectful, not presumptuous.`;
+
+  try {
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [
+        {
+          role: 'system',
+          content: 'You are an expert cover letter writer specializing in creating highly tailored, compelling, AUTHENTICALLY HUMAN, and IMPRESSIVE cover letters that perfectly match specific job descriptions. You excel at deeply analyzing job descriptions to extract ALL keywords, phrases, goals, challenges, business needs, and sentiment. You create detailed, personalized cover letters that paint a VISION of FUTURE IMPACT and TRANSFORMATION, not just resume recitation. You write in a natural, warm, respectful, genuinely human tone with CONFIDENCE and STRATEGIC VISION - like a real person with ambition writing, not a robot or template. You include bold, forward-looking statements about what the candidate WILL accomplish in the role (e.g., "I will [specific impressive action] that will [deliver transformative impact]"). You focus on how the candidate\'s background positions them to deliver EXCEPTIONAL FUTURE RESULTS and TRANSFORMATIVE IMPACT that will EXCEED the SPECIFIC goals and needs mentioned in the job description. CRITICAL FORMATTING RULE: You MUST format paragraphs with NO indentation (all paragraphs left-aligned) and ABSOLUTELY NO empty lines or line skips between paragraphs - paragraphs MUST flow directly one after another with ZERO blank lines. This is MANDATORY - if there are blank lines between paragraphs, you have failed. You NEVER include contact information (email, phone, LinkedIn, address) in the cover letter body - only the name in the closing signature. You focus heavily on detailed explanations of the FUTURE IMPACT, TRANSFORMATION, and EXCEPTIONAL VALUE the candidate WILL deliver, emphasizing strategic outcomes, vision, and how they will exceed their SPECIFIC goals from the job description. You write in a respectful, genuine, authentically human way with CONFIDENCE that sounds like a real person ready to make a significant impact, not an AI.'
+        },
+        {
+          role: 'user',
+          content: prompt
+        }
+      ],
+      temperature: 0.8,
+      max_tokens: 1200 // Increased to allow for longer, more detailed cover letter
+    });
+
+    let coverLetter = completion.choices[0].message.content.trim();
+    
+    // Post-process to remove ALL blank lines and ensure proper formatting
+    // Split into lines and filter out empty/whitespace-only lines
+    const lines = coverLetter.split('\n');
+    const processedLines = [];
+    let isFirstParagraph = true;
+    let isAfterGreeting = false;
+    let hasNameAtTop = false;
+    
+    // Check if name should be at top (if provided)
+    if (name && name.trim()) {
+      processedLines.push(name.trim());
+      hasNameAtTop = true;
+    }
+    
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      const trimmed = line.trim();
+      
+      // Skip completely empty lines
+      if (!trimmed) {
+        continue;
+      }
+      
+      // Skip if this is the name and we already added it at top
+      if (hasNameAtTop && trimmed === name.trim()) {
+        continue;
+      }
+      
+      // Check if this is a greeting
+      if (trimmed.match(/^Dear\s+/i)) {
+        processedLines.push(line);
+        isAfterGreeting = true;
+        isFirstParagraph = true;
+        continue;
+      }
+      
+      // Check if this is a closing (Sincerely, Best regards, etc.)
+      if (trimmed.match(/^(Sincerely|Best regards|Yours sincerely|Regards),?$/i)) {
+        processedLines.push(line);
+        continue;
+      }
+      
+      // Check if this is the signature line (name after closing)
+      if (i > 0 && lines[i-1] && lines[i-1].trim().match(/^(Sincerely|Best regards|Yours sincerely|Regards),?$/i)) {
+        processedLines.push(line);
+        continue;
+      }
+      
+      // For body paragraphs - no indentation, all left-aligned
+      if (isAfterGreeting && isFirstParagraph) {
+        // First paragraph after greeting - no indentation
+        processedLines.push(line.trimStart());
+        isFirstParagraph = false;
+      } else if (isAfterGreeting) {
+        // Subsequent body paragraphs - remove any indentation, left-align
+        processedLines.push(line.trimStart());
+      } else {
+        // Before greeting (shouldn't happen if name is at top, but handle it)
+        processedLines.push(line.trimStart());
+      }
+    }
+    
+    coverLetter = processedLines.join('\n');
+    
+    // Final cleanup: remove any remaining double newlines or blank lines
+    coverLetter = coverLetter.replace(/\n\n+/g, '\n');
+    // Remove any trailing newlines
+    coverLetter = coverLetter.replace(/\n+$/, '');
+    
+    return coverLetter;
+  } catch (error) {
+    console.error('OpenAI API Error:', error);
+    if (error.response) {
+      throw new Error(`OpenAI API error: ${error.response.status} - ${error.response.statusText}`);
+    } else if (error.message) {
+      throw new Error(`OpenAI API error: ${error.message}`);
+    } else {
+      throw new Error('Failed to generate cover letter. Please try again.');
+    }
+  }
+};
+
