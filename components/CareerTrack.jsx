@@ -1,9 +1,11 @@
 'use client';
 
 import React, { useState } from 'react';
-import { FileText, Target, Users, Shield, X, Loader2, Download, Copy, Check } from 'lucide-react';
-import { tailorResume, extractResumeText } from '../services/openaiService';
+import { FileText, Target, Users, Shield, X, Loader2, Download, Copy, Check, Mail } from 'lucide-react';
+import { tailorResume, extractResumeText, generateCoverLetter } from '../services/openaiService';
 import jsPDF from 'jspdf';
+import { Document, Packer, Paragraph, TextRun } from 'docx';
+import { saveAs } from 'file-saver';
 
 const CareerTrack = ({ language }) => {
   const [selectedFeature, setSelectedFeature] = useState(null);
@@ -13,8 +15,11 @@ const CareerTrack = ({ language }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [generatedResume, setGeneratedResume] = useState(null);
+  const [generatedCoverLetter, setGeneratedCoverLetter] = useState(null);
   const [copied, setCopied] = useState(false);
+  const [copiedCoverLetter, setCopiedCoverLetter] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showCoverLetterSuccess, setShowCoverLetterSuccess] = useState(false);
   
   // Career Track Translations
   const careerTranslations = {
@@ -46,6 +51,13 @@ const CareerTrack = ({ language }) => {
         'Industry standards and best practices'
       ],
       interviewDesc: 'Practice interviews in a realistic, AI-powered environment. Advanced features include sentiment analysis, facial recognition, and instant feedback. Get tailored questions based on your industry and experience, and learn best practices to stand out in any interview.',
+      coverLetter: 'Cover Letter Builder',
+      coverLetterItems: [
+        'Generate tailored cover letters in minutes',
+        'AI-powered keyword matching',
+        'Professional formatting and tone'
+      ],
+      coverLetterDesc: 'Create compelling, job-specific cover letters that highlight your relevant experience and skills. Our AI analyzes the job description and crafts a personalized letter that matches the employer\'s tone and incorporates key keywords.',
       privacyFirst: 'Privacy First',
       privacyDesc: 'Your information is never shared. Backed by Firebase and AWS for maximum security.'
     },
@@ -77,6 +89,13 @@ const CareerTrack = ({ language }) => {
         'Normes et meilleures pratiques de l\'industrie'
       ],
       interviewDesc: 'Pratiquez des entrevues dans un environnement réaliste alimenté par l\'IA. Les fonctionnalités avancées incluent l\'analyse du sentiment, la reconnaissance faciale et la rétroaction instantanée. Obtenez des questions adaptées en fonction de votre industrie et de votre expérience, et apprenez les meilleures pratiques pour vous démarquer lors de toute entrevue.',
+      coverLetter: 'Constructeur de lettre de motivation',
+      coverLetterItems: [
+        'Générez des lettres de motivation adaptées en quelques minutes',
+        'Correspondance de mots-clés alimentée par l\'IA',
+        'Formatage et ton professionnels'
+      ],
+      coverLetterDesc: 'Créez des lettres de motivation convaincantes et spécifiques à l\'emploi qui mettent en valeur votre expérience et vos compétences pertinentes. Notre IA analyse la description de poste et rédige une lettre personnalisée qui correspond au ton de l\'employeur et intègre les mots-clés essentiels.',
       privacyFirst: 'Confidentialité avant tout',
       privacyDesc: 'Vos informations ne sont jamais partagées. Soutenu par Firebase et AWS pour une sécurité maximale.'
     }
@@ -205,6 +224,342 @@ const CareerTrack = ({ language }) => {
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
       console.error('Failed to copy:', err);
+    }
+  };
+
+  const handleCopyCoverLetter = async () => {
+    if (!generatedCoverLetter) return;
+    
+    try {
+      await navigator.clipboard.writeText(generatedCoverLetter);
+      setCopiedCoverLetter(true);
+      setTimeout(() => setCopiedCoverLetter(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
+  };
+
+  const handleCoverLetterSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError(null);
+    setGeneratedCoverLetter(null);
+
+    try {
+      let resumeText = '';
+
+      // Extract resume text if file is uploaded
+      if (resumeFile) {
+        resumeText = await extractResumeText(resumeFile);
+      }
+
+      // Validate required fields
+      if (!formData.jobDescription) {
+        throw new Error('Please provide a job description.');
+      }
+
+      // Call OpenAI API to generate cover letter
+      const coverLetter = await generateCoverLetter({
+        jobDescription: formData.jobDescription,
+        resumeText: resumeText,
+        name: formData.name || '',
+        skills: formData.skills || '',
+        experience: formData.experience || '',
+        education: formData.education || '',
+        additionalInfo: formData.additionalInfo || ''
+      });
+
+      setGeneratedCoverLetter(coverLetter);
+      setShowCoverLetterSuccess(true);
+      
+      // Show success notification and scroll to download section
+      setTimeout(() => {
+        const downloadSection = document.getElementById('cover-letter-download-section');
+        if (downloadSection) {
+          downloadSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 100);
+      
+      // Remove pulse animation after 3 seconds
+      setTimeout(() => {
+        setShowCoverLetterSuccess(false);
+      }, 3000);
+    } catch (err) {
+      console.error('Error generating cover letter:', err);
+      setError(err.message || 'Failed to generate cover letter. Please try again.');
+      setTimeout(() => {
+        setError(null);
+      }, 10000);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCoverLetterDownload = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (!generatedCoverLetter) {
+      setError('No cover letter content available to download.');
+      return;
+    }
+    
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const doc = new jsPDF();
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const margin = 20;
+      const maxWidth = pageWidth - (margin * 2);
+      let yPos = margin;
+      
+      doc.setFont('helvetica');
+      doc.setFontSize(11);
+      
+      // Split cover letter into lines and render
+      const lines = generatedCoverLetter.split('\n');
+      let isFirstParagraph = true;
+      let isAfterGreeting = false;
+      
+      lines.forEach((line, index) => {
+        if (yPos > pageHeight - 20) {
+          doc.addPage();
+          yPos = margin;
+        }
+        
+        const trimmedLine = line.trim();
+        if (!trimmedLine) {
+          // Skip empty lines - they shouldn't exist but handle gracefully
+          return;
+        }
+        
+        // Check if this is the name at top (first line, not greeting/closing)
+        if (index === 0 && !trimmedLine.match(/^(Dear|Sincerely|Best regards|Yours sincerely)/i)) {
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(12);
+          doc.text(trimmedLine, margin, yPos);
+          yPos += 7;
+          doc.setFontSize(11);
+          return;
+        }
+        
+        // Check if it's a greeting
+        if (trimmedLine.match(/^Dear\s+/i)) {
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(11);
+          doc.text(trimmedLine, margin, yPos);
+          yPos += 6; // Single line break spacing
+          isAfterGreeting = true;
+          isFirstParagraph = true;
+          return;
+        }
+        
+        // Check if it's a closing (Sincerely, Best regards, etc.)
+        if (trimmedLine.match(/^(Sincerely|Best regards|Yours sincerely|Regards),?$/i)) {
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(11);
+          doc.text(trimmedLine, margin, yPos);
+          yPos += 6; // Single line break spacing
+          return;
+        }
+        
+        // Check if it's the signature (line after closing)
+        if (index > 0 && lines[index - 1] && lines[index - 1].trim().match(/^(Sincerely|Best regards|Yours sincerely|Regards),?$/i)) {
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(11);
+          doc.text(trimmedLine, margin, yPos);
+          yPos += 6;
+          return;
+        }
+        
+        // Body paragraphs
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(11);
+        
+        if (isAfterGreeting && isFirstParagraph) {
+          // First paragraph - no indentation
+          const textLines = doc.splitTextToSize(trimmedLine, maxWidth);
+          doc.text(textLines, margin, yPos);
+          yPos += textLines.length * 5.5;
+          isFirstParagraph = false;
+        } else if (isAfterGreeting) {
+          // Subsequent paragraphs - no indentation, all left-aligned
+          const textLines = doc.splitTextToSize(trimmedLine, maxWidth);
+          doc.text(textLines, margin, yPos);
+          yPos += textLines.length * 5.5;
+        } else {
+          // Before greeting (shouldn't happen, but handle it)
+          const textLines = doc.splitTextToSize(trimmedLine, maxWidth);
+          doc.text(textLines, margin, yPos);
+          yPos += textLines.length * 5.5;
+        }
+      });
+      
+      doc.save('cover-letter.pdf');
+    } catch (err) {
+      console.error('Error generating PDF:', err);
+      setError(err.message || 'Failed to generate PDF. Please try again.');
+      setTimeout(() => {
+        setError(null);
+      }, 10000);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCoverLetterDownloadDOCX = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (!generatedCoverLetter) {
+      setError('No cover letter content available to download.');
+      return;
+    }
+    
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const lines = generatedCoverLetter.split('\n');
+      const docxParagraphs = [];
+      let isFirstParagraph = true;
+      let isAfterGreeting = false;
+      
+      lines.forEach((line, index) => {
+        const trimmedLine = line.trim();
+        if (!trimmedLine) {
+          return; // Skip empty lines
+        }
+        
+        // Check if this is the name at top (first line, not greeting/closing)
+        if (index === 0 && !trimmedLine.match(/^(Dear|Sincerely|Best regards|Yours sincerely)/i)) {
+          docxParagraphs.push(
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: trimmedLine,
+                  bold: true,
+                  size: 24, // 12pt in half-points
+                }),
+              ],
+              spacing: { after: 120 }, // 6pt spacing
+            })
+          );
+          return;
+        }
+        
+        // Check if it's a greeting
+        if (trimmedLine.match(/^Dear\s+/i)) {
+          docxParagraphs.push(
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: trimmedLine,
+                  size: 22, // 11pt
+                }),
+              ],
+              spacing: { after: 120 }, // 6pt spacing
+            })
+          );
+          isAfterGreeting = true;
+          isFirstParagraph = true;
+          return;
+        }
+        
+        // Check if it's a closing (Sincerely, Best regards, etc.)
+        if (trimmedLine.match(/^(Sincerely|Best regards|Yours sincerely|Regards),?$/i)) {
+          docxParagraphs.push(
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: trimmedLine,
+                  size: 22, // 11pt
+                }),
+              ],
+              spacing: { after: 120 }, // 6pt spacing
+            })
+          );
+          return;
+        }
+        
+        // Check if it's the signature (line after closing)
+        if (index > 0 && lines[index - 1] && lines[index - 1].trim().match(/^(Sincerely|Best regards|Yours sincerely|Regards),?$/i)) {
+          docxParagraphs.push(
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: trimmedLine,
+                  size: 22, // 11pt
+                }),
+              ],
+              spacing: { after: 120 },
+            })
+          );
+          return;
+        }
+        
+        // Body paragraphs
+        if (isAfterGreeting && isFirstParagraph) {
+          docxParagraphs.push(
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: trimmedLine,
+                  size: 22, // 11pt
+                }),
+              ],
+              spacing: { after: 120 },
+            })
+          );
+          isFirstParagraph = false;
+        } else if (isAfterGreeting) {
+          docxParagraphs.push(
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: trimmedLine,
+                  size: 22, // 11pt
+                }),
+              ],
+              spacing: { after: 120 },
+            })
+          );
+        } else {
+          docxParagraphs.push(
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: trimmedLine,
+                  size: 22, // 11pt
+                }),
+              ],
+              spacing: { after: 120 },
+            })
+          );
+        }
+      });
+      
+      const doc = new Document({
+        sections: [
+          {
+            properties: {},
+            children: docxParagraphs,
+          },
+        ],
+      });
+      
+      const blob = await Packer.toBlob(doc);
+      saveAs(blob, 'cover-letter.docx');
+    } catch (err) {
+      console.error('Error generating DOCX:', err);
+      setError(err.message || 'Failed to generate DOCX. Please try again.');
+      setTimeout(() => {
+        setError(null);
+      }, 10000);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -518,7 +873,12 @@ const CareerTrack = ({ language }) => {
     setResumeFile(null);
     setHasExistingResume(null);
     setGeneratedResume(null);
+    setGeneratedCoverLetter(null);
     setError(null);
+    setCopied(false);
+    setCopiedCoverLetter(false);
+    setShowSuccess(false);
+    setShowCoverLetterSuccess(false);
   };
 
   const closeFeature = () => {
@@ -527,9 +887,12 @@ const CareerTrack = ({ language }) => {
     setResumeFile(null);
     setHasExistingResume(null);
     setGeneratedResume(null);
+    setGeneratedCoverLetter(null);
     setError(null);
     setCopied(false);
+    setCopiedCoverLetter(false);
     setShowSuccess(false);
+    setShowCoverLetterSuccess(false);
   };
 
   const features = [
@@ -550,6 +913,25 @@ const CareerTrack = ({ language }) => {
           { label: 'Skills', desc: 'Technical, soft skills, languages' },
           { label: 'Certifications & Awards', desc: 'Relevant recognitions' },
           { label: 'Export', desc: 'Download as PDF or share link' }
+        ]
+      }
+    },
+    {
+      id: 'coverletter',
+      title: t.coverLetter,
+      icon: Mail,
+      items: t.coverLetterItems,
+      description: t.coverLetterDesc,
+      outline: {
+        title: 'General Outline',
+        formTitle: 'Cover Letter Builder',
+        inputs: [],
+        howItWorks: [
+          { label: 'Job Description', desc: 'Paste the job description you\'re applying for' },
+          { label: 'Your Background', desc: 'Upload resume or provide skills and experience' },
+          { label: 'AI Analysis', desc: 'AI extracts keywords and matches your background' },
+          { label: 'Tailored Letter', desc: 'Generate a personalized cover letter' },
+          { label: 'Download & Use', desc: 'Export as PDF or copy text' }
         ]
       }
     },
@@ -672,7 +1054,208 @@ const CareerTrack = ({ language }) => {
                 <p className="text-gray-400">{selectedFeature.description}</p>
               </div>
 
-              {selectedFeature.id === 'cv' ? (
+              {selectedFeature.id === 'coverletter' ? (
+                <div className="space-y-6">
+                  <div className="bg-gray-900/50 rounded-2xl p-6">
+                    <h3 className="text-xl font-bold text-white mb-4 text-center">Cover Letter Builder</h3>
+                    
+                    <form onSubmit={handleCoverLetterSubmit} className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-300 mb-2">
+                          Job Description <span className="text-red-400">*</span>
+                        </label>
+                        <textarea
+                          value={formData.jobDescription || ''}
+                          onChange={(e) => handleInputChange('jobDescription', e.target.value)}
+                          placeholder="Paste the job description here..."
+                          className="w-full bg-white/5 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 min-h-[150px]"
+                          required
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-300 mb-2">
+                          Upload Resume (Optional)
+                        </label>
+                        <input
+                          type="file"
+                          accept=".txt,.pdf"
+                          onChange={handleFileChange}
+                          className="w-full bg-white/5 border border-gray-700 rounded-xl px-4 py-2 text-white text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-emerald-500/20 file:text-emerald-400 hover:file:bg-emerald-500/30"
+                        />
+                        <p className="mt-2 text-xs text-gray-400">Supported formats: .txt, .pdf</p>
+                        {resumeFile && (
+                          <p className="mt-2 text-sm text-emerald-400">✓ {resumeFile.name}</p>
+                        )}
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-300 mb-2">
+                          Your Name <span className="text-gray-500">(optional)</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={formData.name || ''}
+                          onChange={(e) => handleInputChange('name', e.target.value)}
+                          placeholder="Your full name"
+                          className="w-full bg-white/5 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-300 mb-2">
+                          Skills <span className="text-gray-500">(optional)</span>
+                        </label>
+                        <textarea
+                          value={formData.skills || ''}
+                          onChange={(e) => handleInputChange('skills', e.target.value)}
+                          placeholder="e.g. Python, Communication, Excel, Project Management..."
+                          className="w-full bg-white/5 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 min-h-[80px]"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-300 mb-2">
+                          Experience <span className="text-gray-500">(optional)</span>
+                        </label>
+                        <textarea
+                          value={formData.experience || ''}
+                          onChange={(e) => handleInputChange('experience', e.target.value)}
+                          placeholder="Briefly describe your relevant work experience, projects, or achievements..."
+                          className="w-full bg-white/5 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 min-h-[100px]"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-300 mb-2">
+                          Education <span className="text-gray-500">(optional)</span>
+                        </label>
+                        <textarea
+                          value={formData.education || ''}
+                          onChange={(e) => handleInputChange('education', e.target.value)}
+                          placeholder="List your education: institution, degree, major, graduation date, relevant coursework, honors, etc..."
+                          className="w-full bg-white/5 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 min-h-[100px]"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-300 mb-2">
+                          Additional Information <span className="text-gray-500">(optional)</span>
+                        </label>
+                        <textarea
+                          value={formData.additionalInfo || ''}
+                          onChange={(e) => handleInputChange('additionalInfo', e.target.value)}
+                          placeholder="Any additional information you'd like to include (certifications, awards, etc.)..."
+                          className="w-full bg-white/5 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 min-h-[80px]"
+                        />
+                      </div>
+
+                      {error && (
+                        <div className="bg-red-500/10 border border-red-500/50 rounded-xl p-4">
+                          <p className="text-red-400 text-sm">{error}</p>
+                        </div>
+                      )}
+
+                      <button
+                        type="submit"
+                        disabled={isLoading}
+                        className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 text-black font-bold py-3 rounded-xl hover:from-emerald-600 hover:to-teal-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                      >
+                        {isLoading ? (
+                          <>
+                            <Loader2 className="w-5 h-5 animate-spin" />
+                            <span>Generating Cover Letter...</span>
+                          </>
+                        ) : (
+                          'Generate Cover Letter'
+                        )}
+                      </button>
+                    </form>
+                  </div>
+
+                  {generatedCoverLetter && (
+                    <div id="cover-letter-download-section" className={`bg-gray-900/50 rounded-2xl p-6 ${showCoverLetterSuccess ? 'border-2 border-emerald-500/50 animate-pulse' : 'border border-gray-800'}`}>
+                      <div className="bg-emerald-500/20 border border-emerald-500/50 rounded-xl p-3 mb-4 flex items-center gap-2">
+                        <Check className="w-5 h-5 text-emerald-400" />
+                        <p className="text-emerald-400 font-semibold">✓ Cover letter generated successfully! Download your tailored PDF below.</p>
+                      </div>
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-xl font-bold text-white">Generated Cover Letter</h3>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={handleCopyCoverLetter}
+                            className="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-white text-sm transition-all flex items-center gap-2"
+                          >
+                            {copiedCoverLetter ? (
+                              <>
+                                <Check className="w-4 h-4" />
+                                <span>Copied!</span>
+                              </>
+                            ) : (
+                              <>
+                                <Copy className="w-4 h-4" />
+                                <span>Copy</span>
+                              </>
+                            )}
+                          </button>
+                          <button
+                            onClick={handleCoverLetterDownloadDOCX}
+                            disabled={isLoading}
+                            className="px-4 py-2 bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/50 rounded-lg text-blue-400 text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                          >
+                            {isLoading ? (
+                              <>
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                                <span>Generating...</span>
+                              </>
+                            ) : (
+                              <>
+                                <FileText className="w-4 h-4" />
+                                <span>Download DOCX</span>
+                              </>
+                            )}
+                          </button>
+                          <button
+                            onClick={handleCoverLetterDownload}
+                            disabled={isLoading}
+                            className="px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-black font-bold rounded-lg hover:from-emerald-600 hover:to-teal-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                          >
+                            {isLoading ? (
+                              <>
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                                <span>Generating PDF...</span>
+                              </>
+                            ) : (
+                              <>
+                                <Download className="w-4 h-4" />
+                                <span>Download PDF</span>
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                      <div className="bg-black/50 rounded-xl p-4 max-h-[400px] overflow-y-auto">
+                        <pre className="text-white text-sm whitespace-pre-wrap font-mono">{generatedCoverLetter}</pre>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="bg-gray-900/50 rounded-2xl p-6">
+                    <h3 className="text-xl font-bold text-white mb-4 text-center">How It Works</h3>
+                    <ul className="space-y-3">
+                      {selectedFeature.outline.howItWorks.map((step, i) => (
+                        <li key={i} className="flex items-start gap-3">
+                          <span className="text-emerald-400 font-bold flex-shrink-0">•</span>
+                          <div>
+                            <strong className="text-white">{step.label}:</strong>
+                            <span className="text-gray-300 ml-2">{step.desc}</span>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              ) : selectedFeature.id === 'cv' ? (
                 <div className="space-y-6">
                   <div className="bg-gray-900/50 rounded-2xl p-6">
                     <h3 className="text-xl font-bold text-white mb-4 text-center">CV Builder</h3>
@@ -1017,7 +1600,7 @@ const CareerTrack = ({ language }) => {
                 </div>
               )}
 
-              {selectedFeature.id !== 'cv' && (
+              {selectedFeature.id !== 'cv' && selectedFeature.id !== 'coverletter' && (
                 <div className="bg-gray-900/50 rounded-2xl p-6">
                   <h3 className="text-xl font-bold text-white mb-4 text-center">How It Works</h3>
                   <ul className="space-y-3">
