@@ -591,3 +591,63 @@ IMPORTANT FORMATTING REMINDER:
   }
 };
 
+/**
+ * Chatbot for job-related questions - can answer questions about resumes, cover letters, job descriptions, etc.
+ */
+export const chatJobAssistant = async ({
+  message,
+  conversationHistory = [],
+  resumeText = '',
+  coverLetterText = '',
+  jobDescription = ''
+}) => {
+  const systemPrompt = `You are an expert career advisor and job search assistant. You help users with:
+- Resume improvements and feedback
+- Cover letter improvements and feedback
+- Job description analysis and questions
+- Interview preparation advice
+- Career guidance
+- Application tips and best practices
+- Any job search or career-related questions
+
+You provide helpful, constructive, and actionable advice. Be friendly, professional, and encouraging. When analyzing resumes or cover letters, be specific about what works well and what could be improved. When answering questions about job descriptions, provide detailed insights about requirements, qualifications, and how to position oneself.
+
+${resumeText ? `The user has provided their resume for context:\n${resumeText}\n\n` : ''}
+${coverLetterText ? `The user has provided their cover letter for context:\n${coverLetterText}\n\n` : ''}
+${jobDescription ? `The user has provided a job description for context:\n${jobDescription}\n\n` : ''}
+
+Answer the user's question comprehensively and helpfully.`;
+
+  try {
+    const messages = [
+      {
+        role: 'system',
+        content: systemPrompt
+      },
+      ...conversationHistory,
+      {
+        role: 'user',
+        content: message
+      }
+    ];
+
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: messages,
+      temperature: 0.7,
+      max_tokens: 1000
+    });
+
+    return completion.choices[0].message.content.trim();
+  } catch (error) {
+    console.error('OpenAI API Error:', error);
+    if (error.response) {
+      throw new Error(`OpenAI API error: ${error.response.status} - ${error.response.statusText}`);
+    } else if (error.message) {
+      throw new Error(`OpenAI API error: ${error.message}`);
+    } else {
+      throw new Error('Failed to get response. Please try again.');
+    }
+  }
+};
+
