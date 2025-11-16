@@ -9,6 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "docx": "^9.5.1",
+    "file-saver": "^2.0.5",
     "firebase": "^10.14.1",
     "jspdf": "^3.0.3",
     "lucide-react": "^0.263.1",
