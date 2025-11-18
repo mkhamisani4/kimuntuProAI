@@ -28,7 +28,10 @@
       "Bash(firebase --version:*)",
       "Bash(firebase login:*)",
       "Bash(firebase projects:list:*)",
-      "Bash(firebase deploy:*)"
+      "Bash(firebase deploy:*)",
+      "Bash(node test-css-sanitize.mjs:*)",
+      "Bash(node test-real-sanitize.mjs:*)",
+      "Bash(npm uninstall:*)"
     ],
     "deny": [],
     "ask": []

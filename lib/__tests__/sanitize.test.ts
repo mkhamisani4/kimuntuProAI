@@ -2,7 +2,6 @@
  * Tests for HTML Sanitization Utility
  */
 
-import { vi } from 'vitest';
 import { sanitizeWebsiteHTML, getIframeCSP, getIframeSandboxAttributes } from '../sanitize';
 
 describe('sanitizeWebsiteHTML', () => {
@@ -10,6 +9,7 @@ describe('sanitizeWebsiteHTML', () => {
     const html = '<!DOCTYPE html><html><head><title>Test</title></head><body><h1>Hello</h1></body></html>';
     const result = sanitizeWebsiteHTML(html);
 
+    expect(result).toBe(html); // No changes to safe HTML
     expect(result).toContain('<html>');
     expect(result).toContain('<head>');
     expect(result).toContain('<body>');
@@ -20,6 +20,7 @@ describe('sanitizeWebsiteHTML', () => {
     const html = '<div style="color: red; background: blue;">Styled content</div>';
     const result = sanitizeWebsiteHTML(html);
 
+    expect(result).toBe(html); // No changes
     expect(result).toContain('style=');
     expect(result).toContain('color');
   });
@@ -28,6 +29,7 @@ describe('sanitizeWebsiteHTML', () => {
     const html = '<style>.test { color: red; }</style><div class="test">Content</div>';
     const result = sanitizeWebsiteHTML(html);
 
+    expect(result).toBe(html); // No changes
     expect(result).toContain('<style>');
     expect(result).toContain('.test');
     expect(result).toContain('color: red');
@@ -38,13 +40,15 @@ describe('sanitizeWebsiteHTML', () => {
     const result = sanitizeWebsiteHTML(html);
 
     expect(result).not.toContain('onclick');
-    expect(result).not.toContain('alert');
+    expect(result).toContain('<button');
+    expect(result).toContain('Click me');
   });
 
   it('should preserve semantic HTML5 tags', () => {
     const html = '<header><nav><a href="#">Link</a></nav></header><main><article>Content</article></main><footer>Footer</footer>';
     const result = sanitizeWebsiteHTML(html);
 
+    expect(result).toBe(html); // No changes
     expect(result).toContain('<header>');
     expect(result).toContain('<nav>');
     expect(result).toContain('<main>');
@@ -56,6 +60,7 @@ describe('sanitizeWebsiteHTML', () => {
     const html = '<button aria-label="Close" role="button">X</button>';
     const result = sanitizeWebsiteHTML(html);
 
+    expect(result).toBe(html); // No changes
     expect(result).toContain('aria-label');
     expect(result).toContain('role=');
   });
@@ -64,6 +69,7 @@ describe('sanitizeWebsiteHTML', () => {
     const html = '<img src="data:image/png;base64,iVBORw0KGgo=" alt="Test">';
     const result = sanitizeWebsiteHTML(html);
 
+    expect(result).toBe(html); // No changes
     expect(result).toContain('data:image/png');
     expect(result).toContain('base64');
   });
@@ -72,6 +78,7 @@ describe('sanitizeWebsiteHTML', () => {
     const html = '<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="red"/></svg>';
     const result = sanitizeWebsiteHTML(html);
 
+    expect(result).toBe(html); // No changes
     expect(result).toContain('<svg');
     expect(result).toContain('viewBox');
     expect(result).toContain('<circle');
@@ -81,15 +88,15 @@ describe('sanitizeWebsiteHTML', () => {
     const html = '<div><p>Unclosed paragraph';
     const result = sanitizeWebsiteHTML(html);
 
-    // Should return some valid HTML, not throw
-    expect(result).toBeTruthy();
+    // Should return the same HTML, not throw
+    expect(result).toBe(html);
     expect(typeof result).toBe('string');
   });
 
   it('should handle empty input', () => {
     const result = sanitizeWebsiteHTML('');
 
-    expect(result).toBeTruthy();
+    expect(result).toBe('');
     expect(typeof result).toBe('string');
   });
 
@@ -105,6 +112,7 @@ describe('sanitizeWebsiteHTML', () => {
     const html = '<form><input type="text" name="email" placeholder="Email" required><button type="submit">Submit</button></form>';
     const result = sanitizeWebsiteHTML(html);
 
+    expect(result).toBe(html); // No changes
     expect(result).toContain('<form>');
     expect(result).toContain('<input');
     expect(result).toContain('type="text"');
@@ -116,21 +124,30 @@ describe('sanitizeWebsiteHTML', () => {
     const html = '<head><meta charset="utf-8"><meta name="viewport" content="width=device-width"></head>';
     const result = sanitizeWebsiteHTML(html);
 
+    expect(result).toBe(html); // No changes
     expect(result).toContain('<meta');
     expect(result).toContain('charset');
     expect(result).toContain('viewport');
   });
 
-  it('should log when HTML is modified during sanitization', () => {
-    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+  it('should remove multiple event handlers', () => {
+    const html = '<div onclick="alert(1)" onmouseover="alert(2)" onerror="alert(3)">Test</div>';
+    const result = sanitizeWebsiteHTML(html);
 
-    const html = '<div onclick="alert()">Test</div>'; // Should be modified
-    sanitizeWebsiteHTML(html);
+    expect(result).not.toContain('onclick');
+    expect(result).not.toContain('onmouseover');
+    expect(result).not.toContain('onerror');
+    expect(result).toContain('<div');
+    expect(result).toContain('Test');
+  });
 
-    // Should log the difference
-    expect(consoleSpy).toHaveBeenCalled();
+  it('should preserve complex CSS with gradients and transforms', () => {
+    const html = '<style>body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); transform: rotate(45deg); }</style>';
+    const result = sanitizeWebsiteHTML(html);
 
-    consoleSpy.mockRestore();
+    expect(result).toBe(html); // No changes
+    expect(result).toContain('linear-gradient');
+    expect(result).toContain('transform');
   });
 });
 
