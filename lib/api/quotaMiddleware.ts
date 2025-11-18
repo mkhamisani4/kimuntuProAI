@@ -110,6 +110,17 @@ async function extractQuotaParams(
         requires_web_search: false,
         escalate_model: true, // Uses Sonnet 4.5 for generation
       };
+    } else if (body.instruction) {
+      // Website editing format
+      // Estimate input length from instruction
+      inputLength = body.instruction.length;
+
+      // Website editing uses Sonnet 4.5 but doesn't use retrieval or web search
+      plan = {
+        requires_retrieval: false,
+        requires_web_search: false,
+        escalate_model: true, // Uses Sonnet 4.5 for editing
+      };
     } else {
       // Old two-stage format
       const request = body.request as AssistantRequest;
