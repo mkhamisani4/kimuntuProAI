@@ -84,9 +84,10 @@ async function extractQuotaParams(
       escalate_model: false, // Conservative default for preflight
     };
   } else {
-    // Executor route: supports two formats
+    // Executor route: supports three formats
     // 1. New format: { assistant, input, extra } - used by /api/ai/answer
-    // 2. Old format: { plan, request } - backwards compatibility
+    // 2. Website generation: { wizardInput, ... } - used by /api/websites/generate
+    // 3. Old format: { plan, request } - backwards compatibility
 
     if (body.assistant && body.input) {
       // New assistant-based format
@@ -97,6 +98,17 @@ async function extractQuotaParams(
         requires_retrieval: deriveHeuristics(body).suggested_requires_retrieval,
         requires_web_search: deriveHeuristics(body).suggested_requires_web_search,
         escalate_model: false,
+      };
+    } else if (body.wizardInput) {
+      // Website generation format
+      // Estimate input length from wizard data
+      inputLength = JSON.stringify(body.wizardInput).length;
+
+      // Website generation doesn't use retrieval or web search
+      plan = {
+        requires_retrieval: false,
+        requires_web_search: false,
+        escalate_model: true, // Uses Sonnet 4.5 for generation
       };
     } else {
       // Old two-stage format

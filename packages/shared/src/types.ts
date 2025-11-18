@@ -401,3 +401,140 @@ export enum ErrorCode {
   DATABASE_ERROR = 'DATABASE_ERROR',
   LLM_ERROR = 'LLM_ERROR',
 }
+
+// ============================================================================
+// WEBSITE BUILDER TYPES
+// ============================================================================
+
+/**
+ * Wizard input data structure (6 steps)
+ */
+export interface WizardInput {
+  // Step 1: Brand Basics
+  companyName?: string;
+  tagline?: string;
+  brandVoice?: 'professional' | 'casual' | 'luxury' | 'playful' | 'friendly';
+  logoUrl?: string | null;
+
+  // Step 2: Business Overview
+  shortDescription?: string;
+  aboutUs?: string;
+  industry?: string;
+  keyServices?: string[];
+
+  // Step 3: Hero & CTA
+  heroHeadline?: string;
+  heroSubheadline?: string;
+  primaryCtaText?: string;
+  mainGoal?: 'consult' | 'buy' | 'signup' | 'contact' | 'learn_more';
+
+  // Step 4: Sections & Layout
+  enabledSections: {
+    features: boolean;
+    services: boolean;
+    about: boolean;
+    testimonials: boolean;
+    pricing: boolean;
+    faq: boolean;
+    contact: boolean;
+  };
+  layoutStyle?: 'minimal' | 'modern' | 'bold' | 'playful';
+
+  // Step 5: Contact & Social
+  contactEmail?: string;
+  contactPhone?: string;
+  location?: string;
+  socialLinks?: {
+    instagram?: string;
+    linkedin?: string;
+    twitter?: string;
+    facebook?: string;
+  };
+
+  // Step 6: Visual Style
+  colorTheme?: string;
+  fontStyle?: string;
+}
+
+/**
+ * Generated site specification (internal structured representation)
+ */
+export interface SiteSpec {
+  meta: {
+    title: string;
+    description: string;
+  };
+
+  branding: {
+    companyName: string;
+    tagline: string;
+    logoUrl: string | null;
+    brandVoice: string;
+  };
+
+  hero: {
+    headline: string;
+    subheadline: string;
+    ctaText: string;
+    ctaAction: string;
+  };
+
+  sections: SiteSection[];
+
+  contact: {
+    email?: string;
+    phone?: string;
+    location?: string;
+  };
+
+  social: {
+    instagram?: string;
+    linkedin?: string;
+    twitter?: string;
+    facebook?: string;
+  };
+
+  styling: {
+    colorPalette: {
+      primary: string;
+      secondary: string;
+      accent: string;
+      background: string;
+      text: string;
+    };
+    fontFamily: {
+      heading: string;
+      body: string;
+    };
+  };
+}
+
+/**
+ * Individual website section
+ */
+export interface SiteSection {
+  id: string;
+  title: string;
+  content: Record<string, any>;
+  order: number;
+}
+
+/**
+ * Website generation request payload
+ */
+export interface WebsiteGenerationRequest {
+  tenantId: string;
+  userId: string;
+  businessPlanId?: string | null;
+  wizardInput: WizardInput;
+}
+
+/**
+ * Website generation response
+ */
+export interface WebsiteGenerationResponse {
+  success: true;
+  websiteId: string;
+  status: 'generating' | 'ready' | 'failed';
+  message: string;
+}

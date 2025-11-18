@@ -137,11 +137,13 @@ See `.env.example` for a complete list of required variables.
 
 ## Deployment
 
+⚠️ **Important**: Before deploying to production, you MUST configure Firebase Admin SDK with a service account key. See [docs/PRODUCTION_SETUP.md](docs/PRODUCTION_SETUP.md) for detailed instructions.
+
 ### Vercel (Recommended)
 
 1. Push your code to GitHub
 2. Import project in Vercel
-3. Add environment variables in Vercel dashboard
+3. Add environment variables in Vercel dashboard (including `FIREBASE_SERVICE_ACCOUNT_KEY`)
 4. Deploy
 
 ### Other Platforms
@@ -155,6 +157,14 @@ Start the production server:
 ```bash
 npm start
 ```
+
+**Production Checklist:**
+- [ ] Firebase service account key configured (required for website generation)
+- [ ] All environment variables set
+- [ ] Firebase security rules configured
+- [ ] API keys (OpenAI, Anthropic) verified
+
+See [docs/PRODUCTION_SETUP.md](docs/PRODUCTION_SETUP.md) for complete production setup guide.
 
 ## Migration Notes
 

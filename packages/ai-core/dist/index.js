@@ -4,6 +4,8 @@
  */
 // Export LLM client and utilities
 export { OpenAIClient, } from './llm/client.js';
+export { ClaudeClient, } from './llm/claudeClient.js';
+export { generateWebsite, } from './generators/websiteGenerator.js';
 export { MODEL_CONFIGS, DEFAULT_MODEL_MINI, DEFAULT_MODEL_ESCALATION, getModelConfig, modelSupports, getModelFromEnv, } from './llm/models.js';
 export { getCostCents, estimateCostCents, formatCost, exceedsMaxCost, getModelPricing, } from './llm/costs.js';
 export { asJsonSchema, parseStructured, extractJsonFromMarkdown, } from './llm/structured.js';

@@ -17,6 +17,7 @@ import { getAssistantResult } from '@kimuntupro/db';
 export default function StreamlinedPlanPage() {
   const searchParams = useSearchParams();
   const [result, setResult] = useState<AssistantResult | null>(null);
+  const [resultId, setResultId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [errorType, setErrorType] = useState<'quota' | 'auth' | 'server' | null>(null);
@@ -24,10 +25,11 @@ export default function StreamlinedPlanPage() {
 
   // Load saved result from URL parameter
   useEffect(() => {
-    const resultId = searchParams.get('resultId');
-    if (resultId) {
+    const savedResultId = searchParams.get('resultId');
+    if (savedResultId) {
+      setResultId(savedResultId);
       setIsLoading(true);
-      getAssistantResult(resultId)
+      getAssistantResult(savedResultId)
         .then((savedResult) => {
           if (savedResult) {
             // Transform Firestore result to AssistantResult format
@@ -165,6 +167,7 @@ export default function StreamlinedPlanPage() {
             error={error ? { message: error, type: errorType || 'server' } : null}
             onRetry={handleRetry}
             assistantType="streamlined_plan"
+            resultId={resultId}
           />
           {!result && !error && !isLoading && (
             <div className="bg-white/5 backdrop-blur border border-gray-800 rounded-2xl p-12 text-center">

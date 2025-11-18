@@ -1,0 +1,51 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper function to check if user is authenticated
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Helper function to check if user owns the document
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Assistant results - users can read/write their own results
+    match /assistant_results/{resultId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update: if isSignedIn();
+      allow delete: if false; // Prevent deletion for data integrity
+    }
+
+    // Usage tracking
+    // ⚠️ DEVELOPMENT MODE: Open for all writes (no auth required)
+    // For production, use Admin SDK with service account key
+    match /usage/{usageId} {
+      allow read: if isSignedIn();
+      allow write: if true; // Completely open for development
+    }
+
+    // Document metadata (RAG) - readable by authenticated users, writable by all (server writes)
+    match /documents/{docId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn(); // Allows server-side writes from API routes
+    }
+
+    // Website documents
+    // ⚠️ DEVELOPMENT MODE: Open for all writes (no auth required)
+    // This is ONLY for development without Admin SDK
+    // For production, MUST use Admin SDK with service account key
+    match /websites/{websiteId} {
+      allow read, write: if true; // Completely open for development
+    }
+
+    // Default: deny all other access
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

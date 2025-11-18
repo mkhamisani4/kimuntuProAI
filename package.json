@@ -27,17 +27,23 @@
     "test:all": "npm run typecheck && npm run test:ui && npm run test && npm run test:e2e"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.69.0",
     "@headlessui/react": "^2.2.9",
     "@heroicons/react": "^2.2.0",
+    "@types/dompurify": "^3.0.5",
     "date-fns": "^4.1.0",
+    "dompurify": "^3.3.0",
     "firebase": "^10.14.1",
+    "firebase-admin": "^13.6.0",
     "html2canvas": "^1.4.1",
+    "isomorphic-dompurify": "^2.32.0",
     "jspdf": "^3.0.3",
     "lucide-react": "^0.263.1",
     "next": "^15.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-hot-toast": "^2.6.0"
+    "react-hot-toast": "^2.6.0",
+    "server-only": "^0.0.1"
   },
   "devDependencies": {
     "@playwright/test": "^1.56.1",

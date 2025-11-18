@@ -33,6 +33,25 @@ export {
   type DocumentMeta,
 } from './firebase/documents.js';
 
+// Export website persistence functions (client-side)
+export {
+  createWebsite,
+  getWebsite,
+  updateWebsite,
+  listWebsites,
+  deleteWebsite,
+  type Website,
+} from './firebase/websites.js';
+
+// Note: Server-side admin functions are NOT exported here to prevent client-side bundling
+// Import directly from '@kimuntupro/db/firebase/websites.server' in API routes only
+
+// Export Firebase Storage functions
+export {
+  uploadLogo,
+  deleteLogo,
+} from './firebase/storage.js';
+
 /**
  * Database configuration type
  */

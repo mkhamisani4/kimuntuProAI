@@ -22,7 +22,13 @@
       "Bash(dir packagesai-corenode_modulestavily)",
       "Bash(git commit:*)",
       "Bash(git push:*)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(npm run build:packages:*)",
+      "Bash(npx tsc:*)",
+      "Bash(firebase --version:*)",
+      "Bash(firebase login:*)",
+      "Bash(firebase projects:list:*)",
+      "Bash(firebase deploy:*)"
     ],
     "deny": [],
     "ask": []

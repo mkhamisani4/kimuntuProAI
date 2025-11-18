@@ -19,6 +19,17 @@ export {
 } from './llm/client.js';
 
 export {
+  ClaudeClient,
+  type ClaudeResponse,
+  type ClaudeClientConfig,
+} from './llm/claudeClient.js';
+
+export {
+  generateWebsite,
+  type WebsiteGenerationResult,
+} from './generators/websiteGenerator.js';
+
+export {
   type ModelId,
   type ModelCapabilities,
   type ModelConfig,

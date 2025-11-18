@@ -7,7 +7,8 @@
  */
 
 import { useState } from 'react';
-import { Copy } from 'lucide-react';
+import { Copy, Globe } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import type { AssistantResult } from './page';
 import SourceList from './SourceList';
 import LoadingSkeleton from '@/components/ai/LoadingSkeleton';
@@ -21,10 +22,20 @@ interface ResultViewerProps {
   error?: { message: string; type: string } | null;
   onRetry?: () => void;
   assistantType?: string;
+  resultId?: string | null;
 }
 
-export default function ResultViewer({ result, isLoading, error, onRetry, assistantType = 'streamlined_plan' }: ResultViewerProps) {
+export default function ResultViewer({ result, isLoading, error, onRetry, assistantType = 'streamlined_plan', resultId }: ResultViewerProps) {
+  const router = useRouter();
   const [isAnimating, setIsAnimating] = useState(false);
+
+  const handleConvertToWebsite = () => {
+    if (resultId) {
+      router.push(`/dashboard/business/websites/new?planId=${resultId}`);
+    } else {
+      toast.error('Unable to load business plan. Please save the result first.');
+    }
+  };
 
   // Show loading skeleton
   if (isLoading) {
@@ -135,14 +146,29 @@ export default function ResultViewer({ result, isLoading, error, onRetry, assist
 
       {/* Export Actions */}
       <div className="p-4 border-t border-gray-700 bg-white/5 flex items-center justify-between">
-        <button
-          onClick={handleCopy}
-          className="flex items-center gap-2 text-sm text-emerald-400 hover:text-emerald-300 font-medium transition-colors"
-          data-testid="copy-button"
-        >
-          <Copy className="w-4 h-4" />
-          Copy to Clipboard
-        </button>
+        <div className="flex items-center gap-4">
+          <button
+            onClick={handleCopy}
+            className="flex items-center gap-2 text-sm text-emerald-400 hover:text-emerald-300 font-medium transition-colors"
+            data-testid="copy-button"
+          >
+            <Copy className="w-4 h-4" />
+            Copy to Clipboard
+          </button>
+
+          {/* Turn into Website button (only for business plans) */}
+          {assistantType === 'streamlined_plan' && resultId && (
+            <button
+              onClick={handleConvertToWebsite}
+              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-indigo-500 text-white text-sm font-semibold rounded-lg hover:shadow-lg transition-all"
+              data-testid="convert-to-website-button"
+            >
+              <Globe className="w-4 h-4" />
+              Turn into Website
+            </button>
+          )}
+        </div>
+
         <ExportDropdown
           sections={result.sections}
           metadata={{

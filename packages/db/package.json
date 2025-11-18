@@ -9,6 +9,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./firebase/websites.server": {
+      "types": "./dist/firebase/websites.server.d.ts",
+      "import": "./dist/firebase/websites.server.js"
     }
   },
   "scripts": {
@@ -19,7 +23,8 @@
   },
   "dependencies": {
     "firebase": "^10.14.1",
-    "firebase-admin": "^13.6.0"
+    "firebase-admin": "^13.6.0",
+    "server-only": "^0.0.1"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
