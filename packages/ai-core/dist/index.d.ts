@@ -4,7 +4,7 @@
  */
 export { OpenAIClient, type ChatMessage, type ChatResponse, type StructuredChatResponse, type ToolCallResult, type ChatWithToolsResponse, type ToolSpec, type ToolHandler, type UsageCallback, type Logger, type OpenAIClientConfig, } from './llm/client.js';
 export { ClaudeClient, type ClaudeResponse, type ClaudeClientConfig, } from './llm/claudeClient.js';
-export { generateWebsite, type WebsiteGenerationResult, } from './generators/websiteGenerator.js';
+export { generateWebsite, editWebsite, type WebsiteGenerationResult, } from './generators/websiteGenerator.js';
 export { type ModelId, type ModelCapabilities, type ModelConfig, MODEL_CONFIGS, DEFAULT_MODEL_MINI, DEFAULT_MODEL_ESCALATION, getModelConfig, modelSupports, getModelFromEnv, } from './llm/models.js';
 export { getCostCents, estimateCostCents, formatCost, exceedsMaxCost, getModelPricing, type ModelPricing, } from './llm/costs.js';
 export { asJsonSchema, parseStructured, extractJsonFromMarkdown, } from './llm/structured.js';

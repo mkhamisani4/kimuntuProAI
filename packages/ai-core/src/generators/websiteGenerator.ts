@@ -461,3 +461,119 @@ export async function generateWebsite(
     },
   };
 }
+
+/**
+ * Build system prompt for website editing
+ */
+function buildEditSystemPrompt(): string {
+  return `You are an expert web designer and developer specializing in editing and improving existing websites.
+
+Your task is to apply specific edits to an existing HTML website while preserving everything not mentioned in the instruction.
+
+**Editing Guidelines:**
+1. **Precision** - Only change what's explicitly requested in the instruction
+2. **Preservation** - Keep all existing styles, structure, and content unless modification is requested
+3. **Consistency** - Match the existing design language, color scheme, and typography
+4. **Quality** - Maintain or improve code quality, accessibility, and responsiveness
+5. **Completeness** - Return the ENTIRE updated HTML file, not just the changed parts
+
+**Important:**
+- If asked to change text, only update that specific text
+- If asked to change colors, update the color scheme consistently throughout
+- If asked to add a section, place it logically and style it to match existing sections
+- If asked to remove something, cleanly remove it without breaking the layout
+- Preserve all meta tags, scripts, and structural elements unless specifically asked to change them
+
+Generate ONLY the complete updated HTML code. Do not include any explanations, markdown formatting, or code fences. Start directly with <!DOCTYPE html>.`;
+}
+
+/**
+ * Build user prompt for website editing
+ */
+function buildEditUserPrompt(instruction: string, currentSiteCode: string, currentSiteSpec: SiteSpec): string {
+  const sections: string[] = [];
+
+  sections.push(`# Website Editing Instruction\n`);
+  sections.push(`**User Request:** ${instruction}\n`);
+
+  sections.push(`## Current Website Information`);
+  sections.push(`Company: ${currentSiteSpec.branding.companyName}`);
+  sections.push(`Tagline: ${currentSiteSpec.branding.tagline || 'None'}`);
+  sections.push(`Brand Voice: ${currentSiteSpec.branding.brandVoice}`);
+
+  sections.push(`\n## Current HTML Code`);
+  sections.push('```html');
+  sections.push(currentSiteCode);
+  sections.push('```');
+
+  sections.push(`\n## Instructions`);
+  sections.push(`Apply the requested changes to the website above. Return the complete updated HTML file.`);
+
+  return sections.join('\n');
+}
+
+/**
+ * Edit existing website with Claude
+ */
+export async function editWebsite(
+  instruction: string,
+  currentSiteCode: string,
+  currentSiteSpec: SiteSpec,
+  options: {
+    apiKey?: string;
+    maxTokens?: number;
+  } = {}
+): Promise<WebsiteGenerationResult> {
+  console.log('[WebsiteEditor] Starting edit with instruction:', instruction.substring(0, 100));
+
+  // Initialize Claude client
+  const claude = new ClaudeClient({
+    apiKey: options.apiKey,
+    maxTokens: options.maxTokens || 8000,
+    temperature: 0.3, // Lower temperature for more precise edits
+  });
+
+  // Build prompts
+  const systemPrompt = buildEditSystemPrompt();
+  const userPrompt = buildEditUserPrompt(instruction, currentSiteCode, currentSiteSpec);
+
+  console.log('[WebsiteEditor] Calling Claude Sonnet 4.5...');
+
+  // Generate edited website
+  const response: ClaudeResponse = await claude.complete({
+    systemPrompt,
+    userPrompt,
+  });
+
+  console.log('[WebsiteEditor] Edit complete');
+
+  // Extract HTML
+  let siteCode = response.text.trim();
+
+  // Remove markdown code fences if present
+  if (siteCode.startsWith('```html')) {
+    siteCode = siteCode.replace(/^```html\n/, '').replace(/\n```$/, '');
+  } else if (siteCode.startsWith('```')) {
+    siteCode = siteCode.replace(/^```\n/, '').replace(/\n```$/, '');
+  }
+
+  // Ensure DOCTYPE is present
+  if (!siteCode.toLowerCase().includes('<!doctype html>')) {
+    siteCode = '<!DOCTYPE html>\n' + siteCode;
+  }
+
+  // Keep the same siteSpec (editing doesn't change metadata structure)
+  return {
+    siteSpec: currentSiteSpec,
+    siteCode,
+    metadata: {
+      model: response.model,
+      tokensIn: response.tokensIn,
+      tokensOut: response.tokensOut,
+      tokensUsed: response.tokensIn + response.tokensOut,
+      latencyMs: response.latencyMs,
+      costCents: response.costCents,
+      generatedAt: new Date(),
+    },
+  };
+}

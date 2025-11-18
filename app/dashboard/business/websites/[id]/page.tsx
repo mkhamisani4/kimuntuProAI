@@ -8,7 +8,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { getWebsite, type Website } from '@kimuntupro/db';
-import { ArrowLeft, Download, ExternalLink, Loader2, AlertCircle, CheckCircle, Trash2, RefreshCw } from 'lucide-react';
+import { ArrowLeft, Download, ExternalLink, Loader2, AlertCircle, CheckCircle, Trash2, RefreshCw, Sparkles } from 'lucide-react';
 import { auth } from '@/lib/firebase';
 import { toast } from '@/components/ai/Toast';
 import { sanitizeWebsiteHTML, getIframeSandboxAttributes } from '@/lib/sanitize';
@@ -367,6 +367,13 @@ export default function WebsitePage() {
 
               {/* Actions */}
               <div className="flex gap-3">
+                <button
+                  onClick={() => router.push(`/dashboard/business/websites/${websiteId}/edit`)}
+                  className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+                >
+                  <Sparkles className="w-4 h-4" />
+                  Edit with AI
+                </button>
                 <button
                   onClick={handleDownload}
                   className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors"

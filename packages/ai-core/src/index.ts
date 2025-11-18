@@ -26,6 +26,7 @@ export {
 
 export {
   generateWebsite,
+  editWebsite,
   type WebsiteGenerationResult,
 } from './generators/websiteGenerator.js';
 
