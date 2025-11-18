@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getWebsite, updateWebsite } from '@kimuntupro/db';
+import { getWebsite, updateWebsite, recordUsage } from '@kimuntupro/db';
 import { generateWebsite } from '@kimuntupro/ai-core';
 import { withQuotaGuard } from '@/lib/api/quotaMiddleware';
 
@@ -115,7 +115,25 @@ async function regenerateWebsiteInBackground(
       updatedAt: new Date(),
     });
 
-    console.log(`[WebsiteRegenerate] Successfully regenerated website ${websiteId}`);
+    // Record usage for quota tracking (non-blocking)
+    try {
+      await recordUsage({
+        tenantId,
+        userId,
+        assistant: 'website_builder' as any,
+        model: result.metadata.model,
+        tokensIn: result.metadata.tokensIn,
+        tokensOut: result.metadata.tokensOut,
+        totalTokens: result.metadata.tokensUsed,
+        costCents: result.metadata.costCents,
+        latencyMs: result.metadata.latencyMs,
+        toolInvocations: {},
+      });
+    } catch (usageError: any) {
+      console.error('[WebsiteRegenerate] Failed to record usage (non-critical):', usageError.message);
+    }
+
+    console.log(`[WebsiteRegenerate] Successfully regenerated website ${websiteId} - ${result.metadata.tokensUsed} tokens, ${result.metadata.costCents.toFixed(2)}¢`);
   } catch (error: any) {
     console.error(`[WebsiteRegenerate] Failed to regenerate website ${websiteId}:`, error);
 

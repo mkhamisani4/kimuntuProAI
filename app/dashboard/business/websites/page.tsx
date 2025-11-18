@@ -11,6 +11,7 @@ import { auth } from '@/lib/firebase';
 import { listWebsites, type Website } from '@kimuntupro/db';
 import { Plus, Eye, Loader2, CheckCircle, AlertCircle, Clock, RefreshCw } from 'lucide-react';
 import { toast } from '@/components/ai/Toast';
+import { sanitizeWebsiteHTML } from '@/lib/sanitize';
 
 export default function WebsitesPage() {
   const router = useRouter();
@@ -286,7 +287,7 @@ export default function WebsitesPage() {
                   {website.status === 'ready' && website.siteCode ? (
                     <div className="w-full h-full overflow-hidden relative">
                       <iframe
-                        srcDoc={website.siteCode}
+                        srcDoc={sanitizeWebsiteHTML(website.siteCode)}
                         className="absolute top-0 left-0 border-0 pointer-events-none"
                         style={{
                           width: '1200px',

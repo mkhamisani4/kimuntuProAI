@@ -32,34 +32,51 @@ function buildSystemPrompt(): string {
 Your task is to generate a complete, production-ready HTML website based on the user's specifications. The website should be:
 
 1. **Pure HTML/CSS/JavaScript** - Single self-contained HTML file with inline CSS and minimal vanilla JavaScript
-2. **Modern & Professional** - Clean design following current web design trends
+2. **Modern & Professional** - Clean design following current web design trends (think Apple, Stripe, Linear)
 3. **Fully Responsive** - Mobile-first design that works perfectly on all screen sizes
 4. **Accessible** - Proper semantic HTML, ARIA labels, keyboard navigation
 5. **Performance Optimized** - Minimal dependencies, fast loading
 6. **SEO-Friendly** - Proper meta tags, semantic structure, meaningful content
 
 **Design Guidelines:**
-- Use modern CSS with flexbox/grid layouts
-- Implement smooth animations and transitions
-- Include a sticky navigation bar
-- Add hover effects and visual feedback
-- Use web-safe fonts or system fonts
-- Ensure high contrast for readability
-- Include proper spacing and visual hierarchy
+- Use modern CSS with flexbox/grid layouts and clean spacing
+- Implement smooth animations and transitions (fade-ins on scroll, hover effects)
+- Include a sticky navigation bar with smooth scroll behavior
+- Use a professional color scheme (1-2 primary colors + neutrals)
+- Add subtle hover effects and visual feedback on interactive elements
+- Use web-safe fonts or system fonts (e.g., -apple-system, BlinkMacSystemFont)
+- Ensure high contrast for readability (WCAG AA minimum)
+- Include generous whitespace and clear visual hierarchy
+- Add tasteful gradients or background patterns where appropriate
 
 **Content Guidelines:**
-- Generate realistic, professional business content
-- Use the provided brand voice and style
-- Make CTAs prominent and action-oriented
-- Include all requested sections
-- Ensure consistency across all sections
+- Generate realistic, professional business content (avoid generic Lorem Ipsum)
+- Use the provided brand voice and style consistently
+- Make CTAs prominent, action-oriented, and specific (e.g., "Start Your Free Trial" not just "Submit")
+- Include all requested sections with meaningful, relevant content
+- Ensure consistency in tone, terminology, and messaging across sections
+- For testimonials: Create 3-4 realistic testimonials with names, titles, and companies
+- For FAQs: Generate 4-6 common questions with detailed, helpful answers
+- For features/services: Highlight benefits (not just features), use icons/emojis for visual appeal
 
 **Technical Requirements:**
-- No external dependencies (no CDNs, no frameworks)
+- No external dependencies (no CDNs, no frameworks, no external fonts)
 - Inline all CSS in a <style> tag in the <head>
-- Use minimal vanilla JavaScript only if necessary
-- Include proper DOCTYPE, meta tags, and structure
+- Use minimal vanilla JavaScript only for smooth scrolling and mobile menu toggle
+- Include proper DOCTYPE, meta viewport, and meta description
+- Add semantic HTML5 tags (header, nav, main, section, article, footer)
 - Add comments explaining major sections
+- Use CSS custom properties (variables) for colors and spacing
+- Implement a mobile-friendly hamburger menu if navigation has >4 items
+
+**Section-Specific Best Practices:**
+- Hero: Large headline, supporting text, prominent CTA, optional background image/gradient
+- Features/Services: Grid layout (2-3 columns), icons/emojis, benefit-focused copy
+- About: Company story, mission/vision, team photo placeholder or gradient
+- Testimonials: Cards with quotes, names, titles, 5-star ratings
+- FAQs: Accordion-style with smooth expand/collapse animations
+- Contact: Form with validation, contact details, optional map placeholder
+- Footer: Links, social icons, copyright, privacy/terms links
 
 Generate ONLY the complete HTML code. Do not include any explanations, markdown formatting, or code fences. Start directly with <!DOCTYPE html>.`;
 }
@@ -86,20 +103,50 @@ function buildUserPrompt(input: WizardInput, businessPlan?: any): string {
     sections.push(`Use the following business plan information to intelligently fill any missing details in the wizard inputs below:`);
     sections.push(`\`\`\``);
 
-    // Extract all sections from business plan
-    const planText = Object.entries(businessPlan.sections)
-      .map(([title, content]) => `${title}:\n${content}`)
-      .join('\n\n');
+    // Prioritize most relevant sections for website generation
+    const prioritySections = [
+      'Executive Summary',
+      'Value Proposition',
+      'Market Analysis',
+      'Products & Services',
+      'Marketing Strategy',
+      'Company Overview',
+      'Mission & Vision'
+    ];
+
+    // Extract prioritized sections
+    const relevantSections: string[] = [];
+    for (const sectionName of prioritySections) {
+      const content = businessPlan.sections[sectionName];
+      if (content && typeof content === 'string') {
+        // Limit each section to 800 chars to fit more relevant content
+        relevantSections.push(`${sectionName}:\n${content.substring(0, 800)}`);
+      }
+    }
+
+    // If no priority sections found, fall back to first sections
+    if (relevantSections.length === 0) {
+      const allEntries = Object.entries(businessPlan.sections);
+      relevantSections.push(
+        ...allEntries.slice(0, 3).map(([title, content]) =>
+          `${title}:\n${typeof content === 'string' ? content.substring(0, 800) : String(content).substring(0, 800)}`
+        )
+      );
+    }
+
+    const planText = relevantSections.join('\n\n');
 
     console.log('[WebsiteGenerator] Including business plan in prompt:', {
+      totalSections: Object.keys(businessPlan.sections).length,
+      includedSections: relevantSections.length,
       planTextLength: planText.length,
       preview: planText.substring(0, 300)
     });
 
-    // Limit size to avoid token overflow
-    sections.push(planText.substring(0, 4000));
+    // Limit total size to 3500 chars for better token efficiency
+    sections.push(planText.substring(0, 3500));
     sections.push(`\`\`\``);
-    sections.push(`\nIMPORTANT: If any wizard field below is missing or marked as "ai_choose", intelligently fill it using relevant information from the business plan above. Generate realistic, professional content that aligns with the business plan.\n`);
+    sections.push(`\nIMPORTANT: If any wizard field below is missing or marked as "ai_choose" or "ai_fill", intelligently fill it using relevant information from the business plan above. Generate realistic, professional content that aligns with the business plan's tone, industry, and value proposition.\n`);
   } else if (hasPlan) {
     console.warn('[WebsiteGenerator] Business plan provided but no sections found!', businessPlan);
   }

@@ -27,48 +27,94 @@ const BRAND_VOICES = [
 
 export default function Step1BrandBasics({ data, updateData, onNext, hasPlanAttached = false }: Step1Props) {
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [logoPreview, setLogoPreview] = useState<string | null>(data.logoUrl || null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Clear previous error
+    setUploadError(null);
+
     // Validate file type
     const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/svg+xml', 'image/webp'];
     if (!validTypes.includes(file.type)) {
-      toast.error('Invalid file type. Please upload an image (JPEG, PNG, GIF, SVG, WebP)');
+      const errorMsg = 'Invalid file type. Please upload an image (JPEG, PNG, GIF, SVG, WebP)';
+      toast.error(errorMsg);
+      setUploadError(errorMsg);
       return;
     }
 
     // Validate file size (max 5MB)
     const maxSize = 5 * 1024 * 1024;
     if (file.size > maxSize) {
-      toast.error('File too large. Maximum size is 5MB');
+      const errorMsg = 'File too large. Maximum size is 5MB';
+      toast.error(errorMsg);
+      setUploadError(errorMsg);
       return;
     }
 
     setIsUploadingLogo(true);
+    setUploadProgress(0);
     const toastId = toast.loading('Uploading logo...');
 
     try {
-      // Create preview
+      // Simulate upload progress
+      const progressInterval = setInterval(() => {
+        setUploadProgress((prev) => {
+          if (prev >= 90) {
+            clearInterval(progressInterval);
+            return 90;
+          }
+          return prev + 10;
+        });
+      }, 100);
+
+      // Create preview with progress tracking
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setLogoPreview(reader.result as string);
+
+      reader.onprogress = (event) => {
+        if (event.lengthComputable) {
+          const percentComplete = Math.round((event.loaded / event.total) * 100);
+          setUploadProgress(percentComplete);
+        }
       };
+
+      reader.onloadend = () => {
+        clearInterval(progressInterval);
+        setUploadProgress(100);
+        setLogoPreview(reader.result as string);
+        updateData({ logoUrl: reader.result as string });
+        toast.success('Logo uploaded successfully', { id: toastId });
+        setIsUploadingLogo(false);
+      };
+
+      reader.onerror = () => {
+        clearInterval(progressInterval);
+        const errorMsg = 'Failed to read file. Please try again.';
+        setUploadError(errorMsg);
+        toast.error(errorMsg, { id: toastId });
+        setIsUploadingLogo(false);
+      };
+
       reader.readAsDataURL(file);
-
-      // Upload to server (will be implemented in integration phase)
-      // For now, just store the preview URL
-      updateData({ logoUrl: reader.result as string });
-
-      toast.success('Logo uploaded successfully', { id: toastId });
     } catch (error: any) {
-      toast.error('Failed to upload logo', { id: toastId });
+      const errorMsg = error.message || 'Failed to upload logo';
+      setUploadError(errorMsg);
+      toast.error(errorMsg, { id: toastId });
       console.error('Logo upload error:', error);
-    } finally {
       setIsUploadingLogo(false);
+      setUploadProgress(0);
     }
+  };
+
+  const handleRetryUpload = () => {
+    setUploadError(null);
+    setUploadProgress(0);
+    // Trigger file input click
+    document.getElementById('logo-upload-input')?.click();
   };
 
   const handleRemoveLogo = () => {
@@ -203,29 +249,53 @@ export default function Step1BrandBasics({ data, updateData, onNext, hasPlanAtta
             </div>
           ) : (
             // Upload Button
-            <label className="cursor-pointer">
-              <div className="w-48 h-48 rounded-lg border-2 border-dashed border-gray-700 bg-white/5 hover:bg-white/10 hover:border-gray-600 transition-all flex flex-col items-center justify-center">
-                {isUploadingLogo ? (
-                  <div className="flex flex-col items-center">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500 mb-3" />
-                    <p className="text-sm text-gray-400">Uploading...</p>
-                  </div>
-                ) : (
-                  <>
-                    <Upload className="w-10 h-10 text-gray-400 mb-3" />
-                    <p className="text-sm text-gray-300 mb-1">Click to upload</p>
-                    <p className="text-xs text-gray-500">PNG, JPG, SVG up to 5MB</p>
-                  </>
-                )}
-              </div>
-              <input
-                type="file"
-                accept="image/jpeg,image/png,image/gif,image/svg+xml,image/webp"
-                onChange={handleLogoUpload}
-                className="hidden"
-                disabled={isUploadingLogo}
-              />
-            </label>
+            <div>
+              <label className="cursor-pointer">
+                <div className="w-48 h-48 rounded-lg border-2 border-dashed border-gray-700 bg-white/5 hover:bg-white/10 hover:border-gray-600 transition-all flex flex-col items-center justify-center">
+                  {isUploadingLogo ? (
+                    <div className="flex flex-col items-center w-full px-4">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500 mb-3" />
+                      <p className="text-sm text-gray-400 mb-2">Uploading...</p>
+                      {/* Progress Bar */}
+                      <div className="w-full bg-gray-700 rounded-full h-2 overflow-hidden">
+                        <div
+                          className="h-full bg-emerald-500 transition-all duration-300"
+                          style={{ width: `${uploadProgress}%` }}
+                        />
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">{uploadProgress}%</p>
+                    </div>
+                  ) : (
+                    <>
+                      <Upload className="w-10 h-10 text-gray-400 mb-3" />
+                      <p className="text-sm text-gray-300 mb-1">Click to upload</p>
+                      <p className="text-xs text-gray-500">PNG, JPG, SVG up to 5MB</p>
+                    </>
+                  )}
+                </div>
+                <input
+                  id="logo-upload-input"
+                  type="file"
+                  accept="image/jpeg,image/png,image/gif,image/svg+xml,image/webp"
+                  onChange={handleLogoUpload}
+                  className="hidden"
+                  disabled={isUploadingLogo}
+                />
+              </label>
+              {/* Error Message with Retry */}
+              {uploadError && (
+                <div className="mt-3 p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
+                  <p className="text-sm text-red-400 mb-2">{uploadError}</p>
+                  <button
+                    type="button"
+                    onClick={handleRetryUpload}
+                    className="text-xs text-red-400 hover:text-red-300 underline"
+                  >
+                    Try again
+                  </button>
+                </div>
+              )}
+            </div>
           )}
         </div>
       </div>

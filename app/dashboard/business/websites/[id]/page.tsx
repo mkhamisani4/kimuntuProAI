@@ -11,6 +11,7 @@ import { getWebsite, type Website } from '@kimuntupro/db';
 import { ArrowLeft, Download, ExternalLink, Loader2, AlertCircle, CheckCircle, Trash2, RefreshCw } from 'lucide-react';
 import { auth } from '@/lib/firebase';
 import { toast } from '@/components/ai/Toast';
+import { sanitizeWebsiteHTML, getIframeSandboxAttributes } from '@/lib/sanitize';
 
 export default function WebsitePage() {
   const params = useParams();
@@ -391,10 +392,10 @@ export default function WebsitePage() {
               </div>
               <div className="bg-white">
                 <iframe
-                  srcDoc={website.siteCode}
+                  srcDoc={sanitizeWebsiteHTML(website.siteCode)}
                   className="w-full h-[800px] border-0"
                   title="Website Preview"
-                  sandbox="allow-scripts allow-same-origin"
+                  sandbox={getIframeSandboxAttributes()}
                 />
               </div>
             </div>
