@@ -43,17 +43,19 @@ Your role is to generate comprehensive business documents with accurate informat
 
 CRITICAL RULES:
 1. Produce ONLY the sections requested by the Planner
-2. Use markdown headings (##) for each section
+2. Use markdown headings (##) for each section with EXACT names as specified (no abbreviations)
 3. Be concise and actionable - aim for clarity over verbosity
 4. ALWAYS cite sources using bracketed numbers: [R1] for RAG sources, [W1] for web sources
 5. NEVER fabricate numbers or financial metrics - use provided FINANCE_JSON or request calculations
 6. Include a "## Sources" section at the end listing all citations
 7. When using financial data, cite where the numbers came from (assumptions, calculations, or sources)
+8. Do NOT abbreviate section names (e.g., use "Ideal Customer Profile" not "ICP")
 
 CITATION FORMAT:
 - RAG sources (internal documents): [R1], [R2], etc.
 - Web sources (external): [W1], [W2], etc.
 - Always provide context when citing: "According to [R1], the market size is..."
+- ONLY use citation markers that correspond to available sources (do not exceed the count provided)
 
 STYLE GUIDE:
 - Use bullet points for lists
@@ -71,14 +73,24 @@ STYLE GUIDE:
  */
 export function buildExecutorDeveloperPrompt(plan: PlannerOutput): string {
   const sectionList = plan.sections.map((s) => `- ${s}`).join('\n');
+  const sectionNamesOnly = plan.sections.map((s) => `"${s}"`).join(', ');
 
   return `REQUIRED SECTIONS (in order):
 ${sectionList}
+
+CRITICAL: You MUST use these EXACT section names as headings. Do NOT abbreviate or paraphrase.
+For example:
+- Use "## Ideal Customer Profile" NOT "## ICP" or "## Customer Profile"
+- Use "## Go-To-Market Strategy" NOT "## GTM Strategy" or "## Market Strategy"
+- Use "## Key Performance Indicators" NOT "## KPIs" or "## Metrics"
+
+Expected section headings: ${sectionNamesOnly}
 
 FORMATTING RULES:
 - Use ## for section headings (markdown level 2)
 - Each section should be 2-4 paragraphs (unless it requires more detail)
 - The "Sources" section must list all [R#] and [W#] citations used
+- Section names must match EXACTLY as listed above
 
 CONTENT REQUIREMENTS:
 ${plan.metrics_needed.length > 0 ? `- Include financial metrics: ${plan.metrics_needed.join(', ')}` : ''}
@@ -123,19 +135,27 @@ export function buildExecutorUserMessage(
 
   // RAG context
   if (context.ragContext && context.ragContext.context.length > 0) {
+    const ragSourceCount = context.ragContext.citations?.length || 0;
     parts.push('=== RAG_CONTEXT (Internal Sources) ===');
     parts.push(context.ragContext.context);
     parts.push('');
-    parts.push('When referencing RAG sources, use [R1], [R2], etc. based on the citation numbers above.');
+    if (ragSourceCount > 0) {
+      const ragMarkers = Array.from({ length: ragSourceCount }, (_, i) => `[R${i + 1}]`).join(', ');
+      parts.push(`IMPORTANT: You have ${ragSourceCount} RAG source(s) available: ${ragMarkers}`);
+      parts.push('Do NOT use citation markers beyond this range (e.g., do NOT use [R${ragSourceCount + 1}] or higher).');
+    } else {
+      parts.push('When referencing RAG sources, use [R1], [R2], etc. based on the citation numbers above.');
+    }
     parts.push('');
   } else {
     parts.push('=== RAG_CONTEXT ===');
-    parts.push('No internal documents available.');
+    parts.push('No internal documents available. Do NOT use [R#] citations.');
     parts.push('');
   }
 
   // Web search results
   if (context.webSearchResults && context.webSearchResults.length > 0) {
+    const webSourceCount = context.webSearchResults.length;
     parts.push('=== WEB_CONTEXT (External Sources) ===');
     context.webSearchResults.forEach((result, idx) => {
       parts.push(`[W${idx + 1}] ${result.title}`);
@@ -143,11 +163,14 @@ export function buildExecutorUserMessage(
       parts.push(`Snippet: ${result.snippet}`);
       parts.push('');
     });
-    parts.push('When referencing web sources, use [W1], [W2], etc. based on the order above.');
+    const webMarkers = Array.from({ length: webSourceCount }, (_, i) => `[W${i + 1}]`).join(', ');
+    parts.push(`IMPORTANT: You have ${webSourceCount} web source(s) available: ${webMarkers}`);
+    parts.push(`Do NOT use citation markers beyond this range (e.g., do NOT use [W${webSourceCount + 1}] or higher).`);
     parts.push('');
   } else if (plan.requires_web_search) {
     parts.push('=== WEB_CONTEXT ===');
     parts.push('No web search results available. Use general knowledge but mark as assumptions.');
+    parts.push('Do NOT use [W#] citations.');
     parts.push('');
   }
 

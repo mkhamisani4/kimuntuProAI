@@ -52,10 +52,13 @@ export default function WebsiteBuilderPage() {
         setBusinessPlanData(result);
 
         // Pre-fill wizard data from business plan if available
-        if (result.input?.businessName) {
+        // Note: AssistantResult doesn't have input field, this feature may need to be implemented
+        // For now, we'll try to extract business name from the title or sections
+        const resultAny = result as any;
+        if (resultAny.input?.businessName) {
           setWizardData((prev) => ({
             ...prev,
-            companyName: result.input.businessName,
+            companyName: resultAny.input.businessName,
           }));
         }
       } catch (error) {

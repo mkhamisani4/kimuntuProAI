@@ -162,16 +162,76 @@ export function validateCitations(response, context) {
     return issues;
 }
 /**
- * Find section by name (case-insensitive)
+ * Common section name variations and abbreviations
+ * Maps expected section names to possible variations
+ */
+const SECTION_NAME_VARIATIONS = {
+    'ideal customer profile': ['icp', 'customer profile', 'target customer', 'customer persona'],
+    'go-to-market strategy': ['gtm strategy', 'gtm', 'market strategy', 'go to market'],
+    'key performance indicators': ['kpis', 'performance indicators', 'metrics'],
+    'executive summary': ['summary', 'overview', 'executive overview'],
+    'competitive analysis': ['competition', 'competitive landscape', 'market competition'],
+    'financial projections': ['financials', 'financial forecast', 'projections'],
+    'market analysis': ['market research', 'market overview', 'industry analysis'],
+    'value proposition': ['value prop', 'unique value proposition', 'uvp'],
+    'business model': ['revenue model', 'business model canvas'],
+};
+/**
+ * Check if two section names match with fuzzy matching
+ * Handles abbreviations and common variations
+ *
+ * @param expected - Expected section name
+ * @param actual - Actual section name from response
+ * @returns True if names match (fuzzy)
+ */
+export function fuzzyMatchSectionName(expected, actual) {
+    const normalizedExpected = expected.toLowerCase().trim();
+    const normalizedActual = actual.toLowerCase().trim();
+    // Exact match
+    if (normalizedExpected === normalizedActual) {
+        return true;
+    }
+    // Check if actual contains expected or vice versa
+    if (normalizedActual.includes(normalizedExpected) ||
+        normalizedExpected.includes(normalizedActual)) {
+        return true;
+    }
+    // Check against known variations
+    const variations = SECTION_NAME_VARIATIONS[normalizedExpected] || [];
+    if (variations.some((v) => normalizedActual.includes(v) || v.includes(normalizedActual))) {
+        return true;
+    }
+    // Also check reverse: if actual is a known section, check if expected is in its variations
+    for (const [knownSection, knownVariations] of Object.entries(SECTION_NAME_VARIATIONS)) {
+        if (normalizedActual === knownSection || knownVariations.includes(normalizedActual)) {
+            // actual is a known section, check if expected matches it
+            if (normalizedExpected === knownSection ||
+                knownVariations.some((v) => v === normalizedExpected || normalizedExpected.includes(v))) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+/**
+ * Find section by name with fuzzy matching
+ * Handles common abbreviations and variations
  *
  * @param response - Assistant response
  * @param sectionName - Section name to find
  * @returns Section content or undefined
  */
 export function findSection(response, sectionName) {
+    // Try exact case-insensitive match first
     const normalizedName = sectionName.toLowerCase();
     for (const [key, value] of Object.entries(response.sections)) {
         if (key.toLowerCase() === normalizedName) {
+            return value;
+        }
+    }
+    // Try fuzzy matching
+    for (const [key, value] of Object.entries(response.sections)) {
+        if (fuzzyMatchSectionName(sectionName, key)) {
             return value;
         }
     }

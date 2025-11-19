@@ -15,11 +15,11 @@ import type { AssistantResult } from './page';
 interface TaskFormProps {
   onResult: (result: AssistantResult) => void;
   onError: (error: { type: 'quota' | 'auth' | 'server'; message: string; resetsAt?: string }) => void;
-  assistant?: 'streamlined_plan' | 'exec_summary' | 'market_analysis';
+  assistant?: 'streamlined_plan' | 'exec_summary' | 'market_analysis' | 'financial_overview';
   onLoadingChange?: (isLoading: boolean) => void;
 }
 
-type AssistantType = 'streamlined_plan' | 'exec_summary' | 'market_analysis';
+type AssistantType = 'streamlined_plan' | 'exec_summary' | 'market_analysis' | 'financial_overview';
 
 export default function TaskForm({ onResult, onError, assistant: assistantProp, onLoadingChange }: TaskFormProps) {
   const [assistant, setAssistant] = useState<AssistantType>(assistantProp || 'streamlined_plan');
@@ -71,6 +71,12 @@ export default function TaskForm({ onResult, onError, assistant: assistantProp, 
       description: 'Market research with web data',
       placeholder: 'Example: Analyze the AI coding assistant market; top competitors, pricing bands, and GTM angles.',
     },
+    {
+      value: 'financial_overview' as const,
+      label: 'Financial Overview',
+      description: '12-month financial projections',
+      placeholder: 'Example: Generate 12-month financial projections for a B2B SaaS with $199/mo pricing and $50k initial funding.',
+    },
   ];
 
   const currentTask = tasks.find((t) => t.value === assistant)!;
@@ -110,8 +116,8 @@ export default function TaskForm({ onResult, onError, assistant: assistantProp, 
         userId: currentUserId, // Use Firebase user ID
       };
 
-      // Add finance fields for exec_summary
-      if (assistant === 'exec_summary' && showAdvanced) {
+      // Add finance fields for exec_summary and financial_overview
+      if ((assistant === 'exec_summary' || assistant === 'financial_overview') && showAdvanced) {
         body.extra = {
           arpu: parseFloat(arpu) || 0,
           cogs_percent: parseFloat(cogs) || 0,
@@ -245,8 +251,8 @@ export default function TaskForm({ onResult, onError, assistant: assistantProp, 
           </div>
         </div>
 
-        {/* Advanced Options (Finance Fields for #109) */}
-        {assistant === 'exec_summary' && (
+        {/* Advanced Options (Finance Fields for #109 and Financial Overview) */}
+        {(assistant === 'exec_summary' || assistant === 'financial_overview') && (
           <div className="mb-6">
             <button
               type="button"

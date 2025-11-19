@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { auth } from '@/lib/firebase';
 import { listWebsites, type Website } from '@kimuntupro/db';
-import { Plus, Eye, Loader2, CheckCircle, AlertCircle, Clock, RefreshCw } from 'lucide-react';
+import { Plus, Eye, Loader2, CheckCircle, AlertCircle, Clock, RefreshCw, Pencil, Check, X } from 'lucide-react';
 import { toast } from '@/components/ai/Toast';
 import { sanitizeWebsiteHTML } from '@/lib/sanitize';
 
@@ -19,6 +19,8 @@ export default function WebsitesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [editingWebsiteId, setEditingWebsiteId] = useState<string | null>(null);
+  const [editedTitle, setEditedTitle] = useState('');
 
   // Get current user
   useEffect(() => {
@@ -76,6 +78,66 @@ export default function WebsitesPage() {
           setLoading(false);
           toast.error('Failed to load websites');
         });
+    }
+  };
+
+  const handleStartEditTitle = (websiteId: string, currentTitle: string) => {
+    setEditingWebsiteId(websiteId);
+    setEditedTitle(currentTitle);
+  };
+
+  const handleCancelEditTitle = () => {
+    setEditingWebsiteId(null);
+    setEditedTitle('');
+  };
+
+  const handleSaveTitle = async (websiteId: string) => {
+    if (!currentUserId) {
+      toast.error('Cannot rename: missing user info');
+      return;
+    }
+
+    const trimmedTitle = editedTitle.trim();
+    if (!trimmedTitle) {
+      toast.error('Title cannot be empty');
+      return;
+    }
+
+    if (trimmedTitle.length > 100) {
+      toast.error('Title must be 100 characters or less');
+      return;
+    }
+
+    const website = websites.find((w) => w.id === websiteId);
+    if (trimmedTitle === website?.title) {
+      setEditingWebsiteId(null);
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/websites/${websiteId}/rename`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: currentUserId,
+          title: trimmedTitle,
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to rename website');
+      }
+
+      // Update local state
+      setWebsites((prev) =>
+        prev.map((w) => (w.id === websiteId ? { ...w, title: trimmedTitle } : w))
+      );
+      setEditingWebsiteId(null);
+      toast.success('Website renamed successfully!');
+    } catch (err: any) {
+      console.error('Failed to rename website:', err);
+      toast.error(`Failed to rename: ${err.message}`);
     }
   };
 
@@ -311,9 +373,52 @@ export default function WebsitesPage() {
                 {/* Card Content */}
                 <div className="p-4">
                   <div className="flex items-start justify-between mb-2">
-                    <h3 className="text-lg font-semibold text-white truncate flex-1 mr-2">
-                      {website.title}
-                    </h3>
+                    {editingWebsiteId === website.id ? (
+                      <div className="flex items-center gap-2 flex-1 mr-2">
+                        <input
+                          type="text"
+                          value={editedTitle}
+                          onChange={(e) => setEditedTitle(e.target.value)}
+                          className="flex-1 text-sm font-semibold text-white bg-gray-800 border border-gray-600 rounded px-2 py-1 focus:outline-none focus:border-emerald-500"
+                          placeholder="Website title"
+                          autoFocus
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') handleSaveTitle(website.id);
+                            if (e.key === 'Escape') handleCancelEditTitle();
+                          }}
+                        />
+                        <button
+                          onClick={() => handleSaveTitle(website.id)}
+                          className="p-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded transition-colors"
+                          title="Save"
+                        >
+                          <Check className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={handleCancelEditTitle}
+                          className="p-1 bg-gray-700 hover:bg-gray-600 text-white rounded transition-colors"
+                          title="Cancel"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2 flex-1 mr-2">
+                        <h3 className="text-lg font-semibold text-white truncate">
+                          {website.title}
+                        </h3>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleStartEditTitle(website.id, website.title);
+                          }}
+                          className="p-1 text-gray-400 hover:text-white hover:bg-gray-700 rounded transition-colors flex-shrink-0"
+                          title="Rename website"
+                        >
+                          <Pencil className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    )}
                     {getStatusBadge(website.status)}
                   </div>
 

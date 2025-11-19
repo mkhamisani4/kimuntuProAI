@@ -31,13 +31,40 @@ export function asJsonSchema<T extends z.ZodType>(
   name: string,
   description?: string
 ): { response_format: StructuredOutputFormat } {
-  const jsonSchema = zodToJsonSchema(zodSchema, {
+  // Validate input
+  if (!zodSchema) {
+    throw new Error('zodSchema is required for asJsonSchema');
+  }
+
+  // Convert Zod to JSON Schema
+  let jsonSchema: any = zodToJsonSchema(zodSchema, {
     name,
     $refStrategy: 'none', // Inline all refs for OpenAI
+    target: 'jsonSchema7', // Use JSON Schema Draft 7
+    errorMessages: false, // Don't include Zod error messages in schema
   });
 
+  // If the schema has $ref and definitions, extract the actual schema from definitions
+  if (jsonSchema.$ref && jsonSchema.definitions) {
+    const refName = jsonSchema.$ref.replace('#/definitions/', '');
+    jsonSchema = jsonSchema.definitions[refName];
+  }
+
   // Remove $schema property as OpenAI doesn't accept it
-  const { $schema, ...schemaWithoutMeta } = jsonSchema as any;
+  const { $schema, definitions, ...schemaWithoutMeta } = jsonSchema;
+
+  // Validate the converted schema has required properties
+  if (!schemaWithoutMeta.type || schemaWithoutMeta.type !== 'object') {
+    console.error('[asJsonSchema] Invalid schema conversion:', {
+      name,
+      hasType: !!schemaWithoutMeta.type,
+      type: schemaWithoutMeta.type,
+      schemaKeys: Object.keys(schemaWithoutMeta),
+    });
+    throw new Error(
+      `Invalid JSON Schema conversion for '${name}': expected type='object', got type='${schemaWithoutMeta.type}'`
+    );
+  }
 
   return {
     response_format: {

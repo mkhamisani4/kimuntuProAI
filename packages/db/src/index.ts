@@ -20,6 +20,7 @@ export {
   saveAssistantResult,
   getRecentResults,
   getAssistantResult,
+  deleteAssistantResult,
   generateTitle,
   generateSummary,
   type AssistantResult,

@@ -77,114 +77,55 @@ export default function Step5ContactSocial({ data, updateData, onNext, onBack, h
           <div className="space-y-4">
             {/* Email */}
             <div>
-              <div className="flex items-center justify-between mb-2">
-                <label className="block text-sm font-medium text-gray-200">
-                  <Mail className="inline w-4 h-4 mr-2" />
-                  Email <span className="text-gray-500">(Optional)</span>
-                </label>
-                {hasPlanAttached && (
-                  <label className="flex items-center gap-2 text-sm text-purple-400 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={data.contactEmail === 'ai_fill'}
-                      onChange={(e) => updateData({ contactEmail: e.target.checked ? 'ai_fill' : '' })}
-                      className="w-4 h-4 rounded border-gray-600 bg-white/10 text-purple-500 focus:ring-purple-500"
-                    />
-                    Auto-fill from plan
-                  </label>
-                )}
-              </div>
-              {data.contactEmail !== 'ai_fill' ? (
-                <>
-                  <input
-                    type="email"
-                    value={data.contactEmail === 'ai_fill' ? '' : (data.contactEmail || '')}
-                    onChange={(e) => handleEmailChange(e.target.value)}
-                    placeholder="e.g., hello@yourcompany.com"
-                    className={`w-full px-4 py-3 border ${
-                      emailError ? 'border-red-500' : 'border-gray-600'
-                    } bg-white/10 text-gray-100 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent`}
-                  />
-                  {emailError && (
-                    <div className="flex items-center gap-2 mt-2 text-red-400 text-sm">
-                      <AlertCircle className="w-4 h-4" />
-                      {emailError}
-                    </div>
-                  )}
-                </>
-              ) : (
-                <div className="px-4 py-3 border border-purple-500/50 bg-purple-500/10 text-purple-300 rounded-lg text-sm">
-                  ✨ AI will generate this content from your business plan
+              <label className="block text-sm font-medium text-gray-200 mb-2">
+                <Mail className="inline w-4 h-4 mr-2" />
+                Email <span className="text-gray-500">(Optional)</span>
+              </label>
+              <input
+                type="email"
+                value={data.contactEmail || ''}
+                onChange={(e) => handleEmailChange(e.target.value)}
+                placeholder="e.g., hello@yourcompany.com"
+                className={`w-full px-4 py-3 border ${
+                  emailError ? 'border-red-500' : 'border-gray-600'
+                } bg-white/10 text-gray-100 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent`}
+              />
+              {emailError && (
+                <div className="flex items-center gap-2 mt-2 text-red-400 text-sm">
+                  <AlertCircle className="w-4 h-4" />
+                  {emailError}
                 </div>
               )}
             </div>
 
             {/* Phone */}
             <div>
-              <div className="flex items-center justify-between mb-2">
-                <label className="block text-sm font-medium text-gray-200">
-                  <Phone className="inline w-4 h-4 mr-2" />
-                  Phone <span className="text-gray-500">(Optional)</span>
-                </label>
-                {hasPlanAttached && (
-                  <label className="flex items-center gap-2 text-sm text-purple-400 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={data.contactPhone === 'ai_fill'}
-                      onChange={(e) => updateData({ contactPhone: e.target.checked ? 'ai_fill' : '' })}
-                      className="w-4 h-4 rounded border-gray-600 bg-white/10 text-purple-500 focus:ring-purple-500"
-                    />
-                    Auto-fill from plan
-                  </label>
-                )}
-              </div>
-              {data.contactPhone !== 'ai_fill' ? (
-                <input
-                  type="tel"
-                  value={data.contactPhone === 'ai_fill' ? '' : (data.contactPhone || '')}
-                  onChange={(e) => updateData({ contactPhone: e.target.value })}
-                  placeholder="e.g., (555) 123-4567"
-                  className="w-full px-4 py-3 border border-gray-600 bg-white/10 text-gray-100 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                />
-              ) : (
-                <div className="px-4 py-3 border border-purple-500/50 bg-purple-500/10 text-purple-300 rounded-lg text-sm">
-                  ✨ AI will generate this content from your business plan
-                </div>
-              )}
+              <label className="block text-sm font-medium text-gray-200 mb-2">
+                <Phone className="inline w-4 h-4 mr-2" />
+                Phone <span className="text-gray-500">(Optional)</span>
+              </label>
+              <input
+                type="tel"
+                value={data.contactPhone || ''}
+                onChange={(e) => updateData({ contactPhone: e.target.value })}
+                placeholder="e.g., (555) 123-4567"
+                className="w-full px-4 py-3 border border-gray-600 bg-white/10 text-gray-100 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+              />
             </div>
 
             {/* Location */}
             <div>
-              <div className="flex items-center justify-between mb-2">
-                <label className="block text-sm font-medium text-gray-200">
-                  <MapPin className="inline w-4 h-4 mr-2" />
-                  Location <span className="text-gray-500">(Optional)</span>
-                </label>
-                {hasPlanAttached && (
-                  <label className="flex items-center gap-2 text-sm text-purple-400 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={data.location === 'ai_fill'}
-                      onChange={(e) => updateData({ location: e.target.checked ? 'ai_fill' : '' })}
-                      className="w-4 h-4 rounded border-gray-600 bg-white/10 text-purple-500 focus:ring-purple-500"
-                    />
-                    Auto-fill from plan
-                  </label>
-                )}
-              </div>
-              {data.location !== 'ai_fill' ? (
-                <input
-                  type="text"
-                  value={data.location === 'ai_fill' ? '' : (data.location || '')}
-                  onChange={(e) => updateData({ location: e.target.value })}
-                  placeholder="e.g., San Francisco, CA"
-                  className="w-full px-4 py-3 border border-gray-600 bg-white/10 text-gray-100 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                />
-              ) : (
-                <div className="px-4 py-3 border border-purple-500/50 bg-purple-500/10 text-purple-300 rounded-lg text-sm">
-                  ✨ AI will generate this content from your business plan
-                </div>
-              )}
+              <label className="block text-sm font-medium text-gray-200 mb-2">
+                <MapPin className="inline w-4 h-4 mr-2" />
+                Location <span className="text-gray-500">(Optional)</span>
+              </label>
+              <input
+                type="text"
+                value={data.location || ''}
+                onChange={(e) => updateData({ location: e.target.value })}
+                placeholder="e.g., San Francisco, CA"
+                className="w-full px-4 py-3 border border-gray-600 bg-white/10 text-gray-100 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+              />
             </div>
           </div>
         </div>

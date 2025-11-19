@@ -158,8 +158,22 @@ function buildUserPrompt(input: WizardInput, businessPlan?: any): string {
   } else {
     sections.push(`Company Name: ${input.companyName || 'My Business'}`);
   }
-  if (input.tagline) sections.push(`Tagline: ${input.tagline}`);
-  if (input.brandVoice) sections.push(`Brand Voice: ${input.brandVoice}`);
+
+  if (input.tagline) {
+    if (input.tagline === 'ai_fill') {
+      sections.push(`Tagline: AI FILL - Generate a compelling tagline from the business plan`);
+    } else {
+      sections.push(`Tagline: ${input.tagline}`);
+    }
+  }
+
+  if (input.brandVoice) {
+    if (input.brandVoice === 'ai_choose') {
+      sections.push(`Brand Voice: AI CHOOSE - Select appropriate brand voice from the business plan`);
+    } else {
+      sections.push(`Brand Voice: ${input.brandVoice}`);
+    }
+  }
   if (input.logoUrl) sections.push(`Logo: Include logo image at URL ${input.logoUrl}`);
 
   // Business Overview
@@ -185,11 +199,16 @@ function buildUserPrompt(input: WizardInput, businessPlan?: any): string {
   }
 
   // Services
-  if (input.keyServices && input.keyServices.length > 0) {
-    sections.push(`\n## Key Services`);
-    input.keyServices.forEach((service, i) => {
-      sections.push(`${i + 1}. ${service}`);
-    });
+  if (input.keyServices) {
+    if (input.keyServices === 'ai_fill') {
+      sections.push(`\n## Key Services`);
+      sections.push(`AI FILL - Generate 3-6 key services from the business plan`);
+    } else if (Array.isArray(input.keyServices) && input.keyServices.length > 0) {
+      sections.push(`\n## Key Services`);
+      input.keyServices.forEach((service, i) => {
+        sections.push(`${i + 1}. ${service}`);
+      });
+    }
   }
 
   // Hero Section
@@ -222,29 +241,44 @@ function buildUserPrompt(input: WizardInput, businessPlan?: any): string {
         contact: 'Contact us',
         learn_more: 'Learn more about the offering',
       };
-      sections.push(`Main Goal: ${goalDescriptions[input.mainGoal]}`);
+      if (input.mainGoal === 'ai_choose') {
+        sections.push(`Main Goal: [AI will choose based on business plan]`);
+      } else {
+        sections.push(`Main Goal: ${goalDescriptions[input.mainGoal]}`);
+      }
     }
   }
 
   // Sections to Include
   sections.push(`\n## Sections to Include`);
-  const enabledSections = Object.entries(input.enabledSections)
-    .filter(([_, enabled]) => enabled)
-    .map(([section]) => section);
 
-  if (enabledSections.length > 0) {
-    enabledSections.forEach((section) => {
-      const sectionNames: Record<string, string> = {
-        features: 'Features/Benefits section',
-        services: 'Services section (detailed)',
-        about: 'About Us section',
-        testimonials: 'Customer Testimonials section',
-        pricing: 'Pricing section',
-        faq: 'FAQ section',
-        contact: 'Contact section with form',
-      };
-      sections.push(`- ${sectionNames[section] || section}`);
-    });
+  if (input.sectionsMode === 'ai_choose') {
+    sections.push(`[AI CHOOSE SECTIONS] - Intelligently select the most appropriate sections based on the business plan. Available options: Features, Services, About Us, Testimonials, Pricing, FAQ, Contact. Choose 3-5 sections that best showcase this business. Consider:`);
+    sections.push(`- Business type and industry (e.g., SaaS may need Pricing, service businesses may need Testimonials)`);
+    sections.push(`- Main goal (e.g., if goal is "buy", include Pricing; if "contact", include Contact form)`);
+    sections.push(`- Target audience and value proposition from the business plan`);
+    sections.push(`- Create a logical flow that guides visitors toward the main conversion goal`);
+  } else {
+    const enabledSections = Object.entries(input.enabledSections)
+      .filter(([_, enabled]) => enabled)
+      .map(([section]) => section);
+
+    if (enabledSections.length > 0) {
+      enabledSections.forEach((section) => {
+        const sectionNames: Record<string, string> = {
+          features: 'Features/Benefits section',
+          services: 'Services section (detailed)',
+          about: 'About Us section',
+          testimonials: 'Customer Testimonials section',
+          pricing: 'Pricing section',
+          faq: 'FAQ section',
+          contact: 'Contact section with form',
+        };
+        sections.push(`- ${sectionNames[section] || section}`);
+      });
+    } else {
+      sections.push(`- No specific sections requested. Include basic sections: About, Services, Contact`);
+    }
   }
 
   // Layout Style
@@ -256,7 +290,11 @@ function buildUserPrompt(input: WizardInput, businessPlan?: any): string {
       bold: 'Bold - Eye-catching, vibrant, impactful',
       playful: 'Playful - Fun, creative, unique shapes',
     };
-    sections.push(styleDescriptions[input.layoutStyle] || input.layoutStyle);
+    if (input.layoutStyle === 'ai_choose') {
+      sections.push('[AI will choose based on business plan]');
+    } else {
+      sections.push(styleDescriptions[input.layoutStyle] || input.layoutStyle);
+    }
   }
 
   // Contact Information
@@ -330,22 +368,79 @@ function buildUserPrompt(input: WizardInput, businessPlan?: any): string {
   sections.push(`\n## Instructions`);
   sections.push(`Generate a complete, production-ready HTML website that incorporates all the above information. Make it visually stunning and professional.`);
 
+  sections.push(`\n## CRITICAL REQUIREMENTS - MUST FOLLOW`);
+  sections.push(`1. **Completeness**: Generate COMPLETE, THOROUGH content for EVERY section listed above. Do NOT create partial or placeholder content.`);
+  sections.push(`2. **AI FILL/CHOOSE Fields**: When a field says "AI FILL" or "AI CHOOSE", generate FULL, DETAILED, PROFESSIONAL content for that field. Do NOT skip or abbreviate.`);
+  sections.push(`3. **Section Requirements**:`);
+  sections.push(`   - Hero: Minimum 40 words headline + subheadline combined`);
+  sections.push(`   - Features: Minimum 3-6 feature items, each with 30+ words description`);
+  sections.push(`   - Services: Minimum 3-6 services, each with 40+ words description`);
+  sections.push(`   - About: Minimum 150 words of company story and mission`);
+  sections.push(`   - Testimonials: Exactly 3-4 testimonials, each 30-50 words`);
+  sections.push(`   - FAQ: Minimum 5-6 Q&A pairs, each answer 30-60 words`);
+  sections.push(`   - Contact: Full form with email, phone, location details`);
+  sections.push(`   - Footer: Complete footer with copyright and navigation links`);
+  sections.push(`4. **Content Quality**: All content must be realistic, professional, and specific to the business. NO generic placeholders.`);
+  sections.push(`5. **HTML Completeness**: The HTML must be a COMPLETE, SELF-CONTAINED website with all sections fully implemented.`);
+  sections.push(`6. **MANDATORY COMPLETION**: You MUST generate the complete closing tags for ALL sections including About, Testimonials, FAQ, Contact, and Footer. The HTML must end with proper </body></html> tags after all content is complete.`);
+  sections.push(`\nDo NOT generate partial content. Do NOT skip sections. Do NOT stop early. Every enabled section above MUST be thoroughly completed in the HTML output with all opening and closing tags properly matched.`);
+
   return sections.join('\n');
+}
+
+/**
+ * Extract company name from generated HTML
+ * Parses title tag or logo text to get AI-chosen company name
+ */
+function extractCompanyNameFromHTML(html: string, originalInput: string): string {
+  // If original input wasn't 'ai_choose', return it
+  if (originalInput !== 'ai_choose') {
+    return originalInput || 'My Business';
+  }
+
+  // Try to extract from title tag
+  const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
+  if (titleMatch && titleMatch[1]) {
+    // Remove common suffixes like " - Website", " Website", " | Home" etc.
+    const cleanTitle = titleMatch[1]
+      .replace(/\s*(-|–|—|\|)\s*(Website|Home|Official Site).*$/i, '')
+      .trim();
+    if (cleanTitle && cleanTitle !== 'My Business') {
+      return cleanTitle;
+    }
+  }
+
+  // Try to extract from logo/nav (look for class="logo")
+  const logoMatch = html.match(/<[^>]*class="logo"[^>]*>([^<]+)</i);
+  if (logoMatch && logoMatch[1]) {
+    const cleanLogo = logoMatch[1].trim();
+    if (cleanLogo && cleanLogo !== 'My Business') {
+      return cleanLogo;
+    }
+  }
+
+  // Fallback
+  return 'My Business';
 }
 
 /**
  * Extract site spec from generated HTML
  * Creates a simplified SiteSpec for storage
  */
-function extractSiteSpec(input: WizardInput): SiteSpec {
+function extractSiteSpec(input: WizardInput, generatedHTML?: string): SiteSpec {
+  // Extract actual company name from generated HTML if ai_choose was used
+  const actualCompanyName = generatedHTML
+    ? extractCompanyNameFromHTML(generatedHTML, input.companyName || '')
+    : (input.companyName || 'My Business');
+
   // Parse basic metadata from input
   const spec: SiteSpec = {
     meta: {
-      title: `${input.companyName || 'Business'} Website`,
-      description: input.shortDescription || `Professional website for ${input.companyName || 'our business'}`,
+      title: `${actualCompanyName} Website`,
+      description: input.shortDescription || `Professional website for ${actualCompanyName}`,
     },
     branding: {
-      companyName: input.companyName || 'My Business',
+      companyName: actualCompanyName,
       tagline: input.tagline || '',
       logoUrl: input.logoUrl || null,
       brandVoice: input.brandVoice || 'professional',
@@ -408,10 +503,10 @@ export async function generateWebsite(
   const hasPlan = !!options.businessPlan;
   console.log('[WebsiteGenerator] Starting generation for:', wizardInput.companyName, hasPlan ? '(with business plan)' : '');
 
-  // Initialize Claude client
+  // Initialize Claude client with maximum token limit for complete websites
   const claude = new ClaudeClient({
     apiKey: options.apiKey,
-    maxTokens: options.maxTokens || 8000,
+    maxTokens: options.maxTokens || 64000, // Set to 64K (absolute maximum for Claude Sonnet 4.5) to prevent any truncation
     temperature: 0.7,
   });
 
@@ -444,8 +539,8 @@ export async function generateWebsite(
     siteCode = '<!DOCTYPE html>\n' + siteCode;
   }
 
-  // Create site spec
-  const siteSpec = extractSiteSpec(wizardInput);
+  // Create site spec (pass generated HTML to extract AI-chosen company name)
+  const siteSpec = extractSiteSpec(wizardInput, siteCode);
 
   return {
     siteSpec,

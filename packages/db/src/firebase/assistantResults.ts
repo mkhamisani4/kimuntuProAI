@@ -15,6 +15,7 @@ import {
   getDocs,
   getDoc,
   doc,
+  deleteDoc,
 } from './client.js';
 
 /**
@@ -167,4 +168,21 @@ export function generateSummary(sections: Record<string, string>): string {
   const summary = sentences.slice(0, 2).join(' ');
 
   return summary.length > 200 ? summary.substring(0, 200) + '...' : summary;
+}
+
+/**
+ * Delete assistant result by ID
+ *
+ * @param resultId - Result document ID
+ */
+export async function deleteAssistantResult(resultId: string): Promise<void> {
+  try {
+    const docRef = doc(db, 'assistant_results', resultId);
+    await deleteDoc(docRef);
+
+    console.log(`[Firestore] Deleted assistant result: ${resultId}`);
+  } catch (error: any) {
+    console.error('[Firestore] Failed to delete assistant result:', error);
+    throw error;
+  }
 }

@@ -8,11 +8,14 @@ import { withQuotaGuard } from '@/lib/api/quotaMiddleware';
  * Accepts AI editing instructions and updates the website
  */
 async function handleEdit(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  request: NextRequest
 ): Promise<NextResponse> {
   try {
-    const websiteId = params.id;
+    // Extract website ID from URL path
+    const url = new URL(request.url);
+    const pathParts = url.pathname.split('/');
+    const websiteId = pathParts[pathParts.length - 2]; // /api/websites/[id]/edit -> [id] is second to last
+
     const body = await request.json();
     const { tenantId, userId, instruction } = body;
 
@@ -108,20 +111,25 @@ async function editWebsiteInBackground(
       updatedAt: new Date(),
     });
 
-    // Record usage
-    await recordUsage({
-      tenantId,
-      userId,
-      assistant: 'website-editor',
-      model: result.metadata.model,
-      tokensIn: result.metadata.tokensIn,
-      tokensOut: result.metadata.tokensOut,
-      totalTokens: result.metadata.tokensUsed,
-      costCents: result.metadata.costCents,
-      latencyMs: result.metadata.latencyMs,
-      toolInvocations: {},
-      requestId: `edit-${websiteId}-${Date.now()}`,
-    });
+    // Record usage (don't fail the whole operation if this fails)
+    try {
+      await recordUsage({
+        tenantId,
+        userId,
+        assistant: 'website-editor',
+        model: result.metadata.model,
+        tokensIn: result.metadata.tokensIn,
+        tokensOut: result.metadata.tokensOut,
+        totalTokens: result.metadata.tokensUsed,
+        costCents: result.metadata.costCents,
+        latencyMs: result.metadata.latencyMs,
+        toolInvocations: {},
+        requestId: `edit-${websiteId}-${Date.now()}`,
+      });
+    } catch (usageError: any) {
+      // Log error but don't fail the edit
+      console.error('[WebsiteEdit] Failed to record usage (non-critical):', usageError.message);
+    }
 
     console.log('[WebsiteEdit] Website edited successfully:', websiteId);
   } catch (error: any) {

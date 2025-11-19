@@ -53,14 +53,26 @@ const LAYOUT_STYLES = [
   },
 ] as const;
 
-export default function Step4SectionsLayout({ data, updateData, onNext, onBack }: Step4Props) {
+export default function Step4SectionsLayout({ data, updateData, onNext, onBack, hasPlanAttached }: Step4Props) {
   const toggleSection = (sectionKey: keyof WizardInput['enabledSections']) => {
+    // When manually toggling, set mode to manual
     updateData({
+      sectionsMode: 'manual',
       enabledSections: {
         ...data.enabledSections,
         [sectionKey]: !data.enabledSections[sectionKey],
       },
     });
+  };
+
+  const handleAIChooseSections = () => {
+    if (data.sectionsMode === 'ai_choose') {
+      // If already in AI mode, switch back to manual
+      updateData({ sectionsMode: 'manual' });
+    } else {
+      // Switch to AI choose mode
+      updateData({ sectionsMode: 'ai_choose' });
+    }
   };
 
   return (
@@ -75,11 +87,38 @@ export default function Step4SectionsLayout({ data, updateData, onNext, onBack }
         <div>
           <h3 className="text-lg font-semibold text-white mb-4">Website Sections</h3>
           <p className="text-sm text-gray-400 mb-4">
-            Select the sections you want to include on your website
+            {hasPlanAttached
+              ? 'Select the sections you want to include, or let AI choose based on your business plan'
+              : 'Select the sections you want to include on your website'}
           </p>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {/* AI Choose Button */}
+            {hasPlanAttached && (
+              <button
+                type="button"
+                onClick={handleAIChooseSections}
+                className={`
+                  p-4 rounded-lg border-2 text-left transition-all
+                  ${
+                    data.sectionsMode === 'ai_choose'
+                      ? 'border-purple-500 bg-purple-500/10'
+                      : 'border-gray-700 bg-white/5 hover:border-gray-600'
+                  }
+                `}
+              >
+                <div className="flex items-start gap-3">
+                  <Sparkles className="w-5 h-5 mt-0.5 text-purple-400" />
+                  <div>
+                    <div className="font-semibold text-white mb-1">Let AI Choose</div>
+                    <div className="text-sm text-gray-400">AI selects sections from your business plan</div>
+                  </div>
+                </div>
+              </button>
+            )}
             {SECTIONS.map((section) => {
               const isEnabled = data.enabledSections[section.key];
+              const isAIMode = data.sectionsMode === 'ai_choose';
               return (
                 <button
                   key={section.key}
@@ -88,7 +127,9 @@ export default function Step4SectionsLayout({ data, updateData, onNext, onBack }
                   className={`
                     p-4 rounded-lg border-2 text-left transition-all relative
                     ${
-                      isEnabled
+                      isAIMode
+                        ? 'border-gray-700 bg-gray-800/50 opacity-50 hover:opacity-75 cursor-pointer'
+                        : isEnabled
                         ? 'border-emerald-500 bg-emerald-500/10'
                         : 'border-gray-700 bg-white/5 hover:border-gray-600'
                     }
@@ -120,8 +161,31 @@ export default function Step4SectionsLayout({ data, updateData, onNext, onBack }
             Choose the overall visual style for your website
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {hasPlanAttached && (
+              <button
+                type="button"
+                onClick={() => updateData({ layoutStyle: data.layoutStyle === 'ai_choose' ? undefined : 'ai_choose' })}
+                className={`
+                  p-4 rounded-lg border-2 text-left transition-all
+                  ${
+                    data.layoutStyle === 'ai_choose'
+                      ? 'border-purple-500 bg-purple-500/10'
+                      : 'border-gray-700 bg-white/5 hover:border-gray-600'
+                  }
+                `}
+              >
+                <div className="flex items-start gap-3">
+                  <Sparkles className="w-5 h-5 mt-0.5 text-purple-400" />
+                  <div>
+                    <div className="font-semibold text-white mb-1">Let AI Choose</div>
+                    <div className="text-sm text-gray-400">AI selects style from your business plan</div>
+                  </div>
+                </div>
+              </button>
+            )}
             {LAYOUT_STYLES.map((style) => {
               const Icon = style.icon;
+              const isAIMode = data.layoutStyle === 'ai_choose';
               return (
                 <button
                   key={style.value}
@@ -130,7 +194,9 @@ export default function Step4SectionsLayout({ data, updateData, onNext, onBack }
                   className={`
                     p-4 rounded-lg border-2 text-left transition-all
                     ${
-                      data.layoutStyle === style.value
+                      isAIMode
+                        ? 'border-gray-700 bg-gray-800/50 opacity-50 hover:opacity-75 cursor-pointer'
+                        : data.layoutStyle === style.value
                         ? 'border-emerald-500 bg-emerald-500/10'
                         : 'border-gray-700 bg-white/5 hover:border-gray-600'
                     }

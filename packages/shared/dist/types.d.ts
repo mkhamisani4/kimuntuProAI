@@ -323,18 +323,19 @@ export declare enum ErrorCode {
  * Wizard input data structure (6 steps)
  */
 export interface WizardInput {
-    companyName?: string;
-    tagline?: string;
-    brandVoice?: 'professional' | 'casual' | 'luxury' | 'playful' | 'friendly';
+    companyName?: string | 'ai_choose';
+    tagline?: string | 'ai_fill';
+    brandVoice?: 'professional' | 'casual' | 'luxury' | 'playful' | 'friendly' | 'ai_choose';
     logoUrl?: string | null;
-    shortDescription?: string;
-    aboutUs?: string;
-    industry?: string;
-    keyServices?: string[];
-    heroHeadline?: string;
-    heroSubheadline?: string;
-    primaryCtaText?: string;
-    mainGoal?: 'consult' | 'buy' | 'signup' | 'contact' | 'learn_more';
+    shortDescription?: string | 'ai_fill';
+    aboutUs?: string | 'ai_fill';
+    industry?: string | 'ai_fill';
+    keyServices?: string[] | 'ai_fill';
+    heroHeadline?: string | 'ai_fill';
+    heroSubheadline?: string | 'ai_fill';
+    primaryCtaText?: string | 'ai_fill';
+    mainGoal?: 'consult' | 'buy' | 'signup' | 'contact' | 'learn_more' | 'ai_choose';
+    sectionsMode?: 'manual' | 'ai_choose';
     enabledSections: {
         features: boolean;
         services: boolean;
@@ -344,7 +345,7 @@ export interface WizardInput {
         faq: boolean;
         contact: boolean;
     };
-    layoutStyle?: 'minimal' | 'modern' | 'bold' | 'playful';
+    layoutStyle?: 'minimal' | 'modern' | 'bold' | 'playful' | 'ai_choose';
     contactEmail?: string;
     contactPhone?: string;
     location?: string;

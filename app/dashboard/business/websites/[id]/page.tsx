@@ -8,7 +8,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { getWebsite, type Website } from '@kimuntupro/db';
-import { ArrowLeft, Download, ExternalLink, Loader2, AlertCircle, CheckCircle, Trash2, RefreshCw, Sparkles } from 'lucide-react';
+import { ArrowLeft, Download, ExternalLink, Loader2, AlertCircle, CheckCircle, Trash2, RefreshCw, Sparkles, Pencil, Check, X } from 'lucide-react';
 import { auth } from '@/lib/firebase';
 import { toast } from '@/components/ai/Toast';
 import { sanitizeWebsiteHTML, getIframeSandboxAttributes } from '@/lib/sanitize';
@@ -25,6 +25,8 @@ export default function WebsitePage() {
   const [deleting, setDeleting] = useState(false);
   const [regenerating, setRegenerating] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [editedTitle, setEditedTitle] = useState('');
 
   // Get current user
   useEffect(() => {
@@ -214,6 +216,63 @@ export default function WebsitePage() {
     }
   };
 
+  const handleStartEditTitle = () => {
+    setEditedTitle(website?.title || '');
+    setIsEditingTitle(true);
+  };
+
+  const handleCancelEditTitle = () => {
+    setIsEditingTitle(false);
+    setEditedTitle('');
+  };
+
+  const handleSaveTitle = async () => {
+    if (!website || !currentUserId) {
+      toast.error('Cannot rename: missing website or user info');
+      return;
+    }
+
+    const trimmedTitle = editedTitle.trim();
+    if (!trimmedTitle) {
+      toast.error('Title cannot be empty');
+      return;
+    }
+
+    if (trimmedTitle.length > 100) {
+      toast.error('Title must be 100 characters or less');
+      return;
+    }
+
+    if (trimmedTitle === website.title) {
+      setIsEditingTitle(false);
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/websites/${websiteId}/rename`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: currentUserId,
+          title: trimmedTitle,
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to rename website');
+      }
+
+      // Update local state
+      setWebsite({ ...website, title: trimmedTitle });
+      setIsEditingTitle(false);
+      toast.success('Website renamed successfully!');
+    } catch (err: any) {
+      console.error('Failed to rename website:', err);
+      toast.error(`Failed to rename: ${err.message}`);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-8">
@@ -264,8 +323,48 @@ export default function WebsitePage() {
           </button>
 
           <div className="flex items-start justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-white mb-2">{website.title}</h1>
+            <div className="flex-1">
+              {isEditingTitle ? (
+                <div className="flex items-center gap-2 mb-2">
+                  <input
+                    type="text"
+                    value={editedTitle}
+                    onChange={(e) => setEditedTitle(e.target.value)}
+                    className="text-3xl font-bold text-white bg-gray-800 border border-gray-600 rounded-lg px-3 py-1 focus:outline-none focus:border-emerald-500"
+                    placeholder="Website title"
+                    autoFocus
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleSaveTitle();
+                      if (e.key === 'Escape') handleCancelEditTitle();
+                    }}
+                  />
+                  <button
+                    onClick={handleSaveTitle}
+                    className="p-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors"
+                    title="Save"
+                  >
+                    <Check className="w-5 h-5" />
+                  </button>
+                  <button
+                    onClick={handleCancelEditTitle}
+                    className="p-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
+                    title="Cancel"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-3 mb-2">
+                  <h1 className="text-3xl font-bold text-white">{website.title}</h1>
+                  <button
+                    onClick={handleStartEditTitle}
+                    className="p-1.5 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg transition-colors"
+                    title="Rename website"
+                  >
+                    <Pencil className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
               <p className="text-gray-400">
                 Created {website.createdAt?.toLocaleDateString()} at {website.createdAt?.toLocaleTimeString()}
               </p>

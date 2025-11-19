@@ -4,7 +4,7 @@
  */
 export * from './firebase/client.js';
 export { recordUsage, sumTokensByUser, sumTokensByTenant, getUsageMetrics, type UsageRow, } from './firebase/usage.js';
-export { saveAssistantResult, getRecentResults, getAssistantResult, generateTitle, generateSummary, type AssistantResult, } from './firebase/assistantResults.js';
+export { saveAssistantResult, getRecentResults, getAssistantResult, deleteAssistantResult, generateTitle, generateSummary, type AssistantResult, } from './firebase/assistantResults.js';
 export { saveDocumentMeta, listRecentDocuments, getDocumentMeta, type DocumentMeta, } from './firebase/documents.js';
 export { createWebsite, getWebsite, updateWebsite, listWebsites, deleteWebsite, type Website, } from './firebase/websites.js';
 export { uploadLogo, deleteLogo, } from './firebase/storage.js';

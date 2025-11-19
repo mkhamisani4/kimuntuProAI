@@ -26,6 +26,7 @@ export interface AssistantResult {
     costCents: number;
     latencyMs: number;
     timestamp?: string; // ISO timestamp for web search data freshness
+    resultId?: string; // Phase B: ID for saved assistant result
   };
 }
 

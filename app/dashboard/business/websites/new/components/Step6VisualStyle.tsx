@@ -164,7 +164,7 @@ export default function Step6VisualStyle({ data, updateData, onBack, businessPla
                   p-4 rounded-lg border-2 transition-all relative
                   ${
                     data.colorTheme === 'ai_choose'
-                      ? 'border-emerald-500 bg-emerald-500/10'
+                      ? 'border-purple-500 bg-purple-500/10'
                       : 'border-gray-700 bg-white/5 hover:border-gray-600'
                   }
                 `}
@@ -173,54 +173,52 @@ export default function Step6VisualStyle({ data, updateData, onBack, businessPla
                   <Sparkles className="w-8 h-8 text-purple-400" />
                 </div>
                 <div className="text-sm font-medium text-white text-left">
-                  AI Choose
+                  Let AI Choose
                 </div>
-                {data.colorTheme === 'ai_choose' && (
-                  <div className="absolute top-2 right-2">
-                    <div className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center">
-                      <Check className="w-3 h-3 text-white" />
-                    </div>
-                  </div>
-                )}
               </button>
             )}
 
             {/* Predefined themes */}
-            {COLOR_THEMES.map((theme) => (
-              <button
-                key={theme.value}
-                type="button"
-                onClick={() => updateData({ colorTheme: theme.value })}
-                className={`
-                  p-4 rounded-lg border-2 transition-all relative
-                  ${
-                    data.colorTheme === theme.value
-                      ? 'border-emerald-500 bg-emerald-500/10'
-                      : 'border-gray-700 bg-white/5 hover:border-gray-600'
-                  }
-                `}
-              >
-                <div className="flex items-center gap-2 mb-3">
-                  {theme.colors.map((color, index) => (
-                    <div
-                      key={index}
-                      className="w-8 h-8 rounded-full border border-gray-700"
-                      style={{ backgroundColor: color }}
-                    />
-                  ))}
-                </div>
-                <div className="text-sm font-medium text-white text-left">
-                  {theme.label}
-                </div>
-                {data.colorTheme === theme.value && (
-                  <div className="absolute top-2 right-2">
-                    <div className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center">
-                      <Check className="w-3 h-3 text-white" />
-                    </div>
+            {COLOR_THEMES.map((theme) => {
+              const isAIMode = data.colorTheme === 'ai_choose';
+              return (
+                <button
+                  key={theme.value}
+                  type="button"
+                  onClick={() => updateData({ colorTheme: theme.value })}
+                  className={`
+                    p-4 rounded-lg border-2 transition-all relative
+                    ${
+                      isAIMode
+                        ? 'border-gray-700 bg-gray-800/50 opacity-50 hover:opacity-75 cursor-pointer'
+                        : data.colorTheme === theme.value
+                        ? 'border-emerald-500 bg-emerald-500/10'
+                        : 'border-gray-700 bg-white/5 hover:border-gray-600'
+                    }
+                  `}
+                >
+                  <div className="flex items-center gap-2 mb-3">
+                    {theme.colors.map((color, index) => (
+                      <div
+                        key={index}
+                        className="w-8 h-8 rounded-full border border-gray-700"
+                        style={{ backgroundColor: color }}
+                      />
+                    ))}
                   </div>
-                )}
-              </button>
-            ))}
+                  <div className="text-sm font-medium text-white text-left">
+                    {theme.label}
+                  </div>
+                  {data.colorTheme === theme.value && (
+                    <div className="absolute top-2 right-2">
+                      <div className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center">
+                        <Check className="w-3 h-3 text-white" />
+                      </div>
+                    </div>
+                  )}
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -240,38 +238,43 @@ export default function Step6VisualStyle({ data, updateData, onBack, businessPla
                   p-4 rounded-lg border-2 text-left transition-all relative
                   ${
                     data.fontStyle === 'ai_choose'
-                      ? 'border-emerald-500 bg-emerald-500/10'
+                      ? 'border-purple-500 bg-purple-500/10'
                       : 'border-gray-700 bg-white/5 hover:border-gray-600'
                   }
                 `}
               >
                 <div className="flex items-center gap-2 mb-1">
                   <Sparkles className="w-5 h-5 text-purple-400" />
-                  <div className="font-semibold text-white">AI Choose</div>
+                  <div className="font-semibold text-white">Let AI Choose</div>
                 </div>
                 <div className="text-sm text-gray-400">Let AI select the best font based on your business</div>
               </button>
             )}
 
             {/* Predefined fonts */}
-            {FONT_STYLES.map((font) => (
-              <button
-                key={font.value}
-                type="button"
-                onClick={() => updateData({ fontStyle: font.value })}
-                className={`
-                  p-4 rounded-lg border-2 text-left transition-all
-                  ${
-                    data.fontStyle === font.value
-                      ? 'border-emerald-500 bg-emerald-500/10'
-                      : 'border-gray-700 bg-white/5 hover:border-gray-600'
-                  }
-                `}
-              >
-                <div className="font-semibold text-white mb-1">{font.label}</div>
-                <div className="text-sm text-gray-400">{font.description}</div>
-              </button>
-            ))}
+            {FONT_STYLES.map((font) => {
+              const isAIMode = data.fontStyle === 'ai_choose';
+              return (
+                <button
+                  key={font.value}
+                  type="button"
+                  onClick={() => updateData({ fontStyle: font.value })}
+                  className={`
+                    p-4 rounded-lg border-2 text-left transition-all
+                    ${
+                      isAIMode
+                        ? 'border-gray-700 bg-gray-800/50 opacity-50 hover:opacity-75 cursor-pointer'
+                        : data.fontStyle === font.value
+                        ? 'border-emerald-500 bg-emerald-500/10'
+                        : 'border-gray-700 bg-white/5 hover:border-gray-600'
+                    }
+                  `}
+                >
+                  <div className="font-semibold text-white mb-1">{font.label}</div>
+                  <div className="text-sm text-gray-400">{font.description}</div>
+                </button>
+              );
+            })}
           </div>
         </div>
 

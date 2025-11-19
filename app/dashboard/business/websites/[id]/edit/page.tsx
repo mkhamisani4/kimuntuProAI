@@ -90,6 +90,7 @@ export default function WebsiteEditPage() {
       try {
         const updated = await getWebsite(websiteId);
         if (updated && updated.status !== 'generating') {
+          // Update website state - this will trigger iframe re-render via key prop
           setWebsite(updated);
           setIsEditing(false);
 
@@ -102,12 +103,13 @@ export default function WebsiteEditPage() {
             )
           );
 
+          clearInterval(pollInterval);
+
           if (updated.status === 'ready') {
-            toast.success('Edit applied successfully!');
+            toast.success('Edit applied successfully! Preview updated.', { duration: 3000 });
           } else if (updated.status === 'failed') {
             toast.error('Edit failed: ' + updated.errorMessage);
           }
-          clearInterval(pollInterval);
         }
       } catch (err) {
         console.error('Failed to poll website:', err);
@@ -240,14 +242,71 @@ export default function WebsiteEditPage() {
             Back to Website
           </button>
 
-          <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-6">
-            <div className="flex items-center gap-3 mb-2">
-              <AlertCircle className="w-6 h-6 text-yellow-400" />
-              <h2 className="text-xl font-semibold text-yellow-400">Website Not Ready</h2>
+          <div className="flex items-center justify-center min-h-[60vh]">
+            <div className="bg-gray-800/50 border border-purple-500/30 rounded-2xl p-12 max-w-2xl text-center backdrop-blur-sm">
+              {website.status === 'generating' ? (
+                <>
+                  <div className="flex justify-center mb-6">
+                    <div className="relative">
+                      <Sparkles className="w-20 h-20 text-purple-400 animate-pulse" />
+                      <div className="absolute inset-0 animate-ping">
+                        <Sparkles className="w-20 h-20 text-purple-400 opacity-20" />
+                      </div>
+                    </div>
+                  </div>
+                  <h2 className="text-3xl font-bold text-white mb-4">Your Website is Being Created</h2>
+                  <p className="text-gray-300 text-lg mb-6">
+                    Claude is generating your complete website with AI. This typically takes 1-2 minutes.
+                  </p>
+                  <p className="text-gray-400 text-sm mb-8">
+                    You'll be able to edit it with AI once generation is complete. The page will automatically update when ready.
+                  </p>
+                  <div className="space-y-3">
+                    <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
+                      <div className="h-full bg-gradient-to-r from-purple-500 to-pink-500 animate-pulse" style={{ width: '70%' }} />
+                    </div>
+                    <div className="flex justify-center gap-4 text-xs text-gray-500">
+                      <span className="flex items-center gap-1">
+                        <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+                        Analyzing requirements
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
+                        Generating content
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse" />
+                        Building website
+                      </span>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="flex justify-center mb-6">
+                    <AlertCircle className="w-20 h-20 text-yellow-400" />
+                  </div>
+                  <h2 className="text-3xl font-bold text-white mb-4">Website Not Ready for Editing</h2>
+                  <p className="text-gray-300 text-lg mb-4">
+                    This website needs to be fully generated before you can edit it.
+                  </p>
+                  <div className="bg-gray-900/50 rounded-lg p-4 mb-6">
+                    <p className="text-sm text-gray-400">
+                      Current Status: <span className="text-yellow-400 font-semibold">{website.status}</span>
+                    </p>
+                    {website.errorMessage && (
+                      <p className="text-sm text-red-400 mt-2">Error: {website.errorMessage}</p>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => router.push(`/dashboard/business/websites/${websiteId}`)}
+                    className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition-colors"
+                  >
+                    View Website Details
+                  </button>
+                </>
+              )}
             </div>
-            <p className="text-gray-300">
-              This website must be fully generated before you can edit it. Current status: {website.status}
-            </p>
           </div>
         </div>
       </div>
@@ -283,8 +342,50 @@ export default function WebsiteEditPage() {
       {/* Split View */}
       <div className="h-[calc(100vh-73px)] flex">
         {/* Preview Panel */}
-        <div className="flex-1 border-r border-gray-700 bg-white overflow-auto">
+        <div className="flex-1 border-r border-gray-700 bg-white overflow-auto relative">
+          {/* Loading Overlay */}
+          {isEditing && (
+            <div className="absolute inset-0 bg-gray-900/80 backdrop-blur-sm z-10 flex items-center justify-center">
+              <div className="bg-gray-800 border border-purple-500/50 rounded-2xl p-8 max-w-md text-center">
+                <div className="flex justify-center mb-4">
+                  <div className="relative">
+                    <Sparkles className="w-16 h-16 text-purple-400 animate-pulse" />
+                    <div className="absolute inset-0 animate-ping">
+                      <Sparkles className="w-16 h-16 text-purple-400 opacity-20" />
+                    </div>
+                  </div>
+                </div>
+                <h3 className="text-xl font-bold text-white mb-2">AI is Editing...</h3>
+                <p className="text-gray-400 text-sm mb-4">
+                  Claude is applying your changes to the website. This typically takes 30-60 seconds.
+                </p>
+                {/* Loading Skeleton */}
+                <div className="space-y-3 mt-6">
+                  <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
+                    <div className="h-full bg-gradient-to-r from-purple-500 to-pink-500 animate-pulse" style={{ width: '60%' }} />
+                  </div>
+                  <div className="flex gap-2 text-xs text-gray-500">
+                    <span className="flex items-center gap-1">
+                      <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                      Analyzing changes
+                    </span>
+                    <span>·</span>
+                    <span className="flex items-center gap-1">
+                      <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse" />
+                      Generating code
+                    </span>
+                    <span>·</span>
+                    <span className="flex items-center gap-1">
+                      <div className="w-1.5 h-1.5 bg-purple-500 rounded-full animate-pulse" />
+                      Updating preview
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
           <iframe
+            key={website.updatedAt?.getTime() || website.createdAt?.getTime()}
             srcDoc={sanitizeWebsiteHTML(website.siteCode)}
             className="w-full h-full border-0"
             title="Website Preview"

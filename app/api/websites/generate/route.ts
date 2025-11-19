@@ -39,14 +39,22 @@ async function generateWebsiteInBackground(
     // Generate website with Claude Sonnet 4.5
     const result = await generateWebsite(wizardInput, {
       apiKey: process.env.ANTHROPIC_API_KEY,
-      maxTokens: 8000,
+      maxTokens: 64000, // Use full 64K token limit for Claude Sonnet 4.5
       businessPlan: businessPlan,
     });
 
     console.log(`[WebsiteGeneration] Claude generation complete for ${websiteId}`);
 
+    // Generate updated title from AI-chosen company name
+    const updatedTitle = result.siteSpec.branding.companyName
+      ? `${result.siteSpec.branding.companyName} Website`
+      : wizardInput.companyName === 'ai_choose'
+      ? 'Untitled Website'
+      : `${wizardInput.companyName} Website`;
+
     // Update website with generated content
     await updateWebsiteAdmin(websiteId, {
+      title: updatedTitle, // Update title with AI-chosen name
       completedInput: wizardInput,
       siteSpec: result.siteSpec,
       siteCode: result.siteCode,

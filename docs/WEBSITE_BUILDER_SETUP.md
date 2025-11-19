@@ -153,7 +153,7 @@ Generation usage is tracked in the `usage_logs` collection:
   tenantId: "test-tenant",
   userId: "test-user",
   assistant: "website_builder",
-  model: "claude-sonnet-4-20250514",
+  model: "claude-sonnet-4-5-20250929",
   tokensIn: 1500,
   tokensOut: 2500,
   totalTokens: 4000,

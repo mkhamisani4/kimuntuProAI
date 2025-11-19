@@ -25,7 +25,7 @@ vi.mock('../../llm/claudeClient.js', () => {
 </html>`,
         tokensIn: 1500,
         tokensOut: 2500,
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-4-5-20250929',
         latencyMs: 3000,
         costCents: 42,
       }),
@@ -155,7 +155,7 @@ describe('Website Generator', () => {
     it('includes generation metadata with all required fields', async () => {
       const result = await generateWebsite(mockWizardInput);
 
-      expect(result.metadata.model).toBe('claude-sonnet-4-20250514');
+      expect(result.metadata.model).toBe('claude-sonnet-4-5-20250929');
       expect(result.metadata.tokensIn).toBe(1500);
       expect(result.metadata.tokensOut).toBe(2500);
       expect(result.metadata.tokensUsed).toBe(4000);
@@ -236,7 +236,7 @@ describe('Website Generator', () => {
           text: '```html\n<!DOCTYPE html>\n<html></html>\n```',
           tokensIn: 100,
           tokensOut: 200,
-          model: 'claude-sonnet-4-20250514',
+          model: 'claude-sonnet-4-5-20250929',
           latencyMs: 1000,
           costCents: 5,
         }),
@@ -257,7 +257,7 @@ describe('Website Generator', () => {
           text: '<html><head></head><body></body></html>',
           tokensIn: 100,
           tokensOut: 200,
-          model: 'claude-sonnet-4-20250514',
+          model: 'claude-sonnet-4-5-20250929',
           latencyMs: 1000,
           costCents: 5,
         }),

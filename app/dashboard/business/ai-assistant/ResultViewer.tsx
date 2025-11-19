@@ -29,6 +29,9 @@ export default function ResultViewer({ result, isLoading, error, onRetry, assist
   const router = useRouter();
   const [isAnimating, setIsAnimating] = useState(false);
 
+  // Debug logging for Turn Into Website button
+  console.log('[ResultViewer] Props:', { assistantType, resultId, hasResult: !!result });
+
   const handleConvertToWebsite = () => {
     if (resultId) {
       router.push(`/dashboard/business/websites/new?planId=${resultId}`);

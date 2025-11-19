@@ -133,7 +133,7 @@ describe('Website Generation Integration', () => {
         tenantId: 'test-tenant',
         userId: 'test-user',
         assistant: 'website_builder',
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-4-5-20250929',
         tokensIn: 1500,
         tokensOut: 2500,
         totalTokens: 4000,
@@ -153,7 +153,7 @@ describe('Website Generation Integration', () => {
   describe('Generation Metadata', () => {
     it('should track all required metadata fields', () => {
       const metadata = {
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-4-5-20250929',
         tokensIn: 1500,
         tokensOut: 2500,
         tokensUsed: 4000,

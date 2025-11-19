@@ -13,6 +13,10 @@
     "./firebase/websites.server": {
       "types": "./dist/firebase/websites.server.d.ts",
       "import": "./dist/firebase/websites.server.js"
+    },
+    "./firebase/assistantResults.server": {
+      "types": "./dist/firebase/assistantResults.server.d.ts",
+      "import": "./dist/firebase/assistantResults.server.js"
     }
   },
   "scripts": {

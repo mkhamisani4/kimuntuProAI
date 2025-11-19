@@ -411,24 +411,25 @@ export enum ErrorCode {
  */
 export interface WizardInput {
   // Step 1: Brand Basics
-  companyName?: string;
-  tagline?: string;
-  brandVoice?: 'professional' | 'casual' | 'luxury' | 'playful' | 'friendly';
+  companyName?: string | 'ai_choose';
+  tagline?: string | 'ai_fill';
+  brandVoice?: 'professional' | 'casual' | 'luxury' | 'playful' | 'friendly' | 'ai_choose';
   logoUrl?: string | null;
 
   // Step 2: Business Overview
-  shortDescription?: string;
-  aboutUs?: string;
-  industry?: string;
-  keyServices?: string[];
+  shortDescription?: string | 'ai_fill';
+  aboutUs?: string | 'ai_fill';
+  industry?: string | 'ai_fill';
+  keyServices?: string[] | 'ai_fill';
 
   // Step 3: Hero & CTA
-  heroHeadline?: string;
-  heroSubheadline?: string;
-  primaryCtaText?: string;
-  mainGoal?: 'consult' | 'buy' | 'signup' | 'contact' | 'learn_more';
+  heroHeadline?: string | 'ai_fill';
+  heroSubheadline?: string | 'ai_fill';
+  primaryCtaText?: string | 'ai_fill';
+  mainGoal?: 'consult' | 'buy' | 'signup' | 'contact' | 'learn_more' | 'ai_choose';
 
   // Step 4: Sections & Layout
+  sectionsMode?: 'manual' | 'ai_choose'; // Controls whether user manually selects sections or AI chooses
   enabledSections: {
     features: boolean;
     services: boolean;
@@ -438,7 +439,7 @@ export interface WizardInput {
     faq: boolean;
     contact: boolean;
   };
-  layoutStyle?: 'minimal' | 'modern' | 'bold' | 'playful';
+  layoutStyle?: 'minimal' | 'modern' | 'bold' | 'playful' | 'ai_choose';
 
   // Step 5: Contact & Social
   contactEmail?: string;

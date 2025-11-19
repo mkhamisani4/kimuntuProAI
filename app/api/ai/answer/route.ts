@@ -1,7 +1,7 @@
 /**
  * POST /api/ai/answer
  * Business Track AI Assistant Entry Point
- * Runs streamlined_plan, exec_summary, or market_analysis end-to-end
+ * Runs streamlined_plan, exec_summary, market_analysis, or financial_overview end-to-end
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -9,6 +9,7 @@ import {
   runStreamlinedPlanAssistant,
   runExecSummaryAssistant,
   runMarketAnalysisAssistant,
+  runFinancialOverviewAssistant,
 } from '@kimuntupro/ai-core/assistants';
 import { withQuotaGuard } from '@/lib/api/quotaMiddleware';
 import type { AssistantType } from '@kimuntupro/shared';
@@ -19,11 +20,8 @@ import {
   logRequestError,
 } from '@kimuntupro/ai-core/logging';
 import { logRequestUsage } from '@kimuntupro/ai-core/usage';
-import {
-  saveAssistantResult,
-  generateTitle,
-  generateSummary,
-} from '@kimuntupro/db';
+import { generateTitle, generateSummary } from '@kimuntupro/db';
+import { saveAssistantResultAdmin } from '@kimuntupro/db/firebase/assistantResults.server';
 
 /**
  * Handle POST request to /api/ai/answer
@@ -57,7 +55,7 @@ async function handleAnswer(req: NextRequest): Promise<NextResponse> {
     }
 
     // Validate assistant type
-    const validAssistants: AssistantType[] = ['streamlined_plan', 'exec_summary', 'market_analysis'];
+    const validAssistants: AssistantType[] = ['streamlined_plan', 'exec_summary', 'market_analysis', 'financial_overview'];
     if (!validAssistants.includes(assistant)) {
       return NextResponse.json(
         {
@@ -96,6 +94,16 @@ async function handleAnswer(req: NextRequest): Promise<NextResponse> {
 
       case 'market_analysis':
         response = await runMarketAnalysisAssistant({
+          assistant,
+          input,
+          extra,
+          tenantId,
+          userId,
+        });
+        break;
+
+      case 'financial_overview':
+        response = await runFinancialOverviewAssistant({
           assistant,
           input,
           extra,
@@ -149,7 +157,7 @@ async function handleAnswer(req: NextRequest): Promise<NextResponse> {
     // Save assistant result for Recent Activity (Phase B)
     let resultId: string | undefined;
     try {
-      resultId = await saveAssistantResult({
+      resultId = await saveAssistantResultAdmin({
         tenantId,
         userId,
         assistant: assistant as any,

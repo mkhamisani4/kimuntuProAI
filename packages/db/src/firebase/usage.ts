@@ -10,6 +10,7 @@ import {
   addDoc,
   query,
   where,
+  orderBy,
   getDocs,
 } from './client.js';
 
@@ -150,19 +151,25 @@ export async function getUsageMetrics(options?: {
   byAssistant: Record<string, { requests: number; costCents: number; tokens: number }>;
 }> {
   try {
-    let q = query(collection(db, 'usage_logs'));
+    // Build query constraints array
+    const constraints = [];
 
     if (options?.tenantId) {
-      q = query(q, where('tenantId', '==', options.tenantId));
+      constraints.push(where('tenantId', '==', options.tenantId));
     }
 
     if (options?.userId) {
-      q = query(q, where('userId', '==', options.userId));
+      constraints.push(where('userId', '==', options.userId));
     }
 
     if (options?.since) {
-      q = query(q, where('createdAt', '>=', Timestamp.fromDate(options.since)));
+      constraints.push(where('createdAt', '>=', Timestamp.fromDate(options.since)));
+      // Add explicit orderBy to ensure correct index usage
+      constraints.push(orderBy('createdAt', 'desc'));
     }
+
+    // Create query with all constraints at once
+    const q = query(collection(db, 'usage_logs'), ...constraints);
 
     const snapshot = await getDocs(q);
 

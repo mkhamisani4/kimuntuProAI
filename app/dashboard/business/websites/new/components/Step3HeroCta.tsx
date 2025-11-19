@@ -5,7 +5,7 @@
  * Collects hero headline, subheadline, CTA text, and main goal
  */
 
-import { ChevronRight, ChevronLeft, Target, ShoppingCart, UserPlus, Mail, BookOpen } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Target, ShoppingCart, UserPlus, Mail, BookOpen, Sparkles } from 'lucide-react';
 import type { WizardInput } from '@kimuntupro/shared';
 
 interface Step3Props {
@@ -60,23 +60,31 @@ export default function Step3HeroCta({ data, updateData, onNext, onBack, hasPlan
       <div className="space-y-6">
         {/* Hero Headline */}
         <div>
-          <div className="flex items-center justify-between mb-2">
-            <label className="block text-sm font-medium text-gray-200">
-              Hero Headline <span className="text-gray-500">(Optional)</span>
-            </label>
-            {hasPlanAttached && (
-              <label className="flex items-center gap-2 text-sm text-purple-400 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={data.heroHeadline === 'ai_fill'}
-                  onChange={(e) => updateData({ heroHeadline: e.target.checked ? 'ai_fill' : '' })}
-                  className="w-4 h-4 rounded border-gray-600 bg-white/10 text-purple-500 focus:ring-purple-500"
-                />
-                Auto-fill from plan
-              </label>
-            )}
-          </div>
-          {data.heroHeadline !== 'ai_fill' ? (
+          <label className="block text-sm font-medium text-gray-200 mb-2">
+            Hero Headline <span className="text-gray-500">(Optional)</span>
+          </label>
+
+          {hasPlanAttached && (
+            <button
+              type="button"
+              onClick={() => updateData({ heroHeadline: data.heroHeadline === 'ai_fill' ? '' : 'ai_fill' })}
+              className={`w-full mb-3 p-4 rounded-lg border-2 transition-all ${
+                data.heroHeadline === 'ai_fill'
+                  ? 'border-purple-500 bg-purple-500/10'
+                  : 'border-gray-700 bg-white/5 hover:border-gray-600'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-purple-400" />
+                <div className="flex-1 text-left">
+                  <div className="font-semibold text-white">Generate with AI</div>
+                  <div className="text-sm text-gray-400">Let AI create this from your business plan</div>
+                </div>
+              </div>
+            </button>
+          )}
+
+          {data.heroHeadline !== 'ai_fill' && (
             <>
               <input
                 type="text"
@@ -90,32 +98,36 @@ export default function Step3HeroCta({ data, updateData, onNext, onBack, hasPlan
                 The main headline visitors see first on your homepage
               </p>
             </>
-          ) : (
-            <div className="px-4 py-3 border border-purple-500/50 bg-purple-500/10 text-purple-300 rounded-lg text-sm">
-              ✨ AI will generate this content from your business plan
-            </div>
           )}
         </div>
 
         {/* Hero Subheadline */}
         <div>
-          <div className="flex items-center justify-between mb-2">
-            <label className="block text-sm font-medium text-gray-200">
-              Hero Subheadline <span className="text-gray-500">(Optional)</span>
-            </label>
-            {hasPlanAttached && (
-              <label className="flex items-center gap-2 text-sm text-purple-400 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={data.heroSubheadline === 'ai_fill'}
-                  onChange={(e) => updateData({ heroSubheadline: e.target.checked ? 'ai_fill' : '' })}
-                  className="w-4 h-4 rounded border-gray-600 bg-white/10 text-purple-500 focus:ring-purple-500"
-                />
-                Auto-fill from plan
-              </label>
-            )}
-          </div>
-          {data.heroSubheadline !== 'ai_fill' ? (
+          <label className="block text-sm font-medium text-gray-200 mb-2">
+            Hero Subheadline <span className="text-gray-500">(Optional)</span>
+          </label>
+
+          {hasPlanAttached && (
+            <button
+              type="button"
+              onClick={() => updateData({ heroSubheadline: data.heroSubheadline === 'ai_fill' ? '' : 'ai_fill' })}
+              className={`w-full mb-3 p-4 rounded-lg border-2 transition-all ${
+                data.heroSubheadline === 'ai_fill'
+                  ? 'border-purple-500 bg-purple-500/10'
+                  : 'border-gray-700 bg-white/5 hover:border-gray-600'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-purple-400" />
+                <div className="flex-1 text-left">
+                  <div className="font-semibold text-white">Generate with AI</div>
+                  <div className="text-sm text-gray-400">Let AI create this from your business plan</div>
+                </div>
+              </div>
+            </button>
+          )}
+
+          {data.heroSubheadline !== 'ai_fill' && (
             <>
               <textarea
                 value={data.heroSubheadline === 'ai_fill' ? '' : (data.heroSubheadline || '')}
@@ -129,32 +141,36 @@ export default function Step3HeroCta({ data, updateData, onNext, onBack, hasPlan
                 {(data.heroSubheadline && data.heroSubheadline !== 'ai_fill' ? data.heroSubheadline.length : 0)}/250 - Supporting text below the headline
               </p>
             </>
-          ) : (
-            <div className="px-4 py-3 border border-purple-500/50 bg-purple-500/10 text-purple-300 rounded-lg text-sm">
-              ✨ AI will generate this content from your business plan
-            </div>
           )}
         </div>
 
         {/* Primary CTA Text */}
         <div>
-          <div className="flex items-center justify-between mb-2">
-            <label className="block text-sm font-medium text-gray-200">
-              Primary Button Text <span className="text-gray-500">(Optional)</span>
-            </label>
-            {hasPlanAttached && (
-              <label className="flex items-center gap-2 text-sm text-purple-400 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={data.primaryCtaText === 'ai_fill'}
-                  onChange={(e) => updateData({ primaryCtaText: e.target.checked ? 'ai_fill' : '' })}
-                  className="w-4 h-4 rounded border-gray-600 bg-white/10 text-purple-500 focus:ring-purple-500"
-                />
-                Auto-fill from plan
-              </label>
-            )}
-          </div>
-          {data.primaryCtaText !== 'ai_fill' ? (
+          <label className="block text-sm font-medium text-gray-200 mb-2">
+            Primary Button Text <span className="text-gray-500">(Optional)</span>
+          </label>
+
+          {hasPlanAttached && (
+            <button
+              type="button"
+              onClick={() => updateData({ primaryCtaText: data.primaryCtaText === 'ai_fill' ? '' : 'ai_fill' })}
+              className={`w-full mb-3 p-4 rounded-lg border-2 transition-all ${
+                data.primaryCtaText === 'ai_fill'
+                  ? 'border-purple-500 bg-purple-500/10'
+                  : 'border-gray-700 bg-white/5 hover:border-gray-600'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-purple-400" />
+                <div className="flex-1 text-left">
+                  <div className="font-semibold text-white">Generate with AI</div>
+                  <div className="text-sm text-gray-400">Let AI create this from your business plan</div>
+                </div>
+              </div>
+            </button>
+          )}
+
+          {data.primaryCtaText !== 'ai_fill' && (
             <>
               <input
                 type="text"
@@ -168,10 +184,6 @@ export default function Step3HeroCta({ data, updateData, onNext, onBack, hasPlan
                 The text on your main call-to-action button
               </p>
             </>
-          ) : (
-            <div className="px-4 py-3 border border-purple-500/50 bg-purple-500/10 text-purple-300 rounded-lg text-sm">
-              ✨ AI will generate this content from your business plan
-            </div>
           )}
         </div>
 
@@ -181,8 +193,31 @@ export default function Step3HeroCta({ data, updateData, onNext, onBack, hasPlan
             Main Website Goal <span className="text-gray-500">(Optional)</span>
           </label>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {hasPlanAttached && (
+              <button
+                type="button"
+                onClick={() => updateData({ mainGoal: data.mainGoal === 'ai_choose' ? undefined : 'ai_choose' })}
+                className={`
+                  p-4 rounded-lg border-2 text-left transition-all
+                  ${
+                    data.mainGoal === 'ai_choose'
+                      ? 'border-purple-500 bg-purple-500/10'
+                      : 'border-gray-700 bg-white/5 hover:border-gray-600'
+                  }
+                `}
+              >
+                <div className="flex items-start gap-3">
+                  <Sparkles className="w-5 h-5 mt-0.5 text-purple-400" />
+                  <div>
+                    <div className="font-semibold text-white mb-1">Let AI Choose</div>
+                    <div className="text-sm text-gray-400">AI selects goal from your business plan</div>
+                  </div>
+                </div>
+              </button>
+            )}
             {MAIN_GOALS.map((goal) => {
               const Icon = goal.icon;
+              const isAIMode = data.mainGoal === 'ai_choose';
               return (
                 <button
                   key={goal.value}
@@ -191,7 +226,9 @@ export default function Step3HeroCta({ data, updateData, onNext, onBack, hasPlan
                   className={`
                     p-4 rounded-lg border-2 text-left transition-all
                     ${
-                      data.mainGoal === goal.value
+                      isAIMode
+                        ? 'border-gray-700 bg-gray-800/50 opacity-50 hover:opacity-75 cursor-pointer'
+                        : data.mainGoal === goal.value
                         ? 'border-emerald-500 bg-emerald-500/10'
                         : 'border-gray-700 bg-white/5 hover:border-gray-600'
                     }

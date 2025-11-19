@@ -1,13 +1,7 @@
 'use client';
 
 import { useAuth } from '@/hooks/useAuth';
-import Hero from '@/components/business/Hero';
-import KPISection from '@/components/business/KPISection';
-import QuickActions from '@/components/business/QuickActions';
-import ProLaunchSection from '@/components/business/ProLaunchSection';
-import NextSteps from '@/components/business/NextSteps';
-import RecentActivity from '@/components/business/RecentActivity';
-import RecentWebsites from '@/components/business/RecentWebsites';
+import BusinessDashboard from '@/components/business/dashboard';
 
 export default function BusinessPage() {
   const { user, loading } = useAuth();
@@ -15,21 +9,15 @@ export default function BusinessPage() {
   // Use demo-tenant for consistency with TaskForm
   const tenantId = 'demo-tenant';
 
-  return (
-    <div>
-      <Hero />
-      <KPISection />
-      <QuickActions />
-      <ProLaunchSection />
-      <NextSteps />
+  // Extract user's first name if available
+  const userName = user?.displayName?.split(' ')[0];
 
-      {/* Recent Activity and Websites - Only show when user is authenticated */}
-      {!loading && user && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 px-6 mb-12">
-          <RecentActivity tenantId={tenantId} />
-          <RecentWebsites tenantId={tenantId} userId={user.uid} />
-        </div>
-      )}
-    </div>
+  return (
+    <BusinessDashboard
+      userName={userName}
+      tenantId={tenantId}
+      userId={user?.uid}
+      loading={loading}
+    />
   );
 }

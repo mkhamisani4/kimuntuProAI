@@ -13,20 +13,19 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
-    // Assistant results - users can read/write their own results
+    // Assistant results
+    // ⚠️ DEVELOPMENT MODE: Open for all reads and writes (no auth required)
+    // For production, use Admin SDK with service account key
     match /assistant_results/{resultId} {
-      allow read: if isSignedIn();
-      allow create: if isSignedIn();
-      allow update: if isSignedIn();
-      allow delete: if false; // Prevent deletion for data integrity
+      allow read, write: if true; // Completely open for development (server-side operations from API routes)
+      allow delete: if true; // Allow deletion via API routes
     }
 
     // Usage tracking
-    // ⚠️ DEVELOPMENT MODE: Open for all writes (no auth required)
+    // ⚠️ DEVELOPMENT MODE: Open for all reads and writes (no auth required)
     // For production, use Admin SDK with service account key
-    match /usage/{usageId} {
-      allow read: if isSignedIn();
-      allow write: if true; // Completely open for development
+    match /usage_logs/{usageId} {
+      allow read, write: if true; // Completely open for development (server-side operations from API routes)
     }
 
     // Document metadata (RAG) - readable by authenticated users, writable by all (server writes)

@@ -63,6 +63,13 @@ export default function StreamlinedPlanPage() {
 
   const handleResult = (newResult: AssistantResult) => {
     setResult(newResult);
+    // Extract resultId from meta if available
+    if (newResult.meta?.resultId) {
+      console.log('[StreamlinedPlan] Setting resultId:', newResult.meta.resultId);
+      setResultId(newResult.meta.resultId);
+    } else {
+      console.warn('[StreamlinedPlan] No resultId in response meta:', newResult.meta);
+    }
     setError(null);
     setErrorType(null);
     setResetsAt(null);

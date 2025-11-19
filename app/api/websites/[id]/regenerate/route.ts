@@ -9,11 +9,14 @@ import { generateWebsite } from '@kimuntupro/ai-core';
 import { withQuotaGuard } from '@/lib/api/quotaMiddleware';
 
 async function handleRegenerate(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  request: NextRequest
 ): Promise<NextResponse> {
   try {
-    const websiteId = params.id;
+    // Extract website ID from URL path
+    const url = new URL(request.url);
+    const pathParts = url.pathname.split('/');
+    const websiteId = pathParts[pathParts.length - 2]; // /api/websites/[id]/regenerate -> [id] is second to last
+
     const body = await request.json();
     const { tenantId, userId, wizardInput, businessPlan } = body;
 
@@ -28,7 +31,7 @@ async function handleRegenerate(
     }
 
     // Get existing website
-    const existingWebsite = await getWebsite(tenantId, websiteId);
+    const existingWebsite = await getWebsite(websiteId);
     if (!existingWebsite) {
       return NextResponse.json(
         { error: 'Website not found' },
@@ -45,7 +48,7 @@ async function handleRegenerate(
     }
 
     // Update status to generating
-    await updateWebsite(tenantId, websiteId, {
+    await updateWebsite(websiteId, {
       status: 'generating',
       errorMessage: null,
       updatedAt: new Date(),
@@ -99,12 +102,12 @@ async function regenerateWebsiteInBackground(
     // Generate website with Claude
     const result = await generateWebsite(wizardInput, {
       apiKey: process.env.ANTHROPIC_API_KEY,
-      maxTokens: 8000,
+      maxTokens: 64000, // Use full 64K token limit for Claude Sonnet 4.5
       businessPlan: businessPlan,
     });
 
     // Update website document with generated content
-    await updateWebsite(tenantId, websiteId, {
+    await updateWebsite(websiteId, {
       status: 'ready',
       siteCode: result.siteCode,
       siteSpec: result.siteSpec,
@@ -138,7 +141,7 @@ async function regenerateWebsiteInBackground(
     console.error(`[WebsiteRegenerate] Failed to regenerate website ${websiteId}:`, error);
 
     // Update status to failed
-    await updateWebsite(tenantId, websiteId, {
+    await updateWebsite(websiteId, {
       status: 'failed',
       errorMessage: error.message || 'Unknown error during regeneration',
       updatedAt: new Date(),

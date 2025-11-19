@@ -59,7 +59,17 @@ export declare function validateCitations(response: AssistantResponse, context: 
     requirePerSectionCitations?: boolean;
 }): ValidationIssue[];
 /**
- * Find section by name (case-insensitive)
+ * Check if two section names match with fuzzy matching
+ * Handles abbreviations and common variations
+ *
+ * @param expected - Expected section name
+ * @param actual - Actual section name from response
+ * @returns True if names match (fuzzy)
+ */
+export declare function fuzzyMatchSectionName(expected: string, actual: string): boolean;
+/**
+ * Find section by name with fuzzy matching
+ * Handles common abbreviations and variations
  *
  * @param response - Assistant response
  * @param sectionName - Section name to find

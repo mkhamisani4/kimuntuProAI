@@ -62,14 +62,15 @@ export class ClaudeClient {
       apiKey,
     });
 
-    this.model = config.model || 'claude-sonnet-4-20250514';
-    this.maxTokens = config.maxTokens || 8000;
+    this.model = config.model || 'claude-sonnet-4-5-20250929';
+    this.maxTokens = config.maxTokens || 64000; // Default to 64K max for Claude Sonnet 4.5
     this.temperature = config.temperature ?? 0.7;
     this.maxRetries = config.maxRetries ?? 3;
   }
 
   /**
    * Generate completion with Claude
+   * Uses streaming for large requests (>16K tokens) to prevent timeouts
    */
   async complete(opts: {
     systemPrompt: string;
@@ -81,39 +82,88 @@ export class ClaudeClient {
     const maxTokens = opts.maxTokens || this.maxTokens;
     const temperature = opts.temperature ?? this.temperature;
 
+    // Use streaming for large token requests to prevent 10-minute timeout
+    const useStreaming = maxTokens > 16000;
+
     let lastError: Error | null = null;
 
     for (let attempt = 0; attempt < this.maxRetries; attempt++) {
       try {
-        const response = await this.client.messages.create({
-          model: this.model,
-          max_tokens: maxTokens,
-          temperature,
-          system: opts.systemPrompt,
-          messages: [
-            {
-              role: 'user',
-              content: opts.userPrompt,
-            },
-          ],
-        });
+        if (useStreaming) {
+          // Use streaming for large requests
+          console.log(`[Claude] Using streaming mode for ${maxTokens} token request`);
 
-        const latencyMs = Date.now() - startTime;
-        const text = response.content[0]?.type === 'text' ? response.content[0].text : '';
-        const tokensIn = response.usage.input_tokens;
-        const tokensOut = response.usage.output_tokens;
-        const costCents = calculateClaudeCost(tokensIn, tokensOut);
+          const stream = await this.client.messages.stream({
+            model: this.model,
+            max_tokens: maxTokens,
+            temperature,
+            system: opts.systemPrompt,
+            messages: [
+              {
+                role: 'user',
+                content: opts.userPrompt,
+              },
+            ],
+          });
 
-        console.log(`[Claude] Generated response in ${latencyMs}ms - Input: ${tokensIn} tokens, Output: ${tokensOut} tokens, Cost: ${costCents.toFixed(2)}¢`);
+          let text = '';
 
-        return {
-          text,
-          tokensIn,
-          tokensOut,
-          model: this.model,
-          latencyMs,
-          costCents,
-        };
+          // Accumulate text chunks
+          for await (const chunk of stream) {
+            if (chunk.type === 'content_block_delta' && chunk.delta.type === 'text_delta') {
+              text += chunk.delta.text;
+            }
+          }
+
+          // Get final message with usage stats
+          const finalMessage = await stream.finalMessage();
+          const latencyMs = Date.now() - startTime;
+          const tokensIn = finalMessage.usage.input_tokens;
+          const tokensOut = finalMessage.usage.output_tokens;
+          const costCents = calculateClaudeCost(tokensIn, tokensOut);
+
+          console.log(`[Claude] Generated response in ${latencyMs}ms - Input: ${tokensIn} tokens, Output: ${tokensOut} tokens, Cost: ${costCents.toFixed(2)}¢`);
+
+          return {
+            text,
+            tokensIn,
+            tokensOut,
+            model: this.model,
+            latencyMs,
+            costCents,
+          };
+        } else {
+          // Use non-streaming for smaller requests
+          const response = await this.client.messages.create({
+            model: this.model,
+            max_tokens: maxTokens,
+            temperature,
+            system: opts.systemPrompt,
+            messages: [
+              {
+                role: 'user',
+                content: opts.userPrompt,
+              },
+            ],
+          });
+
+          const latencyMs = Date.now() - startTime;
+          const text = response.content[0]?.type === 'text' ? response.content[0].text : '';
+          const tokensIn = response.usage.input_tokens;
+          const tokensOut = response.usage.output_tokens;
+          const costCents = calculateClaudeCost(tokensIn, tokensOut);
+
+          console.log(`[Claude] Generated response in ${latencyMs}ms - Input: ${tokensIn} tokens, Output: ${tokensOut} tokens, Cost: ${costCents.toFixed(2)}¢`);
+
+          return {
+            text,
+            tokensIn,
+            tokensOut,
+            model: this.model,
+            latencyMs,
+            costCents,
+          };
+        }
       } catch (error: any) {
         lastError = error;
 
