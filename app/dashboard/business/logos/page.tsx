@@ -288,7 +288,7 @@ export default function LogosPage() {
                 className="bg-white/5 backdrop-blur border border-gray-800 rounded-lg overflow-hidden hover:border-emerald-500/50 transition-colors"
               >
                 {/* Logo Preview */}
-                <div className="aspect-square bg-white p-6 relative">
+                <div className="aspect-square p-6 relative">
                   {logo.isPrimary && (
                     <div className="absolute top-2 right-2 bg-yellow-500 text-gray-900 text-xs font-bold px-2 py-1 rounded-full flex items-center gap-1">
                       <Star className="w-3 h-3" />
