@@ -14,6 +14,7 @@ import {
   updateLogo as updateLogoClient,
   getLogo as getLogoClient,
   deleteLogo as deleteLogoClient,
+  unsetPrimaryLogoForUser as unsetPrimaryLogoForUserClient,
 } from './logos.js';
 
 /**
@@ -155,10 +156,10 @@ export async function unsetPrimaryLogoForUser(
   tenantId: string,
   userId: string
 ): Promise<void> {
-  // For development/client mode, we can skip this or implement client-side
+  // Development mode: use client SDK
   if (!isAdminAvailable()) {
-    console.log('[Firestore] Skipping unset primary (development mode)');
-    return;
+    console.log('[Firestore] Using client SDK for unset primary (development mode)');
+    return await unsetPrimaryLogoForUserClient(tenantId, userId);
   }
 
   // Production mode: use admin SDK

@@ -653,6 +653,7 @@ export interface LogoDocument {
   // DECISION: Fetch from assistant_results collection
   businessPlanId: string | null; // Reference to assistant_results doc (streamlined_plan)
   companyName: string;
+  name?: string; // Custom display name (defaults to companyName if not set)
 
   // Design process
   brief: LogoDesignBrief;

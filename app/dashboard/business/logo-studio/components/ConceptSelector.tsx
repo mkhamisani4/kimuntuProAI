@@ -41,7 +41,7 @@ export default function ConceptSelector({
           )}
 
           {/* Logo Preview */}
-          <div className="aspect-square bg-white p-4">
+          <div className="aspect-square p-4">
             <LogoCanvas spec={concept} className="w-full h-full" />
           </div>
 

@@ -16,6 +16,7 @@ interface Step2Props {
   companyName: string;
   designBrief: LogoDesignBrief | null;
   briefMetadata: any;
+  useTransparentBackground: boolean;
   onNext: () => void;
   onBack: () => void;
   setConcepts: (concepts: LogoSpec[]) => void;
@@ -26,6 +27,7 @@ export default function Step2ViewBrief({
   companyName,
   designBrief,
   briefMetadata,
+  useTransparentBackground,
   onNext,
   onBack,
   setConcepts,
@@ -65,7 +67,16 @@ export default function Step2ViewBrief({
       const data = await response.json();
       console.log('[Step2] Concepts generated:', data);
 
-      setConcepts(data.concepts);
+      // Apply transparent background if requested
+      const concepts = data.concepts.map((concept: LogoSpec) => ({
+        ...concept,
+        canvas: {
+          ...concept.canvas,
+          backgroundColor: useTransparentBackground ? 'transparent' : concept.canvas.backgroundColor,
+        },
+      }));
+
+      setConcepts(concepts);
       setConceptsMetadata(data.metadata);
 
       toast.success('Logo concepts generated!');

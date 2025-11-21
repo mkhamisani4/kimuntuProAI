@@ -36,6 +36,7 @@ export default function LogoWizard({
   // State for each step
   const [companyName, setCompanyName] = useState('');
   const [businessContext, setBusinessContext] = useState('');
+  const [useTransparentBackground, setUseTransparentBackground] = useState(false);
   const [designBrief, setDesignBrief] = useState<LogoDesignBrief | null>(null);
   const [briefMetadata, setBriefMetadata] = useState<any>(null);
   const [concepts, setConcepts] = useState<LogoSpec[]>([]);
@@ -70,6 +71,8 @@ export default function LogoWizard({
             setCompanyName={setCompanyName}
             businessContext={businessContext}
             setBusinessContext={setBusinessContext}
+            useTransparentBackground={useTransparentBackground}
+            setUseTransparentBackground={setUseTransparentBackground}
             onNext={goToNextStep}
             businessPlanId={businessPlanId}
             businessPlanData={businessPlanData}
@@ -84,6 +87,7 @@ export default function LogoWizard({
             companyName={companyName}
             designBrief={designBrief}
             briefMetadata={briefMetadata}
+            useTransparentBackground={useTransparentBackground}
             onNext={goToNextStep}
             onBack={goToPreviousStep}
             setConcepts={setConcepts}

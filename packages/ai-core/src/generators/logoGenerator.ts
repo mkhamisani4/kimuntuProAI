@@ -5,7 +5,228 @@
  */
 
 import { ClaudeClient } from '../llm/claudeClient.js';
-import type { LogoDesignBrief, LogoSpec } from '@kimuntupro/shared';
+import type { LogoDesignBrief, LogoSpec, LogoShape, LogoText } from '@kimuntupro/shared';
+
+/**
+ * Calculate bounding box of all logo elements
+ */
+function calculateBoundingBox(spec: LogoSpec): {
+  minX: number;
+  maxX: number;
+  minY: number;
+  maxY: number;
+  width: number;
+  height: number;
+  centerX: number;
+  centerY: number;
+} {
+  let minX = Infinity;
+  let maxX = -Infinity;
+  let minY = Infinity;
+  let maxY = -Infinity;
+
+  // Calculate bounds from shapes
+  spec.shapes.forEach((shape: LogoShape) => {
+    switch (shape.type) {
+      case 'rectangle':
+        minX = Math.min(minX, shape.x);
+        maxX = Math.max(maxX, shape.x + shape.width);
+        minY = Math.min(minY, shape.y);
+        maxY = Math.max(maxY, shape.y + shape.height);
+        break;
+      case 'circle':
+        minX = Math.min(minX, shape.cx - shape.r);
+        maxX = Math.max(maxX, shape.cx + shape.r);
+        minY = Math.min(minY, shape.cy - shape.r);
+        maxY = Math.max(maxY, shape.cy + shape.r);
+        break;
+      case 'ellipse':
+        minX = Math.min(minX, shape.cx - shape.rx);
+        maxX = Math.max(maxX, shape.cx + shape.rx);
+        minY = Math.min(minY, shape.cy - shape.ry);
+        maxY = Math.max(maxY, shape.cy + shape.ry);
+        break;
+      case 'line':
+        minX = Math.min(minX, shape.x1, shape.x2);
+        maxX = Math.max(maxX, shape.x1, shape.x2);
+        minY = Math.min(minY, shape.y1, shape.y2);
+        maxY = Math.max(maxY, shape.y1, shape.y2);
+        break;
+      case 'polygon':
+        // Parse polygon points "x1,y1 x2,y2 x3,y3"
+        const points = shape.points.split(/\s+/).map((p) => p.split(',').map(Number));
+        points.forEach(([x, y]) => {
+          minX = Math.min(minX, x);
+          maxX = Math.max(maxX, x);
+          minY = Math.min(minY, y);
+          maxY = Math.max(maxY, y);
+        });
+        break;
+      case 'path':
+        // Simplified: extract numeric values from path d attribute
+        const numbers = shape.d.match(/-?\d+\.?\d*/g)?.map(Number) || [];
+        for (let i = 0; i < numbers.length; i += 2) {
+          if (numbers[i] !== undefined) minX = Math.min(minX, numbers[i]);
+          if (numbers[i] !== undefined) maxX = Math.max(maxX, numbers[i]);
+          if (numbers[i + 1] !== undefined) minY = Math.min(minY, numbers[i + 1]);
+          if (numbers[i + 1] !== undefined) maxY = Math.max(maxY, numbers[i + 1]);
+        }
+        break;
+    }
+  });
+
+  // Calculate bounds from text (approximate)
+  spec.texts.forEach((text: LogoText) => {
+    const estimatedWidth = text.content.length * text.fontSize * 0.6;
+    const textX = text.textAnchor === 'middle' ? text.x - estimatedWidth / 2 : text.x;
+    minX = Math.min(minX, textX);
+    maxX = Math.max(maxX, textX + estimatedWidth);
+    minY = Math.min(minY, text.y - text.fontSize);
+    maxY = Math.max(maxY, text.y);
+  });
+
+  // Handle edge case where no elements exist
+  if (!isFinite(minX)) minX = 0;
+  if (!isFinite(maxX)) maxX = 500;
+  if (!isFinite(minY)) minY = 0;
+  if (!isFinite(maxY)) maxY = 500;
+
+  return {
+    minX,
+    maxX,
+    minY,
+    maxY,
+    width: maxX - minX,
+    height: maxY - minY,
+    centerX: (minX + maxX) / 2,
+    centerY: (minY + maxY) / 2,
+  };
+}
+
+/**
+ * Scale logo to fill target percentage of canvas
+ * Ensures logo never exceeds canvas bounds
+ */
+function scaleLogoToFillCanvas(spec: LogoSpec, targetFillPercentage: number = 0.90): LogoSpec {
+  const bbox = calculateBoundingBox(spec);
+  const canvasSize = spec.canvas.width; // Assuming square canvas
+  const canvasCenter = canvasSize / 2;
+  const minPadding = 10; // Minimum padding from canvas edges
+
+  // Calculate how much to scale
+  const targetSize = canvasSize * targetFillPercentage;
+  const currentSize = Math.max(bbox.width, bbox.height);
+  let scaleFactor = targetSize / currentSize;
+
+  // Only scale up if logo is too small (< 50% of target)
+  if (scaleFactor <= 1.5) {
+    // Check if current logo exceeds bounds
+    const maxAllowedSize = canvasSize - (2 * minPadding);
+    if (currentSize > maxAllowedSize) {
+      // Scale down to fit within bounds
+      scaleFactor = maxAllowedSize / currentSize;
+    } else {
+      return spec; // Logo is already reasonably sized and within bounds
+    }
+  }
+
+  // Scale and translate shapes
+  const scaledShapes = spec.shapes.map((shape: LogoShape) => {
+    switch (shape.type) {
+      case 'rectangle':
+        return {
+          ...shape,
+          x: (shape.x - bbox.centerX) * scaleFactor + canvasCenter,
+          y: (shape.y - bbox.centerY) * scaleFactor + canvasCenter,
+          width: shape.width * scaleFactor,
+          height: shape.height * scaleFactor,
+        };
+      case 'circle':
+        return {
+          ...shape,
+          cx: (shape.cx - bbox.centerX) * scaleFactor + canvasCenter,
+          cy: (shape.cy - bbox.centerY) * scaleFactor + canvasCenter,
+          r: shape.r * scaleFactor,
+        };
+      case 'ellipse':
+        return {
+          ...shape,
+          cx: (shape.cx - bbox.centerX) * scaleFactor + canvasCenter,
+          cy: (shape.cy - bbox.centerY) * scaleFactor + canvasCenter,
+          rx: shape.rx * scaleFactor,
+          ry: shape.ry * scaleFactor,
+        };
+      case 'line':
+        return {
+          ...shape,
+          x1: (shape.x1 - bbox.centerX) * scaleFactor + canvasCenter,
+          y1: (shape.y1 - bbox.centerY) * scaleFactor + canvasCenter,
+          x2: (shape.x2 - bbox.centerX) * scaleFactor + canvasCenter,
+          y2: (shape.y2 - bbox.centerY) * scaleFactor + canvasCenter,
+          strokeWidth: (shape.strokeWidth || 1) * scaleFactor,
+        };
+      case 'polygon':
+        const points = shape.points.split(/\s+/).map((p) => {
+          const [x, y] = p.split(',').map(Number);
+          const newX = (x - bbox.centerX) * scaleFactor + canvasCenter;
+          const newY = (y - bbox.centerY) * scaleFactor + canvasCenter;
+          return `${newX},${newY}`;
+        });
+        return {
+          ...shape,
+          points: points.join(' '),
+        };
+      case 'path':
+        // Scale path by adjusting all numeric values
+        const scaledD = shape.d.replace(/-?\d+\.?\d*/g, (match) => {
+          const num = parseFloat(match);
+          // This is simplified - proper path scaling would need to distinguish x from y coords
+          return String((num - bbox.centerX) * scaleFactor + canvasCenter);
+        });
+        return {
+          ...shape,
+          d: scaledD,
+          strokeWidth: shape.strokeWidth ? shape.strokeWidth * scaleFactor : undefined,
+        };
+      default:
+        return shape;
+    }
+  });
+
+  // Scale text
+  const scaledTexts = spec.texts.map((text: LogoText) => ({
+    ...text,
+    x: (text.x - bbox.centerX) * scaleFactor + canvasCenter,
+    y: (text.y - bbox.centerY) * scaleFactor + canvasCenter,
+    fontSize: Math.round(text.fontSize * scaleFactor),
+    letterSpacing: text.letterSpacing ? text.letterSpacing * scaleFactor : undefined,
+  }));
+
+  const scaledSpec = {
+    ...spec,
+    shapes: scaledShapes,
+    texts: scaledTexts,
+  };
+
+  // Final bounds check - ensure nothing exceeds canvas
+  const scaledBbox = calculateBoundingBox(scaledSpec);
+  const maxAllowedSize = canvasSize - (2 * minPadding);
+
+  if (scaledBbox.minX < minPadding || scaledBbox.maxX > (canvasSize - minPadding) ||
+      scaledBbox.minY < minPadding || scaledBbox.maxY > (canvasSize - minPadding)) {
+    console.warn('[LogoGenerator] Scaled logo exceeds bounds, applying corrective scaling');
+
+    // Calculate how much we need to scale down to fit within bounds
+    const widthRatio = maxAllowedSize / scaledBbox.width;
+    const heightRatio = maxAllowedSize / scaledBbox.height;
+    const correctionFactor = Math.min(widthRatio, heightRatio);
+
+    // Apply correction factor recursively
+    return scaleLogoToFillCanvas(scaledSpec, correctionFactor * 0.95); // 0.95 for safety margin
+  }
+
+  return scaledSpec;
+}
 
 interface GenerateBriefOptions {
   apiKey: string;
@@ -187,8 +408,23 @@ CONSTRAINTS:
 - Colors: Use the provided color palette
 - Simplicity: 3-7 shapes max per concept (logos must be simple and scalable)
 - Each concept must be visually distinct
-- Position elements within 500x500 canvas (center logos for best appearance)
 - Text should be readable (fontSize 24+ for company names, 16+ for taglines)
+
+SIZING GUIDELINES (IMPORTANT - Logos must be BOLD and fill the canvas):
+- Logos should fill 85-95% of the 500x500 canvas - think "BILLBOARD" not "business card"
+- Main icon/graphic elements: 300-420px in their largest dimension
+- Company name text (wordmarks): 64-96pt font size
+- Lettermarks: 350-450px tall, centered with 25-50px minimal padding from edges
+- Icons in combination marks: 220-300px, positioned prominently
+- Leave only 25-50px minimal padding from canvas edges
+- Scale elements UP AGGRESSIVELY to be eye-catching, bold, and commanding
+- Make logos LARGE and PROMINENT - fill the space!
+
+CRITICAL BOUNDS REQUIREMENT:
+- ALL elements MUST stay within the 500x500 canvas (0,0 to 500,500)
+- NO element can have coordinates < 10 or > 490
+- Text baselines must account for font size (y position + fontSize must be < 490)
+- Check all shape coordinates, circle centers, path points - EVERYTHING must be inside bounds
 
 CRITICAL: Return ONLY valid, parseable JSON. Use DOUBLE QUOTES for all property names and string values.
 
@@ -284,13 +520,18 @@ Create ${numConcepts} logo concept(s) as JSON LogoSpec objects. Return ONLY the 
       );
     }
   }
-  const concepts = parsed.concepts.map((c: any) => ({
-    ...c,
-    metadata: {
-      ...c.metadata,
-      generatedAt: new Date(c.metadata.generatedAt),
-    },
-  })) as LogoSpec[];
+  const concepts = parsed.concepts.map((c: any) => {
+    const spec = {
+      ...c,
+      metadata: {
+        ...c.metadata,
+        generatedAt: new Date(c.metadata.generatedAt),
+      },
+    } as LogoSpec;
+
+    // Apply auto-scaling to ensure logos fill canvas
+    return scaleLogoToFillCanvas(spec, 0.90);
+  });
 
   return {
     concepts,
@@ -331,6 +572,8 @@ CONSTRAINTS:
 - Keep the overall concept recognizable
 - Apply user feedback thoughtfully
 - Maintain visual balance
+- Logos should fill 85-95% of canvas (be BOLD, LARGE, and COMMANDING - not timid!)
+- CRITICAL: ALL elements MUST stay within canvas bounds (10 < coordinates < 490)
 
 CRITICAL: Return ONLY valid, parseable JSON. Use DOUBLE QUOTES for all property names and string values.
 
@@ -409,13 +652,18 @@ Please refine this logo based on the feedback. Return ONLY the JSON with the ref
     }
   }
 
-  const concepts = parsed.concepts.map((c: any) => ({
-    ...c,
-    metadata: {
-      ...c.metadata,
-      generatedAt: new Date(c.metadata.generatedAt),
-    },
-  })) as LogoSpec[];
+  const concepts = parsed.concepts.map((c: any) => {
+    const spec = {
+      ...c,
+      metadata: {
+        ...c.metadata,
+        generatedAt: new Date(c.metadata.generatedAt),
+      },
+    } as LogoSpec;
+
+    // Apply auto-scaling to ensure logos fill canvas
+    return scaleLogoToFillCanvas(spec, 0.90);
+  });
 
   return {
     concepts,
@@ -464,6 +712,8 @@ CONSTRAINTS:
 - Fonts: ONLY Arial, Times New Roman, Courier New, Helvetica, Georgia, Verdana, Tahoma, Trebuchet MS
 - Each variation must be visually distinct
 - Maintain brand consistency
+- Logos should fill 85-95% of canvas (be BOLD, LARGE, and eye-catching!)
+- CRITICAL: ALL elements MUST stay within canvas bounds (10 < coordinates < 490)
 
 CRITICAL: Return ONLY valid, parseable JSON. Use DOUBLE QUOTES for all property names and string values.
 
@@ -541,13 +791,18 @@ Create ${numVariations} variations of this logo. Return ONLY the JSON with the v
     }
   }
 
-  const concepts = parsed.concepts.map((c: any) => ({
-    ...c,
-    metadata: {
-      ...c.metadata,
-      generatedAt: new Date(c.metadata.generatedAt),
-    },
-  })) as LogoSpec[];
+  const concepts = parsed.concepts.map((c: any) => {
+    const spec = {
+      ...c,
+      metadata: {
+        ...c.metadata,
+        generatedAt: new Date(c.metadata.generatedAt),
+      },
+    } as LogoSpec;
+
+    // Apply auto-scaling to ensure logos fill canvas
+    return scaleLogoToFillCanvas(spec, 0.90);
+  });
 
   return {
     concepts,

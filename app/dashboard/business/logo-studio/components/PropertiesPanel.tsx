@@ -782,22 +782,72 @@ interface CanvasPropertiesProps {
 }
 
 function CanvasProperties({ canvas, onUpdate }: CanvasPropertiesProps) {
+  const isTransparent = canvas.backgroundColor === 'transparent';
+  const [savedColor, setSavedColor] = useState('#FFFFFF');
+
   return (
     <div className="space-y-4">
       <h3 className="text-sm font-semibold text-white">Canvas Settings</h3>
 
-      <div>
-        <label className="block text-xs font-medium text-gray-400 mb-1">
-          Background Color
-        </label>
-        <input
-          type="color"
-          value={canvas.backgroundColor}
-          onChange={(e) => onUpdate({ backgroundColor: e.target.value })}
-          className="w-full h-12 rounded border border-gray-700 bg-gray-800 cursor-pointer"
-        />
-        <p className="text-xs text-gray-500 mt-1">{canvas.backgroundColor}</p>
+      {/* Transparent Background Toggle */}
+      <div className="bg-white/5 rounded-lg p-4 border border-gray-700">
+        <div className="flex items-center justify-between mb-3">
+          <label className="flex items-center gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={isTransparent}
+              onChange={(e) => {
+                if (e.target.checked) {
+                  // Save current color before switching to transparent
+                  if (canvas.backgroundColor !== 'transparent') {
+                    setSavedColor(canvas.backgroundColor);
+                  }
+                  onUpdate({ backgroundColor: 'transparent' });
+                } else {
+                  // Restore saved color
+                  onUpdate({ backgroundColor: savedColor });
+                }
+              }}
+              className="w-4 h-4 rounded border-gray-600 bg-gray-700 text-emerald-600 focus:ring-emerald-500 focus:ring-offset-gray-900"
+            />
+            <span className="text-sm font-medium text-gray-300">
+              Transparent Background
+            </span>
+          </label>
+        </div>
+        {isTransparent && (
+          <div className="flex items-center gap-2 p-3 bg-gray-800 rounded border border-gray-700">
+            <div
+              className="w-8 h-8 rounded"
+              style={{
+                background: 'repeating-conic-gradient(#808080 0% 25%, transparent 0% 50%) 50% / 8px 8px'
+              }}
+            />
+            <span className="text-xs text-gray-400">
+              Perfect for overlaying on photos or colored backgrounds
+            </span>
+          </div>
+        )}
       </div>
+
+      {/* Background Color Picker (only when not transparent) */}
+      {!isTransparent && (
+        <div>
+          <label className="block text-xs font-medium text-gray-400 mb-1">
+            Background Color
+          </label>
+          <input
+            type="color"
+            value={canvas.backgroundColor}
+            onChange={(e) => {
+              setSavedColor(e.target.value);
+              onUpdate({ backgroundColor: e.target.value });
+            }}
+            className="w-full h-12 rounded border border-gray-700 bg-gray-800 cursor-pointer"
+          />
+          <p className="text-xs text-gray-500 mt-1">{canvas.backgroundColor}</p>
+        </div>
+      )}
 
       <div className="grid grid-cols-2 gap-3">
         <div>

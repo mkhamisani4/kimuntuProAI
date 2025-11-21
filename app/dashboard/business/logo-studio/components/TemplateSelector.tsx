@@ -120,7 +120,7 @@ export default function TemplateSelector({
                 }`}
               >
                 {/* Template Preview */}
-                <div className="bg-white p-8 aspect-square">
+                <div className="p-8 aspect-square">
                   <LogoCanvas spec={template.spec} className="w-full h-full" />
                 </div>
 

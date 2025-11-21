@@ -371,7 +371,7 @@ export default function LogoEditorPage() {
       <div className="flex h-[calc(100vh-73px)]">
         {/* Canvas Area */}
         <div className="flex-1 flex items-center justify-center p-8 overflow-auto">
-          <div className="bg-white rounded-2xl shadow-2xl p-8">
+          <div className="rounded-2xl shadow-2xl">
             <LogoCanvas
               spec={editor.currentSpec}
               interactive={true}

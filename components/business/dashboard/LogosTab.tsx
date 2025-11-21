@@ -21,6 +21,9 @@ export default function LogosTab({ tenantId, userId, limit = 6 }: LogosTabProps)
   const [error, setError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
+  const [editingNameId, setEditingNameId] = useState<string | null>(null);
+  const [editingName, setEditingName] = useState<string>('');
+  const [renamingId, setRenamingId] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -142,6 +145,12 @@ export default function LogosTab({ tenantId, userId, limit = 6 }: LogosTabProps)
         }))
       );
 
+      // Trigger dashboard header refresh
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('primaryLogoUpdated', Date.now().toString());
+        window.dispatchEvent(new Event('primaryLogoChanged'));
+      }
+
       toast.success('Primary logo updated!', { id: toastId });
     } catch (err: any) {
       console.error('[LogosTab] Set primary failed:', err);
@@ -187,14 +196,66 @@ export default function LogosTab({ tenantId, userId, limit = 6 }: LogosTabProps)
     setShowDeleteConfirm(null);
   };
 
+  const handleStartRename = (logo: Logo, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setEditingNameId(logo.id!);
+    setEditingName(logo.name || logo.companyName);
+  };
+
+  const handleCancelRename = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setEditingNameId(null);
+    setEditingName('');
+  };
+
+  const handleSaveRename = async (logoId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    if (!editingName.trim()) {
+      toast.error('Name cannot be empty');
+      return;
+    }
+
+    try {
+      setRenamingId(logoId);
+
+      const response = await fetch(`/api/logo/${logoId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: editingName.trim() }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || 'Failed to rename logo');
+      }
+
+      // Update local state
+      setLogos((prev) =>
+        prev.map((l) =>
+          l.id === logoId ? { ...l, name: editingName.trim() } : l
+        )
+      );
+
+      setEditingNameId(null);
+      setEditingName('');
+      toast.success('Logo renamed successfully');
+    } catch (err: any) {
+      console.error('[LogosTab] Rename failed:', err);
+      toast.error(err.message || 'Failed to rename logo');
+    } finally {
+      setRenamingId(null);
+    }
+  };
+
   // Helper to generate SVG from spec
   const generateSVG = (spec: any): string => {
     const { canvas, shapes, texts } = spec;
 
     let svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="${canvas.width}" height="${canvas.height}" viewBox="0 0 ${canvas.width} ${canvas.height}">`;
 
-    // Background
-    if (canvas.backgroundColor !== 'transparent') {
+    // Background - only add rect if not transparent
+    if (canvas.backgroundColor && canvas.backgroundColor !== 'transparent') {
       svgContent += `<rect width="${canvas.width}" height="${canvas.height}" fill="${canvas.backgroundColor}" />`;
     }
 
@@ -294,7 +355,7 @@ export default function LogosTab({ tenantId, userId, limit = 6 }: LogosTabProps)
           >
             <div className="flex items-start gap-4">
               {/* Logo Preview */}
-              <div className="relative w-20 h-20 flex-shrink-0 bg-white border-2 border-gray-700 rounded-lg overflow-hidden p-2">
+              <div className="relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden">
                 <LogoCanvas spec={logo.currentSpec} className="w-full h-full" />
 
                 {/* Primary Badge */}
@@ -313,10 +374,51 @@ export default function LogosTab({ tenantId, userId, limit = 6 }: LogosTabProps)
                   </span>
                 </div>
 
-                {/* Company Name */}
-                <h3 className="text-base font-semibold text-white truncate mb-1" title={logo.companyName}>
-                  {logo.companyName}
-                </h3>
+                {/* Logo Name */}
+                {editingNameId === logo.id ? (
+                  <div className="flex items-center gap-2 mb-1" onClick={(e) => e.stopPropagation()}>
+                    <input
+                      type="text"
+                      value={editingName}
+                      onChange={(e) => setEditingName(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') handleSaveRename(logo.id!, e as any);
+                        if (e.key === 'Escape') handleCancelRename(e as any);
+                      }}
+                      className="flex-1 px-2 py-1 text-sm bg-gray-800 border border-purple-500 rounded text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      placeholder="Logo name"
+                      autoFocus
+                      disabled={renamingId === logo.id}
+                    />
+                    <button
+                      onClick={(e) => handleSaveRename(logo.id!, e)}
+                      disabled={renamingId === logo.id}
+                      className="px-2 py-1 bg-purple-600 text-white text-xs rounded hover:bg-purple-700 disabled:opacity-50"
+                    >
+                      {renamingId === logo.id ? 'Saving...' : 'Save'}
+                    </button>
+                    <button
+                      onClick={handleCancelRename}
+                      disabled={renamingId === logo.id}
+                      className="px-2 py-1 bg-gray-700 text-gray-300 text-xs rounded hover:bg-gray-600 disabled:opacity-50"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 mb-1 group/name">
+                    <h3 className="text-base font-semibold text-white truncate" title={logo.name || logo.companyName}>
+                      {logo.name || logo.companyName}
+                    </h3>
+                    <button
+                      onClick={(e) => handleStartRename(logo, e)}
+                      className="opacity-0 group-hover/name:opacity-100 p-1 hover:bg-white/10 rounded transition-opacity"
+                      title="Rename logo"
+                    >
+                      <Pencil size={14} className="text-gray-400 hover:text-white" />
+                    </button>
+                  </div>
+                )}
 
                 {/* Metadata */}
                 <div className="flex items-center gap-3 text-xs text-gray-500">

@@ -15,6 +15,7 @@ export default function DashboardHero({ userName, tenantId, userId }: DashboardH
   const router = useRouter();
   const [primaryLogo, setPrimaryLogo] = useState<Logo | null>(null);
   const [logoDataURL, setLogoDataURL] = useState<string | null>(null);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   // Load primary logo
   useEffect(() => {
@@ -35,12 +36,28 @@ export default function DashboardHero({ userName, tenantId, userId }: DashboardH
           const img = new Image();
           img.onload = () => {
             const canvas = document.createElement('canvas');
-            canvas.width = 200;
-            canvas.height = 200;
+            const size = 200;
+            canvas.width = size;
+            canvas.height = size;
             const ctx = canvas.getContext('2d');
 
             if (ctx) {
-              ctx.drawImage(img, 0, 0, 200, 200);
+              // Create circular clipping path
+              ctx.beginPath();
+              ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
+              ctx.closePath();
+              ctx.clip();
+
+              // Calculate scaling to cover the circle (similar to object-fit: cover)
+              const scale = Math.max(size / img.width, size / img.height);
+              const scaledWidth = img.width * scale;
+              const scaledHeight = img.height * scale;
+              const x = (size - scaledWidth) / 2;
+              const y = (size - scaledHeight) / 2;
+
+              // Draw image scaled to cover the entire circle
+              ctx.drawImage(img, x, y, scaledWidth, scaledHeight);
+
               const dataURL = canvas.toDataURL('image/png');
               setLogoDataURL(dataURL);
             }
@@ -56,7 +73,21 @@ export default function DashboardHero({ userName, tenantId, userId }: DashboardH
     }
 
     loadPrimaryLogo();
-  }, [tenantId, userId]);
+  }, [tenantId, userId, refreshTrigger]);
+
+  // Listen for primary logo changes
+  useEffect(() => {
+    const handlePrimaryLogoChanged = () => {
+      console.log('[DashboardHero] Primary logo changed, refreshing...');
+      setRefreshTrigger(prev => prev + 1);
+    };
+
+    window.addEventListener('primaryLogoChanged', handlePrimaryLogoChanged);
+
+    return () => {
+      window.removeEventListener('primaryLogoChanged', handlePrimaryLogoChanged);
+    };
+  }, []);
 
   // Get current date
   const today = new Date().toLocaleDateString('en-US', {
@@ -74,11 +105,11 @@ export default function DashboardHero({ userName, tenantId, userId }: DashboardH
           {/* Primary Logo Badge */}
           {logoDataURL && (
             <div className="flex-shrink-0">
-              <div className="w-20 h-20 rounded-full bg-white/10 backdrop-blur border-2 border-emerald-400/50 p-2 shadow-lg">
+              <div className="w-20 h-20 rounded-full bg-white/10 backdrop-blur border-2 border-emerald-400/50 overflow-hidden shadow-lg">
                 <img
                   src={logoDataURL}
                   alt={primaryLogo?.companyName || 'Company Logo'}
-                  className="w-full h-full object-contain"
+                  className="w-full h-full object-cover"
                 />
               </div>
             </div>

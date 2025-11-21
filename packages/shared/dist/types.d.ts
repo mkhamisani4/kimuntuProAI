@@ -550,6 +550,7 @@ export interface LogoDocument {
     userId: string;
     businessPlanId: string | null;
     companyName: string;
+    name?: string;
     brief: LogoDesignBrief;
     concepts: LogoSpec[];
     currentSpec: LogoSpec;

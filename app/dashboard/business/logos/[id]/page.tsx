@@ -21,6 +21,11 @@ export default function LogoDetailPage() {
   const [logo, setLogo] = useState<Logo | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [editingName, setEditingName] = useState(false);
+  const [newName, setNewName] = useState('');
+  const [renaming, setRenaming] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   // Fetch logo
   useEffect(() => {
@@ -82,11 +87,11 @@ export default function LogoDetailPage() {
   };
 
   const handleDelete = async () => {
-    if (!logo || !confirm('Are you sure you want to delete this logo?')) {
-      return;
-    }
+    if (!logo) return;
 
     try {
+      setDeleting(true);
+
       const response = await fetch(`/api/logo/${logoId}`, {
         method: 'DELETE',
       });
@@ -100,6 +105,8 @@ export default function LogoDetailPage() {
     } catch (err: any) {
       console.error('[LogoDetail] Failed to delete logo:', err);
       toast.error(err.message || 'Failed to delete logo');
+      setDeleting(false);
+      setShowDeleteModal(false);
     }
   };
 
@@ -136,6 +143,49 @@ export default function LogoDetailPage() {
     } catch (err: any) {
       console.error('Failed to set primary logo:', err);
       toast.error(err.message || 'Failed to set primary logo', { id: toastId });
+    }
+  };
+
+  const handleStartRename = () => {
+    setNewName(logo?.name || logo?.companyName || '');
+    setEditingName(true);
+  };
+
+  const handleCancelRename = () => {
+    setEditingName(false);
+    setNewName('');
+  };
+
+  const handleSaveRename = async () => {
+    if (!newName.trim()) {
+      toast.error('Name cannot be empty');
+      return;
+    }
+
+    try {
+      setRenaming(true);
+
+      const response = await fetch(`/api/logo/${logoId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: newName.trim() }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || 'Failed to rename logo');
+      }
+
+      // Update local state
+      setLogo((prev) => (prev ? { ...prev, name: newName.trim() } : prev));
+      setEditingName(false);
+      setNewName('');
+      toast.success('Logo renamed successfully');
+    } catch (err: any) {
+      console.error('[LogoDetail] Rename failed:', err);
+      toast.error(err.message || 'Failed to rename logo');
+    } finally {
+      setRenaming(false);
     }
   };
 
@@ -227,8 +277,8 @@ export default function LogoDetailPage() {
               Download SVG
             </button>
             <button
-              onClick={handleDelete}
-              className="flex items-center gap-2 px-4 py-2 bg-red-600/20 hover:bg-red-600/30 text-red-400 rounded-lg transition-colors"
+              onClick={() => setShowDeleteModal(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 rounded-lg transition-colors"
             >
               <Trash2 className="w-4 h-4" />
               Delete
@@ -238,22 +288,61 @@ export default function LogoDetailPage() {
 
         {/* Logo Title */}
         <div className="mb-6">
-          <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-3xl font-bold text-white">{logo.companyName}</h1>
-            {logo.isPrimary && (
-              <span className="flex items-center gap-1 px-3 py-1 bg-yellow-500 text-gray-900 text-sm font-bold rounded-full">
-                <Star className="w-4 h-4" />
-                Primary
-              </span>
-            )}
-          </div>
+          {editingName ? (
+            <div className="flex items-center gap-3 mb-2">
+              <input
+                type="text"
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleSaveRename();
+                  if (e.key === 'Escape') handleCancelRename();
+                }}
+                className="text-3xl font-bold px-3 py-2 bg-gray-800 border border-purple-500 rounded text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                placeholder="Logo name"
+                autoFocus
+                disabled={renaming}
+              />
+              <button
+                onClick={handleSaveRename}
+                disabled={renaming}
+                className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 disabled:opacity-50"
+              >
+                {renaming ? 'Saving...' : 'Save'}
+              </button>
+              <button
+                onClick={handleCancelRename}
+                disabled={renaming}
+                className="px-4 py-2 bg-gray-700 text-gray-300 rounded hover:bg-gray-600 disabled:opacity-50"
+              >
+                Cancel
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-3 mb-2 group">
+              <h1 className="text-3xl font-bold text-white">{logo.name || logo.companyName}</h1>
+              <button
+                onClick={handleStartRename}
+                className="opacity-0 group-hover:opacity-100 p-2 hover:bg-white/10 rounded transition-opacity"
+                title="Rename logo"
+              >
+                <Pencil className="w-5 h-5 text-gray-400 hover:text-white" />
+              </button>
+              {logo.isPrimary && (
+                <span className="flex items-center gap-1 px-3 py-1 bg-yellow-500 text-gray-900 text-sm font-bold rounded-full">
+                  <Star className="w-4 h-4" />
+                  Primary
+                </span>
+              )}
+            </div>
+          )}
           <p className="text-gray-400">Created {formatDate(logo.createdAt)}</p>
         </div>
 
         {/* Logo Preview */}
         <div className="bg-white/5 backdrop-blur border border-gray-800 rounded-2xl p-8 mb-6">
           <h2 className="text-xl font-semibold text-white mb-4">Logo Preview</h2>
-          <div className="bg-white rounded-lg p-12">
+          <div className="rounded-lg p-12">
             <LogoCanvas spec={logo.currentSpec} className="max-w-2xl mx-auto" />
           </div>
         </div>
@@ -354,6 +443,52 @@ export default function LogoDetailPage() {
               <div>
                 <p className="text-gray-400">Cost</p>
                 <p>${(logo.generationMetadata.costCents / 100).toFixed(4)}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Delete Confirmation Modal */}
+        {showDeleteModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+            <div className="bg-gray-900 border border-red-500/30 rounded-2xl shadow-2xl max-w-md w-full p-6">
+              <div className="flex items-start gap-4 mb-6">
+                <div className="flex-shrink-0 w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center">
+                  <Trash2 className="w-6 h-6 text-red-400" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold text-white mb-2">Delete Logo</h3>
+                  <p className="text-gray-400">
+                    Are you sure you want to delete "<span className="font-semibold text-white">{logo.name || logo.companyName}</span>"? This action cannot be undone.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex gap-3 justify-end">
+                <button
+                  onClick={() => setShowDeleteModal(false)}
+                  disabled={deleting}
+                  className="px-6 py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDelete}
+                  disabled={deleting}
+                  className="px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                >
+                  {deleting ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      Deleting...
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="w-4 h-4" />
+                      Delete Logo
+                    </>
+                  )}
+                </button>
               </div>
             </div>
           </div>

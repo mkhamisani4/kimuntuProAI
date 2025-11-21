@@ -148,7 +148,7 @@ export default function RefinementDialog({
           {/* Current Logo Preview */}
           <div className="mb-6">
             <h3 className="text-sm font-semibold text-gray-400 mb-3">Current Logo</h3>
-            <div className="bg-white rounded-lg p-6 max-w-xs mx-auto">
+            <div className="rounded-lg p-6 max-w-xs mx-auto">
               <LogoCanvas spec={currentSpec} className="w-full" />
             </div>
           </div>

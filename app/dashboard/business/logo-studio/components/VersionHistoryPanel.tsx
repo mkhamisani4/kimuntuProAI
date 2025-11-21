@@ -143,7 +143,7 @@ export default function VersionHistoryPanel({
                     selectedVersionId === version.versionId ? null : version.versionId
                   )
                 }
-                className="w-full bg-white p-4 aspect-square"
+                className="w-full p-4 aspect-square"
               >
                 <LogoCanvas spec={version.spec} className="w-full h-full" />
               </button>
@@ -243,7 +243,7 @@ export default function VersionHistoryPanel({
             {/* Content */}
             <div className="p-6 space-y-4">
               {/* Version Preview */}
-              <div className="bg-white rounded-lg overflow-hidden">
+              <div className="rounded-lg overflow-hidden">
                 <div className="p-4 aspect-square">
                   <LogoCanvas spec={deleteConfirmVersion.spec} className="w-full h-full" />
                 </div>

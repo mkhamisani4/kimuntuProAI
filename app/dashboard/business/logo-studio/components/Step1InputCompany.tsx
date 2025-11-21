@@ -18,6 +18,8 @@ interface Step1Props {
   setCompanyName: (name: string) => void;
   businessContext: string;
   setBusinessContext: (context: string) => void;
+  useTransparentBackground: boolean;
+  setUseTransparentBackground: (value: boolean) => void;
   onNext: () => void;
   businessPlanId?: string | null;
   businessPlanData?: AssistantResult | null;
@@ -31,6 +33,8 @@ export default function Step1InputCompany({
   setCompanyName,
   businessContext,
   setBusinessContext,
+  useTransparentBackground,
+  setUseTransparentBackground,
   onNext,
   businessPlanId,
   businessPlanData,
@@ -149,6 +153,42 @@ export default function Step1InputCompany({
             ? 'Optional: Provide additional context not covered in your business plan'
             : 'The more details you provide, the better Claude can tailor your logo design'}
         </p>
+      </div>
+
+      {/* Transparent Background Toggle */}
+      <div className="flex items-start gap-4 p-4 bg-white/5 rounded-lg border border-gray-700">
+        <div className="flex items-center gap-3 flex-1">
+          <input
+            type="checkbox"
+            id="transparentBg"
+            checked={useTransparentBackground}
+            onChange={(e) => setUseTransparentBackground(e.target.checked)}
+            className="w-4 h-4 rounded border-gray-600 bg-gray-700 text-emerald-600 focus:ring-emerald-500 focus:ring-offset-gray-900"
+            disabled={isGenerating || isLoadingPlan}
+          />
+          <label htmlFor="transparentBg" className="flex-1 cursor-pointer">
+            <div className="text-sm font-medium text-gray-300">
+              Use Transparent Background
+            </div>
+            <div className="text-xs text-gray-500 mt-0.5">
+              Perfect for overlaying on photos, websites, or colored backgrounds
+            </div>
+          </label>
+        </div>
+        {/* Preview boxes */}
+        <div className="flex gap-2">
+          <div
+            className="w-12 h-12 rounded border border-gray-600 flex items-center justify-center"
+            style={{
+              background: useTransparentBackground
+                ? 'repeating-conic-gradient(#808080 0% 25%, transparent 0% 50%) 50% / 12px 12px'
+                : '#FFFFFF',
+            }}
+            title={useTransparentBackground ? 'Transparent' : 'White'}
+          >
+            <div className="w-6 h-6 bg-gray-900 rounded-sm" />
+          </div>
+        </div>
       </div>
 
       {/* Error Display */}

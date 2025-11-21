@@ -165,7 +165,7 @@ export default function Step3SelectConcept({
       {/* Selected Concept Preview */}
       <div className="bg-gray-800/50 rounded-lg p-6 border border-gray-700">
         <h3 className="text-lg font-semibold text-white mb-4">Preview: {selectedConcept.metadata.conceptName}</h3>
-        <div className="bg-white rounded-lg p-8 mb-4">
+        <div className="rounded-lg p-8 mb-4">
           <LogoCanvas spec={selectedConcept} className="max-w-md mx-auto" />
         </div>
         <p className="text-gray-400 text-sm">{selectedConcept.metadata.description}</p>

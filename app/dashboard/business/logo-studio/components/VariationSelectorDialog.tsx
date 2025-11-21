@@ -65,7 +65,7 @@ export default function VariationSelectorDialog({
                 }`}
               >
                 {/* Variation Preview */}
-                <div className="bg-white p-8 aspect-square">
+                <div className="p-8 aspect-square">
                   <LogoCanvas spec={variation} className="w-full h-full" />
                 </div>
 

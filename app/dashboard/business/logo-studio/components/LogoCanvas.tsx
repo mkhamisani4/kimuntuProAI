@@ -173,10 +173,21 @@ export default function LogoCanvas({
   showGrid = false,
   gridSize = 25,
 }: LogoCanvasProps) {
+  const isTransparent = spec.canvas.backgroundColor === 'transparent';
+
   // Phase 1: View-only mode (backwards compatible)
   if (!interactive) {
     return (
-      <div className={className} style={style}>
+      <div
+        className={className}
+        style={{
+          ...style,
+          // Show checkered pattern for transparent backgrounds
+          background: isTransparent
+            ? 'repeating-conic-gradient(#ddd 0% 25%, transparent 0% 50%) 50% / 20px 20px'
+            : spec.canvas.backgroundColor,
+        }}
+      >
         {renderLogoSpec(spec, 'w-full h-full')}
       </div>
     );

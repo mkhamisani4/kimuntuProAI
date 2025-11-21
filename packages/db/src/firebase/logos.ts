@@ -39,6 +39,7 @@ export interface Logo {
   userId: string;
   businessPlanId: string | null;
   companyName: string;
+  name?: string; // Custom display name (defaults to companyName if not set)
   brief: any; // LogoDesignBrief
   concepts: any[]; // LogoSpec[]
   currentSpec: any; // LogoSpec
@@ -297,6 +298,44 @@ export async function getPrimaryLogo(
     } as Logo;
   } catch (error: any) {
     console.error('[Firestore] Failed to get primary logo:', error);
+    throw error;
+  }
+}
+
+/**
+ * Unset isPrimary for all logos belonging to a user
+ * Only one logo can be primary per user
+ *
+ * @param tenantId - Tenant ID
+ * @param userId - User ID
+ */
+export async function unsetPrimaryLogoForUser(
+  tenantId: string,
+  userId: string
+): Promise<void> {
+  try {
+    const q = query(
+      collection(db, 'logos'),
+      where('tenantId', '==', tenantId),
+      where('userId', '==', userId),
+      where('isPrimary', '==', true)
+    );
+
+    const snapshot = await getDocs(q);
+
+    // Update each logo to unset isPrimary
+    const updatePromises = snapshot.docs.map((docSnap) =>
+      updateDoc(doc(db, 'logos', docSnap.id), {
+        isPrimary: false,
+        updatedAt: Timestamp.now(),
+      })
+    );
+
+    await Promise.all(updatePromises);
+
+    console.log(`[Firestore] Unset primary logo for user ${userId} (${snapshot.docs.length} logos updated)`);
+  } catch (error: any) {
+    console.error('[Firestore] Failed to unset primary logo:', error);
     throw error;
   }
 }

@@ -163,8 +163,18 @@ export function logoSpecToSVGString(spec: LogoSpec): string {
     )
     .join('\n  ');
 
-  return `<svg width="${spec.canvas.width}" height="${spec.canvas.height}" viewBox="0 0 ${spec.canvas.width} ${spec.canvas.height}" xmlns="http://www.w3.org/2000/svg" style="background-color: ${spec.canvas.backgroundColor}">
-  ${shapesHTML}
+  // Only add background color style if not transparent
+  const bgStyle = spec.canvas.backgroundColor && spec.canvas.backgroundColor !== 'transparent'
+    ? ` style="background-color: ${spec.canvas.backgroundColor}"`
+    : '';
+
+  // Add background rect for non-transparent backgrounds
+  const bgRect = spec.canvas.backgroundColor && spec.canvas.backgroundColor !== 'transparent'
+    ? `<rect width="${spec.canvas.width}" height="${spec.canvas.height}" fill="${spec.canvas.backgroundColor}" />\n  `
+    : '';
+
+  return `<svg width="${spec.canvas.width}" height="${spec.canvas.height}" viewBox="0 0 ${spec.canvas.width} ${spec.canvas.height}" xmlns="http://www.w3.org/2000/svg"${bgStyle}>
+  ${bgRect}${shapesHTML}
   ${textsHTML}
 </svg>`;
 }
