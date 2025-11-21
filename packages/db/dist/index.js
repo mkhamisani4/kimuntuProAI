@@ -16,6 +16,10 @@ export { createWebsite, getWebsite, updateWebsite, listWebsites, deleteWebsite, 
 // Import directly from '@kimuntupro/db/firebase/websites.server' in API routes only
 // Export Firebase Storage functions
 export { uploadLogo, deleteLogo, } from './firebase/storage.js';
+// Export Logo persistence functions (client-side)
+export { createLogo, getLogo, updateLogo, listLogos, deleteLogo as deleteLogoDoc, getPrimaryLogo, 
+// Version history functions (Phase 3 Feature 4)
+saveLogoVersion, getLogoVersions, restoreLogoVersion, deleteLogoVersion, } from './firebase/logos.js';
 /**
  * Connect to Firebase (client initializes automatically)
  */

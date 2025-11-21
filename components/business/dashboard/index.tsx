@@ -21,7 +21,7 @@ export default function BusinessDashboard({
   return (
     <div className="min-h-screen bg-gray-900">
       {/* Hero Section - Full Width */}
-      <DashboardHero userName={userName} />
+      <DashboardHero userName={userName} tenantId={tenantId} userId={userId} />
 
       {/* Main Dashboard Content - 3 Column Layout */}
       <div className="max-w-7xl mx-auto px-6 py-8">

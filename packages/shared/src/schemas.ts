@@ -313,3 +313,120 @@ export const ErrorCodeSchema = z.enum([
   'DATABASE_ERROR',
   'LLM_ERROR',
 ]);
+
+// ============================================================================
+// LOGO GENERATOR SCHEMAS
+// ============================================================================
+
+const SystemFontEnum = z.enum([
+  'Arial',
+  'Times New Roman',
+  'Courier New',
+  'Helvetica',
+  'Georgia',
+  'Verdana',
+  'Tahoma',
+  'Trebuchet MS',
+]);
+
+export const LogoDesignBriefSchema = z.object({
+  brandAdjectives: z.array(z.string()).min(2).max(6),
+  brandPersonality: z.string().min(1).max(500),
+  logoType: z.enum(['wordmark', 'lettermark', 'icon', 'combination']),
+  iconConcepts: z.array(z.string()).min(1).max(5),
+  colorPalette: z.object({
+    primary: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
+    secondary: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
+    accent: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
+    text: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
+  }),
+  fontSuggestions: z.object({
+    heading: SystemFontEnum,
+    tagline: SystemFontEnum.optional(),
+  }),
+  rationale: z.string().min(1).max(1000),
+});
+
+export const LogoShapeSchema = z.discriminatedUnion('type', [
+  z.object({
+    type: z.literal('rectangle'),
+    x: z.number(),
+    y: z.number(),
+    width: z.number().positive(),
+    height: z.number().positive(),
+    fill: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
+    rx: z.number().nonnegative().optional(),
+  }),
+  z.object({
+    type: z.literal('circle'),
+    cx: z.number(),
+    cy: z.number(),
+    r: z.number().positive(),
+    fill: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
+  }),
+  z.object({
+    type: z.literal('ellipse'),
+    cx: z.number(),
+    cy: z.number(),
+    rx: z.number().positive(),
+    ry: z.number().positive(),
+    fill: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
+  }),
+  z.object({
+    type: z.literal('line'),
+    x1: z.number(),
+    y1: z.number(),
+    x2: z.number(),
+    y2: z.number(),
+    stroke: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
+    strokeWidth: z.number().positive(),
+  }),
+  z.object({
+    type: z.literal('polygon'),
+    points: z.string(),
+    fill: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
+  }),
+  z.object({
+    type: z.literal('path'),
+    d: z.string(),
+    fill: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
+    stroke: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(),
+    strokeWidth: z.number().positive().optional(),
+  }),
+]);
+
+export const LogoTextSchema = z.object({
+  content: z.string().min(1).max(100),
+  x: z.number(),
+  y: z.number(),
+  fontSize: z.number().positive(),
+  fontFamily: SystemFontEnum,
+  fontWeight: z.union([z.literal(400), z.literal(700), z.literal('normal'), z.literal('bold')]),
+  fill: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
+  textAnchor: z.enum(['start', 'middle', 'end']).optional(),
+  letterSpacing: z.number().optional(),
+});
+
+export const LogoSpecSchema = z.object({
+  version: z.literal('1.0'),
+  canvas: z.object({
+    width: z.literal(500), // FIXED SIZE
+    height: z.literal(500), // FIXED SIZE
+    backgroundColor: z.string(),
+  }),
+  shapes: z.array(LogoShapeSchema),
+  texts: z.array(LogoTextSchema),
+  metadata: z.object({
+    conceptName: z.string(),
+    description: z.string(),
+    generatedAt: z.date(),
+  }),
+});
+
+export const LogoGenerationRequestSchema = z.object({
+  tenantId: z.string().min(1),
+  userId: z.string().min(1),
+  businessPlanId: z.string().nullable(),
+  companyName: z.string().min(1).max(100),
+  businessPlanText: z.string().max(50000).optional(),
+});

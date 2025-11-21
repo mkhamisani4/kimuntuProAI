@@ -859,4 +859,541 @@ export declare const ApiErrorSchema: z.ZodObject<{
     details?: Record<string, any> | undefined;
 }>;
 export declare const ErrorCodeSchema: z.ZodEnum<["UNAUTHORIZED", "QUOTA_EXCEEDED", "FEATURE_DISABLED", "INVALID_INPUT", "INTERNAL_ERROR", "DATABASE_ERROR", "LLM_ERROR"]>;
+export declare const LogoDesignBriefSchema: z.ZodObject<{
+    brandAdjectives: z.ZodArray<z.ZodString, "many">;
+    brandPersonality: z.ZodString;
+    logoType: z.ZodEnum<["wordmark", "lettermark", "icon", "combination"]>;
+    iconConcepts: z.ZodArray<z.ZodString, "many">;
+    colorPalette: z.ZodObject<{
+        primary: z.ZodString;
+        secondary: z.ZodString;
+        accent: z.ZodString;
+        text: z.ZodString;
+    }, "strip", z.ZodTypeAny, {
+        primary: string;
+        secondary: string;
+        accent: string;
+        text: string;
+    }, {
+        primary: string;
+        secondary: string;
+        accent: string;
+        text: string;
+    }>;
+    fontSuggestions: z.ZodObject<{
+        heading: z.ZodEnum<["Arial", "Times New Roman", "Courier New", "Helvetica", "Georgia", "Verdana", "Tahoma", "Trebuchet MS"]>;
+        tagline: z.ZodOptional<z.ZodEnum<["Arial", "Times New Roman", "Courier New", "Helvetica", "Georgia", "Verdana", "Tahoma", "Trebuchet MS"]>>;
+    }, "strip", z.ZodTypeAny, {
+        heading: "Arial" | "Times New Roman" | "Courier New" | "Helvetica" | "Georgia" | "Verdana" | "Tahoma" | "Trebuchet MS";
+        tagline?: "Arial" | "Times New Roman" | "Courier New" | "Helvetica" | "Georgia" | "Verdana" | "Tahoma" | "Trebuchet MS" | undefined;
+    }, {
+        heading: "Arial" | "Times New Roman" | "Courier New" | "Helvetica" | "Georgia" | "Verdana" | "Tahoma" | "Trebuchet MS";
+        tagline?: "Arial" | "Times New Roman" | "Courier New" | "Helvetica" | "Georgia" | "Verdana" | "Tahoma" | "Trebuchet MS" | undefined;
+    }>;
+    rationale: z.ZodString;
+}, "strip", z.ZodTypeAny, {
+    brandAdjectives: string[];
+    brandPersonality: string;
+    logoType: "wordmark" | "lettermark" | "icon" | "combination";
+    iconConcepts: string[];
+    colorPalette: {
+        primary: string;
+        secondary: string;
+        accent: string;
+        text: string;
+    };
+    fontSuggestions: {
+        heading: "Arial" | "Times New Roman" | "Courier New" | "Helvetica" | "Georgia" | "Verdana" | "Tahoma" | "Trebuchet MS";
+        tagline?: "Arial" | "Times New Roman" | "Courier New" | "Helvetica" | "Georgia" | "Verdana" | "Tahoma" | "Trebuchet MS" | undefined;
+    };
+    rationale: string;
+}, {
+    brandAdjectives: string[];
+    brandPersonality: string;
+    logoType: "wordmark" | "lettermark" | "icon" | "combination";
+    iconConcepts: string[];
+    colorPalette: {
+        primary: string;
+        secondary: string;
+        accent: string;
+        text: string;
+    };
+    fontSuggestions: {
+        heading: "Arial" | "Times New Roman" | "Courier New" | "Helvetica" | "Georgia" | "Verdana" | "Tahoma" | "Trebuchet MS";
+        tagline?: "Arial" | "Times New Roman" | "Courier New" | "Helvetica" | "Georgia" | "Verdana" | "Tahoma" | "Trebuchet MS" | undefined;
+    };
+    rationale: string;
+}>;
+export declare const LogoShapeSchema: z.ZodDiscriminatedUnion<"type", [z.ZodObject<{
+    type: z.ZodLiteral<"rectangle">;
+    x: z.ZodNumber;
+    y: z.ZodNumber;
+    width: z.ZodNumber;
+    height: z.ZodNumber;
+    fill: z.ZodString;
+    rx: z.ZodOptional<z.ZodNumber>;
+}, "strip", z.ZodTypeAny, {
+    type: "rectangle";
+    fill: string;
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    rx?: number | undefined;
+}, {
+    type: "rectangle";
+    fill: string;
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    rx?: number | undefined;
+}>, z.ZodObject<{
+    type: z.ZodLiteral<"circle">;
+    cx: z.ZodNumber;
+    cy: z.ZodNumber;
+    r: z.ZodNumber;
+    fill: z.ZodString;
+}, "strip", z.ZodTypeAny, {
+    type: "circle";
+    fill: string;
+    cx: number;
+    cy: number;
+    r: number;
+}, {
+    type: "circle";
+    fill: string;
+    cx: number;
+    cy: number;
+    r: number;
+}>, z.ZodObject<{
+    type: z.ZodLiteral<"ellipse">;
+    cx: z.ZodNumber;
+    cy: z.ZodNumber;
+    rx: z.ZodNumber;
+    ry: z.ZodNumber;
+    fill: z.ZodString;
+}, "strip", z.ZodTypeAny, {
+    type: "ellipse";
+    fill: string;
+    rx: number;
+    cx: number;
+    cy: number;
+    ry: number;
+}, {
+    type: "ellipse";
+    fill: string;
+    rx: number;
+    cx: number;
+    cy: number;
+    ry: number;
+}>, z.ZodObject<{
+    type: z.ZodLiteral<"line">;
+    x1: z.ZodNumber;
+    y1: z.ZodNumber;
+    x2: z.ZodNumber;
+    y2: z.ZodNumber;
+    stroke: z.ZodString;
+    strokeWidth: z.ZodNumber;
+}, "strip", z.ZodTypeAny, {
+    type: "line";
+    x1: number;
+    y1: number;
+    x2: number;
+    y2: number;
+    stroke: string;
+    strokeWidth: number;
+}, {
+    type: "line";
+    x1: number;
+    y1: number;
+    x2: number;
+    y2: number;
+    stroke: string;
+    strokeWidth: number;
+}>, z.ZodObject<{
+    type: z.ZodLiteral<"polygon">;
+    points: z.ZodString;
+    fill: z.ZodString;
+}, "strip", z.ZodTypeAny, {
+    type: "polygon";
+    fill: string;
+    points: string;
+}, {
+    type: "polygon";
+    fill: string;
+    points: string;
+}>, z.ZodObject<{
+    type: z.ZodLiteral<"path">;
+    d: z.ZodString;
+    fill: z.ZodString;
+    stroke: z.ZodOptional<z.ZodString>;
+    strokeWidth: z.ZodOptional<z.ZodNumber>;
+}, "strip", z.ZodTypeAny, {
+    type: "path";
+    fill: string;
+    d: string;
+    stroke?: string | undefined;
+    strokeWidth?: number | undefined;
+}, {
+    type: "path";
+    fill: string;
+    d: string;
+    stroke?: string | undefined;
+    strokeWidth?: number | undefined;
+}>]>;
+export declare const LogoTextSchema: z.ZodObject<{
+    content: z.ZodString;
+    x: z.ZodNumber;
+    y: z.ZodNumber;
+    fontSize: z.ZodNumber;
+    fontFamily: z.ZodEnum<["Arial", "Times New Roman", "Courier New", "Helvetica", "Georgia", "Verdana", "Tahoma", "Trebuchet MS"]>;
+    fontWeight: z.ZodUnion<[z.ZodLiteral<400>, z.ZodLiteral<700>, z.ZodLiteral<"normal">, z.ZodLiteral<"bold">]>;
+    fill: z.ZodString;
+    textAnchor: z.ZodOptional<z.ZodEnum<["start", "middle", "end"]>>;
+    letterSpacing: z.ZodOptional<z.ZodNumber>;
+}, "strip", z.ZodTypeAny, {
+    fill: string;
+    content: string;
+    x: number;
+    y: number;
+    fontSize: number;
+    fontFamily: "Arial" | "Times New Roman" | "Courier New" | "Helvetica" | "Georgia" | "Verdana" | "Tahoma" | "Trebuchet MS";
+    fontWeight: "bold" | 400 | 700 | "normal";
+    textAnchor?: "start" | "middle" | "end" | undefined;
+    letterSpacing?: number | undefined;
+}, {
+    fill: string;
+    content: string;
+    x: number;
+    y: number;
+    fontSize: number;
+    fontFamily: "Arial" | "Times New Roman" | "Courier New" | "Helvetica" | "Georgia" | "Verdana" | "Tahoma" | "Trebuchet MS";
+    fontWeight: "bold" | 400 | 700 | "normal";
+    textAnchor?: "start" | "middle" | "end" | undefined;
+    letterSpacing?: number | undefined;
+}>;
+export declare const LogoSpecSchema: z.ZodObject<{
+    version: z.ZodLiteral<"1.0">;
+    canvas: z.ZodObject<{
+        width: z.ZodLiteral<500>;
+        height: z.ZodLiteral<500>;
+        backgroundColor: z.ZodString;
+    }, "strip", z.ZodTypeAny, {
+        width: 500;
+        height: 500;
+        backgroundColor: string;
+    }, {
+        width: 500;
+        height: 500;
+        backgroundColor: string;
+    }>;
+    shapes: z.ZodArray<z.ZodDiscriminatedUnion<"type", [z.ZodObject<{
+        type: z.ZodLiteral<"rectangle">;
+        x: z.ZodNumber;
+        y: z.ZodNumber;
+        width: z.ZodNumber;
+        height: z.ZodNumber;
+        fill: z.ZodString;
+        rx: z.ZodOptional<z.ZodNumber>;
+    }, "strip", z.ZodTypeAny, {
+        type: "rectangle";
+        fill: string;
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+        rx?: number | undefined;
+    }, {
+        type: "rectangle";
+        fill: string;
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+        rx?: number | undefined;
+    }>, z.ZodObject<{
+        type: z.ZodLiteral<"circle">;
+        cx: z.ZodNumber;
+        cy: z.ZodNumber;
+        r: z.ZodNumber;
+        fill: z.ZodString;
+    }, "strip", z.ZodTypeAny, {
+        type: "circle";
+        fill: string;
+        cx: number;
+        cy: number;
+        r: number;
+    }, {
+        type: "circle";
+        fill: string;
+        cx: number;
+        cy: number;
+        r: number;
+    }>, z.ZodObject<{
+        type: z.ZodLiteral<"ellipse">;
+        cx: z.ZodNumber;
+        cy: z.ZodNumber;
+        rx: z.ZodNumber;
+        ry: z.ZodNumber;
+        fill: z.ZodString;
+    }, "strip", z.ZodTypeAny, {
+        type: "ellipse";
+        fill: string;
+        rx: number;
+        cx: number;
+        cy: number;
+        ry: number;
+    }, {
+        type: "ellipse";
+        fill: string;
+        rx: number;
+        cx: number;
+        cy: number;
+        ry: number;
+    }>, z.ZodObject<{
+        type: z.ZodLiteral<"line">;
+        x1: z.ZodNumber;
+        y1: z.ZodNumber;
+        x2: z.ZodNumber;
+        y2: z.ZodNumber;
+        stroke: z.ZodString;
+        strokeWidth: z.ZodNumber;
+    }, "strip", z.ZodTypeAny, {
+        type: "line";
+        x1: number;
+        y1: number;
+        x2: number;
+        y2: number;
+        stroke: string;
+        strokeWidth: number;
+    }, {
+        type: "line";
+        x1: number;
+        y1: number;
+        x2: number;
+        y2: number;
+        stroke: string;
+        strokeWidth: number;
+    }>, z.ZodObject<{
+        type: z.ZodLiteral<"polygon">;
+        points: z.ZodString;
+        fill: z.ZodString;
+    }, "strip", z.ZodTypeAny, {
+        type: "polygon";
+        fill: string;
+        points: string;
+    }, {
+        type: "polygon";
+        fill: string;
+        points: string;
+    }>, z.ZodObject<{
+        type: z.ZodLiteral<"path">;
+        d: z.ZodString;
+        fill: z.ZodString;
+        stroke: z.ZodOptional<z.ZodString>;
+        strokeWidth: z.ZodOptional<z.ZodNumber>;
+    }, "strip", z.ZodTypeAny, {
+        type: "path";
+        fill: string;
+        d: string;
+        stroke?: string | undefined;
+        strokeWidth?: number | undefined;
+    }, {
+        type: "path";
+        fill: string;
+        d: string;
+        stroke?: string | undefined;
+        strokeWidth?: number | undefined;
+    }>]>, "many">;
+    texts: z.ZodArray<z.ZodObject<{
+        content: z.ZodString;
+        x: z.ZodNumber;
+        y: z.ZodNumber;
+        fontSize: z.ZodNumber;
+        fontFamily: z.ZodEnum<["Arial", "Times New Roman", "Courier New", "Helvetica", "Georgia", "Verdana", "Tahoma", "Trebuchet MS"]>;
+        fontWeight: z.ZodUnion<[z.ZodLiteral<400>, z.ZodLiteral<700>, z.ZodLiteral<"normal">, z.ZodLiteral<"bold">]>;
+        fill: z.ZodString;
+        textAnchor: z.ZodOptional<z.ZodEnum<["start", "middle", "end"]>>;
+        letterSpacing: z.ZodOptional<z.ZodNumber>;
+    }, "strip", z.ZodTypeAny, {
+        fill: string;
+        content: string;
+        x: number;
+        y: number;
+        fontSize: number;
+        fontFamily: "Arial" | "Times New Roman" | "Courier New" | "Helvetica" | "Georgia" | "Verdana" | "Tahoma" | "Trebuchet MS";
+        fontWeight: "bold" | 400 | 700 | "normal";
+        textAnchor?: "start" | "middle" | "end" | undefined;
+        letterSpacing?: number | undefined;
+    }, {
+        fill: string;
+        content: string;
+        x: number;
+        y: number;
+        fontSize: number;
+        fontFamily: "Arial" | "Times New Roman" | "Courier New" | "Helvetica" | "Georgia" | "Verdana" | "Tahoma" | "Trebuchet MS";
+        fontWeight: "bold" | 400 | 700 | "normal";
+        textAnchor?: "start" | "middle" | "end" | undefined;
+        letterSpacing?: number | undefined;
+    }>, "many">;
+    metadata: z.ZodObject<{
+        conceptName: z.ZodString;
+        description: z.ZodString;
+        generatedAt: z.ZodDate;
+    }, "strip", z.ZodTypeAny, {
+        conceptName: string;
+        description: string;
+        generatedAt: Date;
+    }, {
+        conceptName: string;
+        description: string;
+        generatedAt: Date;
+    }>;
+}, "strip", z.ZodTypeAny, {
+    metadata: {
+        conceptName: string;
+        description: string;
+        generatedAt: Date;
+    };
+    version: "1.0";
+    canvas: {
+        width: 500;
+        height: 500;
+        backgroundColor: string;
+    };
+    shapes: ({
+        type: "rectangle";
+        fill: string;
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+        rx?: number | undefined;
+    } | {
+        type: "circle";
+        fill: string;
+        cx: number;
+        cy: number;
+        r: number;
+    } | {
+        type: "ellipse";
+        fill: string;
+        rx: number;
+        cx: number;
+        cy: number;
+        ry: number;
+    } | {
+        type: "line";
+        x1: number;
+        y1: number;
+        x2: number;
+        y2: number;
+        stroke: string;
+        strokeWidth: number;
+    } | {
+        type: "polygon";
+        fill: string;
+        points: string;
+    } | {
+        type: "path";
+        fill: string;
+        d: string;
+        stroke?: string | undefined;
+        strokeWidth?: number | undefined;
+    })[];
+    texts: {
+        fill: string;
+        content: string;
+        x: number;
+        y: number;
+        fontSize: number;
+        fontFamily: "Arial" | "Times New Roman" | "Courier New" | "Helvetica" | "Georgia" | "Verdana" | "Tahoma" | "Trebuchet MS";
+        fontWeight: "bold" | 400 | 700 | "normal";
+        textAnchor?: "start" | "middle" | "end" | undefined;
+        letterSpacing?: number | undefined;
+    }[];
+}, {
+    metadata: {
+        conceptName: string;
+        description: string;
+        generatedAt: Date;
+    };
+    version: "1.0";
+    canvas: {
+        width: 500;
+        height: 500;
+        backgroundColor: string;
+    };
+    shapes: ({
+        type: "rectangle";
+        fill: string;
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+        rx?: number | undefined;
+    } | {
+        type: "circle";
+        fill: string;
+        cx: number;
+        cy: number;
+        r: number;
+    } | {
+        type: "ellipse";
+        fill: string;
+        rx: number;
+        cx: number;
+        cy: number;
+        ry: number;
+    } | {
+        type: "line";
+        x1: number;
+        y1: number;
+        x2: number;
+        y2: number;
+        stroke: string;
+        strokeWidth: number;
+    } | {
+        type: "polygon";
+        fill: string;
+        points: string;
+    } | {
+        type: "path";
+        fill: string;
+        d: string;
+        stroke?: string | undefined;
+        strokeWidth?: number | undefined;
+    })[];
+    texts: {
+        fill: string;
+        content: string;
+        x: number;
+        y: number;
+        fontSize: number;
+        fontFamily: "Arial" | "Times New Roman" | "Courier New" | "Helvetica" | "Georgia" | "Verdana" | "Tahoma" | "Trebuchet MS";
+        fontWeight: "bold" | 400 | 700 | "normal";
+        textAnchor?: "start" | "middle" | "end" | undefined;
+        letterSpacing?: number | undefined;
+    }[];
+}>;
+export declare const LogoGenerationRequestSchema: z.ZodObject<{
+    tenantId: z.ZodString;
+    userId: z.ZodString;
+    businessPlanId: z.ZodNullable<z.ZodString>;
+    companyName: z.ZodString;
+    businessPlanText: z.ZodOptional<z.ZodString>;
+}, "strip", z.ZodTypeAny, {
+    tenantId: string;
+    userId: string;
+    businessPlanId: string | null;
+    companyName: string;
+    businessPlanText?: string | undefined;
+}, {
+    tenantId: string;
+    userId: string;
+    businessPlanId: string | null;
+    companyName: string;
+    businessPlanText?: string | undefined;
+}>;
 //# sourceMappingURL=schemas.d.ts.map

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { TrendingUp, Globe, Zap, DollarSign } from 'lucide-react';
+import { TrendingUp, Globe, Zap, DollarSign, Palette } from 'lucide-react';
 
 interface QuickStatsProps {
   tenantId: string;
@@ -12,12 +12,15 @@ interface Stats {
   thisMonth: {
     plansGenerated: number;
     websitesBuilt: number;
+    logosCreated: number;
     tokensUsed: number;
     costCents: number;
   };
   allTime: {
     totalPlans: number;
     totalWebsites: number;
+    totalLogos: number;
+    primaryLogos: number;
     tokensUsed: number;
     costCents: number;
   };
@@ -132,14 +135,29 @@ export default function QuickStats({ tenantId, userId }: QuickStatsProps) {
           {/* Websites Built */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-purple-500/20 rounded-lg">
-                <Globe size={20} className="text-purple-400" />
+              <div className="p-2 bg-emerald-500/20 rounded-lg">
+                <Globe size={20} className="text-emerald-400" />
               </div>
               <div>
                 <div className="text-2xl font-bold text-white">
                   {stats.thisMonth.websitesBuilt}
                 </div>
                 <div className="text-xs text-gray-400">Websites Built</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Logos Created */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-purple-500/20 rounded-lg">
+                <Palette size={20} className="text-purple-400" />
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-white">
+                  {stats.thisMonth.logosCreated}
+                </div>
+                <div className="text-xs text-gray-400">Logos Created</div>
               </div>
             </div>
           </div>
@@ -173,7 +191,7 @@ export default function QuickStats({ tenantId, userId }: QuickStatsProps) {
         <h3 className="text-sm font-semibold text-emerald-300 uppercase tracking-wide mb-4">
           All Time
         </h3>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-3 gap-4 mb-4">
           <div>
             <div className="text-2xl font-bold text-white">
               {stats.allTime.totalPlans}
@@ -186,8 +204,14 @@ export default function QuickStats({ tenantId, userId }: QuickStatsProps) {
             </div>
             <div className="text-xs text-emerald-400">Total Websites</div>
           </div>
+          <div>
+            <div className="text-2xl font-bold text-white">
+              {stats.allTime.totalLogos}
+            </div>
+            <div className="text-xs text-emerald-400">Total Logos</div>
+          </div>
         </div>
-        <div className="mt-4 pt-4 border-t border-emerald-700/30">
+        <div className="pt-4 border-t border-emerald-700/30">
           <div className="text-sm text-emerald-300">
             Total spent: <span className="font-semibold">{formatCost(stats.allTime.costCents)}</span>
           </div>

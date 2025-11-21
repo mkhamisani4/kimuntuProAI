@@ -31,6 +31,13 @@ export {
 } from './generators/websiteGenerator.js';
 
 export {
+  generateLogoBrief,
+  generateLogoConcepts,
+  refineLogo,
+  generateLogoVariations,
+} from './generators/logoGenerator.js';
+
+export {
   type ModelId,
   type ModelCapabilities,
   type ModelConfig,

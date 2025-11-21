@@ -29,6 +29,13 @@ export default function ActivitySidebar({ tenantId, userId }: ActivitySidebarPro
             <ExternalLink size={14} className="text-gray-600 group-hover:text-emerald-400 transition-colors" />
           </a>
           <a
+            href="/dashboard/business/logos"
+            className="flex items-center justify-between text-sm text-gray-300 hover:text-purple-400 font-medium group transition-colors"
+          >
+            <span>View All Logos</span>
+            <ExternalLink size={14} className="text-gray-600 group-hover:text-purple-400 transition-colors" />
+          </a>
+          <a
             href="/dashboard/business/ai-assistant"
             className="flex items-center justify-between text-sm text-gray-300 hover:text-emerald-400 font-medium group transition-colors"
           >

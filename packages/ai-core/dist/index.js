@@ -6,6 +6,7 @@
 export { OpenAIClient, } from './llm/client.js';
 export { ClaudeClient, } from './llm/claudeClient.js';
 export { generateWebsite, editWebsite, } from './generators/websiteGenerator.js';
+export { generateLogoBrief, generateLogoConcepts, refineLogo, generateLogoVariations, } from './generators/logoGenerator.js';
 export { MODEL_CONFIGS, DEFAULT_MODEL_MINI, DEFAULT_MODEL_ESCALATION, getModelConfig, modelSupports, getModelFromEnv, } from './llm/models.js';
 export { getCostCents, estimateCostCents, formatCost, exceedsMaxCost, getModelPricing, } from './llm/costs.js';
 export { asJsonSchema, parseStructured, extractJsonFromMarkdown, } from './llm/structured.js';

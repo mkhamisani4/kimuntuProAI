@@ -53,6 +53,23 @@ export {
   deleteLogo,
 } from './firebase/storage.js';
 
+// Export Logo persistence functions (client-side)
+export {
+  createLogo,
+  getLogo,
+  updateLogo,
+  listLogos,
+  deleteLogo as deleteLogoDoc,
+  getPrimaryLogo,
+  // Version history functions (Phase 3 Feature 4)
+  saveLogoVersion,
+  getLogoVersions,
+  restoreLogoVersion,
+  deleteLogoVersion,
+  type Logo,
+  type LogoVersion,
+} from './firebase/logos.js';
+
 /**
  * Database configuration type
  */

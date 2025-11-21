@@ -7,9 +7,10 @@ export type StatusType = 'ready' | 'generating' | 'failed' | 'draft' | 'complete
 interface StatusBadgeProps {
   status: StatusType;
   size?: 'sm' | 'md';
+  customLabel?: string;
 }
 
-export default function StatusBadge({ status, size = 'md' }: StatusBadgeProps) {
+export default function StatusBadge({ status, size = 'md', customLabel }: StatusBadgeProps) {
   const configs: Record<StatusType, {
     icon: typeof CheckCircle;
     label: string;
@@ -69,7 +70,7 @@ export default function StatusBadge({ status, size = 'md' }: StatusBadgeProps) {
         size={iconSize}
         className={`${config.iconColor} ${config.animate ? 'animate-spin' : ''}`}
       />
-      {config.label}
+      {customLabel || config.label}
     </span>
   );
 }

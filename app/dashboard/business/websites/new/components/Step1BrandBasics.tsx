@@ -5,10 +5,12 @@
  * Collects company name, tagline, brand voice, and logo
  */
 
-import { useState } from 'react';
-import { ChevronRight, Upload, X, Image as ImageIcon, Sparkles } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { ChevronRight, Upload, X, Image as ImageIcon, Sparkles, Palette } from 'lucide-react';
 import { toast } from '@/components/ai/Toast';
 import type { WizardInput } from '@kimuntupro/shared';
+import { getPrimaryLogo } from '@kimuntupro/db';
+import { auth } from '@/lib/firebase';
 
 interface Step1Props {
   data: WizardInput;
@@ -30,6 +32,30 @@ export default function Step1BrandBasics({ data, updateData, onNext, hasPlanAtta
   const [uploadProgress, setUploadProgress] = useState(0);
   const [logoPreview, setLogoPreview] = useState<string | null>(data.logoUrl || null);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [hasPrimaryLogo, setHasPrimaryLogo] = useState(false);
+  const [isLoadingPrimaryLogo, setIsLoadingPrimaryLogo] = useState(false);
+
+  // Check if user has a primary logo
+  useEffect(() => {
+    async function checkPrimaryLogo() {
+      const user = auth.currentUser;
+      if (!user) {
+        console.log('[Step1] No user logged in, cannot check for primary logo');
+        return;
+      }
+
+      try {
+        console.log('[Step1] Checking for primary logo for user:', user.uid);
+        const primaryLogo = await getPrimaryLogo('demo-tenant', user.uid);
+        console.log('[Step1] Primary logo found:', !!primaryLogo);
+        setHasPrimaryLogo(!!primaryLogo);
+      } catch (error) {
+        console.error('[Step1] Failed to check primary logo:', error);
+      }
+    }
+
+    checkPrimaryLogo();
+  }, []);
 
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -121,6 +147,70 @@ export default function Step1BrandBasics({ data, updateData, onNext, hasPlanAtta
     setLogoPreview(null);
     updateData({ logoUrl: null });
     toast.success('Logo removed');
+  };
+
+  const handleUseMyLogo = async () => {
+    const user = auth.currentUser;
+    if (!user) {
+      toast.error('Please sign in to use your logo');
+      return;
+    }
+
+    setIsLoadingPrimaryLogo(true);
+    const toastId = toast.loading('Loading your logo...');
+
+    try {
+      const primaryLogo = await getPrimaryLogo('demo-tenant', user.uid);
+
+      if (!primaryLogo) {
+        toast.error('No primary logo found. Create one in Logo Studio first!', { id: toastId });
+        return;
+      }
+
+      // Convert LogoSpec to SVG string
+      const { logoSpecToSVGString } = await import('../../../logo-studio/utils/svgRenderer');
+      const svgString = logoSpecToSVGString(primaryLogo.currentSpec);
+
+      // Convert SVG to data URL
+      const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+      const svgUrl = URL.createObjectURL(svgBlob);
+
+      // Create an image to convert to PNG data URL
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = 500;
+        canvas.height = 500;
+        const ctx = canvas.getContext('2d');
+
+        if (!ctx) {
+          toast.error('Failed to process logo', { id: toastId });
+          return;
+        }
+
+        ctx.drawImage(img, 0, 0, 500, 500);
+        const dataURL = canvas.toDataURL('image/png');
+
+        URL.revokeObjectURL(svgUrl);
+
+        setLogoPreview(dataURL);
+        updateData({ logoUrl: dataURL });
+        toast.success('Logo loaded successfully!', { id: toastId });
+        setIsLoadingPrimaryLogo(false);
+      };
+
+      img.onerror = () => {
+        URL.revokeObjectURL(svgUrl);
+        toast.error('Failed to load logo', { id: toastId });
+        setIsLoadingPrimaryLogo(false);
+      };
+
+      img.src = svgUrl;
+    } catch (error: any) {
+      console.error('[Step1] Failed to load primary logo:', error);
+      toast.error(error.message || 'Failed to load logo', { id: toastId });
+      setIsLoadingPrimaryLogo(false);
+    }
   };
 
   const handleNext = () => {
@@ -272,9 +362,52 @@ export default function Step1BrandBasics({ data, updateData, onNext, hasPlanAtta
 
         {/* Logo Upload */}
         <div>
-          <label className="block text-sm font-medium text-gray-200 mb-3">
-            Logo <span className="text-gray-500">(Optional)</span>
-          </label>
+          <div className="flex items-center justify-between mb-3">
+            <label className="block text-sm font-medium text-gray-200">
+              Logo <span className="text-gray-500">(Optional)</span>
+            </label>
+            {hasPrimaryLogo && (
+              <button
+                type="button"
+                onClick={handleUseMyLogo}
+                disabled={isLoadingPrimaryLogo}
+                className="flex items-center gap-2 px-3 py-1.5 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-700 disabled:cursor-not-allowed text-white text-sm rounded-lg transition-colors"
+              >
+                {isLoadingPrimaryLogo ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Loading...
+                  </>
+                ) : (
+                  <>
+                    <Palette className="w-4 h-4" />
+                    {logoPreview ? 'Replace with My Logo' : 'Use My Logo'}
+                  </>
+                )}
+              </button>
+            )}
+          </div>
+
+          {/* Help text for users without primary logo */}
+          {!hasPrimaryLogo && (
+            <div className="mb-3 p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
+              <p className="text-sm text-blue-300 mb-1">
+                Don't have a logo yet? Create one in{' '}
+                <a
+                  href="/dashboard/business/logo-studio"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline hover:text-blue-200 font-semibold"
+                >
+                  Logo Studio
+                </a>
+                !
+              </p>
+              <p className="text-xs text-gray-400">
+                Set your created logo as primary and it will appear here automatically.
+              </p>
+            </div>
+          )}
 
           {logoPreview ? (
             // Logo Preview

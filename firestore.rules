@@ -42,6 +42,14 @@ service cloud.firestore {
       allow read, write: if true; // Completely open for development
     }
 
+    // Logo documents
+    // ⚠️ DEVELOPMENT MODE: Open for all writes (no auth required)
+    // This is ONLY for development without Admin SDK
+    // For production, MUST use Admin SDK with service account key
+    match /logos/{logoId} {
+      allow read, write: if true; // Completely open for development
+    }
+
     // Default: deny all other access
     match /{document=**} {
       allow read, write: if false;

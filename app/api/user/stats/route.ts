@@ -5,7 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getRecentResults, listWebsites, getUsageMetrics } from '@kimuntupro/db';
+import { getRecentResults, listWebsites, listLogos, getUsageMetrics } from '@kimuntupro/db';
 
 /**
  * GET handler - Get user statistics
@@ -31,7 +31,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
     // Fetch usage metrics from usage_logs collection (not affected by deletions)
-    const [thisMonthUsage, allTimeUsage, assistantResults, websites] = await Promise.all([
+    const [thisMonthUsage, allTimeUsage, assistantResults, websites, logos] = await Promise.all([
       getUsageMetrics({ tenantId, userId, since: firstDayOfMonth }).catch((err) => {
         console.warn('[Stats API] Failed to fetch this month usage:', err);
         return {
@@ -58,6 +58,10 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       }),
       userId ? listWebsites(tenantId, userId, 1000).catch((err) => {
         console.warn('[Stats API] Failed to fetch websites:', err);
+        return [];
+      }) : Promise.resolve([]),
+      userId ? listLogos(tenantId, userId, 1000).catch((err) => {
+        console.warn('[Stats API] Failed to fetch logos:', err);
         return [];
       }) : Promise.resolve([])
     ]);
@@ -104,6 +108,9 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     const thisMonthWebsites = websites.filter(w =>
       w.createdAt && w.createdAt >= firstDayOfMonth
     );
+    const thisMonthLogos = logos.filter(l =>
+      l.createdAt && l.createdAt >= firstDayOfMonth
+    );
 
     // Calculate tokens from usage logs (these won't decrease when results are deleted)
     // FALLBACK: If usage_logs is empty (legacy data), calculate from metadata
@@ -136,12 +143,14 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       // Calculate tokens from metadata (legacy method)
       const thisMonthTokensFromMetadata = [
         ...thisMonthResults.map(r => r.metadata?.tokensUsed || 0),
-        ...thisMonthWebsites.map(w => w.generationMetadata?.tokensUsed || 0)
+        ...thisMonthWebsites.map(w => w.generationMetadata?.tokensUsed || 0),
+        ...thisMonthLogos.map(l => l.generationMetadata?.tokensUsed || 0)
       ].reduce((sum, tokens) => sum + tokens, 0);
 
       const allTimeTokensFromMetadata = [
         ...assistantResults.map(r => r.metadata?.tokensUsed || 0),
-        ...websites.map(w => w.generationMetadata?.tokensUsed || 0)
+        ...websites.map(w => w.generationMetadata?.tokensUsed || 0),
+        ...logos.map(l => l.generationMetadata?.tokensUsed || 0)
       ].reduce((sum, tokens) => sum + tokens, 0);
 
       // Check if costs are stored in metadata
@@ -149,12 +158,14 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       // For websites: generationMetadata.costCents is already in cents
       const thisMonthCostsFromMetadata = [
         ...thisMonthResults.map(r => convertToCents(r.metadata?.cost, 'result.metadata.cost')),
-        ...thisMonthWebsites.map(w => w.generationMetadata?.costCents || 0)
+        ...thisMonthWebsites.map(w => w.generationMetadata?.costCents || 0),
+        ...thisMonthLogos.map(l => l.generationMetadata?.costCents || 0)
       ].reduce((sum, cost) => sum + cost, 0);
 
       const allTimeCostsFromMetadata = [
         ...assistantResults.map(r => convertToCents(r.metadata?.cost, 'result.metadata.cost')),
-        ...websites.map(w => w.generationMetadata?.costCents || 0)
+        ...websites.map(w => w.generationMetadata?.costCents || 0),
+        ...logos.map(l => l.generationMetadata?.costCents || 0)
       ].reduce((sum, cost) => sum + cost, 0);
 
       console.log('[Stats API] Metadata details:', {
@@ -201,17 +212,20 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       });
     }
 
-    // Build response (usage metrics from usage_logs with metadata fallback, counts from results/websites)
+    // Build response (usage metrics from usage_logs with metadata fallback, counts from results/websites/logos)
     const stats = {
       thisMonth: {
         plansGenerated: thisMonthResults.length,
         websitesBuilt: thisMonthWebsites.filter(w => w.status === 'ready').length,
+        logosCreated: thisMonthLogos.length,
         tokensUsed: tokensUsedThisMonth,
         costCents: costThisMonth
       },
       allTime: {
         totalPlans: assistantResults.length,
         totalWebsites: websites.filter(w => w.status === 'ready').length,
+        totalLogos: logos.length,
+        primaryLogos: logos.filter(l => l.isPrimary).length,
         tokensUsed: tokensUsedAllTime,
         costCents: costAllTime
       },

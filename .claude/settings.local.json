@@ -31,7 +31,10 @@
       "Bash(firebase deploy:*)",
       "Bash(node test-css-sanitize.mjs:*)",
       "Bash(node test-real-sanitize.mjs:*)",
-      "Bash(npm uninstall:*)"
+      "Bash(npm uninstall:*)",
+      "WebSearch",
+      "Bash(mkdir:*)",
+      "Bash(test:*)"
     ],
     "deny": [],
     "ask": []

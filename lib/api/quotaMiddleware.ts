@@ -121,6 +121,17 @@ async function extractQuotaParams(
         requires_web_search: false,
         escalate_model: true, // Uses Sonnet 4.5 for editing
       };
+    } else if (body.companyName) {
+      // Logo generation format (brief or spec generation)
+      // Estimate input length from company name + business plan text
+      inputLength = (body.companyName?.length || 0) + (body.businessPlanText?.length || 0);
+
+      // Logo generation uses Sonnet 4.5 but doesn't use retrieval or web search
+      plan = {
+        requires_retrieval: false,
+        requires_web_search: false,
+        escalate_model: true, // Uses Sonnet 4.5 for logo design
+      };
     } else {
       // Old two-stage format
       const request = body.request as AssistantRequest;

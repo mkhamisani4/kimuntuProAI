@@ -8,6 +8,7 @@ export { saveAssistantResult, getRecentResults, getAssistantResult, deleteAssist
 export { saveDocumentMeta, listRecentDocuments, getDocumentMeta, type DocumentMeta, } from './firebase/documents.js';
 export { createWebsite, getWebsite, updateWebsite, listWebsites, deleteWebsite, type Website, } from './firebase/websites.js';
 export { uploadLogo, deleteLogo, } from './firebase/storage.js';
+export { createLogo, getLogo, updateLogo, listLogos, deleteLogo as deleteLogoDoc, getPrimaryLogo, saveLogoVersion, getLogoVersions, restoreLogoVersion, deleteLogoVersion, type Logo, type LogoVersion, } from './firebase/logos.js';
 /**
  * Database configuration type
  */

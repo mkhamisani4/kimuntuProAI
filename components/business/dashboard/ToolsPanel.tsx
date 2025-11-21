@@ -1,6 +1,6 @@
 'use client';
 
-import { TrendingUp, FileText, BarChart3, DollarSign, Globe, Mail } from 'lucide-react';
+import { TrendingUp, FileText, BarChart3, DollarSign, Globe, Mail, Palette } from 'lucide-react';
 import ToolCard from './ToolCard';
 import FeaturedToolCard from './FeaturedToolCard';
 
@@ -67,6 +67,13 @@ export default function ToolsPanel() {
             title="AI Website Builder"
             description="Create professional websites in minutes with AI-powered design and content generation"
             route="/dashboard/business/websites/new"
+          />
+          <ToolCard
+            icon={Palette}
+            title="Logo Studio"
+            description="AI-powered logo design and branding"
+            route="/dashboard/business/logo-studio"
+            color="purple"
           />
           <ToolCard
             icon={Mail}
