@@ -1,8 +1,23 @@
-import BusinessTrack from '@/components/BusinessTrack';
-import { translations } from '@/lib/translations';
+'use client';
+
+import { useAuth } from '@/hooks/useAuth';
+import BusinessDashboard from '@/components/business/dashboard';
 
 export default function BusinessPage() {
-  const t = translations.en; // Default to English for now
+  const { user, loading } = useAuth();
 
-  return <BusinessTrack t={t} />;
+  // Use demo-tenant for consistency with TaskForm
+  const tenantId = 'demo-tenant';
+
+  // Extract user's first name if available
+  const userName = user?.displayName?.split(' ')[0];
+
+  return (
+    <BusinessDashboard
+      userName={userName}
+      tenantId={tenantId}
+      userId={user?.uid}
+      loading={loading}
+    />
+  );
 }
