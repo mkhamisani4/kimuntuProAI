@@ -1,0 +1,27 @@
+# kimuntuProAI
+
+I am building kimuntuProAI as a web app with Firebase authentication and a Vite front end styled with Tailwind CSS. The goal is a clean base that I can grow for career, business, and legal assistance features.
+
+---
+
+## What this project has today
+
+1. Firebase sign in and sign out code
+2. Vite based front end with a simple page layout
+3. Tailwind CSS ready to style components
+4. A clear folder structure so I can add features fast
+5. GitHub Actions workflow to install and build on every push and pull request
+
+---
+
+## Getting started
+
+### Requirements
+
+1. Node 20 or newer
+2. A GitHub account
+3. A Firebase project
+
+### Setup steps
+
+1. Clone the repository and go into the folder  
