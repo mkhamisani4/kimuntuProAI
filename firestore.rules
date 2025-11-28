@@ -1,0 +1,58 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper function to check if user is authenticated
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Helper function to check if user owns the document
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Assistant results
+    // ⚠️ DEVELOPMENT MODE: Open for all reads and writes (no auth required)
+    // For production, use Admin SDK with service account key
+    match /assistant_results/{resultId} {
+      allow read, write: if true; // Completely open for development (server-side operations from API routes)
+      allow delete: if true; // Allow deletion via API routes
+    }
+
+    // Usage tracking
+    // ⚠️ DEVELOPMENT MODE: Open for all reads and writes (no auth required)
+    // For production, use Admin SDK with service account key
+    match /usage_logs/{usageId} {
+      allow read, write: if true; // Completely open for development (server-side operations from API routes)
+    }
+
+    // Document metadata (RAG) - readable by authenticated users, writable by all (server writes)
+    match /documents/{docId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn(); // Allows server-side writes from API routes
+    }
+
+    // Website documents
+    // ⚠️ DEVELOPMENT MODE: Open for all writes (no auth required)
+    // This is ONLY for development without Admin SDK
+    // For production, MUST use Admin SDK with service account key
+    match /websites/{websiteId} {
+      allow read, write: if true; // Completely open for development
+    }
+
+    // Logo documents
+    // ⚠️ DEVELOPMENT MODE: Open for all writes (no auth required)
+    // This is ONLY for development without Admin SDK
+    // For production, MUST use Admin SDK with service account key
+    match /logos/{logoId} {
+      allow read, write: if true; // Completely open for development
+    }
+
+    // Default: deny all other access
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

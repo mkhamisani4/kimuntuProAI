@@ -3,6 +3,7 @@
   "private": true,
   "version": "0.0.1",
   "type": "module",
+<<<<<<< HEAD
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -31,5 +32,71 @@
     "postcss": "^8.4.32",
     "tailwindcss": "^3.3.6",
     "vite": "^5.0.8"
+=======
+  "workspaces": [
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "npm run build:packages && next build",
+    "build:packages": "npm run build --workspace=packages/shared && npm run build --workspace=packages/db && npm run build --workspace=packages/rag-core && npm run build --workspace=packages/ai-core",
+    "start": "next start",
+    "lint": "next lint",
+    "type-check": "tsc -b packages/shared/tsconfig.json packages/db/tsconfig.json packages/ai-core/tsconfig.json",
+    "typecheck": "npm run type-check",
+    "test": "npm run test --workspace=packages/ai-core",
+    "test:watch": "npm run test:watch --workspace=packages/ai-core",
+    "test:ui": "vitest --root .",
+    "test:ui:watch": "vitest --root . --watch",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:all": "npm run typecheck && npm run test:ui && npm run test && npm run test:e2e"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.69.0",
+    "@headlessui/react": "^2.2.9",
+    "@heroicons/react": "^2.2.0",
+    "@types/dompurify": "^3.0.5",
+    "date-fns": "^4.1.0",
+    "docx": "^9.5.1",
+    "file-saver": "^2.0.5",
+    "firebase": "^10.14.1",
+    "firebase-admin": "^13.6.0",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^3.0.3",
+    "lucide-react": "^0.263.1",
+    "next": "^15.0.0",
+    "openai": "^6.8.1",
+    "pdfjs-dist": "^5.4.394",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-hot-toast": "^2.6.0",
+    "server-only": "^0.0.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/node": "^22.0.0",
+    "@types/react": "^18.2.43",
+    "@types/react-dom": "^18.2.17",
+    "@vitejs/plugin-react": "^5.1.0",
+    "@vitest/ui": "^2.0.0",
+    "autoprefixer": "^10.4.16",
+    "eslint": "^8.57.0",
+    "eslint-config-next": "^15.0.0",
+    "jsdom": "^27.1.0",
+    "postcss": "^8.4.32",
+    "tailwindcss": "^3.3.6",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0",
+    "vitest": "^2.0.0"
+>>>>>>> main
   }
 }
