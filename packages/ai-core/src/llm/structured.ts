@@ -1,0 +1,180 @@
+/**
+ * Structured Output Helpers
+ * Utilities for JSON schema response format and validation
+ */
+
+import { z } from 'zod';
+import { zodToJsonSchema } from 'zod-to-json-schema';
+
+/**
+ * OpenAI response format for structured outputs
+ */
+export interface StructuredOutputFormat {
+  type: 'json_schema';
+  json_schema: {
+    name: string;
+    description?: string;
+    schema: Record<string, any>;
+    strict?: boolean;
+  };
+}
+
+/**
+ * Convert Zod schema to OpenAI JSON schema response format
+ * @param zodSchema - Zod schema to convert
+ * @param name - Schema name (used by OpenAI)
+ * @param description - Optional schema description
+ * @returns OpenAI response format object
+ */
+export function asJsonSchema<T extends z.ZodType>(
+  zodSchema: T,
+  name: string,
+  description?: string
+): { response_format: StructuredOutputFormat } {
+  // Validate input
+  if (!zodSchema) {
+    throw new Error('zodSchema is required for asJsonSchema');
+  }
+
+  // Convert Zod to JSON Schema
+  let jsonSchema: any = zodToJsonSchema(zodSchema, {
+    name,
+    $refStrategy: 'none', // Inline all refs for OpenAI
+    target: 'jsonSchema7', // Use JSON Schema Draft 7
+    errorMessages: false, // Don't include Zod error messages in schema
+  });
+
+  // If the schema has $ref and definitions, extract the actual schema from definitions
+  if (jsonSchema.$ref && jsonSchema.definitions) {
+    const refName = jsonSchema.$ref.replace('#/definitions/', '');
+    jsonSchema = jsonSchema.definitions[refName];
+  }
+
+  // Remove $schema property as OpenAI doesn't accept it
+  const { $schema, definitions, ...schemaWithoutMeta } = jsonSchema;
+
+  // Validate the converted schema has required properties
+  if (!schemaWithoutMeta.type || schemaWithoutMeta.type !== 'object') {
+    console.error('[asJsonSchema] Invalid schema conversion:', {
+      name,
+      hasType: !!schemaWithoutMeta.type,
+      type: schemaWithoutMeta.type,
+      schemaKeys: Object.keys(schemaWithoutMeta),
+    });
+    throw new Error(
+      `Invalid JSON Schema conversion for '${name}': expected type='object', got type='${schemaWithoutMeta.type}'`
+    );
+  }
+
+  return {
+    response_format: {
+      type: 'json_schema',
+      json_schema: {
+        name,
+        description,
+        schema: schemaWithoutMeta,
+        strict: true, // Enable strict mode for better reliability
+      },
+    },
+  };
+}
+
+/**
+ * Parse and validate structured output from LLM
+ * @param rawOutput - Raw string or object from LLM
+ * @param zodSchema - Zod schema for validation
+ * @returns Validated typed data
+ * @throws Error if parsing or validation fails
+ */
+export function parseStructured<T>(rawOutput: string | object, zodSchema: z.ZodType<T>): T {
+  // Parse JSON if string
+  let data: unknown;
+  if (typeof rawOutput === 'string') {
+    try {
+      data = JSON.parse(rawOutput);
+    } catch (error) {
+      throw new Error(
+        `Failed to parse JSON from LLM output: ${error instanceof Error ? error.message : String(error)}`
+      );
+    }
+  } else {
+    data = rawOutput;
+  }
+
+  // Validate with Zod
+  try {
+    return zodSchema.parse(data);
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      const issues = error.errors
+        .map((err) => `${err.path.join('.')}: ${err.message}`)
+        .join('; ');
+      throw new Error(`Structured output validation failed: ${issues}`);
+    }
+    throw error;
+  }
+}
+
+/**
+ * Safe parse structured output (doesn't throw)
+ * @param rawOutput - Raw string or object from LLM
+ * @param zodSchema - Zod schema for validation
+ * @returns Success or error result
+ */
+export function safeParseStructured<T>(
+  rawOutput: string | object,
+  zodSchema: z.ZodType<T>
+): { success: true; data: T } | { success: false; error: string } {
+  try {
+    const data = parseStructured(rawOutput, zodSchema);
+    return { success: true, data };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : String(error),
+    };
+  }
+}
+
+/**
+ * Extract JSON from markdown code blocks
+ * Handles cases where LLM wraps JSON in ```json ... ```
+ * @param text - Text that might contain JSON in code blocks
+ * @returns Extracted JSON string or original text
+ */
+export function extractJsonFromMarkdown(text: string): string {
+  // Try to extract from code block
+  const codeBlockMatch = text.match(/```(?:json)?\s*\n?([\s\S]*?)\n?```/);
+  if (codeBlockMatch) {
+    return codeBlockMatch[1].trim();
+  }
+
+  // Return original text
+  return text.trim();
+}
+
+/**
+ * Create a simple JSON schema for OpenAI (without Zod)
+ * Useful for simple schemas where Zod might be overkill
+ * @param schema - JSON schema object
+ * @param name - Schema name
+ * @param description - Optional description
+ * @returns OpenAI response format
+ */
+export function createJsonSchema(
+  schema: Record<string, any>,
+  name: string,
+  description?: string
+): { response_format: StructuredOutputFormat } {
+  return {
+    response_format: {
+      type: 'json_schema',
+      json_schema: {
+        name,
+        description,
+        schema,
+        strict: true,
+      },
+    },
+  };
+}

@@ -1,0 +1,1 @@
+{"version":3,"file":"marketAnalysis.d.ts","sourceRoot":"","sources":["../../src/assistants/marketAnalysis.ts"],"names":[],"mappings":"AAAA;;;;GAIG;AAEH,OAAO,KAAK,EAAE,gBAAgB,EAAE,iBAAiB,EAAE,MAAM,oBAAoB,CAAC;AAI9E;;;;;;GAMG;AACH,wBAAsB,0BAA0B,CAC9C,KAAK,EAAE,gBAAgB,GAAG;IAAE,QAAQ,EAAE,MAAM,CAAC;IAAC,MAAM,EAAE,MAAM,CAAA;CAAE,GAC7D,OAAO,CAAC,iBAAiB,CAAC,CA2B5B"}

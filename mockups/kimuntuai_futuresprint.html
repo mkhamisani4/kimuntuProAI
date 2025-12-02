@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>KimuntuPro AI - Career, Business & Legal Platform</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    :root{
+      --primary:#2563eb;--primary-dark:#1e40af;--secondary:#7c3aed;
+      --success:#10b981;--danger:#ef4444;--warning:#f59e0b;
+      --dark:#1f2937;--light:#f3f4f6;--white:#ffffff;
+      --gradient:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+    }
+    body{
+      font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+      background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+      min-height:100vh;color:var(--dark);
+    }
+    /* Navigation */
+    nav{background:rgba(255,255,255,.98);backdrop-filter:blur(10px);box-shadow:0 2px 20px rgba(0,0,0,.1);position:fixed;width:100%;top:0;z-index:1000}
+    .nav-container{max-width:1400px;margin:0 auto;padding:1rem 2rem;display:flex;justify-content:space-between;align-items:center}
+    .logo{font-size:1.8rem;font-weight:bold;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;cursor:pointer}
+    .nav-menu{display:flex;gap:1rem;align-items:center;flex-wrap:wrap}
+    .nav-link{color:var(--dark);text-decoration:none;font-weight:500;transition:.3s;padding:.5rem 1rem;border-radius:8px}
+    .nav-link:hover{background:var(--light);color:var(--primary)}
+    .btn-primary{background:var(--gradient);color:#fff;padding:.75rem 1.25rem;border-radius:8px;border:none;font-weight:600;cursor:pointer;transition:.3s;text-decoration:none;display:inline-block}
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 20px rgba(0,0,0,.2)}
+    .btn-secondary{background:var(--light);color:var(--dark);padding:.75rem 1.25rem;border-radius:8px;border:none;font-weight:600;cursor:pointer;transition:.3s}
+    .btn-secondary:hover{background:#e5e7eb}
+    /* Main */
+    .main-container{margin-top:80px;padding:2rem;max-width:1400px;margin-left:auto;margin-right:auto}
+    .dashboard{display:none;animation:fadeIn .5s ease}
+    .dashboard.active{display:block}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    /* Landing */
+    .hero{text-align:center;padding:4rem 2rem;background:rgba(255,255,255,.95);border-radius:20px;margin-bottom:3rem;backdrop-filter:blur(10px)}
+    .hero h1{font-size:3rem;margin-bottom:1rem;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .hero p{font-size:1.2rem;color:#6b7280;margin-bottom:2rem;max-width:700px;margin-left:auto;margin-right:auto}
+    .feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.25rem;margin-bottom:2rem}
+    .feature-card{background:#fff;padding:1.5rem;border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,.1);transition:.3s;cursor:pointer}
+    .feature-card:hover{transform:translateY(-5px);box-shadow:0 10px 40px rgba(0,0,0,.2)}
+    .feature-icon{font-size:2rem;margin-bottom:.5rem}
+    .feature-title{font-size:1.25rem;margin-bottom:.5rem;color:var(--dark)}
+    .feature-list{list-style:none;color:#6b7280}
+    .feature-list li{padding:.4rem 0;display:flex;align-items:center}
+    .feature-list li:before{content:"✓";color:var(--success);font-weight:bold;margin-right:.5rem}
+    /* Section header card */
+    .dashboard-header{background:#fff;padding:1.25rem;border-radius:16px;margin-bottom:1.25rem;display:flex;justify-content:space-between;align-items:center}
+    .user-info{display:flex;align-items:center;gap:1rem}
+    .avatar{width:50px;height:50px;background:var(--gradient);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.25rem;font-weight:bold}
+    .dashboard-nav{background:#fff;padding:.75rem;border-radius:16px;margin-bottom:1.25rem;display:flex;gap:.75rem;overflow-x:auto}
+    .tab-btn{padding:.6rem 1rem;background:var(--light);border:none;border-radius:8px;cursor:pointer;font-weight:500;transition:.2s;white-space:nowrap}
+    .tab-btn.active{background:var(--gradient);color:#fff}
+    .tab-content{display:none;animation:fadeIn .5s ease}
+    .tab-content.active{display:block}
+    .content-card{background:#fff;padding:1.5rem;border-radius:16px;margin-bottom:1.25rem}
+    .form-group{margin-bottom:1rem}
+    .form-group label{display:block;margin-bottom:.4rem;font-weight:600;color:var(--dark)}
+    .form-control{width:100%;padding:.75rem;border:2px solid #e5e7eb;border-radius:8px;font-size:1rem;transition:.2s}
+    .form-control:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+    textarea.form-control{resize:vertical;min-height:120px}
+    .btn-group{display:flex;gap:1rem;margin-top:1rem;flex-wrap:wrap}
+    /* Templates */
+    .template-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:.75rem;margin-bottom:1rem}
+    .template-card{background:var(--light);padding:1rem;border-radius:12px;text-align:center;cursor:pointer;transition:.2s;border:2px solid transparent}
+    .template-card:hover{border-color:var(--primary);transform:translateY(-3px)}
+    .template-card.selected{border-color:var(--primary);background:rgba(37,99,235,.08)}
+    /* Steps */
+    .progress-steps{display:flex;justify-content:space-between;margin-bottom:1rem;position:relative;gap:.5rem}
+    .progress-steps::before{content:"";position:absolute;top:20px;left:0;right:0;height:2px;background:#e5e7eb;z-index:-1}
+    .step{background:#fff;padding:.5rem;text-align:center;flex:1}
+    .step-circle{width:40px;height:40px;background:#e5e7eb;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto .5rem;font-weight:bold;color:#9ca3af}
+    .step.active .step-circle{background:var(--gradient);color:#fff}
+    .step.completed .step-circle{background:var(--success);color:#fff}
+    /* Pricing */
+    .pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.25rem;margin:1rem 0}
+    .pricing-card{background:#fff;padding:1.5rem;border-radius:16px;text-align:center;position:relative;transition:.3s}
+    .pricing-card.featured{transform:scale(1.02);box-shadow:0 10px 40px rgba(0,0,0,.2)}
+    .pricing-badge{position:absolute;top:-10px;right:20px;background:var(--gradient);color:#fff;padding:.25rem .75rem;border-radius:20px;font-size:.8rem;font-weight:600}
+    .pricing-price{font-size:2.25rem;font-weight:800;margin:.75rem 0;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .pricing-features{list-style:none;margin:1rem 0}
+    .pricing-features li{padding:.6rem 0;border-bottom:1px solid #e5e7eb}
+    /* Modal */
+    .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:2000;align-items:center;justify-content:center;padding:1rem}
+    .modal.active{display:flex}
+    .modal-content{background:#fff;padding:1.25rem;border-radius:16px;max-width:520px;width:100%;max-height:90vh;overflow-y:auto;animation:slideUp .25s ease}
+    @keyframes slideUp{from{transform:translateY(50px);opacity:0}to{transform:translateY(0);opacity:1}}
+    .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}
+    .close-btn{background:none;border:none;font-size:1.5rem;cursor:pointer;color:#6b7280}
+    /* Utility */
+    .spinner{border:3px solid #f3f3f3;border-top:3px solid var(--primary);border-radius:50%;width:40px;height:40px;animation:spin 1s linear infinite;margin:20px auto}
+    @keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+    .success-message{background:#10b981;color:#fff;padding:1rem;border-radius:8px;margin:1rem 0;display:none;animation:slideDown .3s ease}
+    .success-message.show{display:block}
+    @keyframes slideDown{from{transform:translateY(-20px);opacity:0}to{transform:translateY(0);opacity:1}}
+    .pill{display:inline-block;padding:.25rem .6rem;background:rgba(37,99,235,.1);color:#1e40af;border-radius:999px;font-size:.75rem;font-weight:600}
+    .muted{color:#6b7280}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+    .video-box{background:#111;color:#e5e7eb;display:flex;align-items:center;justify-content:center;border-radius:12px;aspect-ratio:16/9;border:2px dashed #374151}
+    footer{margin:2rem 0;color:#fff;text-align:center;opacity:.9}
+    @media (max-width:768px){
+      .nav-menu{display:none}
+      .hero h1{font-size:2rem}
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav>
+    <div class="nav-container">
+      <div class="logo" onclick="showSection('home')">KimuntuPro AI</div>
+      <div class="nav-menu">
+        <a href="#" class="nav-link" onclick="showSection('home')">Home</a>
+        <a href="#" class="nav-link" onclick="showSection('features')">Features</a>
+        <a href="#" class="nav-link" onclick="showSection('pricing')">Pricing</a>
+        <a href="#" class="nav-link" onclick="showSection('about')">About</a>
+        <a href="#" class="nav-link" onclick="showSection('demo')">Demo</a>
+        <a href="#" class="btn-primary" onclick="showModal('signup')">Get Started</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Container -->
+  <div class="main-container">
+
+    <!-- Landing / Home -->
+    <div id="home-section" class="dashboard active" role="region" aria-label="Home">
+      <div class="hero">
+        <h1>AI-Powered Success Platform</h1>
+        <p>Transform your career, business, and legal needs with cutting-edge AI technology. Create CVs, draft business plans, and generate legal documents — all in one place.</p>
+        <div class="btn-group" style="justify-content:center">
+          <button class="btn-primary" onclick="showModal('signup')">Start Free Trial</button>
+          <button class="btn-secondary" onclick="showSection('demo')">Watch Demo</button>
+        </div>
+      </div>
+
+      <div class="feature-grid" aria-label="Top Features">
+        <div class="feature-card" onclick="showSection('career')">
+          <div class="feature-icon">💼</div>
+          <h3 class="feature-title">Career Development</h3>
+          <ul class="feature-list">
+            <li>AI-Powered CV Builder</li>
+            <li>Smart Job Matching</li>
+            <li>Interview Preparation</li>
+            <li>Portfolio Creation</li>
+          </ul>
+        </div>
+
+        <div class="feature-card" onclick="showSection('business')">
+          <div class="feature-icon">📈</div>
+          <h3 class="feature-title">Business Solutions</h3>
+          <ul class="feature-list">
+            <li>Business Plan Generator</li>
+            <li>Funding Opportunities</li>
+            <li>Marketing Suite</li>
+            <li>Financial Advisory</li>
+          </ul>
+        </div>
+
+        <div class="feature-card" onclick="showSection('legal')">
+          <div class="feature-icon">⚖️</div>
+          <h3 class="feature-title">Legal Assistance</h3>
+          <ul class="feature-list">
+            <li>Contract Analysis</li>
+            <li>Document Drafting</li>
+            <li>Case Evaluation</li>
+            <li>Immigration Support</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Features Section -->
+    <div id="features-section" class="dashboard" role="region" aria-label="Features">
+      <div class="content-card">
+        <h2 style="margin-bottom:.5rem">Everything you need — unified</h2>
+        <p class="muted">Career, Business, and Legal tracks with modular AI tools and exportable outputs.</p>
+      </div>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="pill" style="margin-bottom:.5rem">Career</div>
+          <h3 class="feature-title">CV & Interview</h3>
+          <p class="muted">ATS-ready resumes, role-specific drafts, and mock interviews with instant feedback.</p>
+        </div>
+        <div class="feature-card">
+          <div class="pill" style="margin-bottom:.5rem">Business</div>
+          <h3 class="feature-title">Plans & Pitch</h3>
+          <p class="muted">Generate financials, competitor analysis, and export investor-ready pitch decks.</p>
+        </div>
+        <div class="feature-card">
+          <div class="pill" style="margin-bottom:.5rem">Legal</div>
+          <h3 class="feature-title">Documents & Review</h3>
+          <p class="muted">Draft contracts, analyze clauses, and prepare filings for US & Canada.</p>
+        </div>
+        <div class="feature-card">
+          <div class="pill" style="margin-bottom:.5rem">Compliance</div>
+          <h3 class="feature-title">Privacy-first</h3>
+          <p class="muted">Encryption, access controls, and GDPR/CCPA-aligned data handling.</p>
+        </div>
+      </div>
+      <div class="btn-group"><button class="btn-primary" onclick="showSection('pricing')">See Pricing</button></div>
+    </div>
+
+    <!-- Pricing Section -->
+    <div id="pricing-section" class="dashboard" role="region" aria-label="Pricing">
+      <div class="content-card">
+        <h2>Simple pricing</h2>
+        <p class="muted">Start free — upgrade anytime. No credit card required for trial.</p>
+        <div class="pricing-grid">
+          <div class="pricing-card">
+            <h4>Starter</h4>
+            <div class="pricing-price">$0</div>
+            <ul class="pricing-features">
+              <li>1 CV template</li>
+              <li>Basic business plan</li>
+              <li>1 legal doc / month</li>
+            </ul>
+            <button class="btn-secondary" onclick="openPlan('starter')">Choose Starter</button>
+          </div>
+          <div class="pricing-card featured">
+            <div class="pricing-badge">Most Popular</div>
+            <h4>Plus</h4>
+            <div class="pricing-price">$19/mo</div>
+            <ul class="pricing-features">
+              <li>Unlimited CVs</li>
+              <li>Pro business plans + pitch deck</li>
+              <li>Contract analyzer</li>
+              <li>Priority support</li>
+            </ul>
+            <button class="btn-primary" onclick="openPlan('plus')">Choose Plus</button>
+          </div>
+          <div class="pricing-card">
+            <h4>Business</h4>
+            <div class="pricing-price">$49/mo</div>
+            <ul class="pricing-features">
+              <li>Team seats (5)</li>
+              <li>Advanced financials</li>
+              <li>Legal workflows (US/CA)</li>
+              <li>SLA support</li>
+            </ul>
+            <button class="btn-secondary" onclick="openPlan('business')">Choose Business</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- About Section -->
+    <div id="about-section" class="dashboard" role="region" aria-label="About">
+      <div class="content-card">
+        <h2>About KimuntuPro AI</h2>
+        <p class="muted" style="margin-top:.5rem">
+          KimuntuPro AI unifies Career tools (CVs, job matching, interviews), Business tools (plans, marketing, finance), and Legal assistance (document drafting, contract review, dispute prep) for users in Canada and the United States.
+          It emphasizes privacy, security, and clear disclaimers that AI outputs do not replace professional advice. (Summary based on your product brief, privacy policy, ToS, and EULA.)
+        </p>
+        <div class="grid-2" style="margin-top:1rem">
+          <div class="content-card">
+            <h3>Security & Compliance</h3>
+            <ul class="feature-list">
+              <li>TLS in transit & AES-256 at rest</li>
+              <li>Access controls & monitoring</li>
+              <li>GDPR / CCPA aligned</li>
+            </ul>
+          </div>
+          <div class="content-card">
+            <h3>Legal Note</h3>
+            <p class="muted">We are not a law firm. AI outputs are for informational purposes and must be reviewed before use.</p>
+          </div>
+        </div>
+        <div class="btn-group">
+          <button class="btn-primary" onclick="showSection('demo')">View Demo</button>
+          <button class="btn-secondary" onclick="showSection('home')">Back to Home</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Demo Section -->
+    <div id="demo-section" class="dashboard" role="region" aria-label="Demo">
+      <div class="content-card">
+        <h2>Quick Walkthrough</h2>
+        <div class="video-box" aria-label="Demo video placeholder">Demo Video Placeholder (Embed later)</div>
+        <p class="muted" style="margin-top:1rem">This is a front-end demo. Hook up your API / n8n webhooks later to make actions persistent.</p>
+        <div class="btn-group">
+          <button class="btn-primary" onclick="showSection('career')">Try Career Flow</button>
+          <button class="btn-secondary" onclick="showSection('legal')">Try Legal Flow</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Career Dashboard -->
+    <div id="career-section" class="dashboard" role="region" aria-label="Career">
+      <div class="dashboard-header">
+        <div class="user-info">
+          <div class="avatar">CR</div>
+          <div>
+            <h2>Career Dashboard</h2>
+            <p class="muted">Build your professional future</p>
+          </div>
+        </div>
+        <button class="btn-primary" onclick="showSection('home')">Back to Home</button>
+      </div>
+
+      <div class="dashboard-nav">
+        <button class="tab-btn active" onclick="showTab('cv-builder', this)">CV Builder</button>
+        <button class="tab-btn" onclick="showTab('job-matching', this)">Job Matching</button>
+        <button class="tab-btn" onclick="showTab('interview-prep', this)">Interview Prep</button>
+        <button class="tab-btn" onclick="showTab('portfolio', this)">Portfolio</button>
+      </div>
+
+      <!-- CV Builder Tab -->
+      <div id="cv-builder" class="tab-content active">
+        <div class="content-card">
+          <h3>AI-Powered CV Builder</h3>
+          <p class="muted" style="margin-bottom:1rem">Create a professional CV in minutes with our AI assistance</p>
+
+          <div class="progress-steps" id="cv-steps">
+            <div class="step active"><div class="step-circle">1</div><span>Personal</span></div>
+            <div class="step"><div class="step-circle">2</div><span>Experience</span></div>
+            <div class="step"><div class="step-circle">3</div><span>Education</span></div>
+            <div class="step"><div class="step-circle">4</div><span>Skills</span></div>
+            <div class="step"><div class="step-circle">5</div><span>Review</span></div>
+          </div>
+
+          <form id="cv-form">
+            <div class="form-group"><label>Full Name</label><input type="text" class="form-control" placeholder="John Doe" required></div>
+            <div class="form-group"><label>Professional Title</label><input type="text" class="form-control" placeholder="Senior Software Engineer"></div>
+            <div class="form-group grid-2">
+              <div><label>Email</label><input type="email" class="form-control" placeholder="john@example.com"></div>
+              <div><label>Phone</label><input type="tel" class="form-control" placeholder="+1 (555) 123-4567"></div>
+            </div>
+            <div class="form-group"><label>Professional Summary</label><textarea class="form-control" placeholder="Brief overview of your experience and skills..."></textarea></div>
+            <div class="btn-group">
+              <button type="button" class="btn-secondary" onclick="prevCvStep()">Previous</button>
+              <button type="button" class="btn-primary" onclick="nextCvStep()">Next Step</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="content-card">
+          <h4>Choose a Template</h4>
+          <div class="template-grid" id="cv-templates">
+            <div class="template-card selected" data-template="modern"><div style="font-size:2rem;margin-bottom:.25rem">📄</div><span>Modern</span></div>
+            <div class="template-card" data-template="professional"><div style="font-size:2rem;margin-bottom:.25rem">📋</div><span>Professional</span></div>
+            <div class="template-card" data-template="creative"><div style="font-size:2rem;margin-bottom:.25rem">📑</div><span>Creative</span></div>
+            <div class="template-card" data-template="executive"><div style="font-size:2rem;margin-bottom:.25rem">📃</div><span>Executive</span></div>
+          </div>
+          <div class="btn-group">
+            <button class="btn-primary" onclick="fakeGenerateCV()">Generate CV</button>
+            <button class="btn-secondary" onclick="alert('Export will connect to backend later.')">Export PDF</button>
+          </div>
+          <div class="success-message" id="cv-success"><strong>Done!</strong> Your CV draft is ready (demo).</div>
+        </div>
+      </div>
+
+      <!-- Job Matching Tab -->
+      <div id="job-matching" class="tab-content">
+        <div class="content-card">
+          <h3>Smart Job Matching</h3>
+          <p class="muted" style="margin-bottom:1rem">AI-powered job recommendations based on your profile</p>
+          <div class="form-group"><label>Job Title / Keywords</label><input type="text" id="job-key" class="form-control" placeholder="e.g., Software Engineer, Marketing Manager"></div>
+          <div class="form-group grid-2">
+            <div><label>Location</label><input type="text" id="job-loc" class="form-control" placeholder="City, State or Remote"></div>
+            <div><label>Salary Range</label>
+              <select id="job-sal" class="form-control">
+                <option>$40,000 - $60,000</option><option>$60,000 - $80,000</option>
+                <option>$80,000 - $100,000</option><option>$100,000+</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn-primary" onclick="findJobs()">Find Matching Jobs</button>
+          <div class="success-message" id="job-success"><strong>Success!</strong> Found <span id="job-count">47</span> matching jobs (demo).</div>
+        </div>
+      </div>
+
+      <!-- Interview Prep Tab -->
+      <div id="interview-prep" class="tab-content">
+        <div class="content-card">
+          <h3>AI Interview Preparation</h3>
+          <p class="muted" style="margin-bottom:1rem">Practice with AI and get real-time feedback</p>
+          <div class="feature-grid" style="grid-template-columns:1fr 1fr">
+            <div style="background:var(--light);padding:1rem;border-radius:12px">
+              <h4>Mock Interview</h4>
+              <p class="muted" style="margin:.5rem 0">Practice with AI interviewer</p>
+              <button class="btn-primary" onclick="alert('Starting mock interview (demo)')">Start Session</button>
+            </div>
+            <div style="background:var(--light);padding:1rem;border-radius:12px">
+              <h4>Common Questions</h4>
+              <p class="muted" style="margin:.5rem 0">Review top interview questions</p>
+              <button class="btn-secondary" onclick="alert('Showing Q&A bank (demo)')">View Questions</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Portfolio Tab -->
+      <div id="portfolio" class="tab-content">
+        <div class="content-card">
+          <h3>Professional Portfolio</h3>
+          <p class="muted" style="margin-bottom:1rem">Showcase your work and achievements</p>
+          <button class="btn-primary" onclick="alert('Generating portfolio site (demo)')">Create Portfolio Website</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Business Dashboard -->
+    <div id="business-section" class="dashboard" role="region" aria-label="Business">
+      <div class="dashboard-header">
+        <div class="user-info">
+          <div class="avatar">BS</div>
+          <div>
+            <h2>Business Solutions</h2>
+            <p class="muted">Grow your business with AI</p>
+          </div>
+        </div>
+        <button class="btn-primary" onclick="showSection('home')">Back to Home</button>
+      </div>
+
+      <div class="dashboard-nav">
+        <button class="tab-btn active" onclick="showTab('business-plan', this)">Business Plan</button>
+        <button class="tab-btn" onclick="showTab('funding', this)">Funding</button>
+        <button class="tab-btn" onclick="showTab('marketing', this)">Marketing</button>
+        <button class="tab-btn" onclick="showTab('financial', this)">Financial</button>
+      </div>
+
+      <!-- Business Plan Tab -->
+      <div id="business-plan" class="tab-content active">
+        <div class="content-card">
+          <h3>Business Plan Generator</h3>
+          <p class="muted" style="margin-bottom:1rem">Create comprehensive plans with AI assistance</p>
+          <div class="pricing-grid">
+            <div class="pricing-card">
+              <h4>Basic Plan</h4>
+              <div class="pricing-price">$49</div>
+              <ul class="pricing-features">
+                <li>Executive Summary</li><li>Market Overview</li><li>Basic Financials</li><li>PDF Export</li>
+              </ul>
+              <button class="btn-secondary" onclick="alert('Basic plan selected (demo)')">Choose Basic</button>
+            </div>
+            <div class="pricing-card featured">
+              <div class="pricing-badge">Most Popular</div>
+              <h4>Professional</h4>
+              <div class="pricing-price">$149</div>
+              <ul class="pricing-features">
+                <li>Everything in Basic</li><li>Competitor Analysis</li><li>Marketing Strategy</li><li>5-Year Model</li><li>Pitch Deck</li>
+              </ul>
+              <button class="btn-primary" onclick="alert('Professional plan selected (demo)')">Choose Professional</button>
+            </div>
+            <div class="pricing-card">
+              <h4>Enterprise</h4>
+              <div class="pricing-price">$299</div>
+              <ul class="pricing-features">
+                <li>Everything in Professional</li><li>Website Builder</li><li>SEO Strategy</li><li>Custom Domain</li><li>1-on-1 Consultation</li>
+              </ul>
+              <button class="btn-secondary" onclick="alert('Enterprise plan selected (demo)')">Choose Enterprise</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Funding Tab -->
+      <div id="funding" class="tab-content">
+        <div class="content-card">
+          <h3>Funding Opportunities</h3>
+          <p class="muted">AI matches you with grants, investors, and funding sources</p>
+          <div class="btn-group">
+            <button class="btn-primary" onclick="alert('Scanning sources (demo)')">Scan Funding Database</button>
+            <button class="btn-secondary" onclick="alert('Export CSV (demo)')">Export Matches</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Marketing Tab -->
+      <div id="marketing" class="tab-content">
+        <div class="content-card">
+          <h3>AI Marketing Suite</h3>
+          <p class="muted">Generate content and strategies</p>
+          <div class="btn-group">
+            <button class="btn-primary" onclick="alert('Creating campaign (demo)')">Generate Campaign</button>
+            <button class="btn-secondary" onclick="alert('SEO plan (demo)')">SEO Plan</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Financial Tab -->
+      <div id="financial" class="tab-content">
+        <div class="content-card">
+          <h3>Financial Advisory</h3>
+          <p class="muted">AI-powered planning and analysis</p>
+          <button class="btn-primary" onclick="alert('Building forecast (demo)')">Build Forecast</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Legal Dashboard -->
+    <div id="legal-section" class="dashboard" role="region" aria-label="Legal">
+      <div class="dashboard-header">
+        <div class="user-info">
+          <div class="avatar">LA</div>
+          <div>
+            <h2>Legal Assistance</h2>
+            <p class="muted">AI-Powered Legal Support for Canada & USA</p>
+          </div>
+        </div>
+        <button class="btn-primary" onclick="showSection('home')">Back to Home</button>
+      </div>
+
+      <div class="dashboard-nav">
+        <button class="tab-btn active" onclick="showTab('legal-draft', this)">Document Drafting</button>
+        <button class="tab-btn" onclick="showTab('legal-contracts', this)">Contract Analyzer</button>
+        <button class="tab-btn" onclick="showTab('legal-immigration', this)">Immigration Support</button>
+        <button class="tab-btn" onclick="showTab('legal-disputes', this)">Dispute Prep</button>
+      </div>
+
+      <!-- Legal: Document Drafting -->
+      <div id="legal-draft" class="tab-content active">
+        <div class="content-card">
+          <h3>Draft Legal Documents</h3>
+          <p class="muted">Generate drafts for family, business, employment, and civil matters.</p>
+          <div class="form-group grid-2">
+            <div>
+              <label>Jurisdiction</label>
+              <select id="legal-juris" class="form-control">
+                <option>United States</option><option>Canada</option>
+              </select>
+            </div>
+            <div>
+              <label>Document Type</label>
+              <select id="legal-doc-type" class="form-control">
+                <option>Non-Disclosure Agreement (NDA)</option>
+                <option>Employment Contract</option>
+                <option>Lease Agreement</option>
+                <option>Demand Letter</option>
+                <option>Separation Agreement</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group"><label>Key Details</label><textarea id="legal-notes" class="form-control" placeholder="Parties, dates, terms, locations, amounts..."></textarea></div>
+          <div class="btn-group">
+            <button class="btn-primary" onclick="fakeDraft()">Generate Draft</button>
+            <button class="btn-secondary" onclick="alert('Download will connect later')">Download</button>
+          </div>
+          <div class="success-message" id="legal-draft-success"><strong>Draft ready!</strong> Review your generated document (demo).</div>
+          <p class="muted" style="margin-top:.5rem"><em>Disclaimer:</em> AI outputs are for informational purposes and do not replace legal counsel.</p>
+        </div>
+      </div>
+
+      <!-- Legal: Contract Analyzer -->
+      <div id="legal-contracts" class="tab-content">
+        <div class="content-card">
+          <h3>Contract Analysis</h3>
+          <p class="muted">Paste contract text to detect risky clauses and missing terms.</p>
+          <div class="form-group"><label>Contract Text</label><textarea id="contract-text" class="form-control" placeholder="Paste contract terms here..."></textarea></div>
+          <div class="btn-group">
+            <button class="btn-primary" onclick="fakeAnalyze()">Analyze</button>
+            <button class="btn-secondary" onclick="document.getElementById('contract-text').value=''">Clear</button>
+          </div>
+          <div class="success-message" id="legal-analyze-success"><strong>Analysis complete.</strong> Found 3 potential risks (demo).</div>
+        </div>
+      </div>
+
+      <!-- Legal: Immigration -->
+      <div id="legal-immigration" class="tab-content">
+        <div class="content-card">
+          <h3>Immigration Support</h3>
+          <p class="muted">Get guidance for visas, permits, and PR pathways.</p>
+          <div class="form-group grid-2">
+            <div>
+              <label>Country</label>
+              <select class="form-control" id="immi-country"><option>United States</option><option>Canada</option></select>
+            </div>
+            <div>
+              <label>Program</label>
+              <select class="form-control" id="immi-program"><option>Student</option><option>Work Permit</option><option>PR Pathway</option><option>Asylum / Refugee</option></select>
+            </div>
+          </div>
+          <div class="btn-group"><button class="btn-primary" onclick="fakeImmi()">Build Checklist</button></div>
+          <div class="success-message" id="legal-imm-success"><strong>Checklist ready!</strong> Download your steps & documents list (demo).</div>
+        </div>
+      </div>
+
+      <!-- Legal: Dispute Prep -->
+      <div id="legal-disputes" class="tab-content">
+        <div class="content-card">
+          <h3>Dispute Preparation</h3>
+          <p class="muted">Small claims, consumer complaints, and mediation prep.</p>
+          <div class="form-group"><label>Summary</label><textarea id="dispute-notes" class="form-control" placeholder="Describe your dispute briefly..."></textarea></div>
+          <button class="btn-primary" onclick="fakeDispute()">Prepare Packet</button>
+          <div class="success-message" id="legal-dispute-success"><strong>Packet created.</strong> Export forms & letters (demo).</div>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      © <span id="year"></span> KimuntuPro AI — All rights reserved.
+    </footer>
+  </div>
+
+  <!-- MODALS -->
+  <div id="signup-modal" class="modal" aria-hidden="true">
+    <div class="modal-content" role="dialog" aria-modal="true" aria-label="Sign up">
+      <div class="modal-header">
+        <h3>Create your account</h3>
+        <button class="close-btn" onclick="closeModal('signup')">&times;</button>
+      </div>
+      <div class="form-group"><label>Full Name</label><input id="su-name" class="form-control" placeholder="Your name"/></div>
+      <div class="form-group grid-2">
+        <div><label>Email</label><input id="su-email" type="email" class="form-control" placeholder="you@example.com"/></div>
+        <div><label>Password</label><input id="su-pass" type="password" class="form-control" placeholder="••••••••"/></div>
+      </div>
+      <div class="form-group">
+        <label>Plan</label>
+        <select id="su-plan" class="form-control">
+          <option value="starter">Starter (Free)</option>
+          <option value="plus">Plus ($19/mo)</option>
+          <option value="business">Business ($49/mo)</option>
+        </select>
+      </div>
+      <div class="btn-group">
+        <button class="btn-primary" onclick="completeSignup()">Create Account</button>
+        <button class="btn-secondary" onclick="showModal('login')">I already have an account</button>
+      </div>
+      <div class="success-message" id="signup-success"><strong>Welcome!</strong> Account created (demo). You’re signed in.</div>
+    </div>
+  </div>
+
+  <div id="login-modal" class="modal" aria-hidden="true">
+    <div class="modal-content" role="dialog" aria-modal="true" aria-label="Log in">
+      <div class="modal-header">
+        <h3>Log in</h3>
+        <button class="close-btn" onclick="closeModal('login')">&times;</button>
+      </div>
+      <div class="form-group"><label>Email</label><input id="li-email" type="email" class="form-control" placeholder="you@example.com"/></div>
+      <div class="form-group"><label>Password</label><input id="li-pass" type="password" class="form-control" placeholder="••••••••"/></div>
+      <div class="btn-group">
+        <button class="btn-primary" onclick="completeLogin()">Log in</button>
+        <button class="btn-secondary" onclick="showModal('signup')">Create account</button>
+      </div>
+      <div class="success-message" id="login-success"><strong>Success!</strong> You’re logged in (demo).</div>
+    </div>
+  </div>
+
+  <script>
+    // Section switching
+    function showSection(key){
+      const map = {
+        home:'home-section', features:'features-section',
+        pricing:'pricing-section', about:'about-section',
+        demo:'demo-section', career:'career-section',
+        business:'business-section', legal:'legal-section'
+      };
+      const id = map[key] || 'home-section';
+      document.querySelectorAll('.dashboard').forEach(d=>d.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+
+    // Tabs switching
+    function showTab(id, el){
+      const parent = el?.closest('.dashboard');
+      if (!parent) return;
+      parent.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+      if (el) el.classList.add('active');
+      parent.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+      const target = parent.querySelector('#'+id);
+      if (target) target.classList.add('active');
+    }
+
+    // Templates selection
+    document.getElementById('cv-templates').addEventListener('click', (e)=>{
+      const card = e.target.closest('.template-card');
+      if (!card) return;
+      document.querySelectorAll('#cv-templates .template-card').forEach(c=>c.classList.remove('selected'));
+      card.classList.add('selected');
+    });
+
+    // CV steps
+    let cvStep = 1;
+    function renderCvSteps(){
+      const steps = document.querySelectorAll('#cv-steps .step');
+      steps.forEach((s,i)=>{
+        s.classList.toggle('active', (i+1)===cvStep);
+        s.classList.toggle('completed', (i+1)<cvStep);
+      });
+    }
+    function nextCvStep(){cvStep=Math.min(cvStep+1,5);renderCvSteps();}
+    function prevCvStep(){cvStep=Math.max(cvStep-1,1);renderCvSteps();}
+    function fakeGenerateCV(){
+      document.getElementById('cv-success').classList.add('show');
+      setTimeout(()=>document.getElementById('cv-success').classList.remove('show'), 2500);
+    }
+
+    // Job matching
+    function findJobs(){
+      const count = Math.floor(20 + Math.random()*50);
+      document.getElementById('job-count').textContent = count;
+      document.getElementById('job-success').classList.add('show');
+      setTimeout(()=>document.getElementById('job-success').classList.remove('show'), 2500);
+    }
+
+    // Legal demos
+    function fakeDraft(){
+      document.getElementById('legal-draft-success').classList.add('show');
+      setTimeout(()=>document.getElementById('legal-draft-success').classList.remove('show'), 2500);
+    }
+    function fakeAnalyze(){
+      document.getElementById('legal-analyze-success').classList.add('show');
+      setTimeout(()=>document.getElementById('legal-analyze-success').classList.remove('show'), 2500);
+    }
+    function fakeImmi(){
+      document.getElementById('legal-imm-success').classList.add('show');
+      setTimeout(()=>document.getElementById('legal-imm-success').classList.remove('show'), 2500);
+    }
+    function fakeDispute(){
+      document.getElementById('legal-dispute-success').classList.add('show');
+      setTimeout(()=>document.getElementById('legal-dispute-success').classList.remove('show'), 2500);
+    }
+
+    // Pricing plan -> signup
+    function openPlan(plan){
+      showModal('signup');
+      document.getElementById('su-plan').value = plan;
+    }
+
+    // Modals
+    function showModal(which){
+      document.getElementById(which+'-modal').classList.add('active');
+      document.getElementById(which+'-modal').setAttribute('aria-hidden','false');
+    }
+    function closeModal(which){
+      document.getElementById(which+'-modal').classList.remove('active');
+      document.getElementById(which+'-modal').setAttribute('aria-hidden','true');
+    }
+    window.addEventListener('keydown', (e)=>{
+      if(e.key==='Escape'){
+        document.querySelectorAll('.modal.active').forEach(m=>m.classList.remove('active'));
+      }
+    });
+
+    // Auth (demo only)
+    function completeSignup(){
+      const name = document.getElementById('su-name').value.trim();
+      const email = document.getElementById('su-email').value.trim();
+      const pass = document.getElementById('su-pass').value.trim();
+      if(!name || !email || !pass){alert('Please fill all fields');return;}
+      localStorage.setItem('kp_user', JSON.stringify({name,email,plan:document.getElementById('su-plan').value}));
+      document.getElementById('signup-success').classList.add('show');
+      setTimeout(()=>{
+        document.getElementById('signup-success').classList.remove('show');
+        closeModal('signup');
+        updateUserBadge();
+      }, 1600);
+    }
+    function completeLogin(){
+      const email = document.getElementById('li-email').value.trim();
+      const pass = document.getElementById('li-pass').value.trim();
+      if(!email || !pass){alert('Enter email & password');return;}
+      // demo: accept anything, set a fake user
+      localStorage.setItem('kp_user', JSON.stringify({name:email.split('@')[0],email,plan:'plus'}));
+      document.getElementById('login-success').classList.add('show');
+      setTimeout(()=>{
+        document.getElementById('login-success').classList.remove('show');
+        closeModal('login');
+        updateUserBadge();
+      }, 1200);
+    }
+    function updateUserBadge(){
+      const u = JSON.parse(localStorage.getItem('kp_user')||'null');
+      document.querySelectorAll('.avatar').forEach(a=>{
+        if(u?.name){a.textContent = u.name.slice(0,2).toUpperCase();}
+      });
+    }
+
+    // Minor init
+    document.getElementById('year').textContent = new Date().getFullYear();
+    updateUserBadge();
+  </script>
+</body>
+</html>

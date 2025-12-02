@@ -1,0 +1,42 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install)",
+      "Bash(npm run build:*)",
+      "Bash(npm run dev:*)",
+      "Bash(npm install:*)",
+      "Bash(git checkout:*)",
+      "Bash(git add:*)",
+      "Bash(git ls-tree:*)",
+      "Bash(cat:*)",
+      "Bash(npm ls:*)",
+      "Bash(npm run typecheck:*)",
+      "Bash(npm run test:ui:*)",
+      "Bash(npm run test:*)",
+      "Bash(npx playwright test:*)",
+      "Bash(npm test:*)",
+      "Bash(npx vitest:*)",
+      "Bash(curl:*)",
+      "Bash(python -m json.tool:*)",
+      "Bash(psql:*)",
+      "Bash(dir packagesai-corenode_modulestavily)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(rm:*)",
+      "Bash(npm run build:packages:*)",
+      "Bash(npx tsc:*)",
+      "Bash(firebase --version:*)",
+      "Bash(firebase login:*)",
+      "Bash(firebase projects:list:*)",
+      "Bash(firebase deploy:*)",
+      "Bash(node test-css-sanitize.mjs:*)",
+      "Bash(node test-real-sanitize.mjs:*)",
+      "Bash(npm uninstall:*)",
+      "WebSearch",
+      "Bash(mkdir:*)",
+      "Bash(test:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

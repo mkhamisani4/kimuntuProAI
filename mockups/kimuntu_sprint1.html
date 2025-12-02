@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>KimuntuPro AI - Career, Business & Legal Platform</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    :root{
+      --primary:#0369a1;--primary-dark:#075985;--secondary:#0284c7;
+      --success:#10b981;--danger:#ef4444;--warning:#f59e0b;
+      --dark:#1f2937;--light:#cff4fc;--white:#ffffff;
+      --gradient:linear-gradient(135deg,#0284c7 0%,#0369a1 100%);
+    }
+    html{scroll-behavior:smooth}
+    body{
+      font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+      background:linear-gradient(135deg,#0284c7 0%,#0369a1 100%);
+      min-height:100vh;color:var(--dark);
+    }
+
+    /* Layout */
+    .container{max-width:1200px;margin:0 auto;padding:0 1.25rem}
+    section{padding:4rem 0}
+    .card{background:#fff;border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,.1)}
+
+    /* Navigation */
+    nav{background:rgba(255,255,255,.98);backdrop-filter:blur(10px);box-shadow:0 2px 20px rgba(0,0,0,.1);position:sticky;top:0;z-index:1000}
+    .nav-inner{display:flex;justify-content:space-between;align-items:center;padding:1rem 0}
+    .logo{font-size:1.25rem;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-decoration:none}
+    .nav-menu{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
+    .nav-link{color:var(--dark);text-decoration:none;font-weight:600;transition:.2s;padding:.5rem .75rem;border-radius:8px}
+    .nav-link:hover{background:var(--light);color:var(--primary)}
+    .btn{display:inline-block;border:none;border-radius:10px;font-weight:700;cursor:pointer;text-decoration:none;transition:.2s}
+    .btn-primary{background:var(--gradient);color:#fff;padding:.75rem 1rem}
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 20px rgba(0,0,0,.2)}
+    .btn-secondary{background:var(--light);color:var(--dark);padding:.75rem 1rem}
+    .btn-secondary:hover{background:#e5e7eb}
+
+    /* Hero */
+    .hero{padding:5rem 0}
+    .hero .wrap{display:grid;gap:1.5rem}
+    .hero-card{padding:2rem;text-align:center}
+    .hero h1{font-size:2.5rem;line-height:1.15;margin-bottom:.5rem;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .hero p{font-size:1.125rem;color:#374151;max-width:800px;margin:0 auto 1rem}
+    .btn-group{display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap;margin-top:.5rem}
+
+    /* Features */
+    .feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin-top:1rem}
+    .feature-card{padding:1.25rem}
+    .feature-icon{font-size:1.5rem}
+    .feature-title{font-weight:800;margin:.5rem 0}
+    .muted{color:#6b7280}
+    .feature-list{list-style:none;margin-top:.5rem;color:#374151}
+    .feature-list li{display:flex;gap:.5rem;align-items:flex-start;margin:.375rem 0}
+    .feature-list li::before{content:"✓";color:var(--success);font-weight:800}
+
+    /* Pricing */
+    .pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;margin-top:1rem}
+    .pricing-card{padding:1.5rem;text-align:center;position:relative}
+    .pricing-badge{position:absolute;top:-10px;right:20px;background:var(--gradient);color:#fff;padding:.25rem .6rem;border-radius:999px;font-size:.75rem;font-weight:800}
+    .pricing-price{font-size:2rem;font-weight:900;margin:.5rem 0;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .pricing-features{list-style:none;margin-top:.5rem}
+    .pricing-features li{padding:.5rem 0;border-bottom:1px solid #e5e7eb}
+
+    /* About */
+    .about-grid{display:grid;grid-template-columns:1fr;gap:1rem;margin-top:1rem}
+    @media (min-width:900px){.about-grid{grid-template-columns:1fr 1fr}}
+
+    /* Footer */
+    footer{color:#fff;text-align:center;padding:2rem 0;opacity:.9}
+  </style>
+</head>
+<body>
+  <!-- NAV -->
+  <nav>
+    <div class="container nav-inner">
+      <a href="#home" class="logo">KimuntuPro AI</a>
+      <div class="nav-menu">
+        <a href="#personal" class="nav-link">Personal</a>
+        <a href="#legal" class="nav-link">Legal</a>
+        <a href="#business" class="nav-link">Business</a>
+        <a href="#pricing" class="nav-link">Pricing</a>
+        <a href="#about" class="nav-link">About</a>
+        <a href="#pricing" class="btn btn-primary">Get Started</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <header id="home" class="hero">
+    <div class="container wrap">
+      <div class="card hero-card">
+        <h1>AI-Powered Success Platform</h1>
+        <p>Start with the essentials. Draft CVs, outline business plans, and generate basic legal document templates — all from one simple interface.</p>
+        <div class="btn-group">
+          <a href="#pricing" class="btn btn-primary">View Plans</a>
+          <a href="#personal" class="btn btn-secondary">Explore Services</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- FEATURES -->
+  <section id="features">
+    <div class="container">
+      <div class="card" style="padding:1.5rem">
+        <h2 style="margin-bottom:.25rem">Core Features</h2>
+        <p class="muted">Focused, basic flows to validate value and collect feedback.</p>
+
+        <div class="feature-grid" aria-label="Top Features">
+          <div class="card feature-card">
+            <h3 class="feature-title">Career Basics</h3>
+            <ul class="feature-list">
+              <li>Simple CV outline generator</li>
+              <li>One-page resume template (PDF export next)</li>
+              <li>Starter interview Q&A list</li>
+            </ul>
+          </div>
+          <div class="card feature-card">
+            <h3 class="feature-title">Business Basics</h3>
+            <ul class="feature-list">
+              <li>Business plan outline</li>
+              <li>Problem, solution & market sections</li>
+              <li>Light competitor checklist</li>
+            </ul>
+          </div>
+          <div class="card feature-card">
+            <h3 class="feature-title">Legal Basics</h3>
+            <ul class="feature-list">
+              <li>Common template scaffolds (e.g., NDA)</li>
+              <li>Key clause checklist</li>
+              <li>Jurisdiction note (US/CA)</li>
+            </ul>
+          </div>
+          <div class="card feature-card">
+            <h3 class="feature-title">Privacy-First</h3>
+            <ul class="feature-list">
+              <li>No sign-up required to preview</li>
+              <li>Plain-text outputs (copy/paste)</li>
+              <li>Clear AI disclaimer</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="btn-group" style="margin-top:.75rem">
+          <a href="#pricing" class="btn btn-primary">Join Pilot</a>
+          <a href="#about" class="btn btn-secondary">Learn More</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section id="pricing">
+    <div class="container">
+      <div class="card" style="padding:1.5rem">
+        <h2>Simple pricing</h2>
+        <p class="muted">Validate with a free preview. Upgrade later.</p>
+
+        <div class="pricing-grid">
+          <div class="card pricing-card">
+            <h4>Starter</h4>
+            <div class="pricing-price">$0</div>
+            <ul class="pricing-features">
+              <li>Preview templates</li>
+              <li>Basic outlines</li>
+              <li>Copy to clipboard</li>
+            </ul>
+            <a href="#about" class="btn btn-secondary" aria-label="Choose Starter">Choose Starter</a>
+          </div>
+
+          <div class="card pricing-card" style="transform:scale(1.02);box-shadow:0 10px 40px rgba(0,0,0,.2)">
+            <div class="pricing-badge">Most Popular</div>
+            <h4>Plus</h4>
+            <div class="pricing-price">$19/mo</div>
+            <ul class="pricing-features">
+              <li>Editable sections</li>
+              <li>Save & revisit (next)</li>
+              <li>Email export (next)</li>
+            </ul>
+            <a href="#about" class="btn btn-primary" aria-label="Choose Plus">Choose Plus</a>
+          </div>
+
+          <div class="card pricing-card">
+            <h4>Business</h4>
+            <div class="pricing-price">$49/mo</div>
+            <ul class="pricing-features">
+              <li>Team seats (coming)</li>
+              <li>Legal workflows (coming)</li>
+              <li>Priority support</li>
+            </ul>
+            <a href="#about" class="btn btn-secondary" aria-label="Choose Business">Choose Business</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <div class="container">
+      <div class="card" style="padding:2rem">
+        <h2 style="text-align:center;margin-bottom:1rem">Why KimuntuPro AI?</h2>
+        <p style="font-size:1.125rem;color:#374151;text-align:center;max-width:600px;margin:0 auto 2rem">
+          We believe everyone deserves access to professional-grade tools for career growth, business development, and legal clarity—without the complexity or high costs.
+        </p>
+
+        <div class="about-grid" style="margin-top:2rem;gap:1.5rem">
+          <div class="card" style="padding:1.5rem;text-align:center">
+            <h3 style="margin-bottom:0.5rem">Our Mission</h3>
+            <p class="muted">
+              Democratizing access to AI-powered professional tools across career development, business planning, and legal document preparation for North American markets.
+            </p>
+          </div>
+          
+          <div class="card" style="padding:1.5rem;text-align:center">
+            <h3 style="margin-bottom:0.5rem">Privacy First</h3>
+            <p class="muted">
+              Your data stays yours. We use enterprise-grade security with no unnecessary data collection. Preview tools work without signup, and we're GDPR/CCPA compliant.
+            </p>
+          </div>
+        </div>
+
+        <div class="card" style="padding:1.5rem;margin-top:1.5rem;background:#fef3c7;border-left:4px solid var(--warning)">
+          <h4 style="margin-bottom:0.5rem;color:#92400e">Important Disclaimer</h4>
+          <p style="color:#92400e;margin:0">
+            KimuntuPro AI is not a law firm and does not provide legal advice. All content is for informational purposes only and should be reviewed by qualified professionals before use.
+          </p>
+        </div>
+
+        <div class="btn-group" style="margin-top:2rem">
+          <a href="#pricing" class="btn btn-primary">Start Your Journey</a>
+          <a href="#personal" class="btn btn-secondary">Explore Tools</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    © <span id="year"></span> KimuntuPro AI — All rights reserved.
+  </footer>
+
+  <script>
+    // Dynamic year only
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
