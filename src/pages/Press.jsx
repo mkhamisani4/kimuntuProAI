@@ -1,6 +1,8 @@
+'use client';
+
 import React from 'react';
-import PageWrapper from '../components/PageWrapper';
-import { useTheme } from '../context/ThemeContext';
+import PageWrapper from '@/components/PageWrapper';
+import { useTheme } from '@/components/providers/ThemeProvider';
 import { Download, Image, FileText, Newspaper } from 'lucide-react';
 
 const Press = () => {

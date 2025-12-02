@@ -1,6 +1,8 @@
-export default {
+module.exports = {
   content: [
-    "./index.html",
+    "./app/**/*.{js,jsx}",
+    "./components/**/*.{js,jsx}",
+    "./lib/**/*.{js,jsx}",
     "./src/**/*.{js,jsx}",
   ],
   darkMode: 'class',

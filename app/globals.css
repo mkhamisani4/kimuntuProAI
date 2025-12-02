@@ -20,19 +20,60 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Fade-in animation for result sections */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
+/* Glassmorphism utilities */
+@layer utilities {
+  .glass {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  
+  .glass-light {
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+
+  .glass-reflection {
+    position: relative;
+  }
+
+  .glass-reflection::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 50%;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.1), transparent);
+    pointer-events: none;
   }
 }
 
-.animate-fadeIn {
-  animation: fadeIn 0.5s ease-out forwards;
-  opacity: 0;
+/* Custom scrollbar for dark mode */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(147, 51, 234, 0.5);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(147, 51, 234, 0.7);
+}
+
+/* Smooth transitions for theme changes */
+* {
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
+/* Prevent transition on page load */
+.preload * {
+  transition: none !important;
 }
