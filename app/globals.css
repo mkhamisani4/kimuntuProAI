@@ -27,7 +27,7 @@ html {
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
   }
-  
+
   .glass-light {
     background: rgba(255, 255, 255, 0.4);
     backdrop-filter: blur(10px);
@@ -50,7 +50,7 @@ html {
   }
 }
 
-/* Custom scrollbar for dark mode */
+/* Custom scrollbar - dark theme with blue accent */
 ::-webkit-scrollbar {
   width: 10px;
 }
@@ -60,12 +60,13 @@ html {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(147, 51, 234, 0.5);
+  background: rgba(59, 130, 246, 0.5);
+  /* Blue instead of purple */
   border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(147, 51, 234, 0.7);
+  background: rgba(59, 130, 246, 0.7);
 }
 
 /* Smooth transitions for theme changes */
