@@ -16,6 +16,7 @@
     "@radix-ui/react-select": "^2.2.6",
     "@radix-ui/react-tabs": "^1.1.13",
     "@radix-ui/react-tooltip": "^1.2.8",
+    "date-fns": "^4.1.0",
     "firebase": "^10.14.1",
     "framer-motion": "^12.23.25",
     "lucide-react": "^0.263.1",
