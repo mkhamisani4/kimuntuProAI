@@ -49,12 +49,12 @@ export default function DashboardLayout({ children }) {
     if (loading) {
         return (
             <div className={`min-h-screen flex items-center justify-center ${isDark
-                ? 'bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900'
-                : 'bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50'
+                ? 'bg-gradient-to-br from-gray-950 via-gray-900 to-black'
+                : 'bg-gradient-to-br from-gray-50 via-blue-50 to-gray-100'
                 }`}>
                 <div className="flex flex-col items-center gap-4">
                     <Image src="/assets/LOGOS(4).svg" alt="KimuntuPro AI" width={80} height={80} className="animate-bounce" />
-                    <div className={`text-2xl font-semibold ${isDark ? 'text-purple-400' : 'text-purple-600'}`}>
+                    <div className={`text-2xl font-semibold ${isDark ? 'text-blue-400' : 'text-blue-600'}`}>
                         Loading...
                     </div>
                 </div>
@@ -64,8 +64,8 @@ export default function DashboardLayout({ children }) {
 
     return (
         <div className={`min-h-screen transition-all duration-500 ${isDark
-            ? 'bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900'
-            : 'bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50'
+            ? 'bg-gradient-to-br from-gray-950 via-gray-900 to-black'
+            : 'bg-gradient-to-br from-gray-50 via-blue-50 to-gray-100'
             }`}>
             {/* Glassmorphism Sidebar */}
             <div className={`fixed left-0 top-0 h-full w-64 backdrop-blur-2xl border-r shadow-2xl z-40 ${isDark
@@ -109,8 +109,8 @@ export default function DashboardLayout({ children }) {
 
                     <div className="mt-auto p-6">
                         <div className={`rounded-xl p-4 mb-4 backdrop-blur-xl ${isDark
-                            ? 'bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/30'
-                            : 'bg-gradient-to-br from-purple-100 to-pink-100 border border-purple-300'
+                            ? 'bg-gradient-to-br from-blue-600/10 to-cyan-600/10 border border-blue-500/30'
+                            : 'bg-gradient-to-br from-blue-100 to-cyan-100 border border-blue-300'
                             }`}>
                             <p className={`text-xs mb-1 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
                                 Logged in as
@@ -154,7 +154,7 @@ export default function DashboardLayout({ children }) {
                     {isDark ? (
                         <Sun className="w-6 h-6 text-yellow-400" />
                     ) : (
-                        <Moon className="w-6 h-6 text-purple-600" />
+                        <Moon className="w-6 h-6 text-gray-700" />
                     )}
                 </button>
             </div>

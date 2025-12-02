@@ -93,12 +93,12 @@ export default function LandingPage() {
     if (loading) {
         return (
             <div className={`min-h-screen flex items-center justify-center ${isDark
-                ? 'bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900'
-                : 'bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50'
+                ? 'bg-gradient-to-br from-gray-950 via-gray-900 to-black'
+                : 'bg-gradient-to-br from-gray-50 via-blue-50 to-gray-100'
                 }`}>
                 <div className="flex flex-col items-center gap-4">
                     <Image src="/assets/LOGOS(4).svg" alt="KimuntuPro AI" width={80} height={80} className="animate-bounce" />
-                    <div className={`text-2xl font-semibold ${isDark ? 'text-purple-400' : 'text-purple-600'}`}>
+                    <div className={`text-2xl font-semibold ${isDark ? 'text-blue-400' : 'text-blue-600'}`}>
                         Loading...
                     </div>
                 </div>
@@ -108,18 +108,18 @@ export default function LandingPage() {
 
     return (
         <div className={`min-h-screen relative overflow-hidden transition-all duration-500 ${isDark
-            ? 'bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900'
-            : 'bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50'
+            ? 'bg-gradient-to-br from-gray-950 via-gray-900 to-black'
+            : 'bg-gradient-to-br from-gray-50 via-blue-50 to-gray-100'
             }`}>
             {/* Animated gradient blobs */}
             <div className="absolute inset-0 overflow-hidden">
                 <div className={`absolute top-0 left-0 w-full h-full ${isDark
-                    ? 'bg-gradient-to-br from-slate-900 via-purple-900/50 to-slate-900'
-                    : 'bg-gradient-to-br from-blue-50 via-purple-100/50 to-pink-50'
+                    ? 'bg-gradient-to-br from-gray-950 via-gray-900/50 to-black'
+                    : 'bg-gradient-to-br from-gray-50 via-blue-100/50 to-gray-100'
                     }`}></div>
-                <div className={`absolute top-20 -left-20 w-96 h-96 rounded-full filter blur-3xl opacity-30 animate-pulse ${isDark ? 'bg-purple-500' : 'bg-purple-300'
+                <div className={`absolute top-20 -left-20 w-96 h-96 rounded-full filter blur-3xl opacity-30 animate-pulse ${isDark ? 'bg-blue-600' : 'bg-blue-200'
                     }`}></div>
-                <div className={`absolute bottom-20 -right-20 w-[500px] h-[500px] rounded-full filter blur-3xl opacity-20 animate-pulse ${isDark ? 'bg-pink-500' : 'bg-pink-300'
+                <div className={`absolute bottom-20 -right-20 w-[500px] h-[500px] rounded-full filter blur-3xl opacity-20 animate-pulse ${isDark ? 'bg-cyan-600' : 'bg-cyan-200'
                     }`} style={{ animationDelay: '2s' }}></div>
                 <div className={`absolute top-1/2 left-1/2 w-72 h-72 rounded-full filter blur-3xl opacity-20 animate-pulse ${isDark ? 'bg-blue-500' : 'bg-blue-300'
                     }`} style={{ animationDelay: '4s' }}></div>
@@ -161,7 +161,7 @@ export default function LandingPage() {
                                 ? 'bg-white/10 backdrop-blur-lg border border-white/20'
                                 : 'bg-white/60 backdrop-blur-lg border border-gray-200'
                                 }`}>
-                                <Briefcase className={`w-5 h-5 ${isDark ? 'text-purple-400' : 'text-purple-600'}`} />
+                                <Briefcase className={`w-5 h-5 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
                                 <span className={isDark ? 'text-gray-200' : 'text-gray-700'}>Career Development</span>
                             </div>
                             <div className={`flex items-center gap-2 px-4 py-2 rounded-full ${isDark
