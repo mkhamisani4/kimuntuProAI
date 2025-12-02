@@ -4,6 +4,8 @@ const nextConfig = {
         domains: [],
         unoptimized: false,
     },
+    // Transpile local workspace packages
+    transpilePackages: ['@kimuntupro/db', '@kimuntupro/ai-core', '@kimuntupro/rag-core', '@kimuntupro/shared'],
     // Ensure compatibility with Firebase
     webpack: (config, { isServer }) => {
         if (!isServer) {
