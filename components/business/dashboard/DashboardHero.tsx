@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Globe, TrendingUp } from 'lucide-react';
 import { getPrimaryLogo, type Logo } from '@kimuntupro/db';
+import { useTheme } from '@/components/providers/ThemeProvider';
 
 interface DashboardHeroProps {
   userName?: string;
@@ -13,6 +14,7 @@ interface DashboardHeroProps {
 
 export default function DashboardHero({ userName, tenantId, userId }: DashboardHeroProps) {
   const router = useRouter();
+  const { isDark } = useTheme();
   const [primaryLogo, setPrimaryLogo] = useState<Logo | null>(null);
   const [logoDataURL, setLogoDataURL] = useState<string | null>(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
@@ -117,13 +119,13 @@ export default function DashboardHero({ userName, tenantId, userId }: DashboardH
 
           {/* Greeting */}
           <div>
-            <h1 className="text-3xl font-bold mb-1 text-white">
+            <h1 className={`text-3xl font-bold mb-1 ${isDark ? 'text-white' : 'text-gray-900'}`}>
               {userName ? `Welcome back, ${userName}` : 'Welcome to Business Track'}
             </h1>
-            <p className="text-emerald-300 text-lg mb-1">
+            <p className={`text-lg mb-1 ${isDark ? 'text-emerald-300' : 'text-emerald-700'}`}>
               Your AI-Powered Business Command Center
             </p>
-            <p className="text-gray-400 text-sm">
+            <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
               {today}
             </p>
           </div>
