@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { TrendingUp, Globe, Zap, DollarSign, Palette } from 'lucide-react';
+import { useTheme } from '@/components/providers/ThemeProvider';
 
 interface QuickStatsProps {
   tenantId: string;
@@ -32,6 +33,7 @@ interface Stats {
 }
 
 export default function QuickStats({ tenantId, userId }: QuickStatsProps) {
+  const { isDark } = useTheme();
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -124,7 +126,7 @@ export default function QuickStats({ tenantId, userId }: QuickStatsProps) {
                 <TrendingUp size={20} className="text-blue-400" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-white">
+                <div className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
                   {stats.thisMonth.plansGenerated}
                 </div>
                 <div className="text-xs text-gray-400">Plans Generated</div>
@@ -139,7 +141,7 @@ export default function QuickStats({ tenantId, userId }: QuickStatsProps) {
                 <Globe size={20} className="text-emerald-400" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-white">
+                <div className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
                   {stats.thisMonth.websitesBuilt}
                 </div>
                 <div className="text-xs text-gray-400">Websites Built</div>
@@ -154,7 +156,7 @@ export default function QuickStats({ tenantId, userId }: QuickStatsProps) {
                 <Palette size={20} className="text-purple-400" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-white">
+                <div className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
                   {stats.thisMonth.logosCreated}
                 </div>
                 <div className="text-xs text-gray-400">Logos Created</div>
@@ -178,7 +180,7 @@ export default function QuickStats({ tenantId, userId }: QuickStatsProps) {
                 <DollarSign size={16} className="text-green-400" />
                 <span className="text-sm text-gray-400">Usage Cost</span>
               </div>
-              <span className="text-sm font-semibold text-white">
+              <span className={`text-sm font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
                 {formatCost(stats.thisMonth.costCents)}
               </span>
             </div>
@@ -205,7 +207,7 @@ export default function QuickStats({ tenantId, userId }: QuickStatsProps) {
             <div className="text-xs text-emerald-400">Total Websites</div>
           </div>
           <div>
-            <div className="text-2xl font-bold text-white">
+            <div className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
               {stats.allTime.totalLogos}
             </div>
             <div className="text-xs text-emerald-400">Total Logos</div>
@@ -227,19 +229,18 @@ export default function QuickStats({ tenantId, userId }: QuickStatsProps) {
           <div className="space-y-2">
             <div className="flex items-center justify-between text-sm">
               <span className="text-gray-400">Usage</span>
-              <span className="font-semibold text-white">
+              <span className={`font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
                 {stats.quota.used}% of {stats.quota.limit}%
               </span>
             </div>
             <div className="w-full bg-gray-700 rounded-full h-2">
               <div
-                className={`h-2 rounded-full transition-all ${
-                  stats.quota.used >= 90
+                className={`h-2 rounded-full transition-all ${stats.quota.used >= 90
                     ? 'bg-red-500'
                     : stats.quota.used >= 70
-                    ? 'bg-orange-500'
-                    : 'bg-emerald-500'
-                }`}
+                      ? 'bg-orange-500'
+                      : 'bg-emerald-500'
+                  }`}
                 style={{ width: `${Math.min(100, stats.quota.used)}%` }}
               />
             </div>
