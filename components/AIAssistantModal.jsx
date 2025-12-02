@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
-import { X, Sparkles, Lightbulb, FileText, TrendingUp, AlertCircle, Target, Loader, Check } from 'lucide-react';
-import { useTheme } from '../context/ThemeContext';
-import * as openai from '../services/openaiService';
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import { X, Send, Loader, Sparkles, Brain, Lightbulb, Code, TrendingUp, Rocket } from 'lucide-react';
+import { useTheme } from '@/components/providers/ThemeProvider';
+import { callOpenAI } from '@/lib/services/openaiService';
 
 const AIAssistantModal = ({ isOpen, onClose, currentProject, onApplySuggestion }) => {
     const { isDark } = useTheme();
@@ -189,8 +191,8 @@ const AIAssistantModal = ({ isOpen, onClose, currentProject, onApplySuggestion }
                                         onClose();
                                     }}
                                     className={`text-sm px-4 py-2 rounded-lg ${isDark
-                                            ? 'bg-purple-500/20 text-purple-400 hover:bg-purple-500/30'
-                                            : 'bg-purple-100 text-purple-700 hover:bg-purple-200'
+                                        ? 'bg-purple-500/20 text-purple-400 hover:bg-purple-500/30'
+                                        : 'bg-purple-100 text-purple-700 hover:bg-purple-200'
                                         }`}
                                 >
                                     Use This Idea
@@ -211,8 +213,8 @@ const AIAssistantModal = ({ isOpen, onClose, currentProject, onApplySuggestion }
                                     onClose();
                                 }}
                                 className={`w-full text-left p-3 rounded-lg border ${isDark
-                                        ? 'bg-white/5 border-white/10 hover:bg-white/10'
-                                        : 'bg-white/60 border-gray-200 hover:bg-white/80'
+                                    ? 'bg-white/5 border-white/10 hover:bg-white/10'
+                                    : 'bg-white/60 border-gray-200 hover:bg-white/80'
                                     } transition-all`}
                             >
                                 {title}
@@ -323,8 +325,8 @@ const AIAssistantModal = ({ isOpen, onClose, currentProject, onApplySuggestion }
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
             <div
                 className={`relative w-full max-w-3xl max-h-[90vh] overflow-hidden rounded-3xl ${isDark
-                        ? 'bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 border border-white/10'
-                        : 'bg-gradient-to-br from-white via-purple-50 to-pink-50 border border-gray-200'
+                    ? 'bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 border border-white/10'
+                    : 'bg-gradient-to-br from-white via-purple-50 to-pink-50 border border-gray-200'
                     } shadow-2xl`}
             >
                 {/* Header */}
@@ -350,8 +352,8 @@ const AIAssistantModal = ({ isOpen, onClose, currentProject, onApplySuggestion }
                 <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
                     {!isConfigured ? (
                         <div className={`p-6 rounded-xl border text-center ${isDark
-                                ? 'bg-yellow-500/10 border-yellow-500/30'
-                                : 'bg-yellow-50 border-yellow-300'
+                            ? 'bg-yellow-500/10 border-yellow-500/30'
+                            : 'bg-yellow-50 border-yellow-300'
                             }`}>
                             <AlertCircle className={`w-12 h-12 mx-auto mb-4 ${isDark ? 'text-yellow-400' : 'text-yellow-600'
                                 }`} />
@@ -385,10 +387,10 @@ const AIAssistantModal = ({ isOpen, onClose, currentProject, onApplySuggestion }
                                             }}
                                             disabled={feature.disabled}
                                             className={`p-5 rounded-xl border text-left transition-all ${feature.disabled
-                                                    ? 'opacity-50 cursor-not-allowed'
-                                                    : isDark
-                                                        ? 'bg-white/5 border-white/10 hover:bg-white/10'
-                                                        : 'bg-white/60 border-gray-200 hover:bg-white/80'
+                                                ? 'opacity-50 cursor-not-allowed'
+                                                : isDark
+                                                    ? 'bg-white/5 border-white/10 hover:bg-white/10'
+                                                    : 'bg-white/60 border-gray-200 hover:bg-white/80'
                                                 }`}
                                         >
                                             <div className="flex items-start gap-3">
@@ -428,8 +430,8 @@ const AIAssistantModal = ({ isOpen, onClose, currentProject, onApplySuggestion }
                             {/* Error State */}
                             {error && (
                                 <div className={`p-4 rounded-xl border ${isDark
-                                        ? 'bg-red-500/10 border-red-500/30'
-                                        : 'bg-red-50 border-red-300'
+                                    ? 'bg-red-500/10 border-red-500/30'
+                                    : 'bg-red-50 border-red-300'
                                     }`}>
                                     <div className="flex items-start gap-3">
                                         <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />

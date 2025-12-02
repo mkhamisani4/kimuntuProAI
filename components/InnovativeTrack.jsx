@@ -1,17 +1,20 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import {
   Sparkles, Lightbulb, Rocket, Brain, Zap, TrendingUp,
   Target, Users, Code, Database, Cloud, Shield,
   ChevronRight, Check, X, Plus, Save, Loader, AlertCircle, Home
 } from 'lucide-react';
-import { useTheme } from '../context/ThemeContext';
+import { useTheme } from '@/components/providers/ThemeProvider';
 import {
   saveProject,
   getUserProjects,
   updateProject,
   deleteProject
-} from '../services/innovativeTrackService';
-import AIAssistantModal from './AIAssistantModal';
+} from '@/lib/services/innovativeTrackService';
+import AIAssistantModal from '@/components/AIAssistantModal';
+
 
 const InnovativeTrack = ({ user }) => {
   const { isDark } = useTheme();
@@ -659,8 +662,8 @@ const InnovativeTrack = ({ user }) => {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
           <div
             className={`relative w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-3xl ${isDark
-                ? 'bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900  border border-white/10'
-                : 'bg-gradient-to-br from-white via-purple-50 to-pink-50 border border-gray-200'
+              ? 'bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900  border border-white/10'
+              : 'bg-gradient-to-br from-white via-purple-50 to-pink-50 border border-gray-200'
               } shadow-2xl`}
           >
             {/* Header */}
@@ -695,8 +698,8 @@ const InnovativeTrack = ({ user }) => {
             <div className="p-6">
               {error && (
                 <div className={`mb-6 p-4 rounded-lg flex items-center gap-3 ${isDark
-                    ? 'bg-red-500/10 border border-red-500/30 text-red-400'
-                    : 'bg-red-50 border border-red-300 text-red-700'
+                  ? 'bg-red-500/10 border border-red-500/30 text-red-400'
+                  : 'bg-red-50 border border-red-300 text-red-700'
                   }`}>
                   <AlertCircle className="w-5 h-5" />
                   <span>{error}</span>
@@ -705,8 +708,8 @@ const InnovativeTrack = ({ user }) => {
 
               {success && (
                 <div className={`mb-6 p-4 rounded-lg flex items-center gap-3 ${isDark
-                    ? 'bg-green-500/10 border border-green-500/30 text-green-400'
-                    : 'bg-green-50 border border-green-300 text-green-700'
+                  ? 'bg-green-500/10 border border-green-500/30 text-green-400'
+                  : 'bg-green-50 border border-green-300 text-green-700'
                   }`}>
                   <Check className="w-5 h-5" />
                   <span>{success}</span>
@@ -725,8 +728,8 @@ const InnovativeTrack = ({ user }) => {
                       value={selectedProject.title}
                       onChange={(e) => setSelectedProject({ ...selectedProject, title: e.target.value })}
                       className={`w-full px-4 py-3 rounded-lg ${isDark
-                          ? 'bg-white/5 border border-white/10 text-white placeholder-gray-500'
-                          : 'bg-white border border-gray-300 text-gray-900 placeholder-gray-400'
+                        ? 'bg-white/5 border border-white/10 text-white placeholder-gray-500'
+                        : 'bg-white border border-gray-300 text-gray-900 placeholder-gray-400'
                         } focus:outline-none focus:ring-2 focus:ring-purple-500/50`}
                     />
                   ) : (
@@ -747,8 +750,8 @@ const InnovativeTrack = ({ user }) => {
                         value={selectedProject.category}
                         onChange={(e) => setSelectedProject({ ...selectedProject, category: e.target.value })}
                         className={`w-full px-4 py-3 rounded-lg ${isDark
-                            ? 'bg-white/5 border border-white/10 text-white'
-                            : 'bg-white border border-gray-300 text-gray-900'
+                          ? 'bg-white/5 border border-white/10 text-white'
+                          : 'bg-white border border-gray-300 text-gray-900'
                           } focus:outline-none focus:ring-2 focus:ring-purple-500/50`}
                       >
                         {categories.map(cat => (
@@ -770,8 +773,8 @@ const InnovativeTrack = ({ user }) => {
                         value={selectedProject.status}
                         onChange={(e) => setSelectedProject({ ...selectedProject, status: e.target.value })}
                         className={`w-full px-4 py-3 rounded-lg ${isDark
-                            ? 'bg-white/5 border border-white/10 text-white'
-                            : 'bg-white border border-gray-300 text-gray-900'
+                          ? 'bg-white/5 border border-white/10 text-white'
+                          : 'bg-white border border-gray-300 text-gray-900'
                           } focus:outline-none focus:ring-2 focus:ring-purple-500/50`}
                       >
                         {statusOptions.map(stat => (
@@ -798,8 +801,8 @@ const InnovativeTrack = ({ user }) => {
                       onChange={(e) => setSelectedProject({ ...selectedProject, description: e.target.value })}
                       rows={4}
                       className={`w-full px-4 py-3 rounded-lg ${isDark
-                          ? 'bg-white/5 border border-white/10 text-white placeholder-gray-500'
-                          : 'bg-white border border-gray border-gray-300 text-gray-900 placeholder-gray-400'
+                        ? 'bg-white/5 border border-white/10 text-white placeholder-gray-500'
+                        : 'bg-white border border-gray border-gray-300 text-gray-900 placeholder-gray-400'
                         } focus:outline-none focus:ring-2 focus:ring-purple-500/50`}
                     />
                   ) : (
@@ -820,8 +823,8 @@ const InnovativeTrack = ({ user }) => {
                       onChange={(e) => setSelectedProject({ ...selectedProject, goals: e.target.value })}
                       rows={3}
                       className={`w-full px-4 py-3 rounded-lg ${isDark
-                          ? 'bg-white/5 border border-white/10 text-white placeholder-gray-500'
-                          : 'bg-white border border-gray-300 text-gray-900 placeholder-gray-400'
+                        ? 'bg-white/5 border border-white/10 text-white placeholder-gray-500'
+                        : 'bg-white border border-gray-300 text-gray-900 placeholder-gray-400'
                         } focus:outline-none focus:ring-2 focus:ring-purple-500/50`}
                     />
                   ) : (
@@ -842,8 +845,8 @@ const InnovativeTrack = ({ user }) => {
                       onChange={(e) => setSelectedProject({ ...selectedProject, challenges: e.target.value })}
                       rows={3}
                       className={`w-full px-4 py-3 rounded-lg ${isDark
-                          ? 'bg-white/5 border border-white/10 text-white placeholder-gray-500'
-                          : 'bg-white border border-gray-300 text-gray-900 placeholder-gray-400'
+                        ? 'bg-white/5 border border-white/10 text-white placeholder-gray-500'
+                        : 'bg-white border border-gray-300 text-gray-900 placeholder-gray-400'
                         } focus:outline-none focus:ring-2 focus:ring-purple-500/50`}
                     />
                   ) : (
@@ -864,8 +867,8 @@ const InnovativeTrack = ({ user }) => {
                       onChange={(e) => setSelectedProject({ ...selectedProject, resources: e.target.value })}
                       rows={3}
                       className={`w-full px-4 py-3 rounded-lg ${isDark
-                          ? 'bg-white/5 border border-white/10 text-white placeholder-gray-500'
-                          : 'bg-white border border-gray-300 text-gray-900 placeholder-gray-400'
+                        ? 'bg-white/5 border border-white/10 text-white placeholder-gray-500'
+                        : 'bg-white border border-gray-300 text-gray-900 placeholder-gray-400'
                         } focus:outline-none focus:ring-2 focus:ring-purple-500/50`}
                     />
                   ) : (
@@ -903,8 +906,8 @@ const InnovativeTrack = ({ user }) => {
                         if (original) setSelectedProject(original);
                       }}
                       className={`px-6 py-3 rounded-xl font-semibold transition-all ${isDark
-                          ? 'bg-white/10 text-white hover:bg-white/20 border border-white/20'
-                          : 'bg-white text-gray-900 hover:bg-gray-50 border border-gray-300'
+                        ? 'bg-white/10 text-white hover:bg-white/20 border border-white/20'
+                        : 'bg-white text-gray-900 hover:bg-gray-50 border border-gray-300'
                         }`}
                     >
                       Cancel
