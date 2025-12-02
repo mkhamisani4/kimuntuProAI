@@ -1,6 +1,8 @@
+'use client';
+
 import React from 'react';
-import PageWrapper from '../components/PageWrapper';
-import { useTheme } from '../context/ThemeContext';
+import PageWrapper from '@/components/PageWrapper';
+import { useTheme } from '@/components/providers/ThemeProvider';
 
 const Privacy = () => {
     const { isDark } = useTheme();
