@@ -16,6 +16,12 @@ const nextConfig = {
                 tls: false,
             };
         }
+        // Handle .mjs files from node_modules
+        config.module.rules.push({
+            test: /\.mjs$/,
+            include: /node_modules/,
+            type: 'javascript/auto',
+        });
         return config;
     },
 }
