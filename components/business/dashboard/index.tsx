@@ -1,5 +1,6 @@
 'use client';
 
+import { useTheme } from '@/components/providers/ThemeProvider';
 import DashboardHero from './DashboardHero';
 import ToolsPanel from './ToolsPanel';
 import RecentWorkPanel from './RecentWorkPanel';
@@ -18,8 +19,13 @@ export default function BusinessDashboard({
   userId,
   loading = false
 }: BusinessDashboardProps) {
+  const { isDark } = useTheme();
+
   return (
-    <div className="min-h-screen bg-gray-900">
+    <div className={`min-h-screen transition-colors duration-300 ${isDark
+        ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900'
+        : 'bg-gradient-to-br from-gray-50 via-blue-50 to-gray-100'
+      }`}>
       {/* Hero Section - Full Width */}
       <DashboardHero userName={userName} tenantId={tenantId} userId={userId} />
 
@@ -33,19 +39,26 @@ export default function BusinessDashboard({
 
           {/* Center Column: Recent Work (45% - 5 cols) */}
           <div className="lg:col-span-5 space-y-6">
-            <h2 className="text-xl font-bold text-white">Your Work</h2>
+            <h2 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+              Your Work
+            </h2>
 
             {/* Phase 2: Enhanced tabbed interface with filters and actions */}
             {!loading && (
-              <RecentWorkPanel tenantId={tenantId} userId={userId} />
+              <RecentWorkPanel tenantId={tenant Id} userId={userId} />
             )}
 
             {/* Loading State */}
             {loading && (
-              <div className="bg-white/5 backdrop-blur rounded-lg border border-gray-800 p-6">
+              <div className={`backdrop-blur rounded-lg border p-6 ${isDark
+                  ? 'bg-white/5 border-gray-700'
+                  : 'bg-white/60 border-gray-200'
+                }`}>
                 <div className="space-y-4">
-                  <div className="h-32 bg-gray-700 rounded-lg animate-pulse" />
-                  <div className="h-32 bg-gray-700 rounded-lg animate-pulse" />
+                  <div className={`h-32 rounded-lg animate-pulse ${isDark ? 'bg-gray-700' : 'bg-gray-200'
+                    }`} />
+                  <div className={`h-32 rounded-lg animate-pulse ${isDark ? 'bg-gray-700' : 'bg-gray-200'
+                    }`} />
                 </div>
               </div>
             )}
@@ -53,7 +66,9 @@ export default function BusinessDashboard({
 
           {/* Right Column: Activity Sidebar (25% - 3 cols) */}
           <div className="lg:col-span-3">
-            <h2 className="text-xl font-bold text-white mb-6">Overview</h2>
+            <h2 className={`text-xl font-bold mb-6 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+              Overview
+            </h2>
 
             {/* Phase 3: Activity sidebar with stats, actions, and tips */}
             {!loading && (
@@ -63,8 +78,12 @@ export default function BusinessDashboard({
             {/* Loading State */}
             {loading && (
               <div className="space-y-4">
-                <div className="bg-white/5 backdrop-blur rounded-lg border border-gray-800 p-6">
-                  <div className="h-32 bg-gray-700 rounded-lg animate-pulse" />
+                <div className={`backdrop-blur rounded-lg border p-6 ${isDark
+                    ? 'bg-white/5 border-gray-700'
+                    : 'bg-white/60 border-gray-200'
+                  }`}>
+                  <div className={`h-32 rounded-lg animate-pulse ${isDark ? 'bg-gray-700' : 'bg-gray-200'
+                    }`} />
                 </div>
               </div>
             )}
