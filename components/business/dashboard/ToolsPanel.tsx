@@ -3,12 +3,15 @@
 import { TrendingUp, FileText, BarChart3, DollarSign, Globe, Mail, Palette } from 'lucide-react';
 import ToolCard from './ToolCard';
 import FeaturedToolCard from './FeaturedToolCard';
+import { useTheme } from '@/components/providers/ThemeProvider';
 
 export default function ToolsPanel() {
+  const { isDark } = useTheme();
+
   return (
     <div className="space-y-6">
       {/* Section Title */}
-      <h2 className="text-xl font-bold text-white">AI Tools</h2>
+      <h2 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>AI Tools</h2>
 
       {/* Planning & Strategy */}
       <div className="space-y-3">
