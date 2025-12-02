@@ -128,7 +128,7 @@ Do not include any markdown formatting, code blocks, or explanatory text. Return
     await logRequestUsage({
       tenantId,
       userId,
-      assistant: null,
+      assistant: 'logo_customize',
       model: 'claude-sonnet-4-5-20250929',
       tokensIn,
       tokensOut,

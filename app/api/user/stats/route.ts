@@ -71,7 +71,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
         count: assistantResults.length,
         sample: assistantResults.slice(0, 2).map(r => ({
           id: r.id,
-          assistant: r.assistant,
+          assistant: r.assistant || 'unknown',
           createdAt: r.createdAt,
           hasMetadata: !!r.metadata,
           tokensUsed: r.metadata?.tokensUsed
