@@ -45,8 +45,8 @@ export default function ToolCard({
       className={`
         w-full p-4 rounded-lg border text-left transition-all
         ${disabled
-          ? 'border-gray-800 bg-white/5 opacity-50 cursor-not-allowed'
-          : 'border-gray-800 bg-white/5 hover:bg-white/10 hover:border-emerald-500/50 cursor-pointer'
+          ? 'border-gray-800 bg-gray-800/50 opacity-50 cursor-not-allowed'
+          : 'border-gray-800 bg-gray-800/50 hover:bg-gray-700 hover:border-emerald-500/50 cursor-pointer'
         }
       `}
     >

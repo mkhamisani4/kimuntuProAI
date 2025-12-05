@@ -27,7 +27,7 @@ export default function EmptyState({
   return (
     <div className="flex flex-col items-center justify-center py-12 px-6 text-center">
       {/* Icon */}
-      <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4">
+      <div className="w-16 h-16 rounded-full bg-gray-800/50 flex items-center justify-center mb-4">
         <Icon size={32} className="text-gray-500" />
       </div>
 
@@ -51,7 +51,7 @@ export default function EmptyState({
           {secondaryLabel && secondaryRoute && (
             <button
               onClick={() => router.push(secondaryRoute)}
-              className="px-6 py-2.5 bg-white/5 border-2 border-gray-700 text-gray-300 font-medium rounded-lg hover:bg-white/10 transition-colors"
+              className="px-6 py-2.5 bg-gray-800 border-2 border-gray-700 text-gray-300 font-medium rounded-lg hover:bg-gray-700 transition-colors"
             >
               {secondaryLabel}
             </button>

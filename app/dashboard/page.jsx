@@ -3,60 +3,62 @@
 import React from 'react';
 import { ChevronRight, FileText, Target, Zap, TrendingUp, Scale, Briefcase, Users, BookOpen } from 'lucide-react';
 import { useTheme } from '@/components/providers/ThemeProvider';
+import { useLanguage } from '@/components/providers/LanguageProvider';
 
 export default function DashboardPage() {
     const { isDark } = useTheme();
+    const { t } = useLanguage();
 
     const stats = [
-        { label: 'Documents Created', value: '12', icon: FileText, color: isDark ? 'bg-blue-500' : 'bg-blue-400' },
-        { label: 'Job Matches', value: '48', icon: Target, color: isDark ? 'bg-purple-500' : 'bg-purple-400' },
-        { label: 'AI Queries', value: '156', icon: Zap, color: isDark ? 'bg-pink-500' : 'bg-pink-400' },
+        { label: t.documentsCreated, value: '12', icon: FileText, color: isDark ? 'bg-blue-500' : 'bg-blue-400' },
+        { label: t.jobMatches, value: '48', icon: Target, color: isDark ? 'bg-purple-500' : 'bg-purple-400' },
+        { label: t.aiQueries, value: '156', icon: Zap, color: isDark ? 'bg-pink-500' : 'bg-pink-400' },
     ];
 
     const actions = [
         {
-            title: 'Create CV/Resume',
-            desc: 'AI-powered resume builder',
+            title: t.createCvResume,
+            desc: t.cvResumeDesc,
             icon: FileText,
             bg: isDark ? 'bg-purple-500/10' : 'bg-purple-100',
             border: isDark ? 'border-purple-500/30' : 'border-purple-300',
             text: isDark ? 'text-purple-400' : 'text-purple-600'
         },
         {
-            title: 'Business Plan',
-            desc: 'Generate comprehensive plans',
+            title: t.businessPlan,
+            desc: t.businessPlanDesc,
             icon: TrendingUp,
             bg: isDark ? 'bg-blue-500/10' : 'bg-blue-100',
             border: isDark ? 'border-blue-500/30' : 'border-blue-300',
             text: isDark ? 'text-blue-400' : 'text-blue-600'
         },
         {
-            title: 'Legal Assistant',
-            desc: 'Get legal guidance',
+            title: t.legalAssistant,
+            desc: t.legalAssistantDesc,
             icon: Scale,
             bg: isDark ? 'bg-pink-500/10' : 'bg-pink-100',
             border: isDark ? 'border-pink-500/30' : 'border-pink-300',
             text: isDark ? 'text-pink-400' : 'text-pink-600'
         },
         {
-            title: 'Job Matching',
-            desc: 'Find perfect opportunities',
+            title: t.jobMatching,
+            desc: t.jobMatchingDesc,
             icon: Briefcase,
             bg: isDark ? 'bg-orange-500/10' : 'bg-orange-100',
             border: isDark ? 'border-orange-500/30' : 'border-orange-300',
             text: isDark ? 'text-orange-400' : 'text-orange-600'
         },
         {
-            title: 'Interview Prep',
-            desc: 'Practice with AI coach',
+            title: t.interviewPrep,
+            desc: t.interviewPrepDesc,
             icon: Users,
             bg: isDark ? 'bg-teal-500/10' : 'bg-teal-100',
             border: isDark ? 'border-teal-500/30' : 'border-teal-300',
             text: isDark ? 'text-teal-400' : 'text-teal-600'
         },
         {
-            title: 'Document Review',
-            desc: 'AI contract analysis',
+            title: t.documentReview,
+            desc: t.documentReviewDesc,
             icon: BookOpen,
             bg: isDark ? 'bg-indigo-500/10' : 'bg-indigo-100',
             border: isDark ? 'border-indigo-500/30' : 'border-indigo-300',
@@ -68,7 +70,7 @@ export default function DashboardPage() {
         <div>
             <div className="mb-10">
                 <h2 className={`text-3xl font-bold mb-8 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                    Dashboard Overview
+                    {t.dashboardOverview}
                 </h2>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -76,16 +78,11 @@ export default function DashboardPage() {
                         <div
                             key={i}
                             className={`relative group ${isDark
-                                ? 'bg-white/5 backdrop-blur-xl border border-white/10 hover:bg-white/10'
-                                : 'bg-white/60 backdrop-blur-xl border border-gray-200 hover:bg-white/80'
+                                ? 'bg-gray-800/80 border border-gray-700 hover:bg-gray-700'
+                                : 'bg-white border border-gray-200 hover:bg-gray-50'
                                 } rounded-2xl p-6 transition-all duration-300 shadow-lg`}
                         >
-                            <div className={`absolute inset-0 rounded-2xl ${isDark
-                                ? 'bg-gradient-to-br from-white/10 via-transparent to-transparent'
-                                : 'bg-gradient-to-br from-white/40 via-transparent to-transparent'
-                                } pointer-events-none`}></div>
-
-                            <div className="relative z-10">
+                            <div>
                                 <div className="flex items-start justify-between mb-4">
                                     <div>
                                         <p className={`text-sm mb-2 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
@@ -111,14 +108,9 @@ export default function DashboardPage() {
                     {actions.map((action, i) => (
                         <div
                             key={i}
-                            className={`group relative ${action.bg} backdrop-blur-xl border ${action.border} rounded-2xl p-6 text-left transition-all duration-300 cursor-pointer hover:scale-105 shadow-lg`}
+                            className={`group relative ${action.bg} border ${action.border} rounded-2xl p-6 text-left transition-all duration-300 cursor-pointer hover:scale-105 shadow-lg`}
                         >
-                            <div className={`absolute inset-0 rounded-2xl ${isDark
-                                ? 'bg-gradient-to-br from-white/5 via-transparent to-transparent'
-                                : 'bg-gradient-to-br from-white/30 via-transparent to-transparent'
-                                } pointer-events-none`}></div>
-
-                            <div className="relative z-10">
+                            <div>
                                 <div className={`w-12 h-12 ${action.bg} rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-md`}>
                                     <action.icon className={`w-6 h-6 ${action.text}`} />
                                 </div>
@@ -129,7 +121,7 @@ export default function DashboardPage() {
                                     {action.desc}
                                 </p>
                                 <div className={`flex items-center ${action.text} text-sm font-medium`}>
-                                    Get Started
+                                    {t.getStarted}
                                     <ChevronRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
                                 </div>
                             </div>
