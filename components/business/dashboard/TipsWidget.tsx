@@ -48,7 +48,7 @@ export default function TipsWidget() {
   const currentTip = tips[currentTipIndex];
 
   return (
-    <div className="bg-gradient-to-br from-blue-900/50 to-indigo-900/50 rounded-lg border border-blue-700/50 p-6 backdrop-blur">
+    <div className="bg-gray-800/80 rounded-lg border border-gray-700 p-6">
       {/* Header */}
       <div className="flex items-center gap-2 mb-3">
         <div className="p-2 bg-blue-500 rounded-lg">

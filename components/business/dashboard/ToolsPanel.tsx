@@ -4,32 +4,34 @@ import { TrendingUp, FileText, BarChart3, DollarSign, Globe, Mail, Palette } fro
 import ToolCard from './ToolCard';
 import FeaturedToolCard from './FeaturedToolCard';
 import { useTheme } from '@/components/providers/ThemeProvider';
+import { useLanguage } from '@/components/providers/LanguageProvider';
 
 export default function ToolsPanel() {
   const { isDark } = useTheme();
+  const { t } = useLanguage();
 
   return (
     <div className="space-y-6">
       {/* Section Title */}
-      <h2 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>AI Tools</h2>
+      <h2 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>{t.businessAITools}</h2>
 
       {/* Planning & Strategy */}
       <div className="space-y-3">
         <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wide">
-          Planning & Strategy
+          {t.businessPlanningStrategy}
         </h3>
         <div className="space-y-3">
           <ToolCard
             icon={TrendingUp}
-            title="Streamlined Plan"
-            description="One-page lean plan in 60 seconds"
+            title={t.businessStreamlinedPlan}
+            description={t.businessStreamlinedPlanDesc}
             route="/dashboard/business/streamlined-plan"
             color="blue"
           />
           <ToolCard
             icon={FileText}
-            title="Executive Summary"
-            description="Investor-ready summary with financials"
+            title={t.businessExecutiveSummary}
+            description={t.businessExecutiveSummaryDesc}
             route="/dashboard/business/exec-summary"
             color="blue"
           />
@@ -39,20 +41,20 @@ export default function ToolsPanel() {
       {/* Research & Analysis */}
       <div className="space-y-3">
         <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wide">
-          Research & Analysis
+          {t.businessResearchAnalysis}
         </h3>
         <div className="space-y-3">
           <ToolCard
             icon={BarChart3}
-            title="Market Analysis"
-            description="Competitive intelligence with live data"
+            title={t.businessMarketAnalysis}
+            description={t.businessMarketAnalysisDesc}
             route="/dashboard/business/market-analysis"
             color="teal"
           />
           <ToolCard
             icon={DollarSign}
-            title="Financial Overview"
-            description="12-month projections & metrics"
+            title={t.businessFinancialOverview}
+            description={t.businessFinancialOverviewDesc}
             route="/dashboard/business/financial-overview"
             color="teal"
           />
