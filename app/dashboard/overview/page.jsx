@@ -1,8 +1,10 @@
+'use client';
+
 import Overview from '@/components/Overview';
-import { translations } from '@/lib/translations';
+import { useLanguage } from '@/components/providers/LanguageProvider';
 
 export default function OverviewPage() {
-  const t = translations.en; // Default to English for now
+  const { t } = useLanguage();
 
   return <Overview t={t} />;
 }

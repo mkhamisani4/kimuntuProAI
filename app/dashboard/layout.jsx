@@ -1,19 +1,33 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { LogOut, Briefcase, Users, Scale, Home, FileText, TrendingUp, HelpCircle, Sun, Moon, Rocket } from 'lucide-react';
+import { LogOut, Briefcase, Users, Scale, Home, FileText, TrendingUp, HelpCircle, Sun, Moon, Rocket, Settings, CreditCard } from 'lucide-react';
 import { auth, signOutUser } from '@/lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useTheme } from '@/components/providers/ThemeProvider';
+import { useLanguage } from '@/components/providers/LanguageProvider';
+import Footer from '@/components/Footer';
 import Image from 'next/image';
 
 export default function DashboardLayout({ children }) {
     const router = useRouter();
+    const pathname = usePathname();
     const { isDark, toggleTheme } = useTheme();
+    const { t } = useLanguage();
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
+    
+    // Pages where footer should be hidden
+    const hideFooterPages = [
+        '/dashboard/documents',
+        '/dashboard/support',
+        '/dashboard/settings',
+        '/dashboard/pricing'
+    ];
+    
+    const shouldShowFooter = !hideFooterPages.includes(pathname);
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -37,13 +51,15 @@ export default function DashboardLayout({ children }) {
     };
 
     const navItems = [
-        { id: 'overview', label: 'Overview', icon: Home, href: '/dashboard' },
-        { id: 'career', label: 'Career Track', icon: Briefcase, href: '/dashboard/career' },
-        { id: 'business', label: 'Business Track', icon: TrendingUp, href: '/dashboard/business' },
-        { id: 'legal', label: 'Legal Track', icon: Scale, href: '/dashboard/legal' },
-        { id: 'innovative', label: 'Innovative Track', icon: Rocket, href: '/dashboard/innovative' },
-        { id: 'documents', label: 'My Documents', icon: FileText, href: '/dashboard/documents' },
-        { id: 'support', label: 'Support', icon: HelpCircle, href: '/dashboard/support' },
+        { id: 'overview', label: t.overview, icon: Home, href: '/dashboard' },
+        { id: 'career', label: t.career, icon: Briefcase, href: '/dashboard/career' },
+        { id: 'business', label: t.business, icon: TrendingUp, href: '/dashboard/business' },
+        { id: 'legal', label: t.legal, icon: Scale, href: '/dashboard/legal' },
+        { id: 'innovative', label: t.innovative, icon: Rocket, href: '/dashboard/innovative' },
+        { id: 'documents', label: t.documents, icon: FileText, href: '/dashboard/documents' },
+        { id: 'support', label: t.support, icon: HelpCircle, href: '/dashboard/support' },
+        { id: 'settings', label: t.settings, icon: Settings, href: '/dashboard/settings' },
+        { id: 'pricing', label: t.pricing, icon: CreditCard, href: '/dashboard/pricing' },
     ];
 
     if (loading) {
@@ -68,17 +84,13 @@ export default function DashboardLayout({ children }) {
             : 'bg-gradient-to-br from-gray-50 via-blue-50 to-gray-100'
             }`}>
             {/* Glassmorphism Sidebar */}
-            <div className={`fixed left-0 top-0 h-full w-64 backdrop-blur-2xl border-r shadow-2xl z-40 ${isDark
-                ? 'bg-black/40 border-white/10'
-                : 'bg-white/30 border-gray-200'
+            <div className={`fixed left-0 top-0 h-full w-64 shadow-2xl z-40 ${isDark
+                ? 'bg-gray-900'
+                : 'bg-white'
                 }`}>
-                <div className={`absolute inset-0 ${isDark
-                    ? 'bg-gradient-to-br from-white/5 via-transparent to-transparent'
-                    : 'bg-gradient-to-br from-white/40 via-transparent to-transparent'
-                    } pointer-events-none`}></div>
 
-                <div className="flex flex-col h-full relative z-10">
-                    <div className="p-6">
+                <div className="flex flex-col h-full relative z-10 overflow-hidden">
+                    <div className="p-6 flex-shrink-0">
                         <Link
                             href="/dashboard"
                             className="flex items-center justify-center mb-8 hover:opacity-80 transition-opacity cursor-pointer w-full"
@@ -90,30 +102,31 @@ export default function DashboardLayout({ children }) {
                                 height={144}
                             />
                         </Link>
-                        <nav className="space-y-1">
-                            {navItems.map((item) => (
-                                <Link
-                                    key={item.id}
-                                    href={item.href}
-                                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all ${isDark
-                                        ? 'text-gray-400 hover:bg-white/5 hover:text-white'
-                                        : 'text-gray-600 hover:bg-white/50 hover:text-gray-900'
-                                        }`}
-                                >
-                                    <item.icon className="w-5 h-5" />
-                                    <span className="font-medium">{item.label}</span>
-                                </Link>
-                            ))}
-                        </nav>
                     </div>
+                    
+                    <nav className="flex-1 overflow-y-auto px-6 space-y-1 min-h-0 scrollbar-hide">
+                        {navItems.map((item) => (
+                            <Link
+                                key={item.id}
+                                href={item.href}
+                                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all ${isDark
+                                    ? 'text-gray-400 hover:bg-white/5 hover:text-white'
+                                    : 'text-gray-600 hover:bg-white/50 hover:text-gray-900'
+                                    }`}
+                            >
+                                <item.icon className="w-5 h-5" />
+                                <span className="font-medium">{item.label}</span>
+                            </Link>
+                        ))}
+                    </nav>
 
-                    <div className="mt-auto p-6">
+                    <div className={`flex-shrink-0 p-6 ${isDark ? 'border-t border-white/10' : 'border-t border-gray-200'}`}>
                         <div className={`rounded-xl p-4 mb-4 backdrop-blur-xl ${isDark
                             ? 'bg-gradient-to-br from-blue-600/10 to-cyan-600/10 border border-blue-500/30'
                             : 'bg-gradient-to-br from-blue-100 to-cyan-100 border border-blue-300'
                             }`}>
                             <p className={`text-xs mb-1 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                                Logged in as
+                                {t.loggedInAs}
                             </p>
                             <p className={`text-sm font-medium truncate ${isDark ? 'text-white' : 'text-gray-900'}`}>
                                 {user?.email || user?.displayName}
@@ -127,36 +140,22 @@ export default function DashboardLayout({ children }) {
                                 }`}
                         >
                             <LogOut className="w-4 h-4" />
-                            <span className="text-sm">Sign Out</span>
+                            <span className="text-sm">{t.signOut}</span>
                         </button>
                     </div>
                 </div>
             </div>
 
             {/* Main Content */}
-            <div className="ml-64">
-                <div className="min-h-screen p-8">
+            <div className="ml-64 flex flex-col min-h-screen">
+                <div className="flex-1 p-8">
                     <div className="max-w-7xl mx-auto">
                         {children}
                     </div>
                 </div>
-            </div>
-
-            {/* Theme Toggle - Bottom Center */}
-            <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
-                <button
-                    onClick={toggleTheme}
-                    className={`p-4 rounded-full transition-all duration-300 shadow-xl ${isDark
-                        ? 'bg-white/10 backdrop-blur-xl border border-white/20 hover:bg-white/20'
-                        : 'bg-white/40 backdrop-blur-xl border border-gray-300 hover:bg-white/60'
-                        }`}
-                >
-                    {isDark ? (
-                        <Sun className="w-6 h-6 text-yellow-400" />
-                    ) : (
-                        <Moon className="w-6 h-6 text-gray-700" />
-                    )}
-                </button>
+                
+                {/* Footer - Hidden on specific pages */}
+                {shouldShowFooter && <Footer />}
             </div>
         </div>
     );

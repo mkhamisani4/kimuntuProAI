@@ -139,7 +139,7 @@ export default function WebsitesTab({ tenantId, userId, limit = 8 }: WebsitesTab
     return (
       <div className="space-y-3">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="animate-pulse p-4 bg-white/5 rounded-lg border border-gray-800">
+          <div key={i} className="animate-pulse p-4 bg-gray-800/50 rounded-lg border border-gray-700">
             <div className="flex items-start gap-4">
               <div className="w-20 h-20 bg-gray-700 rounded"></div>
               <div className="flex-1 space-y-2">
@@ -188,7 +188,7 @@ export default function WebsitesTab({ tenantId, userId, limit = 8 }: WebsitesTab
         {websites.map((website) => (
           <div
             key={website.id}
-            className="p-4 bg-white/5 hover:bg-white/10 rounded-lg border border-gray-800 transition-all cursor-pointer group"
+            className="p-4 bg-gray-800/50 hover:bg-gray-700 rounded-lg border border-gray-700 transition-all cursor-pointer group"
             onClick={() => handleView(website)}
           >
             <div className="flex items-start gap-4">
@@ -284,14 +284,14 @@ export default function WebsitesTab({ tenantId, userId, limit = 8 }: WebsitesTab
                     </button>
                     <button
                       onClick={(e) => handleEdit(website, e)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 border border-gray-700 text-gray-300 text-sm font-medium rounded-lg hover:bg-white/10 transition-colors"
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-800 border border-gray-700 text-gray-300 text-sm font-medium rounded-lg hover:bg-gray-700 transition-colors"
                     >
                       <Edit size={14} />
                       Edit
                     </button>
                     <button
                       onClick={(e) => handleDownload(website, e)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 border border-gray-700 text-gray-300 text-sm font-medium rounded-lg hover:bg-white/10 transition-colors"
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-800 border border-gray-700 text-gray-300 text-sm font-medium rounded-lg hover:bg-gray-700 transition-colors"
                     >
                       <Download size={14} />
                       Export

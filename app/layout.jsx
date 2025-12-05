@@ -1,5 +1,6 @@
 import './globals.css'
 import { ThemeProvider } from '@/components/providers/ThemeProvider'
+import { LanguageProvider } from '@/components/providers/LanguageProvider'
 
 export const metadata = {
     title: 'KimuntuPro AI - Professional AI Assistant',
@@ -14,7 +15,9 @@ export default function RootLayout({ children }) {
         <html lang="en">
             <body>
                 <ThemeProvider>
-                    {children}
+                    <LanguageProvider>
+                        {children}
+                    </LanguageProvider>
                 </ThemeProvider>
             </body>
         </html>
