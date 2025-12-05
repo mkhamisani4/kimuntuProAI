@@ -1,13 +1,17 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { FileText, Target, Users, Shield, X, Loader2, Download, Copy, Check, Mail, MessageCircle, Send } from 'lucide-react';
 import { tailorResume, extractResumeText, generateCoverLetter, chatJobAssistant } from '../services/openaiService';
 import jsPDF from 'jspdf';
 import { Document, Packer, Paragraph, TextRun } from 'docx';
 import { saveAs } from 'file-saver';
+import { useLanguage } from '@/components/providers/LanguageProvider';
 
-const CareerTrack = ({ language }) => {
+const CareerTrack = () => {
+  const { language } = useLanguage();
+  const router = useRouter();
   const [selectedFeature, setSelectedFeature] = useState(null);
   const [formData, setFormData] = useState({});
   const [resumeFile, setResumeFile] = useState(null);
@@ -1129,7 +1133,7 @@ const CareerTrack = ({ language }) => {
 
         {/* Features Section */}
         <div id="features" className="mb-10">
-          <div className="bg-white/5 backdrop-blur border border-gray-800 rounded-2xl p-8 mb-8">
+          <div className="bg-gray-800/80 border border-gray-700 rounded-2xl p-8 mb-8">
             <h2 className="text-3xl font-bold text-white mb-2">{t.features}</h2>
             <p className="text-gray-400 mb-6">{t.focusedTools}</p>
             
@@ -1137,8 +1141,14 @@ const CareerTrack = ({ language }) => {
               {features.map((feature) => (
                 <button
                   key={feature.id}
-                  onClick={() => showFeature(feature.id)}
-                  className="bg-white/5 border border-gray-800 rounded-2xl p-6 text-left hover:bg-white/10 transition-all cursor-pointer group"
+                  onClick={() => {
+                    if (feature.id === 'interview') {
+                      router.push('/dashboard/career/interview');
+                    } else {
+                      showFeature(feature.id);
+                    }
+                  }}
+                  className="bg-gray-800/50 border border-gray-700 rounded-2xl p-6 text-left hover:bg-gray-700 transition-all cursor-pointer group"
                 >
                   <div className="w-12 h-12 bg-emerald-500/20 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                     <feature.icon className="w-6 h-6 text-emerald-400" />
@@ -1158,7 +1168,7 @@ const CareerTrack = ({ language }) => {
           </div>
 
           {/* Privacy Section */}
-          <div className="bg-white/5 backdrop-blur border border-gray-800 rounded-2xl p-8 text-center">
+          <div className="bg-gray-800/80 border border-gray-700 rounded-2xl p-8 text-center">
             <Shield className="w-12 h-12 text-emerald-400 mx-auto mb-4" />
             <h3 className="text-2xl font-bold text-white mb-2">{t.privacyFirst}</h3>
             <p className="text-gray-400">
@@ -1170,11 +1180,11 @@ const CareerTrack = ({ language }) => {
 
       {/* Feature Modal */}
       {selectedFeature && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={closeFeature}>
-          <div className="bg-gradient-to-br from-gray-900 to-black rounded-3xl max-w-6xl w-full max-h-[85vh] overflow-y-auto border border-gray-800 relative" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4" onClick={closeFeature}>
+          <div className="bg-gray-900 rounded-3xl max-w-6xl w-full max-h-[85vh] overflow-y-auto border border-gray-800 relative" onClick={(e) => e.stopPropagation()}>
             <button
               onClick={closeFeature}
-              className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center bg-white/5 hover:bg-white/10 rounded-full transition-all z-10"
+              className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center bg-gray-800 hover:bg-gray-700 rounded-full transition-all z-10"
             >
               <X className="w-6 h-6 text-white" />
             </button>
@@ -1199,7 +1209,7 @@ const CareerTrack = ({ language }) => {
                           value={formData.jobDescription || ''}
                           onChange={(e) => handleInputChange('jobDescription', e.target.value)}
                           placeholder="Paste the job description here..."
-                          className="w-full bg-white/5 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 min-h-[150px]"
+                          className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 min-h-[150px]"
                           required
                         />
                       </div>
@@ -1212,7 +1222,7 @@ const CareerTrack = ({ language }) => {
                           type="file"
                           accept=".txt,.pdf"
                           onChange={handleFileChange}
-                          className="w-full bg-white/5 border border-gray-700 rounded-xl px-4 py-2 text-white text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-emerald-500/20 file:text-emerald-400 hover:file:bg-emerald-500/30"
+                          className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-2 text-white text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-emerald-500/20 file:text-emerald-400 hover:file:bg-emerald-500/30"
                         />
                         <p className="mt-2 text-xs text-gray-400">Supported formats: .txt, .pdf</p>
                         {resumeFile && (
@@ -1229,7 +1239,7 @@ const CareerTrack = ({ language }) => {
                           value={formData.name || ''}
                           onChange={(e) => handleInputChange('name', e.target.value)}
                           placeholder="Your full name"
-                          className="w-full bg-white/5 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                          className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
                         />
                       </div>
 
@@ -1241,7 +1251,7 @@ const CareerTrack = ({ language }) => {
                           value={formData.skills || ''}
                           onChange={(e) => handleInputChange('skills', e.target.value)}
                           placeholder="e.g. Python, Communication, Excel, Project Management..."
-                          className="w-full bg-white/5 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 min-h-[80px]"
+                          className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 min-h-[80px]"
                         />
                       </div>
 
@@ -1253,7 +1263,7 @@ const CareerTrack = ({ language }) => {
                           value={formData.experience || ''}
                           onChange={(e) => handleInputChange('experience', e.target.value)}
                           placeholder="Briefly describe your relevant work experience, projects, or achievements..."
-                          className="w-full bg-white/5 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 min-h-[100px]"
+                          className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 min-h-[100px]"
                         />
                       </div>
 
@@ -1265,7 +1275,7 @@ const CareerTrack = ({ language }) => {
                           value={formData.education || ''}
                           onChange={(e) => handleInputChange('education', e.target.value)}
                           placeholder="List your education: institution, degree, major, graduation date, relevant coursework, honors, etc..."
-                          className="w-full bg-white/5 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 min-h-[100px]"
+                          className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 min-h-[100px]"
                         />
                       </div>
 
@@ -1277,7 +1287,7 @@ const CareerTrack = ({ language }) => {
                           value={formData.additionalInfo || ''}
                           onChange={(e) => handleInputChange('additionalInfo', e.target.value)}
                           placeholder="Any additional information you'd like to include (certifications, awards, etc.)..."
-                          className="w-full bg-white/5 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 min-h-[80px]"
+                          className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 min-h-[80px]"
                         />
                       </div>
 
@@ -1417,7 +1427,7 @@ const CareerTrack = ({ language }) => {
                               value="yes"
                               checked={hasExistingResume === true}
                               onChange={() => setHasExistingResume(true)}
-                              className="w-4 h-4 text-emerald-500 bg-white/5 border-gray-700 focus:ring-emerald-500"
+                              className="w-4 h-4 text-emerald-500 bg-gray-800 border-gray-700 focus:ring-emerald-500"
                             />
                             <span className="text-gray-300">Yes</span>
                           </label>
@@ -1428,7 +1438,7 @@ const CareerTrack = ({ language }) => {
                               value="no"
                               checked={hasExistingResume === false}
                               onChange={() => setHasExistingResume(false)}
-                              className="w-4 h-4 text-emerald-500 bg-white/5 border-gray-700 focus:ring-emerald-500"
+                              className="w-4 h-4 text-emerald-500 bg-gray-800 border-gray-700 focus:ring-emerald-500"
                             />
                             <span className="text-gray-300">No</span>
                           </label>
@@ -1442,7 +1452,7 @@ const CareerTrack = ({ language }) => {
                             type="file"
                             accept=".txt,.pdf"
                             onChange={handleFileChange}
-                            className="w-full bg-white/5 border border-gray-700 rounded-xl px-4 py-2 text-white text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-emerald-500/20 file:text-emerald-400 hover:file:bg-emerald-500/30"
+                            className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-2 text-white text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-emerald-500/20 file:text-emerald-400 hover:file:bg-emerald-500/30"
                           />
                           <p className="mt-2 text-xs text-gray-400">Supported formats: .txt, .pdf</p>
                           {resumeFile && (
@@ -1462,7 +1472,7 @@ const CareerTrack = ({ language }) => {
                               value={formData.name || ''}
                               onChange={(e) => handleInputChange('name', e.target.value)}
                               placeholder="Your full name"
-                              className="w-full bg-white/5 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                              className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
                             />
                           </div>
 
@@ -1475,7 +1485,7 @@ const CareerTrack = ({ language }) => {
                               value={formData.phone || ''}
                               onChange={(e) => handleInputChange('phone', e.target.value)}
                               placeholder="Your phone number"
-                              className="w-full bg-white/5 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                              className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
                             />
                           </div>
 
@@ -1488,7 +1498,7 @@ const CareerTrack = ({ language }) => {
                               value={formData.email || ''}
                               onChange={(e) => handleInputChange('email', e.target.value)}
                               placeholder="your.email@example.com"
-                              className="w-full bg-white/5 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                              className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
                             />
                           </div>
 
@@ -1501,7 +1511,7 @@ const CareerTrack = ({ language }) => {
                               value={formData.linkedin || ''}
                               onChange={(e) => handleInputChange('linkedin', e.target.value)}
                               placeholder="linkedin.com/in/yourprofile"
-                              className="w-full bg-white/5 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                              className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
                             />
                           </div>
 
@@ -1513,7 +1523,7 @@ const CareerTrack = ({ language }) => {
                               value={formData.skills || ''}
                               onChange={(e) => handleInputChange('skills', e.target.value)}
                               placeholder="e.g. Python, Communication, Excel, Project Management..."
-                              className="w-full bg-white/5 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 min-h-[80px]"
+                              className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 min-h-[80px]"
                               required={hasExistingResume === false}
                             />
                           </div>
@@ -1539,7 +1549,7 @@ const CareerTrack = ({ language }) => {
                               value={formData.personalProjects || ''}
                               onChange={(e) => handleInputChange('personalProjects', e.target.value)}
                               placeholder="List any relevant projects you've worked on..."
-                              className="w-full bg-white/5 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 min-h-[100px]"
+                              className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 min-h-[100px]"
                             />
                           </div>
 
@@ -1551,7 +1561,7 @@ const CareerTrack = ({ language }) => {
                               value={formData.education || ''}
                               onChange={(e) => handleInputChange('education', e.target.value)}
                               placeholder="List your education: institution, degree, major, graduation date..."
-                              className="w-full bg-white/5 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 min-h-[100px]"
+                              className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 min-h-[100px]"
                               required={hasExistingResume === false}
                             />
                           </div>
@@ -1564,7 +1574,7 @@ const CareerTrack = ({ language }) => {
                               value={formData.miscInfo || ''}
                               onChange={(e) => handleInputChange('miscInfo', e.target.value)}
                               placeholder="Any awards, certifications, publications, volunteer work, etc..."
-                              className="w-full bg-white/5 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 min-h-[100px]"
+                              className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 min-h-[100px]"
                             />
                           </div>
                         </div>
@@ -1579,7 +1589,7 @@ const CareerTrack = ({ language }) => {
                             value={formData.skills || ''}
                             onChange={(e) => handleInputChange('skills', e.target.value)}
                             placeholder="Additional skills or skills from the job description you want to highlight..."
-                            className="w-full bg-white/5 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 min-h-[80px]"
+                            className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 min-h-[80px]"
                           />
                         </div>
                       )}
@@ -1683,7 +1693,7 @@ const CareerTrack = ({ language }) => {
                         {input.type === 'file' ? (
                           <input
                             type="file"
-                            className="w-full bg-white/5 border border-gray-700 rounded-xl px-4 py-2 text-white text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-emerald-500/20 file:text-emerald-400 hover:file:bg-emerald-500/30"
+                            className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-2 text-white text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-emerald-500/20 file:text-emerald-400 hover:file:bg-emerald-500/30"
                           />
                         ) : input.type === 'select' ? (
                           <select className="w-full bg-white/5 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20">
@@ -1708,7 +1718,7 @@ const CareerTrack = ({ language }) => {
                           <input
                             type={input.type}
                             placeholder={input.placeholder}
-                            className="w-full bg-white/5 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                            className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
                           />
                         )}
                         {input.items && (
@@ -1746,7 +1756,7 @@ const CareerTrack = ({ language }) => {
                           type="file"
                           accept=".txt,.pdf"
                           onChange={handleChatResumeFileChange}
-                          className="w-full bg-white/5 border border-gray-700 rounded-xl px-4 py-2 text-white text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-emerald-500/20 file:text-emerald-400 hover:file:bg-emerald-500/30"
+                          className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-2 text-white text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-emerald-500/20 file:text-emerald-400 hover:file:bg-emerald-500/30"
                         />
                         {chatResumeFile && (
                           <p className="mt-2 text-sm text-emerald-400">✓ {chatResumeFile.name}</p>
@@ -1761,7 +1771,7 @@ const CareerTrack = ({ language }) => {
                           type="file"
                           accept=".txt"
                           onChange={handleChatCoverLetterFileChange}
-                          className="w-full bg-white/5 border border-gray-700 rounded-xl px-4 py-2 text-white text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-emerald-500/20 file:text-emerald-400 hover:file:bg-emerald-500/30"
+                          className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-2 text-white text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-emerald-500/20 file:text-emerald-400 hover:file:bg-emerald-500/30"
                         />
                         {chatCoverLetterFile && (
                           <p className="mt-2 text-sm text-emerald-400">✓ {chatCoverLetterFile.name}</p>
@@ -1776,7 +1786,7 @@ const CareerTrack = ({ language }) => {
                           value={chatJobDescription}
                           onChange={(e) => setChatJobDescription(e.target.value)}
                           placeholder="Paste a job description here for context..."
-                          className="w-full bg-white/5 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 min-h-[100px]"
+                          className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 min-h-[100px]"
                         />
                       </div>
                     </div>

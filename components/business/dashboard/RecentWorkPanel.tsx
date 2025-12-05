@@ -16,7 +16,7 @@ export default function RecentWorkPanel({ tenantId, userId }: RecentWorkPanelPro
   const [activeTab, setActiveTab] = useState<TabType>('assistants');
 
   return (
-    <div className="bg-white/5 backdrop-blur rounded-lg border border-gray-800">
+    <div className="bg-gray-800/80 rounded-lg border border-gray-700">
       {/* Tab Headers */}
       <div className="border-b border-gray-800">
         <div className="flex">
@@ -25,7 +25,7 @@ export default function RecentWorkPanel({ tenantId, userId }: RecentWorkPanelPro
             className={`flex-1 px-6 py-4 text-sm font-semibold transition-colors relative ${
               activeTab === 'assistants'
                 ? 'text-emerald-400 bg-emerald-500/10'
-                : 'text-gray-400 hover:text-gray-200 hover:bg-white/5'
+                : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800'
             }`}
           >
             <span>AI Assistants</span>
@@ -39,7 +39,7 @@ export default function RecentWorkPanel({ tenantId, userId }: RecentWorkPanelPro
             className={`flex-1 px-6 py-4 text-sm font-semibold transition-colors relative ${
               activeTab === 'websites'
                 ? 'text-emerald-400 bg-emerald-500/10'
-                : 'text-gray-400 hover:text-gray-200 hover:bg-white/5'
+                : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800'
             }`}
           >
             <span>Websites</span>
@@ -53,7 +53,7 @@ export default function RecentWorkPanel({ tenantId, userId }: RecentWorkPanelPro
             className={`flex-1 px-6 py-4 text-sm font-semibold transition-colors relative ${
               activeTab === 'logos'
                 ? 'text-purple-400 bg-purple-500/10'
-                : 'text-gray-400 hover:text-gray-200 hover:bg-white/5'
+                : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800'
             }`}
           >
             <span>Logos</span>
