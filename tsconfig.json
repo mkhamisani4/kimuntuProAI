@@ -23,7 +23,9 @@
       }
     ],
     "paths": {
-      "@/*": ["./*"]
+      "@/*": [
+        "./*"
+      ]
     }
   },
   "include": [
@@ -34,6 +36,9 @@
   ],
   "exclude": [
     "node_modules",
-    "legal_files"
+    "legal_files",
+    "playwright.config.ts",
+    "vitest.config.ts",
+    "vitest.setup.ts"
   ]
 }
