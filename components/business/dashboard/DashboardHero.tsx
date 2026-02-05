@@ -4,8 +4,6 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Globe, TrendingUp } from 'lucide-react';
 import { getPrimaryLogo, type Logo } from '@kimuntupro/db';
-import { useTheme } from '@/components/providers/ThemeProvider';
-import { useLanguage } from '@/components/providers/LanguageProvider';
 
 interface DashboardHeroProps {
   userName?: string;
@@ -15,8 +13,6 @@ interface DashboardHeroProps {
 
 export default function DashboardHero({ userName, tenantId, userId }: DashboardHeroProps) {
   const router = useRouter();
-  const { isDark } = useTheme();
-  const { t } = useLanguage();
   const [primaryLogo, setPrimaryLogo] = useState<Logo | null>(null);
   const [logoDataURL, setLogoDataURL] = useState<string | null>(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
@@ -109,7 +105,7 @@ export default function DashboardHero({ userName, tenantId, userId }: DashboardH
           {/* Primary Logo Badge */}
           {logoDataURL && (
             <div className="flex-shrink-0">
-              <div className="w-20 h-20 rounded-full bg-gray-800 border-2 border-emerald-400/50 overflow-hidden shadow-lg">
+              <div className="w-20 h-20 rounded-full bg-white/10 backdrop-blur border-2 border-emerald-400/50 overflow-hidden shadow-lg">
                 <img
                   src={logoDataURL}
                   alt={primaryLogo?.companyName || 'Company Logo'}
@@ -121,13 +117,13 @@ export default function DashboardHero({ userName, tenantId, userId }: DashboardH
 
           {/* Greeting */}
           <div>
-            <h1 className={`text-3xl font-bold mb-1 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-              {userName ? `${t.businessWelcomeBack}, ${userName}` : t.businessWelcome}
+            <h1 className="text-3xl font-bold mb-1 text-white">
+              {userName ? `Welcome back, ${userName}` : 'Welcome to Business Track'}
             </h1>
-            <p className={`text-lg mb-1 ${isDark ? 'text-emerald-300' : 'text-emerald-700'}`}>
-              {t.businessCommandCenter}
+            <p className="text-emerald-300 text-lg mb-1">
+              Your AI-Powered Business Command Center
             </p>
-            <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+            <p className="text-gray-400 text-sm">
               {today}
             </p>
           </div>
@@ -140,14 +136,14 @@ export default function DashboardHero({ userName, tenantId, userId }: DashboardH
             className="flex items-center gap-2 px-6 py-3 bg-emerald-500 text-white font-semibold rounded-lg hover:bg-emerald-600 transition-colors shadow-lg"
           >
             <TrendingUp size={20} />
-            {t.businessGeneratePlan}
+            Generate Business Plan
           </button>
           <button
             onClick={() => router.push('/dashboard/business/websites/new')}
             className="flex items-center gap-2 px-6 py-3 bg-purple-500 text-white font-semibold rounded-lg hover:bg-purple-600 transition-colors shadow-lg"
           >
             <Globe size={20} />
-            {t.businessBuildWebsite}
+            Build AI Website
           </button>
         </div>
       </div>

@@ -3,35 +3,30 @@
 import { TrendingUp, FileText, BarChart3, DollarSign, Globe, Mail, Palette } from 'lucide-react';
 import ToolCard from './ToolCard';
 import FeaturedToolCard from './FeaturedToolCard';
-import { useTheme } from '@/components/providers/ThemeProvider';
-import { useLanguage } from '@/components/providers/LanguageProvider';
 
 export default function ToolsPanel() {
-  const { isDark } = useTheme();
-  const { t } = useLanguage();
-
   return (
     <div className="space-y-6">
       {/* Section Title */}
-      <h2 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>{t.businessAITools}</h2>
+      <h2 className="text-xl font-bold text-gray-900">AI Tools</h2>
 
       {/* Planning & Strategy */}
       <div className="space-y-3">
         <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wide">
-          {t.businessPlanningStrategy}
+          Planning & Strategy
         </h3>
         <div className="space-y-3">
           <ToolCard
             icon={TrendingUp}
-            title={t.businessStreamlinedPlan}
-            description={t.businessStreamlinedPlanDesc}
+            title="Streamlined Plan"
+            description="One-page lean plan in 60 seconds"
             route="/dashboard/business/streamlined-plan"
             color="blue"
           />
           <ToolCard
             icon={FileText}
-            title={t.businessExecutiveSummary}
-            description={t.businessExecutiveSummaryDesc}
+            title="Executive Summary"
+            description="Investor-ready summary with financials"
             route="/dashboard/business/exec-summary"
             color="blue"
           />
@@ -41,20 +36,20 @@ export default function ToolsPanel() {
       {/* Research & Analysis */}
       <div className="space-y-3">
         <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wide">
-          {t.businessResearchAnalysis}
+          Research & Analysis
         </h3>
         <div className="space-y-3">
           <ToolCard
             icon={BarChart3}
-            title={t.businessMarketAnalysis}
-            description={t.businessMarketAnalysisDesc}
+            title="Market Analysis"
+            description="Competitive intelligence with live data"
             route="/dashboard/business/market-analysis"
             color="teal"
           />
           <ToolCard
             icon={DollarSign}
-            title={t.businessFinancialOverview}
-            description={t.businessFinancialOverviewDesc}
+            title="Financial Overview"
+            description="12-month projections & metrics"
             route="/dashboard/business/financial-overview"
             color="teal"
           />

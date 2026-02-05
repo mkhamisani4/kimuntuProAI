@@ -187,13 +187,13 @@ export default function AssistantsTab({ tenantId, limit = 8 }: AssistantsTabProp
     <div className="space-y-4">
       {/* Filter Dropdown */}
       <div className="flex items-center justify-between">
-        <div className="text-sm text-gray-400">
+        <div className="text-sm text-gray-500">
           {filteredResults.length} result{filteredResults.length !== 1 ? 's' : ''}
         </div>
         <select
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
-          className="px-3 py-1.5 text-sm bg-white/5 border border-gray-700 text-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          className="px-3 py-1.5 text-sm bg-white border border-gray-200 text-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-sm"
         >
           <option value="all">All Types</option>
           <option value="streamlined_plan">Streamlined Plan</option>
@@ -208,7 +208,7 @@ export default function AssistantsTab({ tenantId, limit = 8 }: AssistantsTabProp
         {filteredResults.map((result) => (
           <div
             key={result.id}
-            className="p-4 bg-white/5 hover:bg-white/10 rounded-lg border border-gray-800 transition-all cursor-pointer group"
+            className="p-4 bg-white hover:bg-gray-50 rounded-xl border border-gray-200 transition-all cursor-pointer group shadow-sm hover:shadow-md"
             onClick={() => handleOpen(result)}
           >
             <div className="flex items-start justify-between gap-4">
@@ -225,20 +225,20 @@ export default function AssistantsTab({ tenantId, limit = 8 }: AssistantsTabProp
                 </div>
 
                 {/* Title */}
-                <h3 className="text-base font-semibold text-white truncate mb-1" title={result.title}>
+                <h3 className="text-base font-semibold text-gray-900 truncate mb-1" title={result.title}>
                   {result.title}
                 </h3>
 
                 {/* Summary Preview */}
                 {result.summary && (
-                  <p className="text-sm text-gray-400 line-clamp-2">
+                  <p className="text-sm text-gray-500 line-clamp-2">
                     {result.summary}
                   </p>
                 )}
 
                 {/* Metadata */}
                 {result.metadata && (
-                  <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
+                  <div className="flex items-center gap-3 mt-2 text-xs text-gray-400">
                     {result.metadata.tokensUsed && (
                       <span>{result.metadata.tokensUsed.toLocaleString()} tokens</span>
                     )}
@@ -256,7 +256,7 @@ export default function AssistantsTab({ tenantId, limit = 8 }: AssistantsTabProp
                     e.stopPropagation();
                     handleOpen(result);
                   }}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500 text-white text-sm font-medium rounded-lg hover:bg-emerald-600 transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500 text-white text-sm font-medium rounded-lg hover:bg-emerald-600 transition-colors shadow-sm"
                 >
                   <ExternalLink size={14} />
                   Open
@@ -266,7 +266,7 @@ export default function AssistantsTab({ tenantId, limit = 8 }: AssistantsTabProp
                     e.stopPropagation();
                     handleRegenerate(result);
                   }}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 border border-gray-700 text-gray-300 text-sm font-medium rounded-lg hover:bg-white/10 transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 text-gray-600 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors shadow-sm"
                 >
                   <RefreshCw size={14} />
                   New
@@ -290,7 +290,7 @@ export default function AssistantsTab({ tenantId, limit = 8 }: AssistantsTabProp
                         e.stopPropagation();
                         cancelDelete();
                       }}
-                      className="px-3 py-1.5 bg-gray-700 text-gray-300 text-xs font-medium rounded-lg hover:bg-gray-600 transition-colors"
+                      className="px-3 py-1.5 bg-gray-100 text-gray-600 text-xs font-medium rounded-lg hover:bg-gray-200 transition-colors"
                     >
                       Cancel
                     </button>
@@ -301,7 +301,7 @@ export default function AssistantsTab({ tenantId, limit = 8 }: AssistantsTabProp
                       e.stopPropagation();
                       handleDelete(result.id!, result.title);
                     }}
-                    className="flex items-center justify-center gap-1.5 px-3 py-1.5 text-gray-400 hover:text-red-400 hover:bg-red-500/10 border border-gray-700 hover:border-red-500/30 text-sm font-medium rounded-lg transition-colors"
+                    className="flex items-center justify-center gap-1.5 px-3 py-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 border border-transparent hover:border-red-100 text-sm font-medium rounded-lg transition-colors"
                     title="Delete result"
                   >
                     <Trash2 size={14} />
@@ -318,7 +318,7 @@ export default function AssistantsTab({ tenantId, limit = 8 }: AssistantsTabProp
         <div className="pt-2 text-center">
           <button
             onClick={() => router.push('/dashboard/business/ai-assistant')}
-            className="text-sm text-emerald-400 hover:text-emerald-300 font-medium"
+            className="text-sm text-emerald-600 hover:text-emerald-700 font-medium"
           >
             View All Results →
           </button>
