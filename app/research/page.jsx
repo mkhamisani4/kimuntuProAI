@@ -1,4 +1,6 @@
-import Research from '@/src/pages/Research';
+'use client';
+
+import Research from '@/src/views/Research';
 
 export default function ResearchPage() {
     return <Research />;

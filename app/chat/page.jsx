@@ -1,4 +1,6 @@
-import Chat from '@/src/pages/Chat';
+'use client';
+
+import Chat from '@/src/views/Chat';
 
 export default function ChatPage() {
     return <Chat />;
