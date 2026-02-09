@@ -26,6 +26,10 @@ const Footer = () => {
             { name: 'Press Kit', href: '/press' },
         ],
         resources: [
+            { name: 'Research', href: '/research' },
+            { name: 'Database', href: '/database' },
+            { name: 'Legal AI Demo', href: '/chat' },
+            { name: 'Onboarding', href: '/onboarding' },
             { name: 'Documentation', href: '/docs' },
             { name: 'API Reference', href: '/api' },
             { name: 'Community', href: '/community' },
