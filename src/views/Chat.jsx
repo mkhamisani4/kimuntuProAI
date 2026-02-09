@@ -20,6 +20,42 @@ import {
 } from 'lucide-react';
 
 /* ------------------------------------------------------------------ */
+/*  Streaming text hook - reveals text word-by-word                     */
+/* ------------------------------------------------------------------ */
+const useStreamingText = (fullText, isStreaming, speed = 30) => {
+    const [displayedText, setDisplayedText] = useState('');
+    const [isDone, setIsDone] = useState(false);
+
+    useEffect(() => {
+        if (!isStreaming || !fullText) {
+            setDisplayedText(fullText || '');
+            setIsDone(true);
+            return;
+        }
+
+        setDisplayedText('');
+        setIsDone(false);
+        let charIndex = 0;
+
+        const interval = setInterval(() => {
+            if (charIndex < fullText.length) {
+                // Reveal in small chunks (2-4 chars at a time for natural feel)
+                const chunkSize = fullText[charIndex] === ' ' ? 1 : Math.min(2 + Math.floor(Math.random() * 3), fullText.length - charIndex);
+                charIndex += chunkSize;
+                setDisplayedText(fullText.slice(0, charIndex));
+            } else {
+                setIsDone(true);
+                clearInterval(interval);
+            }
+        }, speed);
+
+        return () => clearInterval(interval);
+    }, [fullText, isStreaming, speed]);
+
+    return { displayedText, isDone };
+};
+
+/* ------------------------------------------------------------------ */
 /*  Starter prompts shown as pill buttons above the input              */
 /* ------------------------------------------------------------------ */
 const starterPrompts = [
@@ -156,8 +192,11 @@ const TypingIndicator = ({ isDark }) => (
 /* ------------------------------------------------------------------ */
 /*  Message bubble component                                           */
 /* ------------------------------------------------------------------ */
-const MessageBubble = ({ message, isDark }) => {
+const MessageBubble = ({ message, isDark, isLatestAssistant }) => {
     const isUser = message.role === 'user';
+    const shouldStream = !isUser && isLatestAssistant && message._stream;
+    const { displayedText, isDone } = useStreamingText(message.content, shouldStream, 18);
+    const textToShow = shouldStream ? displayedText : message.content;
 
     return (
         <div
@@ -180,7 +219,10 @@ const MessageBubble = ({ message, isDark }) => {
                             : 'rounded-tl-sm bg-white backdrop-blur-xl border border-gray-200 text-gray-800'
                         }`}
                 >
-                    {message.content}
+                    {textToShow}
+                    {shouldStream && !isDone && (
+                        <span className="inline-block w-0.5 h-4 ml-0.5 align-middle bg-current animate-pulse" />
+                    )}
                 </div>
                 <p className={`text-[10px] mt-1 ${isUser ? 'text-right' : 'text-left'} ${isDark ? 'text-gray-500' : 'text-gray-400'
                     }`}>
@@ -218,16 +260,26 @@ const Chat = () => {
         },
     ]);
 
-    const chatEndRef = useRef(null);
     const chatContainerRef = useRef(null);
     const inputRef = useRef(null);
 
-    /* Auto-scroll to bottom on new messages or typing change */
-    useEffect(() => {
-        if (chatEndRef.current) {
-            chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    /* Scroll to bottom of the chat CONTAINER only (not the page) */
+    const scrollToBottom = useCallback(() => {
+        const container = chatContainerRef.current;
+        if (container) {
+            requestAnimationFrame(() => {
+                container.scrollTo({
+                    top: container.scrollHeight,
+                    behavior: 'smooth',
+                });
+            });
         }
-    }, [messages, isTyping]);
+    }, []);
+
+    /* Auto-scroll within container on new messages or typing change */
+    useEffect(() => {
+        scrollToBottom();
+    }, [messages, isTyping, scrollToBottom]);
 
     /* Send a message */
     const handleSend = useCallback(() => {
@@ -239,7 +291,7 @@ const Chat = () => {
         setInput('');
         setIsTyping(true);
 
-        /* Random delay between 800ms - 1500ms */
+        /* Random delay between 800ms - 1500ms for "thinking" */
         const delay = 800 + Math.random() * 700;
 
         setTimeout(() => {
@@ -247,6 +299,7 @@ const Chat = () => {
                 role: 'assistant',
                 content: buildDemoResponse(trimmed),
                 timestamp: new Date(),
+                _stream: true, // flag to enable streaming animation
             };
             setMessages((prev) => [...prev, assistantMessage]);
             setIsTyping(false);
@@ -288,8 +341,15 @@ const Chat = () => {
                     from { opacity: 0; transform: translateY(8px); }
                     to { opacity: 1; transform: translateY(0); }
                 }
+                @keyframes pulse-cursor {
+                    0%, 100% { opacity: 1; }
+                    50% { opacity: 0; }
+                }
                 .animate-fade-in {
                     animation: fade-in 0.3s ease-out forwards;
+                }
+                .animate-pulse {
+                    animation: pulse-cursor 0.8s ease-in-out infinite;
                 }
             `}</style>
 
@@ -363,11 +423,19 @@ const Chat = () => {
                         }`}
                 >
                     <div className="space-y-5">
-                        {messages.map((message, index) => (
-                            <MessageBubble key={index} message={message} isDark={isDark} />
-                        ))}
+                        {messages.map((message, index) => {
+                            /* Find if this is the latest assistant message (for streaming) */
+                            const isLatestAssistant = message.role === 'assistant' && index === messages.length - 1;
+                            return (
+                                <MessageBubble
+                                    key={index}
+                                    message={message}
+                                    isDark={isDark}
+                                    isLatestAssistant={isLatestAssistant}
+                                />
+                            );
+                        })}
                         {isTyping && <TypingIndicator isDark={isDark} />}
-                        <div ref={chatEndRef} />
                     </div>
                 </div>
 
