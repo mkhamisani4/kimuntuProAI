@@ -1,6 +1,7 @@
 'use client';
 
 import { useTheme } from '@/components/providers/ThemeProvider';
+import { useLanguage } from '@/components/providers/LanguageProvider';
 import DashboardHero from './DashboardHero';
 import ToolsPanel from './ToolsPanel';
 import RecentWorkPanel from './RecentWorkPanel';
@@ -20,6 +21,7 @@ export default function BusinessDashboard({
   loading = false
 }: BusinessDashboardProps) {
   const { isDark } = useTheme();
+  const { t } = useLanguage();
 
   return (
     <div className={`min-h-screen transition-colors duration-300 ${isDark
@@ -40,7 +42,7 @@ export default function BusinessDashboard({
           {/* Center Column: Recent Work (45% - 5 cols) */}
           <div className="lg:col-span-5 space-y-6">
             <h2 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-              Your Work
+              {t.businessYourWork}
             </h2>
 
             {/* Phase 2: Enhanced tabbed interface with filters and actions */}
@@ -50,9 +52,9 @@ export default function BusinessDashboard({
 
             {/* Loading State */}
             {loading && (
-              <div className={`backdrop-blur rounded-lg border p-6 ${isDark
-                ? 'bg-white/5 border-gray-700'
-                : 'bg-white/60 border-gray-200'
+              <div className={`rounded-lg border p-6 ${isDark
+                ? 'bg-gray-800/80 border-gray-700'
+                : 'bg-white border-gray-200'
                 }`}>
                 <div className="space-y-4">
                   <div className={`h-32 rounded-lg animate-pulse ${isDark ? 'bg-gray-700' : 'bg-gray-200'

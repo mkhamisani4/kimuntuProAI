@@ -1,5 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+    // Disable TypeScript errors during build (only show warnings)
+    typescript: {
+        ignoreBuildErrors: false, // Set to true to completely ignore TS errors
+    },
+    // Disable ESLint during build
+    eslint: {
+        ignoreDuringBuilds: false, // Set to true to completely ignore ESLint
+    },
     images: {
         domains: [],
         unoptimized: false,
@@ -16,6 +24,12 @@ const nextConfig = {
                 tls: false,
             };
         }
+        // Handle .mjs files from node_modules
+        config.module.rules.push({
+            test: /\.mjs$/,
+            include: /node_modules/,
+            type: 'javascript/auto',
+        });
         return config;
     },
 }

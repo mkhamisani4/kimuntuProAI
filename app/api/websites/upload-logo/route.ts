@@ -80,12 +80,3 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     );
   }
 }
-
-// Configure larger body size limit for file uploads
-export const config = {
-  api: {
-    bodyParser: {
-      sizeLimit: '10mb',
-    },
-  },
-};
