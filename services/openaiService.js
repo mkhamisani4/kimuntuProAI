@@ -820,10 +820,10 @@ Generate a mix of questions appropriate for this interview type, tailored to the
 `;
   }
 
-  const prompt = `You are an expert interview coach specializing in ${interviewType} interviews. Generate 6-7 GENUINE, INDUSTRY-STANDARD interview questions for a ${interviewType} interview for the role of ${role}.
+  const prompt = `You are an expert interview coach specializing in ${interviewType} interviews. Generate 5-6 GENUINE, INDUSTRY-STANDARD interview questions for a ${interviewType} interview for the role of ${role}.
 
 **CRITICAL REQUIREMENTS:**
-- Generate exactly 6-7 questions (aim for 7)
+- Generate exactly 5-6 questions (aim for 6)
 - Questions MUST be tailored to the specific job description provided
 - Questions MUST match the interview type (${interviewType}) - these should be REAL ${interviewType} questions, not generic ones
 - Questions should be appropriate for the role: ${role}
@@ -838,7 +838,7 @@ Return ONLY a numbered list of questions, one per line, like this:
 1. [First question]
 2. [Second question]
 3. [Third question]
-... (continue for 6-7 questions)
+... (continue for 5-6 questions)
 
 Do NOT include any explanations, introductions, or additional text. Just the numbered questions.
 
@@ -860,7 +860,7 @@ ${skills ? `Candidate's Skills:\n${skills}` : ''}
 - For Case Study interviews: Present business scenarios requiring analytical thinking
 - Make questions GENUINE and INDUSTRY-STANDARD - these should be questions that are actually asked in real ${interviewType} interviews
 
-Generate 6-7 ${interviewType} interview questions now:`;
+Generate 5-6 ${interviewType} interview questions now:`;
 
   try {
     const completion = await openai.chat.completions.create({
@@ -868,7 +868,7 @@ Generate 6-7 ${interviewType} interview questions now:`;
       messages: [
         {
           role: 'system',
-          content: `You are an expert interview coach specializing in ${interviewType} interviews. You create GENUINE, INDUSTRY-STANDARD interview questions that are actually asked at top companies. For technical interviews, you generate real coding problems, system design questions, and technology-specific challenges. For behavioral interviews, you use STAR method questions. For case studies, you present realistic business scenarios. You generate exactly 6-7 high-quality, specific, actionable questions that match the interview type, role, and job requirements.`
+          content: `You are an expert interview coach specializing in ${interviewType} interviews. You create GENUINE, INDUSTRY-STANDARD interview questions that are actually asked at top companies. For technical interviews, you generate real coding problems, system design questions, and technology-specific challenges. For behavioral interviews, you use STAR method questions. For case studies, you present realistic business scenarios. You generate exactly 5-6 high-quality, specific, actionable questions that match the interview type, role, and job requirements.`
         },
         {
           role: 'user',
@@ -880,11 +880,12 @@ Generate 6-7 ${interviewType} interview questions now:`;
     });
 
     const questionsText = completion.choices[0].message.content.trim();
-    // Parse questions into an array
+    // Parse questions into an array and limit to 5-6
     const questions = questionsText
       .split('\n')
       .map(line => line.replace(/^\d+\.\s*/, '').trim())
-      .filter(line => line.length > 0);
+      .filter(line => line.length > 0)
+      .slice(0, 6);
 
     return questions;
   } catch (error) {

@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Users, Loader2, Mic, Video, MessageSquare, TrendingUp, AlertCircle, X, FileText } from 'lucide-react';
+import { ArrowLeft, Users, Loader2, Mic, Video, MessageSquare, TrendingUp, AlertCircle, X, FileText, ChevronRight, ChevronLeft } from 'lucide-react';
 import { useTheme } from '@/components/providers/ThemeProvider';
 import { useLanguage } from '@/components/providers/LanguageProvider';
 import { generateInterviewQuestions, extractResumeText } from '@/services/openaiService';
+import { evaluateInterviewResponses, getInterviewFeedback } from '@/services/responseAnalysisService';
 
 export default function InterviewSimulatorPage() {
     const router = useRouter();
@@ -22,6 +23,14 @@ export default function InterviewSimulatorPage() {
     const [generatedQuestions, setGeneratedQuestions] = useState([]);
     const [showQuestionsModal, setShowQuestionsModal] = useState(false);
     const [error, setError] = useState(null);
+    const [simulationActive, setSimulationActive] = useState(false);
+    const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+    const [responses, setResponses] = useState([]);
+    const [responseAnalyses, setResponseAnalyses] = useState(null);
+    const [evaluationOverall, setEvaluationOverall] = useState(null);
+    const [analyzingResponses, setAnalyzingResponses] = useState(false);
+    const [feedbacks, setFeedbacks] = useState(null);
+    const [loadingFeedbackIndex, setLoadingFeedbackIndex] = useState(null);
 
     const interviewTypes = [
         'Technical',
@@ -47,6 +56,71 @@ export default function InterviewSimulatorPage() {
         }
     };
 
+    const closeModal = () => {
+        setShowQuestionsModal(false);
+        setSimulationActive(false);
+        setCurrentQuestionIndex(0);
+        setResponses([]);
+        setResponseAnalyses(null);
+        setEvaluationOverall(null);
+        setFeedbacks(null);
+        setAnalyzingResponses(false);
+    };
+
+    const handleStartSimulation = () => {
+        setSimulationActive(true);
+        setCurrentQuestionIndex(0);
+        setResponses(generatedQuestions.map(() => ''));
+    };
+
+    const handleResponseChange = (value) => {
+        setResponses(prev => {
+            const next = [...prev];
+            next[currentQuestionIndex] = value;
+            return next;
+        });
+    };
+
+    const handleNext = () => {
+        if (currentQuestionIndex < generatedQuestions.length - 1) {
+            setCurrentQuestionIndex(prev => prev + 1);
+        } else {
+            setCurrentQuestionIndex(generatedQuestions.length);
+        }
+    };
+
+    const handlePrevious = () => {
+        if (currentQuestionIndex > 0) {
+            setCurrentQuestionIndex(prev => prev - 1);
+        }
+    };
+
+    const inSummaryView = showQuestionsModal && simulationActive && generatedQuestions.length > 0 && currentQuestionIndex >= generatedQuestions.length;
+
+    const handleGetAllFeedback = () => {
+        if (!responseAnalyses?.length || loadingFeedbackIndex !== null) return;
+        setLoadingFeedbackIndex(-1);
+        getInterviewFeedback(generatedQuestions, responses, responseAnalyses)
+            .then(setFeedbacks)
+            .catch(() => setFeedbacks([]))
+            .finally(() => setLoadingFeedbackIndex(null));
+    };
+
+    useEffect(() => {
+        if (!inSummaryView || responseAnalyses !== null || analyzingResponses) return;
+        setAnalyzingResponses(true);
+        evaluateInterviewResponses(generatedQuestions, responses, interviewType)
+            .then((data) => {
+                setResponseAnalyses(data.items || []);
+                setEvaluationOverall({ overallBand: data.overallBand, overallScore: data.overallScore });
+            })
+            .catch(() => {
+                setResponseAnalyses([]);
+                setEvaluationOverall(null);
+            })
+            .finally(() => setAnalyzingResponses(false));
+    }, [inSummaryView, responseAnalyses, analyzingResponses, responses, generatedQuestions, interviewType]);
+
     const handleGenerateQuestions = async () => {
         if (!jobDescription || !role || !interviewType) {
             setError(t.interviewErrorRequired);
@@ -66,8 +140,11 @@ export default function InterviewSimulatorPage() {
                 skills
             });
 
-            setGeneratedQuestions(questions);
+            setGeneratedQuestions(Array.isArray(questions) ? questions.slice(0, 6) : []);
             setShowQuestionsModal(true);
+            setSimulationActive(false);
+            setCurrentQuestionIndex(0);
+            setResponses([]);
         } catch (err) {
             console.error('Error generating questions:', err);
             setError(err.message || t.interviewErrorGenerate);
@@ -264,13 +341,13 @@ export default function InterviewSimulatorPage() {
                 </div>
             </div>
 
-            {/* Questions Modal */}
+            {/* Questions Modal - large viewport with AI interviewer avatar */}
             {showQuestionsModal && (
-                <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4" onClick={() => setShowQuestionsModal(false)}>
-                    <div className={`${isDark ? 'bg-gray-900' : 'bg-white'} rounded-3xl max-w-4xl w-full max-h-[85vh] overflow-y-auto border ${isDark ? 'border-gray-800' : 'border-gray-200'} relative`} onClick={(e) => e.stopPropagation()}>
+                <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-2 sm:p-4" onClick={closeModal}>
+                    <div className={`${isDark ? 'bg-gray-900' : 'bg-white'} rounded-2xl sm:rounded-3xl w-full max-w-6xl min-h-[88vh] max-h-[95vh] flex overflow-hidden border ${isDark ? 'border-gray-800' : 'border-gray-200'} shadow-2xl relative`} onClick={(e) => e.stopPropagation()}>
                         <button
-                            onClick={() => setShowQuestionsModal(false)}
-                            className={`absolute top-4 right-4 w-10 h-10 flex items-center justify-center rounded-full transition-all z-10 ${
+                            onClick={closeModal}
+                            className={`absolute top-4 right-4 w-10 h-10 flex items-center justify-center rounded-full transition-all z-20 ${
                                 isDark
                                     ? 'bg-gray-800 hover:bg-gray-700 text-white'
                                     : 'bg-gray-100 hover:bg-gray-200 text-gray-900'
@@ -279,61 +356,302 @@ export default function InterviewSimulatorPage() {
                             <X className="w-6 h-6" />
                         </button>
 
-                        <div className="p-8">
-                            <div className="text-center mb-6">
-                                <h2 className={`text-3xl font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                                    {t.interviewGeneratedQuestions}
-                                </h2>
-                                <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                                    {interviewType} Interview for {role}
-                                </p>
+                        {/* Left column: avatar top center, text block vertically centered in remaining space */}
+                        <div className={`hidden sm:flex flex-col items-center justify-start pt-20 pb-10 px-6 w-60 flex-shrink-0 border-r min-h-0 ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50/80'}`}>
+                            <div className={`w-28 h-28 rounded-full flex-shrink-0 shadow-lg ${isDark ? 'bg-gradient-to-br from-emerald-500/30 to-teal-500/30 ring-2 ring-emerald-500/40' : 'bg-gradient-to-br from-emerald-400/40 to-teal-400/40 ring-2 ring-emerald-400/50'}`} />
+                            <div className="flex-1 min-h-0 flex flex-col justify-center items-center w-full mt-6 pb-16">
+                                <div className="w-full text-center space-y-4 flex flex-col items-center">
+                                    <p className={`text-sm font-semibold leading-snug ${isDark ? 'text-gray-200' : 'text-gray-800'}`}>
+                                        {role || '—'}
+                                    </p>
+                                    <p className={`text-xs leading-relaxed ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
+                                        {t.interviewCompanyName}: {role && role.includes(', ') ? role.split(', ').slice(-1)[0].trim() : '—'}
+                                    </p>
+                                    <p className={`text-xs leading-relaxed ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
+                                        {t.interviewInterviewType}: {interviewType || '—'}
+                                    </p>
+                                    <p className={`text-xs leading-relaxed ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
+                                        {t.interviewNumQuestions}: {generatedQuestions?.length ?? 0}
+                                    </p>
+                                    <div className={`pt-5 mt-5 border-t w-full ${isDark ? 'border-gray-600/50' : 'border-gray-200'}`}>
+                                        <p className={`text-xs leading-relaxed ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
+                                            {t.interviewDownloadPlaceholder}
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
+                        </div>
 
-                            <div className="space-y-4">
-                                {generatedQuestions.map((question, index) => (
-                                    <div
-                                        key={index}
-                                        className={`p-6 rounded-xl ${isDark
-                                            ? 'bg-gray-800/50 border border-gray-700'
-                                            : 'bg-gray-50 border border-gray-200'
-                                        }`}
-                                    >
-                                        <div className="flex items-start gap-4">
-                                            <div className={`flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center font-bold ${isDark
-                                                ? 'bg-emerald-500/20 text-emerald-400'
-                                                : 'bg-emerald-100 text-emerald-600'
-                                            }`}>
-                                                {index + 1}
+                        <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
+                        {/* Mobile: compact session bar */}
+                        <div className={`sm:hidden flex items-center gap-3 px-6 py-4 border-b ${isDark ? 'border-gray-800 bg-gray-800/50' : 'border-gray-200 bg-gray-50'}`}>
+                            <div className={`w-12 h-12 rounded-full flex-shrink-0 ${isDark ? 'bg-gradient-to-br from-emerald-500/30 to-teal-500/30' : 'bg-gradient-to-br from-emerald-400/40 to-teal-400/40'}`} />
+                            <div className="min-w-0">
+                                <p className={`text-sm font-semibold truncate ${isDark ? 'text-white' : 'text-gray-900'}`}>{role || '—'}</p>
+                                <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{interviewType} · {generatedQuestions?.length ?? 0} questions</p>
+                            </div>
+                        </div>
+                        <div className="p-6 sm:p-8 flex-1 flex flex-col min-h-0">
+                            {!simulationActive ? (
+                                <>
+                                    <div className="text-center mb-6">
+                                        <h2 className={`text-3xl font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                                            {t.interviewGeneratedQuestions}
+                                        </h2>
+                                        <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                                            {interviewType} Interview for {role}
+                                        </p>
+                                    </div>
+
+                                    <div className="space-y-4">
+                                        {generatedQuestions.map((question, index) => (
+                                            <div
+                                                key={index}
+                                                className={`p-6 rounded-xl ${isDark
+                                                    ? 'bg-gray-800/50 border border-gray-700'
+                                                    : 'bg-gray-50 border border-gray-200'
+                                                }`}
+                                            >
+                                                <div className="flex items-start gap-4">
+                                                    <div className={`flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center font-bold ${isDark
+                                                        ? 'bg-emerald-500/20 text-emerald-400'
+                                                        : 'bg-emerald-100 text-emerald-600'
+                                                    }`}>
+                                                        {index + 1}
+                                                    </div>
+                                                    <p className={`text-lg flex-1 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                                                        {question}
+                                                    </p>
+                                                </div>
                                             </div>
-                                            <p className={`text-lg flex-1 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                                                {question}
-                                            </p>
+                                        ))}
+                                    </div>
+
+                                    <div className="mt-8 flex gap-4">
+                                        <button
+                                            onClick={closeModal}
+                                            className={`flex-1 px-6 py-3 rounded-xl font-semibold transition-all ${
+                                                isDark
+                                                    ? 'bg-gray-800 hover:bg-gray-700 border border-gray-700 text-white'
+                                                    : 'bg-gray-100 hover:bg-gray-200 border border-gray-300 text-gray-900'
+                                            }`}
+                                        >
+                                            {t.interviewClose}
+                                        </button>
+                                        <button
+                                            onClick={handleStartSimulation}
+                                            className="flex-1 px-6 py-3 rounded-xl font-semibold transition-all bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:from-emerald-600 hover:to-teal-600 flex items-center justify-center gap-2"
+                                        >
+                                            {t.interviewStartSimulation}
+                                            <ChevronRight className="w-5 h-5" />
+                                        </button>
+                                    </div>
+                                </>
+                            ) : currentQuestionIndex < generatedQuestions.length ? (
+                                <>
+                                    <div className="mb-6">
+                                        <p className={`text-sm font-medium ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>
+                                            {t.interviewQuestionOf} {currentQuestionIndex + 1} {t.interviewOf} {generatedQuestions.length}
+                                        </p>
+                                        <h2 className={`text-2xl font-bold mt-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                                            {generatedQuestions[currentQuestionIndex]}
+                                        </h2>
+                                    </div>
+
+                                    <div className="mb-6">
+                                        <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                                            {t.interviewYourResponse}
+                                        </label>
+                                        <textarea
+                                            value={responses[currentQuestionIndex] ?? ''}
+                                            onChange={(e) => handleResponseChange(e.target.value)}
+                                            placeholder={t.interviewYourResponse + '...'}
+                                            rows={6}
+                                            className={`w-full px-4 py-3 rounded-lg ${isDark
+                                                ? 'bg-gray-800/50 border border-gray-700 text-white placeholder-gray-500'
+                                                : 'bg-white border border-gray-300 text-gray-900 placeholder-gray-400'
+                                            } focus:outline-none focus:ring-2 focus:ring-emerald-500/50`}
+                                        />
+                                    </div>
+
+                                    <div className="flex gap-4">
+                                        <button
+                                            onClick={handlePrevious}
+                                            disabled={currentQuestionIndex === 0}
+                                            className={`flex-1 px-6 py-3 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 ${
+                                                currentQuestionIndex === 0
+                                                    ? isDark ? 'bg-gray-800/50 text-gray-500 cursor-not-allowed' : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                                    : isDark
+                                                        ? 'bg-gray-800 hover:bg-gray-700 border border-gray-700 text-white'
+                                                        : 'bg-gray-100 hover:bg-gray-200 border border-gray-300 text-gray-900'
+                                            }`}
+                                        >
+                                            <ChevronLeft className="w-5 h-5" />
+                                            {t.interviewPrevious}
+                                        </button>
+                                        <button
+                                            onClick={handleNext}
+                                            className="flex-1 px-6 py-3 rounded-xl font-semibold transition-all bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:from-emerald-600 hover:to-teal-600 flex items-center justify-center gap-2"
+                                        >
+                                            {currentQuestionIndex === generatedQuestions.length - 1 ? t.interviewFinish : t.interviewNext}
+                                            <ChevronRight className="w-5 h-5" />
+                                        </button>
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <div className="flex-1 flex flex-col min-h-0">
+                                        <div className="flex-shrink-0">
+                                            <div className="text-center mb-6">
+                                                {evaluationOverall && !analyzingResponses && (
+                                                    <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl ${isDark ? 'bg-emerald-500/20 border border-emerald-500/40' : 'bg-emerald-50 border border-emerald-200'}`}>
+                                                        <span className={`text-sm font-semibold ${isDark ? 'text-emerald-300' : 'text-emerald-700'}`}>
+                                                            {t.interviewOverall}: {t[`interviewBand_${evaluationOverall.overallBand}`] ?? evaluationOverall.overallBand}
+                                                        </span>
+                                                        <span className={`text-xs ${isDark ? 'text-emerald-400/90' : 'text-emerald-600'}`}>
+                                                            ({Math.round((evaluationOverall.overallScore ?? 0) * 100)}%)
+                                                        </span>
+                                                    </div>
+                                                )}
+                                                {analyzingResponses && (
+                                                    <p className={`mt-2 text-sm flex items-center justify-center gap-2 ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>
+                                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                                        {t.interviewAnalyzing}
+                                                    </p>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        <div className="flex-1 min-h-0 overflow-y-auto space-y-6">
+                                        {generatedQuestions.map((question, index) => {
+                                            const analysis = responseAnalyses?.[index];
+                                            const emotions = analysis?.emotion?.emotions ?? [];
+                                            const emotionText = emotions.length > 0
+                                                ? emotions.slice(0, 4).map((e) => `${(e.label || '').charAt(0).toUpperCase()}${(e.label || '').slice(1).toLowerCase()}${e.score != null ? ` (${Math.round(e.score * 100)}%)` : ''}`).filter(Boolean).join(', ')
+                                                : (t.interviewEmotionNone ?? 'No emotions detected');
+                                            const certaintyLabel = analysis?.certainty?.label;
+                                            const certaintyT = certaintyLabel === 'confident' ? t.interviewConfident : certaintyLabel === 'uncertain' ? t.interviewUncertain : certaintyLabel === 'hedging' ? t.interviewHedging : t.interviewNeutral;
+                                            const toneLabel = analysis?.tone?.tone;
+                                            const answeredLabel = analysis?.answered?.label;
+                                            const answeredT = answeredLabel === 'fully_answered' ? t.interviewAnsweredFully : answeredLabel === 'partially_answered' ? t.interviewAnsweredPartial : t.interviewAnsweredNot;
+                                            const relevanceLabel = analysis?.relevance?.label;
+                                            const relevanceT = relevanceLabel === 'high' ? t.interviewRelevanceHigh : relevanceLabel === 'medium' ? t.interviewRelevanceMedium : t.interviewRelevanceLow;
+                                            const formalityLabel = analysis?.formality?.label;
+                                            const formalityT = formalityLabel === 'formal' ? t.interviewFormal : t.interviewInformal;
+                                            const band = analysis?.band;
+                                            const scorePct = analysis?.score != null ? Math.round(analysis.score * 100) : null;
+                                            return (
+                                                <div
+                                                    key={index}
+                                                    className={`p-6 rounded-xl ${isDark
+                                                        ? 'bg-gray-800/50 border border-gray-700'
+                                                        : 'bg-gray-50 border border-gray-200'
+                                                    }`}
+                                                >
+                                                    <div className="flex items-start gap-4 mb-4">
+                                                        <div className={`flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center font-bold ${isDark
+                                                            ? 'bg-emerald-500/20 text-emerald-400'
+                                                            : 'bg-emerald-100 text-emerald-600'
+                                                        }`}>
+                                                            {index + 1}
+                                                        </div>
+                                                        <p className={`text-lg font-medium flex-1 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                                                            {question}
+                                                        </p>
+                                                        {band != null && scorePct != null && !analyzingResponses && (
+                                                            <span className={`text-xs font-medium px-2 py-1 rounded-lg ${isDark ? 'bg-gray-700 text-gray-300' : 'bg-gray-200 text-gray-700'}`}>
+                                                                {t[`interviewBand_${band}`] ?? band} ({scorePct}%)
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    <div className={`pl-12 border-l-2 ${isDark ? 'border-gray-600' : 'border-gray-200'}`}>
+                                                        <p className={`text-sm font-medium mb-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                                                            {t.interviewYourResponse}:
+                                                        </p>
+                                                        <p className={`${isDark ? 'text-gray-300' : 'text-gray-700'} whitespace-pre-wrap`}>
+                                                            {responses[index]?.trim() || '—'}
+                                                        </p>
+                                                        {analysis && !analyzingResponses && (responses[index]?.trim() || '').length > 0 && (
+                                                            <div className="mt-3 flex flex-wrap gap-2">
+                                                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${isDark ? 'bg-violet-500/20 text-violet-300' : 'bg-violet-100 text-violet-700'}`}>
+                                                                    {t.interviewEmotion}: {emotionText}
+                                                                </span>
+                                                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                                                    certaintyLabel === 'confident' ? (isDark ? 'bg-emerald-500/20 text-emerald-400' : 'bg-emerald-100 text-emerald-700') :
+                                                                    certaintyLabel === 'uncertain' || certaintyLabel === 'hedging' ? (isDark ? 'bg-amber-500/20 text-amber-400' : 'bg-amber-100 text-amber-700') :
+                                                                    isDark ? 'bg-gray-500/20 text-gray-400' : 'bg-gray-100 text-gray-600'
+                                                                }`}>
+                                                                    {t.interviewCertainty}: {certaintyT}
+                                                                </span>
+                                                                {toneLabel != null && (
+                                                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${isDark ? 'bg-sky-500/20 text-sky-300' : 'bg-sky-100 text-sky-700'}`}>
+                                                                        {t.interviewTone}: {toneLabel}
+                                                                    </span>
+                                                                )}
+                                                                {answeredLabel != null && (
+                                                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                                                        answeredLabel === 'fully_answered' ? (isDark ? 'bg-emerald-500/20 text-emerald-400' : 'bg-emerald-100 text-emerald-700') :
+                                                                        answeredLabel === 'not_answered' ? (isDark ? 'bg-red-500/20 text-red-400' : 'bg-red-100 text-red-700') :
+                                                                        isDark ? 'bg-amber-500/20 text-amber-400' : 'bg-amber-100 text-amber-700'
+                                                                    }`}>
+                                                                        {t.interviewAnswered}: {answeredT}
+                                                                    </span>
+                                                                )}
+                                                                {relevanceLabel != null && (
+                                                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${isDark ? 'bg-indigo-500/20 text-indigo-300' : 'bg-indigo-100 text-indigo-700'}`}>
+                                                                        {t.interviewRelevance}: {relevanceT}
+                                                                    </span>
+                                                                )}
+                                                                {formalityLabel != null && (
+                                                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${isDark ? 'bg-slate-500/20 text-slate-300' : 'bg-slate-100 text-slate-700'}`}>
+                                                                        {t.interviewFormality}: {formalityT}
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                        )}
+                                                        {feedbacks && feedbacks[index] && (
+                                                            <div className={`mt-4 p-4 rounded-xl text-sm ${isDark ? 'bg-sky-500/10 border border-sky-500/30' : 'bg-sky-50 border border-sky-200'}`}>
+                                                                <p className={`font-medium mb-2 ${isDark ? 'text-sky-300' : 'text-sky-700'}`}>{t.interviewAIFeedback}</p>
+                                                                <p className={`whitespace-pre-wrap ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                                                                    {(feedbacks[index] || '').replace(/\*\*([^*]+)\*\*/g, '$1')}
+                                                                </p>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                        </div>
+
+                                        <div className={`flex-shrink-0 pt-4 mt-4 flex flex-col sm:flex-row gap-3 border-t ${isDark ? 'border-gray-800' : 'border-gray-200'}`}>
+                                            <button
+                                                type="button"
+                                                onClick={handleGetAllFeedback}
+                                                disabled={loadingFeedbackIndex !== null || !responseAnalyses?.length}
+                                                className={`flex-1 px-6 py-3 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 ${
+                                                    loadingFeedbackIndex !== null || !responseAnalyses?.length
+                                                        ? isDark ? 'bg-gray-700 text-gray-400 cursor-not-allowed' : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                                                        : isDark ? 'bg-sky-600 hover:bg-sky-500 text-white' : 'bg-sky-500 hover:bg-sky-600 text-white'
+                                                }`}
+                                            >
+                                                {loadingFeedbackIndex === -1 ? <Loader2 className="w-5 h-5 animate-spin" /> : null}
+                                                <span>{t.interviewGetFeedback ?? 'Get AI feedback'}</span>
+                                            </button>
+                                            <button
+                                                onClick={closeModal}
+                                                className={`flex-1 px-6 py-3 rounded-xl font-semibold transition-all ${
+                                                    isDark
+                                                        ? 'bg-gray-800 hover:bg-gray-700 border border-gray-700 text-white'
+                                                        : 'bg-gray-100 hover:bg-gray-200 border border-gray-300 text-gray-900'
+                                                }`}
+                                            >
+                                                {t.interviewClose}
+                                            </button>
                                         </div>
                                     </div>
-                                ))}
-                            </div>
-
-                            <div className="mt-8 flex gap-4">
-                                <button
-                                    onClick={() => setShowQuestionsModal(false)}
-                                    className={`flex-1 px-6 py-3 rounded-xl font-semibold transition-all ${
-                                        isDark
-                                            ? 'bg-gray-800 hover:bg-gray-700 border border-gray-700 text-white'
-                                            : 'bg-gray-100 hover:bg-gray-200 border border-gray-300 text-gray-900'
-                                    }`}
-                                >
-                                    {t.interviewClose}
-                                </button>
-                                <button
-                                    onClick={() => {
-                                        setShowQuestionsModal(false);
-                                        // TODO: Start interview with these questions
-                                    }}
-                                    className={`flex-1 px-6 py-3 rounded-xl font-semibold transition-all bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:from-emerald-600 hover:to-teal-600`}
-                                >
-                                    {t.interviewStartInterview}
-                                </button>
-                            </div>
+                                </>
+                            )}
+                        </div>
                         </div>
                     </div>
                 </div>
