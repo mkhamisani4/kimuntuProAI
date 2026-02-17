@@ -29,7 +29,7 @@
     },
     "strictNullChecks": false,
     "noImplicitAny": false,
-    "suppressImplicitAnyIndexErrors": true
+    "noUncheckedIndexedAccess": false
   },
   "include": [
     "next-env.d.ts",
@@ -39,6 +39,10 @@
   ],
   "exclude": [
     "node_modules",
-    "legal_files"
+    "legal_files",
+    "playwright.config.ts",
+    "e2e",
+    "vitest.config.ts",
+    "vitest.setup.ts"
   ]
 }

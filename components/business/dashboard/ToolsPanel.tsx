@@ -81,8 +81,6 @@ export default function ToolsPanel() {
             description="SEO, Email, Social automation"
             route="/dashboard/business/marketing"
             color="orange"
-            disabled={true}
-            badge="Q1 2025"
           />
         </div>
       </div>
