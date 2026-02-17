@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Users, Loader2, Mic, Video, MessageSquare, TrendingUp, AlertCircle, X, FileText, ChevronRight, ChevronLeft } from 'lucide-react';
+import { ArrowLeft, Users, Loader2, Mic, Video, TrendingUp, AlertCircle, X, FileText, ChevronRight, ChevronLeft, Volume2, Square } from 'lucide-react';
 import { useTheme } from '@/components/providers/ThemeProvider';
 import { useLanguage } from '@/components/providers/LanguageProvider';
 import { generateInterviewQuestions, extractResumeText } from '@/services/openaiService';
@@ -14,6 +14,7 @@ export default function InterviewSimulatorPage() {
     const { t } = useLanguage();
     const [jobDescription, setJobDescription] = useState('');
     const [role, setRole] = useState('');
+    const [companyName, setCompanyName] = useState('');
     const [companyWebsite, setCompanyWebsite] = useState('');
     const [interviewType, setInterviewType] = useState('');
     const [resumeFile, setResumeFile] = useState(null);
@@ -31,6 +32,29 @@ export default function InterviewSimulatorPage() {
     const [analyzingResponses, setAnalyzingResponses] = useState(false);
     const [feedbacks, setFeedbacks] = useState(null);
     const [loadingFeedbackIndex, setLoadingFeedbackIndex] = useState(null);
+    const [isRecording, setIsRecording] = useState(false);
+    const [isTranscribing, setIsTranscribing] = useState(false);
+    const [responseTypes, setResponseTypes] = useState([]); // 'text' | 'audio' per question
+    const [speechVoices, setSpeechVoices] = useState([]);
+    const [selectedVoiceUri, setSelectedVoiceUri] = useState('');
+    const mediaRecorderRef = useRef(null);
+    const streamRef = useRef(null);
+
+    useEffect(() => {
+        if (typeof window === 'undefined' || !window.speechSynthesis) return;
+        const load = () => setSpeechVoices(window.speechSynthesis.getVoices());
+        load();
+        window.speechSynthesis.onvoiceschanged = load;
+        return () => { window.speechSynthesis.onvoiceschanged = null; };
+    }, []);
+
+    useEffect(() => {
+        if (speechVoices.length > 0 && !selectedVoiceUri) {
+            const lang = document.documentElement?.lang === 'fr' ? 'fr' : 'en';
+            const match = speechVoices.find((v) => v.lang.startsWith(lang)) || speechVoices[0];
+            setSelectedVoiceUri(match?.voiceURI ?? '');
+        }
+    }, [speechVoices, selectedVoiceUri]);
 
     const interviewTypes = [
         'Technical',
@@ -57,6 +81,8 @@ export default function InterviewSimulatorPage() {
     };
 
     const closeModal = () => {
+        if (mediaRecorderRef.current?.state !== 'inactive') mediaRecorderRef.current?.stop();
+        streamRef.current?.getTracks().forEach((t) => t.stop());
         setShowQuestionsModal(false);
         setSimulationActive(false);
         setCurrentQuestionIndex(0);
@@ -65,12 +91,42 @@ export default function InterviewSimulatorPage() {
         setEvaluationOverall(null);
         setFeedbacks(null);
         setAnalyzingResponses(false);
+        setIsRecording(false);
+        setIsTranscribing(false);
+        setResponseTypes([]);
     };
 
     const handleStartSimulation = () => {
         setSimulationActive(true);
         setCurrentQuestionIndex(0);
         setResponses(generatedQuestions.map(() => ''));
+        setResponseTypes(generatedQuestions.map(() => 'audio'));
+    };
+
+    const setResponseTypeForCurrent = (type) => {
+        setResponseTypes(prev => {
+            const next = [...prev];
+            next[currentQuestionIndex] = type;
+            return next;
+        });
+    };
+
+    const currentResponseType = responseTypes[currentQuestionIndex] ?? 'audio';
+
+    const speakQuestion = () => {
+        const question = generatedQuestions[currentQuestionIndex];
+        if (!question || typeof window === 'undefined' || !window.speechSynthesis) return;
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(question);
+        u.rate = 0.95;
+        u.lang = document.documentElement?.lang === 'fr' ? 'fr-FR' : 'en-US';
+        const voice = speechVoices.find((v) => v.voiceURI === selectedVoiceUri);
+        if (voice) u.voice = voice;
+        window.speechSynthesis.speak(u);
+    };
+
+    const stopSpeech = () => {
+        if (typeof window !== 'undefined' && window.speechSynthesis) window.speechSynthesis.cancel();
     };
 
     const handleResponseChange = (value) => {
@@ -106,6 +162,52 @@ export default function InterviewSimulatorPage() {
             .finally(() => setLoadingFeedbackIndex(null));
     };
 
+    const startRecording = async () => {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            streamRef.current = stream;
+            const mime = MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus' : 'audio/webm';
+            const recorder = new MediaRecorder(stream);
+            mediaRecorderRef.current = recorder;
+            const chunks = [];
+            recorder.ondataavailable = (e) => e.data.size > 0 && chunks.push(e.data);
+            recorder.onstop = async () => {
+                stream.getTracks().forEach((t) => t.stop());
+                if (chunks.length === 0) return;
+                const blob = new Blob(chunks, { type: mime });
+                setIsTranscribing(true);
+                try {
+                    const form = new FormData();
+                    form.append('file', blob, 'audio.webm');
+                    const res = await fetch('/api/interview/transcribe', { method: 'POST', body: form });
+                    const data = await res.json();
+                    if (res.ok && typeof data.text === 'string') {
+                        handleResponseChange((responses[currentQuestionIndex] ?? '') + (responses[currentQuestionIndex] ? ' ' : '') + data.text);
+                    }
+                } catch (err) {
+                    console.warn('Transcribe failed:', err);
+                } finally {
+                    setIsTranscribing(false);
+                }
+            };
+            recorder.start(1000);
+            setIsRecording(true);
+        } catch (err) {
+            console.warn('Microphone access failed:', err);
+        }
+    };
+
+    const stopRecording = () => {
+        if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+            mediaRecorderRef.current.stop();
+            setIsRecording(false);
+        }
+    };
+
+    useEffect(() => {
+        if (typeof window !== 'undefined' && window.speechSynthesis) window.speechSynthesis.cancel();
+    }, [currentQuestionIndex]);
+
     useEffect(() => {
         if (!inSummaryView || responseAnalyses !== null || analyzingResponses) return;
         setAnalyzingResponses(true);
@@ -122,7 +224,7 @@ export default function InterviewSimulatorPage() {
     }, [inSummaryView, responseAnalyses, analyzingResponses, responses, generatedQuestions, interviewType]);
 
     const handleGenerateQuestions = async () => {
-        if (!jobDescription || !role || !interviewType) {
+        if (!jobDescription || !role || !companyName || !interviewType) {
             setError(t.interviewErrorRequired);
             return;
         }
@@ -215,6 +317,24 @@ export default function InterviewSimulatorPage() {
                                 value={role}
                                 onChange={(e) => setRole(e.target.value)}
                                 placeholder={t.interviewRolePlaceholder}
+                                className={`w-full px-4 py-3 rounded-lg ${isDark
+                                    ? 'bg-gray-800/50 border border-gray-700 text-white placeholder-gray-500'
+                                    : 'bg-white border border-gray-300 text-gray-900 placeholder-gray-400'
+                                } focus:outline-none focus:ring-2 focus:ring-emerald-500/50`}
+                                required
+                            />
+                        </div>
+
+                        {/* Company Name */}
+                        <div>
+                            <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                                Company name <span className={`${isDark ? 'text-red-500' : 'text-red-600'}`}>{t.interviewRequired}</span>
+                            </label>
+                            <input
+                                type="text"
+                                value={companyName}
+                                onChange={(e) => setCompanyName(e.target.value)}
+                                placeholder="e.g. Acme Corp"
                                 className={`w-full px-4 py-3 rounded-lg ${isDark
                                     ? 'bg-gray-800/50 border border-gray-700 text-white placeholder-gray-500'
                                     : 'bg-white border border-gray-300 text-gray-900 placeholder-gray-400'
@@ -316,9 +436,9 @@ export default function InterviewSimulatorPage() {
                         {/* Generate Questions Button */}
                         <button
                             onClick={handleGenerateQuestions}
-                            disabled={!jobDescription || !role || !interviewType || isLoading}
+                            disabled={!jobDescription || !role || !companyName || !interviewType || isLoading}
                             className={`w-full py-4 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 ${
-                                !jobDescription || !role || !interviewType || isLoading
+                                !jobDescription || !role || !companyName || !interviewType || isLoading
                                     ? isDark
                                         ? 'bg-gray-700/50 text-gray-500 cursor-not-allowed'
                                         : 'bg-gray-200 text-gray-400 cursor-not-allowed'
@@ -356,95 +476,83 @@ export default function InterviewSimulatorPage() {
                             <X className="w-6 h-6" />
                         </button>
 
-                        {/* Left column: avatar top center, text block vertically centered in remaining space */}
-                        <div className={`hidden sm:flex flex-col items-center justify-start pt-20 pb-10 px-6 w-60 flex-shrink-0 border-r min-h-0 ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50/80'}`}>
-                            <div className={`w-28 h-28 rounded-full flex-shrink-0 shadow-lg ${isDark ? 'bg-gradient-to-br from-emerald-500/30 to-teal-500/30 ring-2 ring-emerald-500/40' : 'bg-gradient-to-br from-emerald-400/40 to-teal-400/40 ring-2 ring-emerald-400/50'}`} />
-                            <div className="flex-1 min-h-0 flex flex-col justify-center items-center w-full mt-6 pb-16">
-                                <div className="w-full text-center space-y-4 flex flex-col items-center">
-                                    <p className={`text-sm font-semibold leading-snug ${isDark ? 'text-gray-200' : 'text-gray-800'}`}>
-                                        {role || '—'}
-                                    </p>
-                                    <p className={`text-xs leading-relaxed ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
-                                        {t.interviewCompanyName}: {role && role.includes(', ') ? role.split(', ').slice(-1)[0].trim() : '—'}
-                                    </p>
-                                    <p className={`text-xs leading-relaxed ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
-                                        {t.interviewInterviewType}: {interviewType || '—'}
-                                    </p>
-                                    <p className={`text-xs leading-relaxed ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
-                                        {t.interviewNumQuestions}: {generatedQuestions?.length ?? 0}
-                                    </p>
-                                    <div className={`pt-5 mt-5 border-t w-full ${isDark ? 'border-gray-600/50' : 'border-gray-200'}`}>
-                                        <p className={`text-xs leading-relaxed ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
-                                            {t.interviewDownloadPlaceholder}
+                        {/* Left pane: session info (questions view + ending screen only) */}
+                        {simulationActive && (
+                            <div className={`hidden sm:flex flex-col items-center justify-start pt-24 pb-12 px-6 w-64 flex-shrink-0 border-r min-h-0 ${isDark ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50/80'}`}>
+                                <div className={`w-28 h-28 rounded-full flex-shrink-0 shadow-lg ${isDark ? 'bg-gradient-to-br from-emerald-500/30 to-teal-500/30 ring-2 ring-emerald-500/40' : 'bg-gradient-to-br from-emerald-400/40 to-teal-400/40 ring-2 ring-emerald-400/50'}`} />
+                                <div className="flex-1 min-h-0 flex flex-col justify-center items-center w-full mt-8 pb-20">
+                                    <div className="w-full text-center space-y-5 flex flex-col items-center">
+                                        <p className={`text-sm font-semibold leading-snug ${isDark ? 'text-gray-200' : 'text-gray-800'}`}>
+                                            {role || '—'}
                                         </p>
+                                        <p className={`text-xs leading-relaxed ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
+                                            {t.interviewCompanyName}: {companyName || '—'}
+                                        </p>
+                                        <p className={`text-xs leading-relaxed ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
+                                            {t.interviewInterviewType}: {interviewType || '—'}
+                                        </p>
+                                        <p className={`text-xs leading-relaxed ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
+                                            {t.interviewNumQuestions}: {generatedQuestions?.length ?? 0}
+                                        </p>
+                                        <div className={`pt-6 mt-6 border-t w-full ${isDark ? 'border-gray-600/50' : 'border-gray-200'}`}>
+                                            <p className={`text-xs leading-relaxed ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
+                                                {t.interviewDownloadPlaceholder}
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        )}
 
                         <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
-                        {/* Mobile: compact session bar */}
-                        <div className={`sm:hidden flex items-center gap-3 px-6 py-4 border-b ${isDark ? 'border-gray-800 bg-gray-800/50' : 'border-gray-200 bg-gray-50'}`}>
-                            <div className={`w-12 h-12 rounded-full flex-shrink-0 ${isDark ? 'bg-gradient-to-br from-emerald-500/30 to-teal-500/30' : 'bg-gradient-to-br from-emerald-400/40 to-teal-400/40'}`} />
-                            <div className="min-w-0">
-                                <p className={`text-sm font-semibold truncate ${isDark ? 'text-white' : 'text-gray-900'}`}>{role || '—'}</p>
-                                <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{interviewType} · {generatedQuestions?.length ?? 0} questions</p>
+                        {/* Mobile: compact session bar (only when simulation is active) */}
+                        {simulationActive && (
+                            <div className={`sm:hidden flex items-center gap-3 px-6 py-4 border-b ${isDark ? 'border-gray-800 bg-gray-800/50' : 'border-gray-200 bg-gray-50'}`}>
+                                <div className={`w-12 h-12 rounded-full flex-shrink-0 ${isDark ? 'bg-gradient-to-br from-emerald-500/30 to-teal-500/30' : 'bg-gradient-to-br from-emerald-400/40 to-teal-400/40'}`} />
+                                <div className="min-w-0">
+                                    <p className={`text-sm font-semibold truncate ${isDark ? 'text-white' : 'text-gray-900'}`}>{role || '—'}</p>
+                                    <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{companyName} · {interviewType} · {generatedQuestions?.length ?? 0} questions</p>
+                                </div>
                             </div>
-                        </div>
-                        <div className="p-6 sm:p-8 flex-1 flex flex-col min-h-0">
+                        )}
+                        <div className="p-8 sm:p-10 flex-1 flex flex-col min-h-0">
                             {!simulationActive ? (
                                 <>
-                                    <div className="text-center mb-6">
-                                        <h2 className={`text-3xl font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                                            {t.interviewGeneratedQuestions}
-                                        </h2>
-                                        <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                                            {interviewType} Interview for {role}
-                                        </p>
-                                    </div>
+                                    <div className="flex flex-col flex-1 min-h-0">
+                                        <div className="flex flex-col items-center justify-center text-center pt-16 pb-12 px-4 max-w-xl mx-auto flex-1">
+                                            <h2 className={`text-3xl sm:text-4xl font-bold mb-5 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                                                Welcome to Your Interview with <span className={isDark ? 'text-emerald-400' : 'text-emerald-600'}>{companyName || '—'}</span>
+                                            </h2>
+                                            <p className={`text-lg sm:text-xl mb-6 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                                                for the role of <span className="font-semibold">{role || '—'}</span>
+                                            </p>
+                                            <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                                                {interviewType} interview · {generatedQuestions?.length ?? 0} questions
+                                            </p>
+                                            <p className={`text-sm mt-4 ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
+                                                When you’re ready, start the simulation to see the first question.
+                                            </p>
+                                        </div>
 
-                                    <div className="space-y-4">
-                                        {generatedQuestions.map((question, index) => (
-                                            <div
-                                                key={index}
-                                                className={`p-6 rounded-xl ${isDark
-                                                    ? 'bg-gray-800/50 border border-gray-700'
-                                                    : 'bg-gray-50 border border-gray-200'
+                                        <div className="mt-auto pt-6 flex gap-4 w-full max-w-2xl mx-auto">
+                                            <button
+                                                onClick={closeModal}
+                                                className={`flex-1 px-6 py-3 rounded-xl font-semibold transition-all ${
+                                                    isDark
+                                                        ? 'bg-gray-800 hover:bg-gray-700 border border-gray-700 text-white'
+                                                        : 'bg-gray-100 hover:bg-gray-200 border border-gray-300 text-gray-900'
                                                 }`}
                                             >
-                                                <div className="flex items-start gap-4">
-                                                    <div className={`flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center font-bold ${isDark
-                                                        ? 'bg-emerald-500/20 text-emerald-400'
-                                                        : 'bg-emerald-100 text-emerald-600'
-                                                    }`}>
-                                                        {index + 1}
-                                                    </div>
-                                                    <p className={`text-lg flex-1 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                                                        {question}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-
-                                    <div className="mt-8 flex gap-4">
-                                        <button
-                                            onClick={closeModal}
-                                            className={`flex-1 px-6 py-3 rounded-xl font-semibold transition-all ${
-                                                isDark
-                                                    ? 'bg-gray-800 hover:bg-gray-700 border border-gray-700 text-white'
-                                                    : 'bg-gray-100 hover:bg-gray-200 border border-gray-300 text-gray-900'
-                                            }`}
-                                        >
-                                            {t.interviewClose}
-                                        </button>
-                                        <button
-                                            onClick={handleStartSimulation}
-                                            className="flex-1 px-6 py-3 rounded-xl font-semibold transition-all bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:from-emerald-600 hover:to-teal-600 flex items-center justify-center gap-2"
-                                        >
-                                            {t.interviewStartSimulation}
-                                            <ChevronRight className="w-5 h-5" />
-                                        </button>
+                                                {t.interviewClose}
+                                            </button>
+                                            <button
+                                                onClick={handleStartSimulation}
+                                                className="flex-1 px-6 py-3 rounded-xl font-semibold transition-all bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:from-emerald-600 hover:to-teal-600 flex items-center justify-center gap-2"
+                                            >
+                                                {t.interviewStartSimulation}
+                                                <ChevronRight className="w-5 h-5" />
+                                            </button>
+                                        </div>
                                     </div>
                                 </>
                             ) : currentQuestionIndex < generatedQuestions.length ? (
@@ -453,25 +561,139 @@ export default function InterviewSimulatorPage() {
                                         <p className={`text-sm font-medium ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>
                                             {t.interviewQuestionOf} {currentQuestionIndex + 1} {t.interviewOf} {generatedQuestions.length}
                                         </p>
-                                        <h2 className={`text-2xl font-bold mt-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                                        <h2 className={`text-2xl font-bold leading-relaxed mt-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                                             {generatedQuestions[currentQuestionIndex]}
                                         </h2>
                                     </div>
 
-                                    <div className="mb-6">
-                                        <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                                    <div className="mb-10">
+                                        <div className="my-4 flex flex-col sm:flex-row items-center justify-center gap-4">
+                                            <button
+                                                type="button"
+                                                onClick={speakQuestion}
+                                                className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold shrink-0 ${isDark
+                                                    ? 'bg-emerald-500/30 text-emerald-200 hover:bg-emerald-500/40 border border-emerald-400/50'
+                                                    : 'bg-emerald-500 text-white hover:bg-emerald-600 border border-emerald-600'
+                                                }`}
+                                            >
+                                                <Volume2 className="w-4 h-4" aria-hidden />
+                                                <span>{t.interviewListenQuestion ?? 'Listen to question'}</span>
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={stopSpeech}
+                                                title="Stop"
+                                                className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold shrink-0 ${isDark
+                                                    ? 'bg-red-500/25 text-red-300 hover:bg-red-500/35 border border-red-500/50'
+                                                    : 'bg-red-100 text-red-700 hover:bg-red-200 border border-red-300'
+                                                }`}
+                                            >
+                                                <Square className="w-4 h-4" aria-hidden />
+                                                <span>Stop</span>
+                                            </button>
+                                            {speechVoices.length > 1 && (
+                                                <label className="flex items-center gap-2 shrink-0">
+                                                    <span className={`text-xs font-medium ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Voice:</span>
+                                                    <select
+                                                        value={selectedVoiceUri}
+                                                        onChange={(e) => setSelectedVoiceUri(e.target.value)}
+                                                        className={`text-sm rounded-lg px-3 py-1.5 border ${isDark
+                                                            ? 'bg-gray-800 border-gray-600 text-gray-200'
+                                                            : 'bg-white border-gray-300 text-gray-900'
+                                                        } focus:outline-none focus:ring-2 focus:ring-emerald-500/50`}
+                                                    >
+                                                        {speechVoices.map((v) => (
+                                                            <option key={v.voiceURI} value={v.voiceURI}>
+                                                                {v.name} {v.lang ? `(${v.lang})` : ''}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                </label>
+                                            )}
+                                        </div>
+                                        <label className={`block text-sm font-medium mt-8 mb-4 ${isDark ? 'text-gray-300' : 'text-gray-700'}`} htmlFor="interview-response">
                                             {t.interviewYourResponse}
                                         </label>
-                                        <textarea
-                                            value={responses[currentQuestionIndex] ?? ''}
-                                            onChange={(e) => handleResponseChange(e.target.value)}
-                                            placeholder={t.interviewYourResponse + '...'}
-                                            rows={6}
-                                            className={`w-full px-4 py-3 rounded-lg ${isDark
-                                                ? 'bg-gray-800/50 border border-gray-700 text-white placeholder-gray-500'
-                                                : 'bg-white border border-gray-300 text-gray-900 placeholder-gray-400'
-                                            } focus:outline-none focus:ring-2 focus:ring-emerald-500/50`}
-                                        />
+                                        <div className={`flex rounded-xl p-1 mb-8 ${isDark ? 'bg-gray-800' : 'bg-gray-200'}`}>
+                                            <button
+                                                type="button"
+                                                onClick={() => setResponseTypeForCurrent('text')}
+                                                className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-medium transition-all ${currentResponseType === 'text'
+                                                    ? isDark ? 'bg-gray-700 text-white shadow' : 'bg-white text-gray-900 shadow'
+                                                    : isDark ? 'text-gray-400 hover:text-gray-300' : 'text-gray-600 hover:text-gray-900'
+                                                }`}
+                                            >
+                                                <FileText className="w-4 h-4" />
+                                                {t.interviewResponseTypeText ?? 'Type'}
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => setResponseTypeForCurrent('audio')}
+                                                className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-medium transition-all ${currentResponseType === 'audio'
+                                                    ? isDark ? 'bg-gray-700 text-white shadow' : 'bg-white text-gray-900 shadow'
+                                                    : isDark ? 'text-gray-400 hover:text-gray-300' : 'text-gray-600 hover:text-gray-900'
+                                                }`}
+                                            >
+                                                <Mic className="w-4 h-4" />
+                                                {t.interviewResponseTypeAudio ?? 'Record'}
+                                            </button>
+                                        </div>
+                                        {currentResponseType === 'text' ? (
+                                            <textarea
+                                                id="interview-response"
+                                                value={responses[currentQuestionIndex] ?? ''}
+                                                onChange={(e) => handleResponseChange(e.target.value)}
+                                                placeholder={t.interviewYourResponse + '...'}
+                                                rows={8}
+                                                className={`w-full px-5 py-4 rounded-xl text-base leading-relaxed ${isDark
+                                                    ? 'bg-gray-800/50 border border-gray-700 text-white placeholder-gray-500'
+                                                    : 'bg-white border border-gray-300 text-gray-900 placeholder-gray-400'
+                                                } focus:outline-none focus:ring-2 focus:ring-emerald-500/50`}
+                                            />
+                                        ) : (
+                                            <div className={`rounded-lg border ${isDark ? 'bg-gray-800/50 border-gray-700' : 'bg-gray-50 border-gray-300'} p-4`}>
+                                                <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                                                    {isRecording ? (
+                                                        <button
+                                                            type="button"
+                                                            onClick={stopRecording}
+                                                            className={`flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-sm font-medium ${isDark ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30' : 'bg-red-100 text-red-600 hover:bg-red-200'}`}
+                                                        >
+                                                            <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse" />
+                                                            {t.interviewStopRecording ?? 'Stop'}
+                                                        </button>
+                                                    ) : (
+                                                        <button
+                                                            type="button"
+                                                            onClick={startRecording}
+                                                            disabled={isTranscribing}
+                                                            className={`flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-sm font-medium ${isTranscribing
+                                                                ? isDark ? 'bg-gray-700 text-gray-400 cursor-not-allowed' : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                                                                : isDark ? 'bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30' : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
+                                                            }`}
+                                                        >
+                                                            {isTranscribing ? <Loader2 className="w-5 h-5 animate-spin" /> : <Mic className="w-5 h-5" />}
+                                                            {isTranscribing ? (t.interviewTranscribing ?? 'Transcribing...') : (t.interviewRecord ?? 'Record')}
+                                                        </button>
+                                                    )}
+                                                    <p className={`text-sm ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
+                                                        {isRecording ? (t.interviewRecordingHint ?? 'Click Stop when finished.') : isTranscribing ? '' : (t.interviewRecordHint ?? 'Record your answer, then we’ll transcribe it to text.')}
+                                                    </p>
+                                                </div>
+                                                {(responses[currentQuestionIndex] ?? '').trim() && (
+                                                    <div className={`mt-4 pt-4 border-t ${isDark ? 'border-gray-600/50' : 'border-gray-200'}`}>
+                                                        <p className={`text-xs font-medium mb-1 ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>{t.interviewTranscript ?? 'Transcript'}</p>
+                                                        <textarea
+                                                            value={responses[currentQuestionIndex] ?? ''}
+                                                            onChange={(e) => handleResponseChange(e.target.value)}
+                                                            rows={4}
+                                                            className={`w-full px-3 py-2 rounded-lg text-sm ${isDark ? 'bg-gray-800 border border-gray-700 text-gray-300' : 'bg-white border border-gray-300 text-gray-700'}`}
+                                                            placeholder={t.interviewEditTranscript ?? 'Edit if needed...'}
+                                                        />
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
                                     </div>
 
                                     <div className="flex gap-4">
