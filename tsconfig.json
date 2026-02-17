@@ -39,9 +39,6 @@
   ],
   "exclude": [
     "node_modules",
-    "legal_files",
-    "playwright.config.ts",
-    "vitest.config.ts",
-    "vitest.setup.ts"
+    "legal_files"
   ]
 }

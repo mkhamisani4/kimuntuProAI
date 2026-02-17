@@ -5,14 +5,14 @@
     "rootDir": "./src",
     "composite": true
   },
-  "include": [
-    "src/**/*"
-  ],
+  "include": ["src/**/*"],
   "exclude": [
     "node_modules",
     "dist",
     "**/*.test.ts",
     "**/*.spec.ts",
-    "src/embeddings.ts"
+    "src/embeddings.ts",
+    "src/usage.ts",
+    "src/client.ts"
   ]
 }
