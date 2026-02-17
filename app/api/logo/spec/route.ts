@@ -45,7 +45,7 @@ async function handleSpecGeneration(req: NextRequest): Promise<NextResponse> {
     await logRequestUsage({
       tenantId,
       userId,
-      assistant: null,
+      assistant: 'logo_spec',
       model: result.metadata.model,
       tokensIn: result.metadata.tokensIn,
       tokensOut: result.metadata.tokensOut,

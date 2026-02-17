@@ -1,4 +1,5 @@
 'use client';
+// Force rebuild
 
 import { useAuth } from '@/hooks/useAuth';
 import BusinessDashboard from '@/components/business/dashboard';

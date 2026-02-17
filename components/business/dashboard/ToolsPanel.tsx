@@ -8,7 +8,7 @@ export default function ToolsPanel() {
   return (
     <div className="space-y-6">
       {/* Section Title */}
-      <h2 className="text-xl font-bold text-white">AI Tools</h2>
+      <h2 className="text-xl font-bold text-gray-900">AI Tools</h2>
 
       {/* Planning & Strategy */}
       <div className="space-y-3">

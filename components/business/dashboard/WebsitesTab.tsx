@@ -139,7 +139,7 @@ export default function WebsitesTab({ tenantId, userId, limit = 8 }: WebsitesTab
     return (
       <div className="space-y-3">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="animate-pulse p-4 bg-white/5 rounded-lg border border-gray-800">
+          <div key={i} className="animate-pulse p-4 bg-gray-800/50 rounded-lg border border-gray-700">
             <div className="flex items-start gap-4">
               <div className="w-20 h-20 bg-gray-700 rounded"></div>
               <div className="flex-1 space-y-2">
@@ -179,7 +179,7 @@ export default function WebsitesTab({ tenantId, userId, limit = 8 }: WebsitesTab
   return (
     <div className="space-y-4">
       {/* Count */}
-      <div className="text-sm text-gray-400">
+      <div className="text-sm text-gray-500">
         {websites.length} website{websites.length !== 1 ? 's' : ''}
       </div>
 
@@ -188,43 +188,43 @@ export default function WebsitesTab({ tenantId, userId, limit = 8 }: WebsitesTab
         {websites.map((website) => (
           <div
             key={website.id}
-            className="p-4 bg-white/5 hover:bg-white/10 rounded-lg border border-gray-800 transition-all cursor-pointer group"
+            className="p-4 bg-white hover:bg-gray-50 rounded-xl border border-gray-200 transition-all cursor-pointer group shadow-sm hover:shadow-md"
             onClick={() => handleView(website)}
           >
             <div className="flex items-start gap-4">
               {/* Enhanced Thumbnail Preview */}
-              <div className="relative w-20 h-20 flex-shrink-0 bg-gray-900 border-2 border-gray-700 rounded-lg overflow-hidden">
+              <div className="relative w-20 h-20 flex-shrink-0 bg-gray-100 border-2 border-white shadow-sm rounded-lg overflow-hidden">
                 {website.status === 'ready' ? (
-                  <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-emerald-900/50 via-blue-900/50 to-purple-900/50">
+                  <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-emerald-50 via-blue-50 to-purple-50">
                     {/* Company Initial */}
-                    <div className="text-2xl font-bold text-white mb-1">
+                    <div className="text-2xl font-bold text-gray-400 mb-1">
                       {(website.title || website.wizardInput?.companyName || 'W').charAt(0).toUpperCase()}
                     </div>
-                    <Globe size={20} className="text-emerald-400" />
+                    <Globe size={20} className="text-emerald-500" />
                   </div>
                 ) : website.status === 'generating' ? (
-                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-900/50 to-purple-900/50">
-                    <RefreshCw size={32} className="text-blue-400 animate-spin" />
+                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50">
+                    <RefreshCw size={32} className="text-blue-500 animate-spin" />
                   </div>
                 ) : website.status === 'failed' ? (
-                  <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-red-900/50 to-orange-900/50">
-                    <div className="text-2xl font-bold text-white mb-1">
+                  <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-red-50 to-orange-50">
+                    <div className="text-2xl font-bold text-red-300 mb-1">
                       {(website.title || website.wizardInput?.companyName || 'W').charAt(0).toUpperCase()}
                     </div>
                     <Globe size={20} className="text-red-400" />
                   </div>
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-800 to-gray-700">
-                    <Globe size={32} className="text-gray-500" />
+                  <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                    <Globe size={32} className="text-gray-300" />
                   </div>
                 )}
 
                 {/* Status Indicator Badge */}
                 {website.status === 'ready' && (
-                  <div className="absolute top-1 right-1 w-3 h-3 bg-emerald-500 rounded-full border-2 border-gray-900" />
+                  <div className="absolute top-1 right-1 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white" />
                 )}
                 {website.status === 'failed' && (
-                  <div className="absolute top-1 right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-gray-900" />
+                  <div className="absolute top-1 right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white" />
                 )}
               </div>
 
@@ -239,26 +239,26 @@ export default function WebsitesTab({ tenantId, userId, limit = 8 }: WebsitesTab
                 </div>
 
                 {/* Title */}
-                <h3 className="text-base font-semibold text-white truncate mb-1" title={website.title}>
+                <h3 className="text-base font-semibold text-gray-900 truncate mb-1" title={website.title}>
                   {website.title || 'Untitled Website'}
                 </h3>
 
                 {/* Description */}
                 {website.wizardInput?.companyName && (
-                  <p className="text-sm text-gray-400 mb-2">
+                  <p className="text-sm text-gray-500 mb-2">
                     {website.wizardInput.companyName}
                   </p>
                 )}
 
                 {/* Progress Bar for Generating */}
                 {website.status === 'generating' && (
-                  <div className="w-full bg-gray-700 rounded-full h-1.5 mb-2">
+                  <div className="w-full bg-gray-100 rounded-full h-1.5 mb-2">
                     <div className="bg-orange-500 h-1.5 rounded-full animate-pulse" style={{ width: '60%' }} />
                   </div>
                 )}
 
                 {/* Metadata */}
-                <div className="flex items-center gap-3 text-xs text-gray-500">
+                <div className="flex items-center gap-3 text-xs text-gray-400">
                   {website.wizardInput?.enabledSections && (
                     <span>{Object.keys(website.wizardInput.enabledSections).filter(k => website.wizardInput.enabledSections[k]).length} sections</span>
                   )}
@@ -277,21 +277,21 @@ export default function WebsitesTab({ tenantId, userId, limit = 8 }: WebsitesTab
                         e.stopPropagation();
                         handleView(website);
                       }}
-                      className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500 text-white text-sm font-medium rounded-lg hover:bg-emerald-600 transition-colors"
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500 text-white text-sm font-medium rounded-lg hover:bg-emerald-600 transition-colors shadow-sm"
                     >
                       <Eye size={14} />
                       View
                     </button>
                     <button
                       onClick={(e) => handleEdit(website, e)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 border border-gray-700 text-gray-300 text-sm font-medium rounded-lg hover:bg-white/10 transition-colors"
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 text-gray-600 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors shadow-sm"
                     >
                       <Edit size={14} />
                       Edit
                     </button>
                     <button
                       onClick={(e) => handleDownload(website, e)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 border border-gray-700 text-gray-300 text-sm font-medium rounded-lg hover:bg-white/10 transition-colors"
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 text-gray-600 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors shadow-sm"
                     >
                       <Download size={14} />
                       Export
@@ -299,14 +299,14 @@ export default function WebsitesTab({ tenantId, userId, limit = 8 }: WebsitesTab
                   </>
                 )}
                 {website.status === 'generating' && (
-                  <div className="text-xs text-gray-400 px-3 py-1.5">
+                  <div className="text-xs text-gray-500 px-3 py-1.5 bg-gray-50 rounded-lg">
                     Processing...
                   </div>
                 )}
                 {website.status === 'failed' && (
                   <button
                     onClick={(e) => handleRetry(website, e)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-red-500 text-white text-sm font-medium rounded-lg hover:bg-red-600 transition-colors"
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-red-500 text-white text-sm font-medium rounded-lg hover:bg-red-600 transition-colors shadow-sm"
                   >
                     <RefreshCw size={14} />
                     Retry
@@ -325,7 +325,7 @@ export default function WebsitesTab({ tenantId, userId, limit = 8 }: WebsitesTab
                     </button>
                     <button
                       onClick={cancelDelete}
-                      className="px-3 py-1.5 bg-gray-700 text-gray-300 text-xs font-medium rounded-lg hover:bg-gray-600 transition-colors"
+                      className="px-3 py-1.5 bg-gray-100 text-gray-600 text-xs font-medium rounded-lg hover:bg-gray-200 transition-colors"
                     >
                       Cancel
                     </button>
@@ -333,7 +333,7 @@ export default function WebsitesTab({ tenantId, userId, limit = 8 }: WebsitesTab
                 ) : (
                   <button
                     onClick={(e) => handleDelete(website.id!, website.title, e)}
-                    className="flex items-center justify-center gap-1.5 px-3 py-1.5 text-gray-400 hover:text-red-400 hover:bg-red-500/10 border border-gray-700 hover:border-red-500/30 text-sm font-medium rounded-lg transition-colors"
+                    className="flex items-center justify-center gap-1.5 px-3 py-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 border border-transparent hover:border-red-100 text-sm font-medium rounded-lg transition-colors"
                     title="Delete website"
                   >
                     <Trash2 size={14} />
@@ -343,10 +343,10 @@ export default function WebsitesTab({ tenantId, userId, limit = 8 }: WebsitesTab
             </div>
 
             {/* Hover Actions */}
-            <div className="mt-3 pt-3 border-t border-gray-800 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="mt-3 pt-3 border-t border-gray-100 opacity-0 group-hover:opacity-100 transition-opacity">
               <button
                 onClick={(e) => handleCreateSimilar(website, e)}
-                className="flex items-center gap-1.5 text-xs text-emerald-400 hover:text-emerald-300 font-medium"
+                className="flex items-center gap-1.5 text-xs text-emerald-600 hover:text-emerald-700 font-medium"
               >
                 <Copy size={12} />
                 Create Similar Website
@@ -361,7 +361,7 @@ export default function WebsitesTab({ tenantId, userId, limit = 8 }: WebsitesTab
         <div className="pt-2 text-center">
           <button
             onClick={() => router.push('/dashboard/business/websites')}
-            className="text-sm text-emerald-400 hover:text-emerald-300 font-medium"
+            className="text-sm text-emerald-600 hover:text-emerald-700 font-medium"
           >
             View All Websites →
           </button>

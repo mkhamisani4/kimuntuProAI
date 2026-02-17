@@ -112,22 +112,22 @@ export default function QuickStats({ tenantId, userId }: QuickStatsProps) {
   return (
     <div className="space-y-4">
       {/* This Month Stats */}
-      <div className="bg-white/5 backdrop-blur rounded-lg border border-gray-800 p-6">
-        <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-4">
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+        <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">
           This Month
         </h3>
         <div className="space-y-4">
           {/* Plans Generated */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-500/20 rounded-lg">
-                <TrendingUp size={20} className="text-blue-400" />
+              <div className="p-2 bg-blue-50 rounded-lg">
+                <TrendingUp size={20} className="text-blue-600" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-white">
+                <div className="text-2xl font-bold text-gray-900">
                   {stats.thisMonth.plansGenerated}
                 </div>
-                <div className="text-xs text-gray-400">Plans Generated</div>
+                <div className="text-xs text-gray-500">Plans Generated</div>
               </div>
             </div>
           </div>
@@ -135,14 +135,14 @@ export default function QuickStats({ tenantId, userId }: QuickStatsProps) {
           {/* Websites Built */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-emerald-500/20 rounded-lg">
-                <Globe size={20} className="text-emerald-400" />
+              <div className="p-2 bg-emerald-50 rounded-lg">
+                <Globe size={20} className="text-emerald-600" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-white">
+                <div className="text-2xl font-bold text-gray-900">
                   {stats.thisMonth.websitesBuilt}
                 </div>
-                <div className="text-xs text-gray-400">Websites Built</div>
+                <div className="text-xs text-gray-500">Websites Built</div>
               </div>
             </div>
           </div>
@@ -150,35 +150,35 @@ export default function QuickStats({ tenantId, userId }: QuickStatsProps) {
           {/* Logos Created */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-purple-500/20 rounded-lg">
-                <Palette size={20} className="text-purple-400" />
+              <div className="p-2 bg-purple-50 rounded-lg">
+                <Palette size={20} className="text-purple-600" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-white">
+                <div className="text-2xl font-bold text-gray-900">
                   {stats.thisMonth.logosCreated}
                 </div>
-                <div className="text-xs text-gray-400">Logos Created</div>
+                <div className="text-xs text-gray-500">Logos Created</div>
               </div>
             </div>
           </div>
 
           {/* Usage & Cost */}
-          <div className="pt-4 border-t border-gray-800">
+          <div className="pt-4 border-t border-gray-100">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
-                <Zap size={16} className="text-orange-400" />
-                <span className="text-sm text-gray-400">Tokens Used</span>
+                <Zap size={16} className="text-orange-500" />
+                <span className="text-sm text-gray-500">Tokens Used</span>
               </div>
-              <span className="text-sm font-semibold text-white">
+              <span className="text-sm font-semibold text-gray-900">
                 {formatTokens(stats.thisMonth.tokensUsed)}
               </span>
             </div>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <DollarSign size={16} className="text-green-400" />
-                <span className="text-sm text-gray-400">Usage Cost</span>
+                <DollarSign size={16} className="text-green-600" />
+                <span className="text-sm text-gray-500">Usage Cost</span>
               </div>
-              <span className="text-sm font-semibold text-white">
+              <span className="text-sm font-semibold text-gray-900">
                 {formatCost(stats.thisMonth.costCents)}
               </span>
             </div>
@@ -187,32 +187,32 @@ export default function QuickStats({ tenantId, userId }: QuickStatsProps) {
       </div>
 
       {/* All Time Stats */}
-      <div className="bg-gradient-to-br from-emerald-900/50 to-teal-900/50 rounded-lg border border-emerald-700/50 p-6 backdrop-blur">
-        <h3 className="text-sm font-semibold text-emerald-300 uppercase tracking-wide mb-4">
+      <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl border border-emerald-100 p-6 shadow-sm">
+        <h3 className="text-sm font-semibold text-emerald-800 uppercase tracking-wide mb-4">
           All Time
         </h3>
         <div className="grid grid-cols-3 gap-4 mb-4">
           <div>
-            <div className="text-2xl font-bold text-white">
+            <div className="text-2xl font-bold text-gray-900">
               {stats.allTime.totalPlans}
             </div>
-            <div className="text-xs text-emerald-400">Total Plans</div>
+            <div className="text-xs text-emerald-700">Total Plans</div>
           </div>
           <div>
-            <div className="text-2xl font-bold text-white">
+            <div className="text-2xl font-bold text-gray-900">
               {stats.allTime.totalWebsites}
             </div>
-            <div className="text-xs text-emerald-400">Total Websites</div>
+            <div className="text-xs text-emerald-700">Total Websites</div>
           </div>
           <div>
-            <div className="text-2xl font-bold text-white">
+            <div className="text-2xl font-bold text-gray-900">
               {stats.allTime.totalLogos}
             </div>
-            <div className="text-xs text-emerald-400">Total Logos</div>
+            <div className="text-xs text-emerald-700">Total Logos</div>
           </div>
         </div>
-        <div className="pt-4 border-t border-emerald-700/30">
-          <div className="text-sm text-emerald-300">
+        <div className="pt-4 border-t border-emerald-200">
+          <div className="text-sm text-emerald-800">
             Total spent: <span className="font-semibold">{formatCost(stats.allTime.costCents)}</span>
           </div>
         </div>
@@ -220,30 +220,29 @@ export default function QuickStats({ tenantId, userId }: QuickStatsProps) {
 
       {/* Quota Status - Always show when there's any usage */}
       {(stats.quota.used > 0 || stats.thisMonth.tokensUsed > 0) && (
-        <div className="bg-white/5 backdrop-blur rounded-lg border border-gray-800 p-6">
-          <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-3">
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+          <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">
             Monthly Quota
           </h3>
           <div className="space-y-2">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-400">Usage</span>
-              <span className="font-semibold text-white">
+              <span className="text-gray-500">Usage</span>
+              <span className="font-semibold text-gray-900">
                 {stats.quota.used}% of {stats.quota.limit}%
               </span>
             </div>
-            <div className="w-full bg-gray-700 rounded-full h-2">
+            <div className="w-full bg-gray-100 rounded-full h-2">
               <div
-                className={`h-2 rounded-full transition-all ${
-                  stats.quota.used >= 90
+                className={`h-2 rounded-full transition-all ${stats.quota.used >= 90
                     ? 'bg-red-500'
                     : stats.quota.used >= 70
-                    ? 'bg-orange-500'
-                    : 'bg-emerald-500'
-                }`}
+                      ? 'bg-orange-500'
+                      : 'bg-emerald-500'
+                  }`}
                 style={{ width: `${Math.min(100, stats.quota.used)}%` }}
               />
             </div>
-            <div className="text-xs text-gray-400">
+            <div className="text-xs text-gray-500">
               Resets {new Date(stats.quota.resetsAt).toLocaleDateString()}
             </div>
           </div>

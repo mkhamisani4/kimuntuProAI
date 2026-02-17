@@ -19,7 +19,7 @@ export default function BusinessDashboard({
   loading = false
 }: BusinessDashboardProps) {
   return (
-    <div className="min-h-screen bg-gray-900">
+    <div className="min-h-screen bg-gray-50">
       {/* Hero Section - Full Width */}
       <DashboardHero userName={userName} tenantId={tenantId} userId={userId} />
 
@@ -33,7 +33,7 @@ export default function BusinessDashboard({
 
           {/* Center Column: Recent Work (45% - 5 cols) */}
           <div className="lg:col-span-5 space-y-6">
-            <h2 className="text-xl font-bold text-white">Your Work</h2>
+            <h2 className="text-xl font-bold text-gray-900">Your Work</h2>
 
             {/* Phase 2: Enhanced tabbed interface with filters and actions */}
             {!loading && (
@@ -53,7 +53,7 @@ export default function BusinessDashboard({
 
           {/* Right Column: Activity Sidebar (25% - 3 cols) */}
           <div className="lg:col-span-3">
-            <h2 className="text-xl font-bold text-white mb-6">Overview</h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-6">Overview</h2>
 
             {/* Phase 3: Activity sidebar with stats, actions, and tips */}
             {!loading && (
