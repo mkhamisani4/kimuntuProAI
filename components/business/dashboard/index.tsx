@@ -25,8 +25,8 @@ export default function BusinessDashboard({
 
   return (
     <div className={`min-h-screen transition-colors duration-300 ${isDark
-      ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900'
-      : 'bg-gradient-to-br from-gray-50 via-blue-50 to-gray-100'
+      ? 'bg-black'
+      : 'bg-white'
       }`}>
       {/* Hero Section - Full Width */}
       <DashboardHero userName={userName} tenantId={tenantId} userId={userId} />
@@ -53,13 +53,13 @@ export default function BusinessDashboard({
             {/* Loading State */}
             {loading && (
               <div className={`rounded-lg border p-6 ${isDark
-                ? 'bg-gray-800/80 border-gray-700'
-                : 'bg-white border-gray-200'
+                ? 'bg-white/5 border-white/10'
+                : 'bg-black/5 border-black/10'
                 }`}>
                 <div className="space-y-4">
-                  <div className={`h-32 rounded-lg animate-pulse ${isDark ? 'bg-gray-700' : 'bg-gray-200'
+                  <div className={`h-32 rounded-lg animate-pulse ${isDark ? 'bg-white/10' : 'bg-black/10'
                     }`} />
-                  <div className={`h-32 rounded-lg animate-pulse ${isDark ? 'bg-gray-700' : 'bg-gray-200'
+                  <div className={`h-32 rounded-lg animate-pulse ${isDark ? 'bg-white/10' : 'bg-black/10'
                     }`} />
                 </div>
               </div>
@@ -81,10 +81,10 @@ export default function BusinessDashboard({
             {loading && (
               <div className="space-y-4">
                 <div className={`backdrop-blur rounded-lg border p-6 ${isDark
-                  ? 'bg-white/5 border-gray-700'
-                  : 'bg-white/60 border-gray-200'
+                  ? 'bg-white/5 border-white/10'
+                  : 'bg-black/5 border-black/10'
                   }`}>
-                  <div className={`h-32 rounded-lg animate-pulse ${isDark ? 'bg-gray-700' : 'bg-gray-200'
+                  <div className={`h-32 rounded-lg animate-pulse ${isDark ? 'bg-white/10' : 'bg-black/10'
                     }`} />
                 </div>
               </div>
