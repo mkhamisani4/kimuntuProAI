@@ -10,9 +10,9 @@ export default function DashboardPage() {
     const { t } = useLanguage();
 
     const stats = [
-        { label: t.documentsCreated, value: '12', icon: FileText, color: isDark ? 'bg-blue-500' : 'bg-blue-400' },
-        { label: t.jobMatches, value: '48', icon: Target, color: isDark ? 'bg-purple-500' : 'bg-purple-400' },
-        { label: t.aiQueries, value: '156', icon: Zap, color: isDark ? 'bg-pink-500' : 'bg-pink-400' },
+        { label: t.documentsCreated, value: '12', icon: FileText, color: isDark ? 'bg-white' : 'bg-black' },
+        { label: t.jobMatches, value: '48', icon: Target, color: isDark ? 'bg-white' : 'bg-black' },
+        { label: t.aiQueries, value: '156', icon: Zap, color: isDark ? 'bg-white' : 'bg-black' },
     ];
 
     const actions = [
@@ -20,49 +20,49 @@ export default function DashboardPage() {
             title: t.createCvResume,
             desc: t.cvResumeDesc,
             icon: FileText,
-            bg: isDark ? 'bg-purple-500/10' : 'bg-purple-100',
-            border: isDark ? 'border-purple-500/30' : 'border-purple-300',
-            text: isDark ? 'text-purple-400' : 'text-purple-600'
+            bg: isDark ? 'bg-white/5' : 'bg-black/5',
+            border: isDark ? 'border-white/10' : 'border-black/10',
+            text: isDark ? 'text-white' : 'text-black'
         },
         {
             title: t.businessPlan,
             desc: t.businessPlanDesc,
             icon: TrendingUp,
-            bg: isDark ? 'bg-blue-500/10' : 'bg-blue-100',
-            border: isDark ? 'border-blue-500/30' : 'border-blue-300',
-            text: isDark ? 'text-blue-400' : 'text-blue-600'
+            bg: isDark ? 'bg-white/5' : 'bg-black/5',
+            border: isDark ? 'border-white/10' : 'border-black/10',
+            text: isDark ? 'text-white' : 'text-black'
         },
         {
             title: t.legalAssistant,
             desc: t.legalAssistantDesc,
             icon: Scale,
-            bg: isDark ? 'bg-pink-500/10' : 'bg-pink-100',
-            border: isDark ? 'border-pink-500/30' : 'border-pink-300',
-            text: isDark ? 'text-pink-400' : 'text-pink-600'
+            bg: isDark ? 'bg-white/5' : 'bg-black/5',
+            border: isDark ? 'border-white/10' : 'border-black/10',
+            text: isDark ? 'text-white' : 'text-black'
         },
         {
             title: t.jobMatching,
             desc: t.jobMatchingDesc,
             icon: Briefcase,
-            bg: isDark ? 'bg-orange-500/10' : 'bg-orange-100',
-            border: isDark ? 'border-orange-500/30' : 'border-orange-300',
-            text: isDark ? 'text-orange-400' : 'text-orange-600'
+            bg: isDark ? 'bg-white/5' : 'bg-black/5',
+            border: isDark ? 'border-white/10' : 'border-black/10',
+            text: isDark ? 'text-white' : 'text-black'
         },
         {
             title: t.interviewPrep,
             desc: t.interviewPrepDesc,
             icon: Users,
-            bg: isDark ? 'bg-teal-500/10' : 'bg-teal-100',
-            border: isDark ? 'border-teal-500/30' : 'border-teal-300',
-            text: isDark ? 'text-teal-400' : 'text-teal-600'
+            bg: isDark ? 'bg-white/5' : 'bg-black/5',
+            border: isDark ? 'border-white/10' : 'border-black/10',
+            text: isDark ? 'text-white' : 'text-black'
         },
         {
             title: t.documentReview,
             desc: t.documentReviewDesc,
             icon: BookOpen,
-            bg: isDark ? 'bg-indigo-500/10' : 'bg-indigo-100',
-            border: isDark ? 'border-indigo-500/30' : 'border-indigo-300',
-            text: isDark ? 'text-indigo-400' : 'text-indigo-600'
+            bg: isDark ? 'bg-white/5' : 'bg-black/5',
+            border: isDark ? 'border-white/10' : 'border-black/10',
+            text: isDark ? 'text-white' : 'text-black'
         },
     ];
 
@@ -78,24 +78,24 @@ export default function DashboardPage() {
                         <div
                             key={i}
                             className={`relative group ${isDark
-                                ? 'bg-gray-800/80 border border-gray-700 hover:bg-gray-700'
-                                : 'bg-white border border-gray-200 hover:bg-gray-50'
+                                ? 'bg-white/5 border border-white/10 hover:bg-white/10'
+                                : 'bg-black/5 border border-black/10 hover:bg-black/10'
                                 } rounded-2xl p-6 transition-all duration-300 shadow-lg`}
                         >
                             <div>
                                 <div className="flex items-start justify-between mb-4">
                                     <div>
-                                        <p className={`text-sm mb-2 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                                        <p className={`text-sm mb-2 ${isDark ? 'text-white/60' : 'text-black/60'}`}>
                                             {stat.label}
                                         </p>
-                                        <p className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                                        <p className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-black'}`}>
                                             {stat.value}
                                         </p>
                                     </div>
-                                    <stat.icon className={`w-8 h-8 opacity-50 ${isDark ? 'text-purple-400' : 'text-purple-600'
+                                    <stat.icon className={`w-8 h-8 opacity-50 ${isDark ? 'text-white' : 'text-black'
                                         }`} />
                                 </div>
-                                <div className={`w-full rounded-full h-1.5 overflow-hidden ${isDark ? 'bg-gray-700' : 'bg-gray-300'
+                                <div className={`w-full rounded-full h-1.5 overflow-hidden ${isDark ? 'bg-white/20' : 'bg-black/20'
                                     }`}>
                                     <div className={`${stat.color} h-full w-3/4`}></div>
                                 </div>
@@ -111,13 +111,13 @@ export default function DashboardPage() {
                             className={`group relative ${action.bg} border ${action.border} rounded-2xl p-6 text-left transition-all duration-300 cursor-pointer hover:scale-105 shadow-lg`}
                         >
                             <div>
-                                <div className={`w-12 h-12 ${action.bg} rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-md`}>
+                                <div className={`w-12 h-12 ${isDark ? 'bg-white/10' : 'bg-black/10'} rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-md`}>
                                     <action.icon className={`w-6 h-6 ${action.text}`} />
                                 </div>
-                                <h3 className={`font-semibold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                                <h3 className={`font-semibold mb-2 ${isDark ? 'text-white' : 'text-black'}`}>
                                     {action.title}
                                 </h3>
-                                <p className={`text-sm mb-4 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                                <p className={`text-sm mb-4 ${isDark ? 'text-white/60' : 'text-black/60'}`}>
                                     {action.desc}
                                 </p>
                                 <div className={`flex items-center ${action.text} text-sm font-medium`}>
