@@ -8,9 +8,11 @@ import jsPDF from 'jspdf';
 import { Document, Packer, Paragraph, TextRun } from 'docx';
 import { saveAs } from 'file-saver';
 import { useLanguage } from '@/components/providers/LanguageProvider';
+import { useTheme } from '@/components/providers/ThemeProvider';
 
 const CareerTrack = () => {
   const { language } = useLanguage();
+  const { isDark } = useTheme();
   const router = useRouter();
   const [selectedFeature, setSelectedFeature] = useState(null);
   const [formData, setFormData] = useState({});
@@ -1125,10 +1127,10 @@ const CareerTrack = () => {
     <div>
       <div className="mb-10">
         <div className="text-center mb-10">
-          <h1 className="text-5xl font-bold mb-4">
-            <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">{t.personalTrack}</span>
+          <h1 className="text-5xl font-bold mb-4 text-white">
+            {t.personalTrack}
           </h1>
-          <p className="text-xl text-gray-300 mb-8">{t.description}</p>
+          <p className="text-xl text-white/70 mb-8">{t.description}</p>
         </div>
 
         {/* Features Section */}
@@ -1148,16 +1150,16 @@ const CareerTrack = () => {
                       showFeature(feature.id);
                     }
                   }}
-                  className="bg-gray-800/50 border border-gray-700 rounded-2xl p-6 text-left hover:bg-gray-700 transition-all cursor-pointer group"
+                  className="bg-white/5 border border-white/10 rounded-2xl p-6 text-left hover:bg-white/10 transition-all cursor-pointer group"
                 >
-                  <div className="w-12 h-12 bg-emerald-500/20 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                    <feature.icon className="w-6 h-6 text-emerald-400" />
+                  <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <feature.icon className="w-6 h-6 text-black" />
                   </div>
                   <h3 className="text-xl font-bold text-white mb-4">{feature.title}</h3>
                   <ul className="space-y-2">
                     {feature.items.map((item, i) => (
-                      <li key={i} className="flex items-start gap-2 text-gray-300 text-sm">
-                        <span className="text-emerald-400 font-bold mt-0.5">✓</span>
+                      <li key={i} className="flex items-start gap-2 text-white/70 text-sm">
+                        <span className="text-white font-bold mt-0.5">✓</span>
                         <span>{item}</span>
                       </li>
                     ))}
@@ -1168,10 +1170,10 @@ const CareerTrack = () => {
           </div>
 
           {/* Privacy Section */}
-          <div className="bg-gray-800/80 border border-gray-700 rounded-2xl p-8 text-center">
-            <Shield className="w-12 h-12 text-emerald-400 mx-auto mb-4" />
+          <div className="bg-white/5 border border-white/10 rounded-2xl p-8 text-center">
+            <Shield className="w-12 h-12 text-white mx-auto mb-4" />
             <h3 className="text-2xl font-bold text-white mb-2">{t.privacyFirst}</h3>
-            <p className="text-gray-400">
+            <p className="text-white/70">
               {t.privacyDesc}
             </p>
           </div>
@@ -1209,7 +1211,7 @@ const CareerTrack = () => {
                           value={formData.jobDescription || ''}
                           onChange={(e) => handleInputChange('jobDescription', e.target.value)}
                           placeholder="Paste the job description here..."
-                          className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 min-h-[150px]"
+                          className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-white/50 focus:ring-2 focus:ring-white/20 min-h-[150px]"
                           required
                         />
                       </div>
@@ -1222,11 +1224,11 @@ const CareerTrack = () => {
                           type="file"
                           accept=".txt,.pdf"
                           onChange={handleFileChange}
-                          className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-2 text-white text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-emerald-500/20 file:text-emerald-400 hover:file:bg-emerald-500/30"
+                          className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-2 text-white text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-white/20 file:text-white hover:file:bg-white/30"
                         />
                         <p className="mt-2 text-xs text-gray-400">Supported formats: .txt, .pdf</p>
                         {resumeFile && (
-                          <p className="mt-2 text-sm text-emerald-400">✓ {resumeFile.name}</p>
+                          <p className="mt-2 text-sm text-white">✓ {resumeFile.name}</p>
                         )}
                       </div>
 
@@ -1239,7 +1241,7 @@ const CareerTrack = () => {
                           value={formData.name || ''}
                           onChange={(e) => handleInputChange('name', e.target.value)}
                           placeholder="Your full name"
-                          className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                          className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-white/50 focus:ring-2 focus:ring-white/20"
                         />
                       </div>
 
@@ -1251,7 +1253,7 @@ const CareerTrack = () => {
                           value={formData.skills || ''}
                           onChange={(e) => handleInputChange('skills', e.target.value)}
                           placeholder="e.g. Python, Communication, Excel, Project Management..."
-                          className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 min-h-[80px]"
+                          className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-white/50 focus:ring-2 focus:ring-white/20 min-h-[80px]"
                         />
                       </div>
 
@@ -1263,7 +1265,7 @@ const CareerTrack = () => {
                           value={formData.experience || ''}
                           onChange={(e) => handleInputChange('experience', e.target.value)}
                           placeholder="Briefly describe your relevant work experience, projects, or achievements..."
-                          className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 min-h-[100px]"
+                          className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-white/50 focus:ring-2 focus:ring-white/20 min-h-[100px]"
                         />
                       </div>
 
@@ -1275,7 +1277,7 @@ const CareerTrack = () => {
                           value={formData.education || ''}
                           onChange={(e) => handleInputChange('education', e.target.value)}
                           placeholder="List your education: institution, degree, major, graduation date, relevant coursework, honors, etc..."
-                          className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 min-h-[100px]"
+                          className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-white/50 focus:ring-2 focus:ring-white/20 min-h-[100px]"
                         />
                       </div>
 
@@ -1287,7 +1289,7 @@ const CareerTrack = () => {
                           value={formData.additionalInfo || ''}
                           onChange={(e) => handleInputChange('additionalInfo', e.target.value)}
                           placeholder="Any additional information you'd like to include (certifications, awards, etc.)..."
-                          className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 min-h-[80px]"
+                          className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-white/50 focus:ring-2 focus:ring-white/20 min-h-[80px]"
                         />
                       </div>
 
@@ -1300,7 +1302,7 @@ const CareerTrack = () => {
                       <button
                         type="submit"
                         disabled={isLoading}
-                        className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 text-black font-bold py-3 rounded-xl hover:from-emerald-600 hover:to-teal-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                        className="w-full bg-white text-black font-bold py-3 rounded-xl hover:bg-white/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                       >
                         {isLoading ? (
                           <>
@@ -1315,10 +1317,10 @@ const CareerTrack = () => {
                   </div>
 
                   {generatedCoverLetter && (
-                    <div id="cover-letter-download-section" className={`bg-gray-900/50 rounded-2xl p-6 ${showCoverLetterSuccess ? 'border-2 border-emerald-500/50 animate-pulse' : 'border border-gray-800'}`}>
-                      <div className="bg-emerald-500/20 border border-emerald-500/50 rounded-xl p-3 mb-4 flex items-center gap-2">
-                        <Check className="w-5 h-5 text-emerald-400" />
-                        <p className="text-emerald-400 font-semibold">✓ Cover letter generated successfully! Download your tailored PDF below.</p>
+                    <div id="cover-letter-download-section" className={`bg-gray-900/50 rounded-2xl p-6 ${showCoverLetterSuccess ? 'border-2 border-white/50 animate-pulse' : 'border border-gray-800'}`}>
+                      <div className="bg-white/10 border border-white/20 rounded-xl p-3 mb-4 flex items-center gap-2">
+                        <Check className="w-5 h-5 text-white" />
+                        <p className="text-white font-semibold">✓ Cover letter generated successfully! Download your tailored PDF below.</p>
                       </div>
                       <div className="flex items-center justify-between mb-4">
                         <h3 className="text-xl font-bold text-white">Generated Cover Letter</h3>
@@ -1359,7 +1361,7 @@ const CareerTrack = () => {
                           <button
                             onClick={handleCoverLetterDownload}
                             disabled={isLoading}
-                            className="px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-black font-bold rounded-lg hover:from-emerald-600 hover:to-teal-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                            className="px-4 py-2 bg-white text-black font-bold rounded-lg hover:bg-white/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                           >
                             {isLoading ? (
                               <>
@@ -1386,10 +1388,10 @@ const CareerTrack = () => {
                     <ul className="space-y-3">
                       {selectedFeature.outline.howItWorks.map((step, i) => (
                         <li key={i} className="flex items-start gap-3">
-                          <span className="text-emerald-400 font-bold flex-shrink-0">•</span>
+                          <span className="text-white font-bold flex-shrink-0">•</span>
                           <div>
                             <strong className="text-white">{step.label}:</strong>
-                            <span className="text-gray-300 ml-2">{step.desc}</span>
+                            <span className="text-white/70 ml-2">{step.desc}</span>
                           </div>
                         </li>
                       ))}
@@ -1410,7 +1412,7 @@ const CareerTrack = () => {
                           value={formData.jobDescription || ''}
                           onChange={(e) => handleInputChange('jobDescription', e.target.value)}
                           placeholder="Paste the job description here..."
-                          className="w-full bg-white/5 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 min-h-[120px]"
+                          className="w-full bg-white/5 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-white/50 focus:ring-2 focus:ring-white/20 min-h-[120px]"
                           required
                         />
                       </div>
@@ -1427,7 +1429,7 @@ const CareerTrack = () => {
                               value="yes"
                               checked={hasExistingResume === true}
                               onChange={() => setHasExistingResume(true)}
-                              className="w-4 h-4 text-emerald-500 bg-gray-800 border-gray-700 focus:ring-emerald-500"
+                              className="w-4 h-4 text-white bg-gray-800 border-gray-700 focus:ring-white"
                             />
                             <span className="text-gray-300">Yes</span>
                           </label>
@@ -1438,7 +1440,7 @@ const CareerTrack = () => {
                               value="no"
                               checked={hasExistingResume === false}
                               onChange={() => setHasExistingResume(false)}
-                              className="w-4 h-4 text-emerald-500 bg-gray-800 border-gray-700 focus:ring-emerald-500"
+                              className="w-4 h-4 text-white bg-gray-800 border-gray-700 focus:ring-white"
                             />
                             <span className="text-gray-300">No</span>
                           </label>
@@ -1452,11 +1454,11 @@ const CareerTrack = () => {
                             type="file"
                             accept=".txt,.pdf"
                             onChange={handleFileChange}
-                            className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-2 text-white text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-emerald-500/20 file:text-emerald-400 hover:file:bg-emerald-500/30"
+                            className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-2 text-white text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-white/20 file:text-white hover:file:bg-white/30"
                           />
                           <p className="mt-2 text-xs text-gray-400">Supported formats: .txt, .pdf</p>
                           {resumeFile && (
-                            <p className="mt-2 text-sm text-emerald-400">✓ {resumeFile.name}</p>
+                            <p className="mt-2 text-sm text-white">✓ {resumeFile.name}</p>
                           )}
                         </div>
                       )}
@@ -1472,7 +1474,7 @@ const CareerTrack = () => {
                               value={formData.name || ''}
                               onChange={(e) => handleInputChange('name', e.target.value)}
                               placeholder="Your full name"
-                              className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                              className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-white/50 focus:ring-2 focus:ring-white/20"
                             />
                           </div>
 
@@ -1485,7 +1487,7 @@ const CareerTrack = () => {
                               value={formData.phone || ''}
                               onChange={(e) => handleInputChange('phone', e.target.value)}
                               placeholder="Your phone number"
-                              className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                              className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-white/50 focus:ring-2 focus:ring-white/20"
                             />
                           </div>
 
@@ -1498,7 +1500,7 @@ const CareerTrack = () => {
                               value={formData.email || ''}
                               onChange={(e) => handleInputChange('email', e.target.value)}
                               placeholder="your.email@example.com"
-                              className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                              className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-white/50 focus:ring-2 focus:ring-white/20"
                             />
                           </div>
 
@@ -1511,7 +1513,7 @@ const CareerTrack = () => {
                               value={formData.linkedin || ''}
                               onChange={(e) => handleInputChange('linkedin', e.target.value)}
                               placeholder="linkedin.com/in/yourprofile"
-                              className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                              className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-white/50 focus:ring-2 focus:ring-white/20"
                             />
                           </div>
 
@@ -1523,7 +1525,7 @@ const CareerTrack = () => {
                               value={formData.skills || ''}
                               onChange={(e) => handleInputChange('skills', e.target.value)}
                               placeholder="e.g. Python, Communication, Excel, Project Management..."
-                              className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 min-h-[80px]"
+                              className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-white/50 focus:ring-2 focus:ring-white/20 min-h-[80px]"
                               required={hasExistingResume === false}
                             />
                           </div>
@@ -1536,7 +1538,7 @@ const CareerTrack = () => {
                               value={formData.professionalExperience || ''}
                               onChange={(e) => handleInputChange('professionalExperience', e.target.value)}
                               placeholder="List your work experience, internships, etc. Include company name, position, dates, and key responsibilities..."
-                              className="w-full bg-white/5 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 min-h-[120px]"
+                              className="w-full bg-white/5 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-white/50 focus:ring-2 focus:ring-white/20 min-h-[120px]"
                               required={hasExistingResume === false}
                             />
                           </div>
@@ -1549,7 +1551,7 @@ const CareerTrack = () => {
                               value={formData.personalProjects || ''}
                               onChange={(e) => handleInputChange('personalProjects', e.target.value)}
                               placeholder="List any relevant projects you've worked on..."
-                              className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 min-h-[100px]"
+                              className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-white/50 focus:ring-2 focus:ring-white/20 min-h-[100px]"
                             />
                           </div>
 
@@ -1561,7 +1563,7 @@ const CareerTrack = () => {
                               value={formData.education || ''}
                               onChange={(e) => handleInputChange('education', e.target.value)}
                               placeholder="List your education: institution, degree, major, graduation date..."
-                              className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 min-h-[100px]"
+                              className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-white/50 focus:ring-2 focus:ring-white/20 min-h-[100px]"
                               required={hasExistingResume === false}
                             />
                           </div>
@@ -1574,7 +1576,7 @@ const CareerTrack = () => {
                               value={formData.miscInfo || ''}
                               onChange={(e) => handleInputChange('miscInfo', e.target.value)}
                               placeholder="Any awards, certifications, publications, volunteer work, etc..."
-                              className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 min-h-[100px]"
+                              className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-white/50 focus:ring-2 focus:ring-white/20 min-h-[100px]"
                             />
                           </div>
                         </div>
@@ -1589,7 +1591,7 @@ const CareerTrack = () => {
                             value={formData.skills || ''}
                             onChange={(e) => handleInputChange('skills', e.target.value)}
                             placeholder="Additional skills or skills from the job description you want to highlight..."
-                            className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 min-h-[80px]"
+                            className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-white/50 focus:ring-2 focus:ring-white/20 min-h-[80px]"
                           />
                         </div>
                       )}
@@ -1603,7 +1605,7 @@ const CareerTrack = () => {
                       <button
                         type="submit"
                         disabled={isLoading}
-                        className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 text-black font-bold py-3 rounded-xl hover:from-emerald-600 hover:to-teal-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                        className="w-full bg-white text-black font-bold py-3 rounded-xl hover:bg-white/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                       >
                         {isLoading ? (
                           <>
@@ -1618,10 +1620,10 @@ const CareerTrack = () => {
                   </div>
 
                   {generatedResume && (
-                    <div id="download-section" className={`bg-gray-900/50 rounded-2xl p-6 ${showSuccess ? 'border-2 border-emerald-500/50 animate-pulse' : 'border border-gray-800'}`}>
-                      <div className="bg-emerald-500/20 border border-emerald-500/50 rounded-xl p-3 mb-4 flex items-center gap-2">
-                        <Check className="w-5 h-5 text-emerald-400" />
-                        <p className="text-emerald-400 font-semibold">✓ Resume generated successfully! Download your tailored PDF below.</p>
+                    <div id="download-section" className={`bg-gray-900/50 rounded-2xl p-6 ${showSuccess ? 'border-2 border-white/50 animate-pulse' : 'border border-gray-800'}`}>
+                      <div className="bg-white/10 border border-white/20 rounded-xl p-3 mb-4 flex items-center gap-2">
+                        <Check className="w-5 h-5 text-white" />
+                        <p className="text-white font-semibold">✓ Resume generated successfully! Download your tailored PDF below.</p>
                       </div>
                       <div className="flex items-center justify-between mb-4">
                         <h3 className="text-xl font-bold text-white">Generated Resume</h3>
@@ -1645,7 +1647,7 @@ const CareerTrack = () => {
                           <button
                             onClick={handleDownload}
                             disabled={isLoading}
-                            className="px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-black font-bold rounded-lg hover:from-emerald-600 hover:to-teal-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                            className="px-4 py-2 bg-white text-black font-bold rounded-lg hover:bg-white/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                           >
                             {isLoading ? (
                               <>
@@ -1672,10 +1674,10 @@ const CareerTrack = () => {
                     <ul className="space-y-3">
                       {selectedFeature.outline.howItWorks.map((step, i) => (
                         <li key={i} className="flex items-start gap-3">
-                          <span className="text-emerald-400 font-bold flex-shrink-0">•</span>
+                          <span className="text-white font-bold flex-shrink-0">•</span>
                           <div>
                             <strong className="text-white">{step.label}:</strong>
-                            <span className="text-gray-300 ml-2">{step.desc}</span>
+                            <span className="text-white/70 ml-2">{step.desc}</span>
                           </div>
                         </li>
                       ))}
@@ -1693,10 +1695,10 @@ const CareerTrack = () => {
                         {input.type === 'file' ? (
                           <input
                             type="file"
-                            className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-2 text-white text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-emerald-500/20 file:text-emerald-400 hover:file:bg-emerald-500/30"
+                            className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-2 text-white text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-white/20 file:text-white hover:file:bg-white/30"
                           />
                         ) : input.type === 'select' ? (
-                          <select className="w-full bg-white/5 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20">
+                          <select className="w-full bg-white/5 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-white/50 focus:ring-2 focus:ring-white/20">
                             {input.options.map((option, j) => (
                               <option key={j} value={option} className="bg-gray-900">{option}</option>
                             ))}
@@ -1706,9 +1708,9 @@ const CareerTrack = () => {
                             <input
                               type="number"
                               placeholder={input.placeholder}
-                              className="flex-1 bg-white/5 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                              className="flex-1 bg-white/5 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-white/50 focus:ring-2 focus:ring-white/20"
                             />
-                            <select className="w-32 bg-white/5 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20">
+                            <select className="w-32 bg-white/5 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-white/50 focus:ring-2 focus:ring-white/20">
                               {input.currency.map((curr, j) => (
                                 <option key={j} value={curr} className="bg-gray-900">{curr}</option>
                               ))}
@@ -1718,7 +1720,7 @@ const CareerTrack = () => {
                           <input
                             type={input.type}
                             placeholder={input.placeholder}
-                            className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                            className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-white/50 focus:ring-2 focus:ring-white/20"
                           />
                         )}
                         {input.items && (
@@ -1733,7 +1735,7 @@ const CareerTrack = () => {
                     <button
                       type="button"
                       onClick={(e) => e.preventDefault()}
-                      className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 text-black font-bold py-3 rounded-xl hover:from-emerald-600 hover:to-teal-600 transition-all"
+                      className="w-full bg-white text-black font-bold py-3 rounded-xl hover:bg-white/90 transition-all"
                     >
                       {selectedFeature.outline.formTitle.includes('CV') ? 'Tailor My CV' : selectedFeature.outline.formTitle.includes('Interview') ? 'Start Simulation' : 'Find Jobs'}
                     </button>
@@ -1756,10 +1758,10 @@ const CareerTrack = () => {
                           type="file"
                           accept=".txt,.pdf"
                           onChange={handleChatResumeFileChange}
-                          className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-2 text-white text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-emerald-500/20 file:text-emerald-400 hover:file:bg-emerald-500/30"
+                          className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-2 text-white text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-white/20 file:text-white hover:file:bg-white/30"
                         />
                         {chatResumeFile && (
-                          <p className="mt-2 text-sm text-emerald-400">✓ {chatResumeFile.name}</p>
+                          <p className="mt-2 text-sm text-white">✓ {chatResumeFile.name}</p>
                         )}
                       </div>
 
@@ -1771,10 +1773,10 @@ const CareerTrack = () => {
                           type="file"
                           accept=".txt"
                           onChange={handleChatCoverLetterFileChange}
-                          className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-2 text-white text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-emerald-500/20 file:text-emerald-400 hover:file:bg-emerald-500/30"
+                          className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-2 text-white text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-white/20 file:text-white hover:file:bg-white/30"
                         />
                         {chatCoverLetterFile && (
-                          <p className="mt-2 text-sm text-emerald-400">✓ {chatCoverLetterFile.name}</p>
+                          <p className="mt-2 text-sm text-white">✓ {chatCoverLetterFile.name}</p>
                         )}
                       </div>
 
@@ -1786,7 +1788,7 @@ const CareerTrack = () => {
                           value={chatJobDescription}
                           onChange={(e) => setChatJobDescription(e.target.value)}
                           placeholder="Paste a job description here for context..."
-                          className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 min-h-[100px]"
+                          className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-white/50 focus:ring-2 focus:ring-white/20 min-h-[100px]"
                         />
                       </div>
                     </div>
@@ -1809,7 +1811,7 @@ const CareerTrack = () => {
                               <div
                                 className={`max-w-[80%] rounded-lg px-4 py-2 ${
                                   msg.role === 'user'
-                                    ? 'bg-emerald-500/20 text-emerald-100'
+                                    ? 'bg-white/20 text-white'
                                     : 'bg-white/5 text-gray-200'
                                 }`}
                               >
@@ -1834,13 +1836,13 @@ const CareerTrack = () => {
                           value={chatInput}
                           onChange={(e) => setChatInput(e.target.value)}
                           placeholder="Ask a question..."
-                          className="flex-1 bg-white/5 border border-gray-700 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                          className="flex-1 bg-white/5 border border-gray-700 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-white/50 focus:ring-2 focus:ring-white/20"
                           disabled={isLoading}
                         />
                         <button
                           type="submit"
                           disabled={isLoading || !chatInput.trim()}
-                          className="px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-black font-bold rounded-lg hover:from-emerald-600 hover:to-teal-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                          className="px-4 py-2 bg-white text-black font-bold rounded-lg hover:bg-white/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                         >
                           <Send className="w-4 h-4" />
                         </button>
@@ -1860,7 +1862,7 @@ const CareerTrack = () => {
                   <ul className="space-y-3">
                     {selectedFeature.outline.howItWorks.map((step, i) => (
                       <li key={i} className="flex items-start gap-3">
-                        <span className="text-emerald-400 font-bold flex-shrink-0">•</span>
+                        <span className="text-white font-bold flex-shrink-0">•</span>
                         <div>
                           <strong className="text-white">{step.label}:</strong>
                           <span className="text-gray-300 ml-2">{step.desc}</span>
