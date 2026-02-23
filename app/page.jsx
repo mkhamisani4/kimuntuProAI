@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { LogOut, Briefcase, Users, Scale, Home, FileText, TrendingUp, HelpCircle, Mail, Lock, Chrome, BarChart, Shield, Sun, Moon, Rocket } from 'lucide-react';
-import { auth, signInWithEmail, signUpWithEmail, signInWithGoogle, signOutUser } from '@/lib/firebase';
+import { auth, signInWithEmail, signUpWithEmail, signInWithGoogle, signOutUser, hasCompletedOnboarding } from '@/lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useTheme } from '@/components/providers/ThemeProvider';
 import Footer from '@/components/Footer';
@@ -21,12 +21,18 @@ export default function LandingPage() {
     const [authLoading, setAuthLoading] = useState(false);
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+        const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
             setUser(currentUser);
-            setLoading(false);
             if (currentUser) {
-                router.push('/dashboard');
+                // Check if user has completed onboarding
+                const completedOnboarding = await hasCompletedOnboarding(currentUser.uid);
+                if (!completedOnboarding) {
+                    router.push('/onboarding');
+                } else {
+                    router.push('/dashboard');
+                }
             }
+            setLoading(false);
         });
         return () => unsubscribe();
     }, [router]);
@@ -93,12 +99,12 @@ export default function LandingPage() {
     if (loading) {
         return (
             <div className={`min-h-screen flex items-center justify-center ${isDark
-                ? 'bg-gradient-to-br from-gray-950 via-gray-900 to-black'
-                : 'bg-gradient-to-br from-gray-50 via-blue-50 to-gray-100'
+                ? 'bg-black'
+                : 'bg-white'
                 }`}>
                 <div className="flex flex-col items-center gap-4">
-                    <Image src="/assets/LOGOS(4).svg" alt="KimuntuPro AI" width={80} height={80} className="animate-bounce" />
-                    <div className={`text-2xl font-semibold ${isDark ? 'text-blue-400' : 'text-blue-600'}`}>
+                    <Image src="/assets/LOGOS(9).svg" alt="Kimuntu" width={80} height={80} className="animate-bounce" />
+                    <div className={`text-2xl font-semibold ${isDark ? 'text-white' : 'text-black'}`}>
                         Loading...
                     </div>
                 </div>
@@ -108,29 +114,16 @@ export default function LandingPage() {
 
     return (
         <div className={`min-h-screen relative overflow-hidden transition-all duration-500 ${isDark
-            ? 'bg-gradient-to-br from-gray-950 via-gray-900 to-black'
-            : 'bg-gradient-to-br from-gray-50 via-blue-50 to-gray-100'
+            ? 'bg-black'
+            : 'bg-white'
             }`}>
-            {/* Animated gradient blobs */}
-            <div className="absolute inset-0 overflow-hidden">
-                <div className={`absolute top-0 left-0 w-full h-full ${isDark
-                    ? 'bg-gradient-to-br from-gray-950 via-gray-900/50 to-black'
-                    : 'bg-gradient-to-br from-gray-50 via-blue-100/50 to-gray-100'
-                    }`}></div>
-                <div className={`absolute top-20 -left-20 w-96 h-96 rounded-full filter blur-3xl opacity-30 animate-pulse ${isDark ? 'bg-blue-600' : 'bg-blue-200'
-                    }`}></div>
-                <div className={`absolute bottom-20 -right-20 w-[500px] h-[500px] rounded-full filter blur-3xl opacity-20 animate-pulse ${isDark ? 'bg-cyan-600' : 'bg-cyan-200'
-                    }`} style={{ animationDelay: '2s' }}></div>
-                <div className={`absolute top-1/2 left-1/2 w-72 h-72 rounded-full filter blur-3xl opacity-20 animate-pulse ${isDark ? 'bg-blue-500' : 'bg-blue-300'
-                    }`} style={{ animationDelay: '4s' }}></div>
-            </div>
 
             {/* Header */}
             <header className="relative z-10 p-6 flex justify-between items-center">
                 <div className="flex items-center gap-3">
-                    <Image src="/assets/LOGOS(4).svg" alt="KimuntuPro AI Logo" width={48} height={48} />
-                    <span className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                        KimuntuPro AI
+                    <Image src="/assets/LOGOS(9).svg" alt="Kimuntu Logo" width={48} height={48} />
+                    <span className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-black'}`}>
+                        Kimuntu
                     </span>
                 </div>
             </header>
@@ -140,76 +133,74 @@ export default function LandingPage() {
                 <div className="w-full max-w-6xl grid lg:grid-cols-2 gap-12 items-center">
                     {/* Left side - Hero Content */}
                     <div className="text-center lg:text-left space-y-8">
-                        <div className="flex justify-center lg:justify-start mb-6">
-                            <Image src="/assets/LOGOS(8).svg" alt="KimuntuPro" width={64} height={64} />
+                        <div className="flex items-center justify-center lg:justify-start gap-4 mb-6">
+                            <Image src="/assets/LOGOS(9).svg" alt="KimuntuPro" width={80} height={80} />
+                            <span className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-black'}`}>
+                                Kimuntu
+                            </span>
                         </div>
 
-                        <h1 className={`text-5xl lg:text-6xl font-bold leading-tight ${isDark ? 'text-white' : 'text-gray-900'
+                        <h1 className={`text-5xl lg:text-6xl font-bold leading-tight ${isDark ? 'text-white' : 'text-black'
                             }`}>
                             Empowering Your{' '}
-                            <span className="block bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 bg-clip-text text-transparent">
+                            <span className={`block ${isDark ? 'text-white' : 'text-black'}`}>
                                 Future with AI
                             </span>
                         </h1>
 
-                        <p className={`text-xl ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                        <p className={`text-xl ${isDark ? 'text-white/70' : 'text-black/70'}`}>
                             Professional success, business growth, and legal assistance - all powered by cutting-edge artificial intelligence.
                         </p>
 
                         <div className="flex flex-wrap gap-4 justify-center lg:justify-start">
                             <div className={`flex items-center gap-2 px-4 py-2 rounded-full ${isDark
-                                ? 'bg-white/10 backdrop-blur-lg border border-white/20'
-                                : 'bg-white/60 backdrop-blur-lg border border-gray-200'
+                                ? 'bg-white/10 border border-white/20'
+                                : 'bg-black/5 border border-black/10'
                                 }`}>
-                                <Briefcase className={`w-5 h-5 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
-                                <span className={isDark ? 'text-gray-200' : 'text-gray-700'}>Career Development</span>
+                                <Briefcase className={`w-5 h-5 ${isDark ? 'text-white' : 'text-black'}`} />
+                                <span className={isDark ? 'text-white' : 'text-black'}>Career Development</span>
                             </div>
                             <div className={`flex items-center gap-2 px-4 py-2 rounded-full ${isDark
-                                ? 'bg-white/10 backdrop-blur-lg border border-white/20'
-                                : 'bg-white/60 backdrop-blur-lg border border-gray-200'
+                                ? 'bg-white/10 border border-white/20'
+                                : 'bg-black/5 border border-black/10'
                                 }`}>
-                                <BarChart className={`w-5 h-5 ${isDark ? 'text-pink-400' : 'text-pink-600'}`} />
-                                <span className={isDark ? 'text-gray-200' : 'text-gray-700'}>Business Planning</span>
+                                <BarChart className={`w-5 h-5 ${isDark ? 'text-white' : 'text-black'}`} />
+                                <span className={isDark ? 'text-white' : 'text-black'}>Business Planning</span>
                             </div>
                             <div className={`flex items-center gap-2 px-4 py-2 rounded-full ${isDark
-                                ? 'bg-white/10 backdrop-blur-lg border border-white/20'
-                                : 'bg-white/60 backdrop-blur-lg border border-gray-200'
+                                ? 'bg-white/10 border border-white/20'
+                                : 'bg-black/5 border border-black/10'
                                 }`}>
-                                <Shield className={`w-5 h-5 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
-                                <span className={isDark ? 'text-gray-200' : 'text-gray-700'}>Legal Support</span>
+                                <Shield className={`w-5 h-5 ${isDark ? 'text-white' : 'text-black'}`} />
+                                <span className={isDark ? 'text-white' : 'text-black'}>Legal Support</span>
                             </div>
                         </div>
                     </div>
 
-                    {/* Right side - Glassmorphism Login Card */}
+                    {/* Right side - Premium Login Card */}
                     <div className="w-full max-w-md mx-auto">
                         <div className={`relative group ${isDark
-                            ? 'bg-white/5 backdrop-blur-2xl border border-white/20'
-                            : 'bg-white/40 backdrop-blur-2xl border border-white/60'
+                            ? 'bg-white/5 border border-white/20'
+                            : 'bg-black/5 border border-black/10'
                             } rounded-3xl p-8 shadow-2xl`}>
-                            {/* Glass reflection effect */}
-                            <div className={`absolute inset-0 rounded-3xl ${isDark
-                                ? 'bg-gradient-to-br from-white/10 via-transparent to-transparent'
-                                : 'bg-gradient-to-br from-white/50 via-transparent to-transparent'
-                                } pointer-events-none`}></div>
 
                             <div className="relative z-10">
                                 <div className="text-center mb-8">
-                                    <Image src="/assets/LOGOS(9).svg" alt="Logo" width={64} height={64} className="mx-auto mb-4" />
-                                    <h2 className={`text-2xl font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                                    <Image src="/assets/LOGOS(9).svg" alt="Logo" width={80} height={80} className="mx-auto mb-4" />
+                                    <h2 className={`text-2xl font-bold mb-2 ${isDark ? 'text-white' : 'text-black'}`}>
                                         {isLogin ? 'Welcome Back' : 'Get Started'}
                                     </h2>
-                                    <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                                    <p className={`text-sm ${isDark ? 'text-white/60' : 'text-black/60'}`}>
                                         {isLogin ? 'Sign in to continue your journey' : 'Create your account today'}
                                     </p>
                                 </div>
 
                                 <div className="space-y-4">
                                     <div>
-                                        <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'
+                                        <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-white' : 'text-black'
                                             }`}>Email</label>
                                         <div className="relative group">
-                                            <Mail className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 ${isDark ? 'text-gray-500' : 'text-gray-400'
+                                            <Mail className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 ${isDark ? 'text-white/40' : 'text-black/40'
                                                 }`} />
                                             <input
                                                 type="email"
@@ -217,9 +208,9 @@ export default function LandingPage() {
                                                 onChange={(e) => setEmail(e.target.value)}
                                                 onKeyPress={handleKeyPress}
                                                 className={`w-full pl-10 pr-4 py-3 rounded-xl transition-all ${isDark
-                                                    ? 'bg-white/5 border border-white/20 text-white placeholder-gray-500 focus:bg-white/10 focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20'
-                                                    : 'bg-white/50 border border-gray-300 text-gray-900 placeholder-gray-500 focus:bg-white focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20'
-                                                    } focus:outline-none backdrop-blur-xl`}
+                                                    ? 'bg-white/10 border border-white/20 text-white placeholder-white/40 focus:bg-white/20 focus:border-white/40 focus:ring-2 focus:ring-white/20'
+                                                    : 'bg-black/5 border border-black/10 text-black placeholder-black/40 focus:bg-black/10 focus:border-black/20 focus:ring-2 focus:ring-black/10'
+                                                    } focus:outline-none`}
                                                 placeholder="your@email.com"
                                                 disabled={authLoading}
                                             />
@@ -227,10 +218,10 @@ export default function LandingPage() {
                                     </div>
 
                                     <div>
-                                        <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'
+                                        <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-white' : 'text-black'
                                             }`}>Password</label>
                                         <div className="relative">
-                                            <Lock className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 ${isDark ? 'text-gray-500' : 'text-gray-400'
+                                            <Lock className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 ${isDark ? 'text-white/40' : 'text-black/40'
                                                 }`} />
                                             <input
                                                 type="password"
@@ -238,9 +229,9 @@ export default function LandingPage() {
                                                 onChange={(e) => setPassword(e.target.value)}
                                                 onKeyPress={handleKeyPress}
                                                 className={`w-full pl-10 pr-4 py-3 rounded-xl transition-all ${isDark
-                                                    ? 'bg-white/5 border border-white/20 text-white placeholder-gray-500 focus:bg-white/10 focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20'
-                                                    : 'bg-white/50 border border-gray-300 text-gray-900 placeholder-gray-500 focus:bg-white focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20'
-                                                    } focus:outline-none backdrop-blur-xl`}
+                                                    ? 'bg-white/10 border border-white/20 text-white placeholder-white/40 focus:bg-white/20 focus:border-white/40 focus:ring-2 focus:ring-white/20'
+                                                    : 'bg-black/5 border border-black/10 text-black placeholder-black/40 focus:bg-black/10 focus:border-black/20 focus:ring-2 focus:ring-black/10'
+                                                    } focus:outline-none`}
                                                 placeholder="••••••••"
                                                 disabled={authLoading}
                                             />
@@ -259,7 +250,11 @@ export default function LandingPage() {
                                     <button
                                         onClick={handleEmailAuth}
                                         disabled={authLoading}
-                                        className="w-full bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 text-white font-semibold py-3 rounded-xl hover:from-purple-600 hover:via-pink-600 hover:to-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] transition-all duration-200 shadow-lg shadow-purple-500/25"
+                                        className={`w-full font-semibold py-3 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] transition-all duration-200 shadow-lg ${
+                                            isDark
+                                                ? 'bg-white text-black hover:bg-white/90'
+                                                : 'bg-black text-white hover:bg-black/90'
+                                        }`}
                                     >
                                         {authLoading ? 'Processing...' : (isLogin ? 'Sign In' : 'Sign Up')}
                                     </button>
@@ -267,10 +262,10 @@ export default function LandingPage() {
 
                                 <div className="relative my-6">
                                     <div className="absolute inset-0 flex items-center">
-                                        <div className={`w-full border-t ${isDark ? 'border-gray-700' : 'border-gray-300'}`}></div>
+                                        <div className={`w-full border-t ${isDark ? 'border-white/20' : 'border-black/20'}`}></div>
                                     </div>
                                     <div className="relative flex justify-center text-sm">
-                                        <span className={`px-3 ${isDark ? 'bg-slate-900 text-gray-400' : 'bg-purple-50 text-gray-600'
+                                        <span className={`px-3 ${isDark ? 'bg-black text-white/60' : 'bg-white text-black/60'
                                             }`}>Or</span>
                                     </div>
                                 </div>
@@ -279,15 +274,15 @@ export default function LandingPage() {
                                     onClick={handleGoogleSignIn}
                                     disabled={authLoading}
                                     className={`w-full font-medium py-3 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] transition-all duration-200 flex items-center justify-center gap-3 ${isDark
-                                        ? 'bg-white text-gray-900 hover:bg-gray-100'
-                                        : 'bg-white/80 text-gray-900 hover:bg-white border border-gray-300'
-                                        } backdrop-blur-xl shadow-lg`}
+                                        ? 'bg-white/10 text-white hover:bg-white/20 border border-white/20'
+                                        : 'bg-black/5 text-black hover:bg-black/10 border border-black/10'
+                                        } shadow-lg`}
                                 >
                                     <Chrome className="w-5 h-5" />
                                     Continue with Google
                                 </button>
 
-                                <p className={`text-center text-sm mt-6 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                                <p className={`text-center text-sm mt-6 ${isDark ? 'text-white/60' : 'text-black/60'}`}>
                                     {isLogin ? "Don't have an account? " : "Already have an account? "}
                                     <button
                                         onClick={() => {
@@ -296,7 +291,7 @@ export default function LandingPage() {
                                             setEmail('');
                                             setPassword('');
                                         }}
-                                        className={`font-medium ${isDark ? 'text-purple-400 hover:text-purple-300' : 'text-purple-600 hover:text-purple-700'
+                                        className={`font-medium ${isDark ? 'text-white hover:text-white/80' : 'text-black hover:text-black/80'
                                             }`}
                                         disabled={authLoading}
                                     >
@@ -314,14 +309,14 @@ export default function LandingPage() {
                 <button
                     onClick={toggleTheme}
                     className={`p-4 rounded-full transition-all duration-300 shadow-lg ${isDark
-                        ? 'bg-white/10 backdrop-blur-xl border border-white/20 hover:bg-white/20'
-                        : 'bg-white/40 backdrop-blur-xl border border-gray-300 hover:bg-white/60'
+                        ? 'bg-white/10 border border-white/20 hover:bg-white/20'
+                        : 'bg-black/5 border border-black/10 hover:bg-black/10'
                         }`}
                 >
                     {isDark ? (
-                        <Sun className="w-6 h-6 text-yellow-400" />
+                        <Sun className="w-6 h-6 text-white" />
                     ) : (
-                        <Moon className="w-6 h-6 text-purple-600" />
+                        <Moon className="w-6 h-6 text-black" />
                     )}
                 </button>
             </div>
