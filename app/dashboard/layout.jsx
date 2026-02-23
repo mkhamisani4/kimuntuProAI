@@ -9,6 +9,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { useTheme } from '@/components/providers/ThemeProvider';
 import { useLanguage } from '@/components/providers/LanguageProvider';
 import Footer from '@/components/Footer';
+import FloatingChatbot from '@/components/FloatingChatbot';
 import Image from 'next/image';
 
 export default function DashboardLayout({ children }) {
@@ -65,12 +66,12 @@ export default function DashboardLayout({ children }) {
     if (loading) {
         return (
             <div className={`min-h-screen flex items-center justify-center ${isDark
-                ? 'bg-gradient-to-br from-gray-950 via-gray-900 to-black'
-                : 'bg-gradient-to-br from-gray-50 via-blue-50 to-gray-100'
+                ? 'bg-black'
+                : 'bg-white'
                 }`}>
                 <div className="flex flex-col items-center gap-4">
-                    <Image src="/assets/LOGOS(4).svg" alt="KimuntuPro AI" width={80} height={80} className="animate-bounce" />
-                    <div className={`text-2xl font-semibold ${isDark ? 'text-blue-400' : 'text-blue-600'}`}>
+                    <Image src="/assets/LOGOS(9).svg" alt="KimuntuPro AI" width={80} height={80} className="animate-bounce" />
+                    <div className={`text-2xl font-semibold ${isDark ? 'text-white' : 'text-black'}`}>
                         Loading...
                     </div>
                 </div>
@@ -80,13 +81,13 @@ export default function DashboardLayout({ children }) {
 
     return (
         <div className={`min-h-screen transition-all duration-500 ${isDark
-            ? 'bg-gradient-to-br from-gray-950 via-gray-900 to-black'
-            : 'bg-gradient-to-br from-gray-50 via-blue-50 to-gray-100'
+            ? 'bg-black'
+            : 'bg-white'
             }`}>
-            {/* Glassmorphism Sidebar */}
+            {/* Premium Sidebar */}
             <div className={`fixed left-0 top-0 h-full w-64 shadow-2xl z-40 ${isDark
-                ? 'bg-gray-900'
-                : 'bg-white'
+                ? 'bg-black border-r border-white/10'
+                : 'bg-white border-r border-black/10'
                 }`}>
 
                 <div className="flex flex-col h-full relative z-10 overflow-hidden">
@@ -96,10 +97,10 @@ export default function DashboardLayout({ children }) {
                             className="flex items-center justify-center mb-8 hover:opacity-80 transition-opacity cursor-pointer w-full"
                         >
                             <Image
-                                src={isDark ? "/assets/white_logo.png" : "/assets/dark_logo.png"}
+                                src="/assets/LOGOS(9).svg"
                                 alt="KimuntuPro AI"
-                                width={144}
-                                height={144}
+                                width={80}
+                                height={80}
                             />
                         </Link>
                     </div>
@@ -110,8 +111,8 @@ export default function DashboardLayout({ children }) {
                                 key={item.id}
                                 href={item.href}
                                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all ${isDark
-                                    ? 'text-gray-400 hover:bg-white/5 hover:text-white'
-                                    : 'text-gray-600 hover:bg-white/50 hover:text-gray-900'
+                                    ? 'text-white/60 hover:bg-white/10 hover:text-white'
+                                    : 'text-black/60 hover:bg-black/5 hover:text-black'
                                     }`}
                             >
                                 <item.icon className="w-5 h-5" />
@@ -120,27 +121,27 @@ export default function DashboardLayout({ children }) {
                         ))}
                     </nav>
 
-                    <div className={`flex-shrink-0 p-6 ${isDark ? 'border-t border-white/10' : 'border-t border-gray-200'}`}>
-                        <div className={`rounded-xl p-4 mb-4 backdrop-blur-xl ${isDark
-                            ? 'bg-gradient-to-br from-blue-600/10 to-cyan-600/10 border border-blue-500/30'
-                            : 'bg-gradient-to-br from-blue-100 to-cyan-100 border border-blue-300'
+                    <div className={`flex-shrink-0 p-6 ${isDark ? 'border-t border-white/10' : 'border-t border-black/10'}`}>
+                        <div className={`rounded-xl p-4 mb-4 ${isDark
+                            ? 'bg-white/5 border border-white/10'
+                            : 'bg-black/5 border border-black/10'
                             }`}>
-                            <p className={`text-xs mb-1 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                            <p className={`text-xs mb-1 ${isDark ? 'text-white/60' : 'text-black/60'}`}>
                                 {t.loggedInAs}
                             </p>
-                            <p className={`text-sm font-medium truncate ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                            <p className={`text-sm font-medium truncate ${isDark ? 'text-white' : 'text-black'}`}>
                                 {user?.email || user?.displayName}
                             </p>
                         </div>
                         <button
                             onClick={handleSignOut}
-                            className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl transition-all backdrop-blur-xl ${isDark
-                                ? 'bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/30'
-                                : 'bg-red-50 text-red-600 hover:bg-red-100 border border-red-300'
+                            className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl transition-all ${isDark
+                                ? 'bg-white text-black hover:bg-white/90'
+                                : 'bg-black text-white hover:bg-black/90'
                                 }`}
                         >
                             <LogOut className="w-4 h-4" />
-                            <span className="text-sm">{t.signOut}</span>
+                            <span className="text-sm font-medium">{t.signOut}</span>
                         </button>
                     </div>
                 </div>
@@ -148,15 +149,32 @@ export default function DashboardLayout({ children }) {
 
             {/* Main Content */}
             <div className="ml-64 flex flex-col min-h-screen">
+                {/* Theme Toggle - Top Right */}
+                <div className="fixed top-6 right-6 z-30">
+                    <button
+                        onClick={toggleTheme}
+                        className={`p-4 rounded-full transition-all duration-300 shadow-lg ${isDark
+                            ? 'bg-white/10 border border-white/20 hover:bg-white/20'
+                            : 'bg-black/5 border border-black/10 hover:bg-black/10'
+                            }`}
+                    >
+                        {isDark ? (
+                            <Sun className="w-6 h-6 text-white" />
+                        ) : (
+                            <Moon className="w-6 h-6 text-black" />
+                        )}
+                    </button>
+                </div>
+
                 <div className="flex-1 p-8">
                     <div className="max-w-7xl mx-auto">
                         {children}
                     </div>
                 </div>
-                
-                {/* Footer - Hidden on specific pages */}
-                {shouldShowFooter && <Footer />}
             </div>
+
+            {/* Floating Chatbot */}
+            <FloatingChatbot />
         </div>
     );
 }
