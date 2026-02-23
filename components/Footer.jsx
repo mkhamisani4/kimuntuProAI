@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Mail, Phone, MapPin, Facebook, Twitter, Linkedin, Instagram, Youtube, FileText, Shield, Info, Heart, Sparkles } from 'lucide-react';
 import { useTheme } from '@/components/providers/ThemeProvider';
 import { useLanguage } from '@/components/providers/LanguageProvider';
@@ -63,8 +64,8 @@ const Footer = () => {
 
     return (
         <footer className={`relative overflow-hidden border-t ${isDark
-            ? 'bg-gray-900 border-gray-800'
-            : 'bg-white border-gray-200'
+            ? 'bg-black border-white/10'
+            : 'bg-white border-black/10'
             }`}>
 
             <div className="relative z-10 max-w-7xl mx-auto px-6 py-16">
@@ -73,20 +74,15 @@ const Footer = () => {
                     {/* Company Info */}
                     <div className="lg:col-span-2">
                         <div className={`inline-flex items-center gap-3 mb-6 p-3 rounded-2xl ${isDark
-                            ? 'bg-gray-800/80 border border-gray-700'
-                            : 'bg-white border border-gray-200'
+                            ? 'bg-white/5 border border-white/10'
+                            : 'bg-black/5 border border-black/10'
                             }`}>
-                            <div className="relative">
-                                <div className={`w-12 h-12 rounded-xl flex items-center justify-center bg-gradient-to-br from-purple-500 via-pink-500 to-blue-500 shadow-lg`}>
-                                    <Sparkles className="w-6 h-6 text-white" />
-                                </div>
-                                <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 blur-xl opacity-50 animate-pulse"></div>
-                            </div>
-                            <span className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                                KimuntuPro AI
+                            <Image src="/assets/LOGOS(9).svg" alt="Kimuntu Logo" width={48} height={48} />
+                            <span className={`text-xl font-bold ${isDark ? 'text-white' : 'text-black'}`}>
+                                Kimuntu
                             </span>
                         </div>
-                        <p className={`text-sm mb-6 ${isDark ? 'text-gray-300' : 'text-gray-600'} leading-relaxed`}>
+                        <p className={`text-sm mb-6 ${isDark ? 'text-white/70' : 'text-black/70'} leading-relaxed`}>
                             {t.footerTagline}
                         </p>
 
@@ -97,13 +93,13 @@ const Footer = () => {
                                     key={index}
                                     href={item.href}
                                     className={`flex items-center gap-3 text-sm transition-all group ${isDark
-                                        ? 'text-gray-300 hover:text-purple-400'
-                                        : 'text-gray-600 hover:text-purple-600'
+                                        ? 'text-white/70 hover:text-white'
+                                        : 'text-black/70 hover:text-black'
                                         }`}
                                 >
                                     <div className={`p-2 rounded-lg transition-all ${isDark
-                                        ? 'bg-gray-800 group-hover:bg-purple-500/20 border border-gray-700'
-                                        : 'bg-gray-100 group-hover:bg-purple-100 border border-gray-200'
+                                        ? 'bg-white/5 group-hover:bg-white/10 border border-white/10'
+                                        : 'bg-black/5 group-hover:bg-black/10 border border-black/10'
                                         }`}>
                                         <item.icon className="w-4 h-4" />
                                     </div>
@@ -124,8 +120,8 @@ const Footer = () => {
                                     <Link
                                         href={link.href}
                                         className={`text-sm transition-all hover:translate-x-1 inline-block ${isDark
-                                            ? 'text-gray-300 hover:text-purple-400'
-                                            : 'text-gray-600 hover:text-purple-600'
+                                            ? 'text-white/70 hover:text-white'
+                                            : 'text-black/70 hover:text-black'
                                             }`}
                                     >
                                         {link.name}
@@ -146,8 +142,8 @@ const Footer = () => {
                                     <Link
                                         href={link.href}
                                         className={`text-sm transition-all hover:translate-x-1 inline-block ${isDark
-                                            ? 'text-gray-300 hover:text-purple-400'
-                                            : 'text-gray-600 hover:text-purple-600'
+                                            ? 'text-white/70 hover:text-white'
+                                            : 'text-black/70 hover:text-black'
                                             }`}
                                     >
                                         {link.name}
@@ -168,8 +164,8 @@ const Footer = () => {
                                     <Link
                                         href={link.href}
                                         className={`text-sm transition-all hover:translate-x-1 inline-block ${isDark
-                                            ? 'text-gray-300 hover:text-purple-400'
-                                            : 'text-gray-600 hover:text-purple-600'
+                                            ? 'text-white/70 hover:text-white'
+                                            : 'text-black/70 hover:text-black'
                                             }`}
                                     >
                                         {link.name}
@@ -190,8 +186,8 @@ const Footer = () => {
                                     <Link
                                         href={link.href}
                                         className={`text-sm transition-all hover:translate-x-1 inline-block ${isDark
-                                            ? 'text-gray-300 hover:text-purple-400'
-                                            : 'text-gray-600 hover:text-purple-600'
+                                            ? 'text-white/70 hover:text-white'
+                                            : 'text-black/70 hover:text-black'
                                             }`}
                                     >
                                         {link.name}
@@ -204,23 +200,17 @@ const Footer = () => {
 
                 {/* Newsletter Section */}
                 <div className={`relative overflow-hidden border rounded-3xl py-10 px-8 mb-10 ${isDark
-                    ? 'border-gray-800 bg-gray-800/80'
-                    : 'border-gray-200 bg-gray-50'
+                    ? 'border-white/10 bg-white/5'
+                    : 'border-black/10 bg-black/5'
                     }`}>
-                    {/* Background accent blur */}
-                    <div className={`absolute top-0 right-0 w-64 h-64 rounded-full filter blur-3xl opacity-30 ${isDark ? 'bg-purple-500' : 'bg-purple-300'
-                        }`}></div>
-                    <div className={`absolute bottom-0 left-0 w-64 h-64 rounded-full filter blur-3xl opacity-20 ${isDark ? 'bg-pink-500' : 'bg-pink-300'
-                        }`}></div>
-
                     <div className="relative z-10 max-w-2xl mx-auto text-center">
                         <div className="flex items-center justify-center gap-2 mb-3">
-                            <Mail className={`w-6 h-6 ${isDark ? 'text-purple-400' : 'text-purple-600'}`} />
-                            <h3 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                            <Mail className={`w-6 h-6 ${isDark ? 'text-white' : 'text-black'}`} />
+                            <h3 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-black'}`}>
                                 {t.footerStayUpdated}
                             </h3>
                         </div>
-                        <p className={`text-sm mb-6 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                        <p className={`text-sm mb-6 ${isDark ? 'text-white/70' : 'text-black/70'}`}>
                             {t.footerNewsletter}
                         </p>
                         <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
@@ -228,11 +218,11 @@ const Footer = () => {
                                 type="email"
                                 placeholder={t.footerEnterEmail}
                                 className={`flex-1 px-5 py-3 rounded-xl text-sm transition-all ${isDark
-                                    ? 'bg-gray-700 border border-gray-600 text-white placeholder-gray-400 focus:bg-gray-600 focus:border-purple-500/50'
-                                    : 'bg-white border border-gray-300 text-gray-900 placeholder-gray-500 focus:bg-white focus:border-purple-500'
-                                    } focus:outline-none focus:ring-2 focus:ring-purple-500/30 shadow-lg`}
+                                    ? 'bg-white/10 border border-white/20 text-white placeholder-white/40 focus:bg-white/20 focus:border-white/40'
+                                    : 'bg-white border border-black/20 text-black placeholder-black/40 focus:bg-white focus:border-black/40'
+                                    } focus:outline-none focus:ring-2 focus:ring-white/20 shadow-lg`}
                             />
-                            <button className="px-8 py-3 bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 text-white text-sm font-semibold rounded-xl hover:from-purple-600 hover:via-pink-600 hover:to-blue-600 transition-all shadow-lg hover:shadow-xl hover:scale-105 transform">
+                            <button className={`px-8 py-3 text-sm font-semibold rounded-xl transition-all shadow-lg hover:shadow-xl hover:scale-105 transform ${isDark ? 'bg-white text-black hover:bg-white/90' : 'bg-black text-white hover:bg-black/90'}`}>
                                 {t.footerSubscribe}
                             </button>
                         </div>
@@ -252,9 +242,9 @@ const Footer = () => {
                                 rel="noopener noreferrer"
                                 aria-label={social.label}
                                 className={`p-3 rounded-xl transition-all transform hover:scale-110 ${isDark
-                                    ? 'bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-300'
-                                    : 'bg-white hover:bg-gray-50 border border-gray-200 text-gray-600'
-                                    } ${social.color} shadow-lg hover:shadow-xl`}
+                                    ? 'bg-white/5 hover:bg-white/10 border border-white/10 text-white'
+                                    : 'bg-black/5 hover:bg-black/10 border border-black/10 text-black'
+                                    } shadow-lg hover:shadow-xl`}
                             >
                                 <social.icon className="w-5 h-5" />
                             </a>
@@ -276,8 +266,8 @@ const Footer = () => {
                 {/* Trust Badges */}
                 <div className={`mt-8 pt-8 border-t flex flex-wrap justify-center gap-8 ${isDark ? 'border-white/10' : 'border-gray-200'}`}>
                     <div className={`flex items-center gap-2 px-4 py-2 rounded-xl ${isDark
-                        ? 'bg-gray-800/80 border border-gray-700'
-                        : 'bg-white border border-gray-200'
+                        ? 'bg-white/5 border border-white/10'
+                        : 'bg-black/5 border border-black/10'
                         }`}>
                         <Shield className={`w-5 h-5 ${isDark ? 'text-green-400' : 'text-green-600'}`} />
                         <span className={`text-xs font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
@@ -285,8 +275,8 @@ const Footer = () => {
                         </span>
                     </div>
                     <div className={`flex items-center gap-2 px-4 py-2 rounded-xl ${isDark
-                        ? 'bg-gray-800/80 border border-gray-700'
-                        : 'bg-white border border-gray-200'
+                        ? 'bg-white/5 border border-white/10'
+                        : 'bg-black/5 border border-black/10'
                         }`}>
                         <FileText className={`w-5 h-5 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
                         <span className={`text-xs font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
@@ -294,8 +284,8 @@ const Footer = () => {
                         </span>
                     </div>
                     <div className={`flex items-center gap-2 px-4 py-2 rounded-xl ${isDark
-                        ? 'bg-gray-800/80 border border-gray-700'
-                        : 'bg-white border border-gray-200'
+                        ? 'bg-white/5 border border-white/10'
+                        : 'bg-black/5 border border-black/10'
                         }`}>
                         <Info className={`w-5 h-5 ${isDark ? 'text-purple-400' : 'text-purple-600'}`} />
                         <span className={`text-xs font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
