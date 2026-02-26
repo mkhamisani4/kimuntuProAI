@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getWebsite, updateWebsite, recordUsage } from '@kimuntupro/db';
+import { getWebsite, updateWebsite, recordUsage, type Website } from '@kimuntupro/db';
 import { generateWebsite } from '@kimuntupro/ai-core';
 import { withQuotaGuard } from '@/lib/api/quotaMiddleware';
 
@@ -40,7 +40,7 @@ async function handleRegenerate(
     }
 
     // Verify ownership
-    if (existingWebsite.userId !== userId) {
+    if ((existingWebsite as Website).userId !== userId) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 403 }

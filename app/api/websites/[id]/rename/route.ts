@@ -5,6 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getWebsiteAdmin, updateWebsiteAdmin } from '@kimuntupro/db/firebase/websites.server';
+import type { Website } from '@kimuntupro/db';
 
 /**
  * Handle PATCH request to rename a website
@@ -48,7 +49,7 @@ async function handleRename(request: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ error: 'Website not found' }, { status: 404 });
     }
 
-    if (existingWebsite.userId !== userId) {
+    if ((existingWebsite as Website).userId !== userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 

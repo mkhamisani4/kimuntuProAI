@@ -52,13 +52,13 @@ export default function WebsitePage() {
           return;
         }
 
-        setWebsite(data);
+        setWebsite(data as Website);
         setError(null);
 
         // If still generating, poll for updates
-        if (data.status === 'generating') {
+        if ((data as Website).status === 'generating') {
           const pollInterval = setInterval(async () => {
-            const updated = await getWebsite(websiteId);
+            const updated = await getWebsite(websiteId) as Website | null;
             if (updated && updated.status !== 'generating') {
               setWebsite(updated);
               clearInterval(pollInterval);
@@ -192,7 +192,7 @@ export default function WebsitePage() {
 
       // Start polling for updates
       const pollInterval = setInterval(async () => {
-        const updated = await getWebsite(websiteId);
+        const updated = (await getWebsite(websiteId)) as Website | null;
         if (updated) {
           setWebsite(updated);
           if (updated.status !== 'generating') {

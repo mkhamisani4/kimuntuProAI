@@ -8,7 +8,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getWebsiteAdmin, deleteWebsiteAdmin } from '@kimuntupro/db/firebase/websites.server';
-import { deleteLogo } from '@kimuntupro/db';
+import { deleteLogo, type Website } from '@kimuntupro/db';
 
 /**
  * GET handler - Fetch website by ID
@@ -78,9 +78,10 @@ export async function DELETE(
     }
 
     // Delete logo from storage if exists
-    if (website.wizardInput?.logoUrl) {
+    const site = website as Website;
+    if (site.wizardInput?.logoUrl) {
       try {
-        await deleteLogo(website.wizardInput.logoUrl);
+        await deleteLogo(site.wizardInput.logoUrl);
         console.log(`[API] Deleted logo for website: ${websiteId}`);
       } catch (err) {
         console.warn('[API] Failed to delete logo, continuing with website deletion:', err);

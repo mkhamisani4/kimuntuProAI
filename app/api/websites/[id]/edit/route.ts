@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getWebsite, updateWebsite, recordUsage } from '@kimuntupro/db';
+import { getWebsite, updateWebsite, recordUsage, type Website } from '@kimuntupro/db';
 import { editWebsite } from '@kimuntupro/ai-core';
 import { withQuotaGuard } from '@/lib/api/quotaMiddleware';
 
@@ -39,7 +39,7 @@ async function handleEdit(
     if (!existingWebsite) {
       return NextResponse.json({ error: 'Website not found' }, { status: 404 });
     }
-    if (existingWebsite.userId !== userId) {
+    if ((existingWebsite as Website).userId !== userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 

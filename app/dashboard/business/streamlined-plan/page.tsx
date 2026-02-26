@@ -12,7 +12,7 @@ import AssistantLayout from '@/components/ai/AssistantLayout';
 import TaskForm from '@/app/dashboard/business/ai-assistant/TaskForm';
 import ResultViewer from '@/app/dashboard/business/ai-assistant/ResultViewer';
 import type { AssistantResult } from '@/app/dashboard/business/ai-assistant/page';
-import { getAssistantResult } from '@kimuntupro/db';
+import { getAssistantResult, type AssistantResult as DbAssistantResult } from '@kimuntupro/db';
 
 export default function StreamlinedPlanPage() {
   const searchParams = useSearchParams();
@@ -32,17 +32,17 @@ export default function StreamlinedPlanPage() {
       getAssistantResult(savedResultId)
         .then((savedResult) => {
           if (savedResult) {
-            // Transform Firestore result to AssistantResult format
+            const dbResult = savedResult as DbAssistantResult;
             setResult({
-              sections: savedResult.sections,
-              sources: savedResult.sources,
+              sections: dbResult.sections,
+              sources: dbResult.sources,
               meta: {
-                model: savedResult.metadata?.model || 'unknown',
-                tokensIn: 0, // Not stored separately
-                tokensOut: savedResult.metadata?.tokensUsed || 0,
-                costCents: Math.round((savedResult.metadata?.cost || 0) * 100),
-                latencyMs: savedResult.metadata?.latencyMs || 0,
-                timestamp: savedResult.createdAt?.toISOString() || new Date().toISOString(),
+                model: dbResult.metadata?.model || 'unknown',
+                tokensIn: 0,
+                tokensOut: dbResult.metadata?.tokensUsed || 0,
+                costCents: Math.round((dbResult.metadata?.cost || 0) * 100),
+                latencyMs: dbResult.metadata?.latencyMs || 0,
+                timestamp: dbResult.createdAt?.toISOString() || new Date().toISOString(),
               },
             });
           } else {
