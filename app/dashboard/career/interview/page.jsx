@@ -116,6 +116,7 @@ export default function InterviewSimulatorPage() {
     const [analyzingResponses, setAnalyzingResponses] = useState(false);
     const [feedbacks, setFeedbacks] = useState(null);
     const [loadingFeedbackIndex, setLoadingFeedbackIndex] = useState(null);
+    const [hasRequestedFeedback, setHasRequestedFeedback] = useState(false);
     const [isRecording, setIsRecording] = useState(false);
     const [isTranscribing, setIsTranscribing] = useState(false);
     const [speechVoices, setSpeechVoices] = useState([]);
@@ -125,11 +126,35 @@ export default function InterviewSimulatorPage() {
     const [showThankYouPopup, setShowThankYouPopup] = useState(false);
     /** Noted emotions per question when user stops recording (dominant + expression scores). */
     const [responseEmotions, setResponseEmotions] = useState([]);
+    /** Per-question streaming transcript segments with timestamps for alignment with emotions. */
+    const [transcriptSegments, setTranscriptSegments] = useState([]);
+    /** Per-question emotion log during recording: [{ time (s), dominant, expressions }, ...]. */
+    const [emotionLogs, setEmotionLogs] = useState([]);
     const mediaRecorderRef = useRef(null);
     const streamRef = useRef(null);
     const videoPreviewRef = useRef(null);
+    const recordingStartTimeRef = useRef(0);
+    const emotionLogRef = useRef([]);
+    const emotionLogIntervalRef = useRef(null);
+    const currentSegmentsRef = useRef([]);
+    const lastSegmentEndRef = useRef(0);
+    const lastFinalTranscriptRef = useRef('');
+    const speechRecognitionRef = useRef(null);
+    const latestFaceRef = useRef({ dominant: null, expressions: null });
 
-    const { expressions: faceExpressions, dominant: faceDominant, loading: faceLoading, error: faceError, log: faceLog } = useFaceExpressionAnalysis(videoPreviewRef, !!videoStream, { intervalMs: 800 });
+    const { expressions: faceExpressions, dominant: faceDominant, secondary: faceSecondary, loading: faceLoading, error: faceError, log: faceLog, mouthAspectRatio: faceMouthAspectRatio, isSpeaking: faceIsSpeaking, gazeScore: faceGazeScore, actionUnits: faceActionUnits } = useFaceExpressionAnalysis(videoPreviewRef, !!videoStream, { intervalMs: 800 });
+
+    useEffect(() => {
+        latestFaceRef.current = {
+            dominant: faceDominant,
+            secondary: faceSecondary,
+            expressions: faceExpressions ? { ...faceExpressions } : null,
+            mouthAspectRatio: faceMouthAspectRatio,
+            isSpeaking: faceIsSpeaking,
+            gazeScore: faceGazeScore,
+            actionUnits: faceActionUnits ? { ...faceActionUnits } : null
+        };
+    }, [faceDominant, faceSecondary, faceExpressions, faceMouthAspectRatio, faceIsSpeaking, faceGazeScore, faceActionUnits]);
 
     useEffect(() => {
         if (typeof window === 'undefined' || !window.speechSynthesis) return;
@@ -203,6 +228,11 @@ export default function InterviewSimulatorPage() {
     const closeModal = () => {
         if (mediaRecorderRef.current?.state !== 'inactive') mediaRecorderRef.current?.stop();
         streamRef.current?.getTracks().forEach((t) => t.stop());
+        if (emotionLogIntervalRef.current) clearInterval(emotionLogIntervalRef.current);
+        emotionLogIntervalRef.current = null;
+        const sr = speechRecognitionRef.current;
+        if (sr) try { sr.abort(); } catch (_) {}
+        speechRecognitionRef.current = null;
         stopVideoPreview();
         setShowThankYouPopup(false);
         setShowQuestionsModal(false);
@@ -210,9 +240,12 @@ export default function InterviewSimulatorPage() {
         setCurrentQuestionIndex(0);
         setResponses([]);
         setResponseEmotions([]);
+        setTranscriptSegments([]);
+        setEmotionLogs([]);
         setResponseAnalyses(null);
         setEvaluationOverall(null);
         setFeedbacks(null);
+        setHasRequestedFeedback(false);
         setAnalyzingResponses(false);
         setIsRecording(false);
         setIsTranscribing(false);
@@ -247,6 +280,8 @@ export default function InterviewSimulatorPage() {
         setCurrentQuestionIndex(0);
         setResponses(generatedQuestions.map(() => ''));
         setResponseEmotions(generatedQuestions.map(() => null));
+        setTranscriptSegments(generatedQuestions.map(() => []));
+        setEmotionLogs(generatedQuestions.map(() => []));
         startVideoPreview();
     };
 
@@ -289,17 +324,246 @@ export default function InterviewSimulatorPage() {
     };
 
     const inSummaryView = showQuestionsModal && simulationActive && generatedQuestions.length > 0 && currentQuestionIndex >= generatedQuestions.length;
+    const isFeedbackLoading = loadingFeedbackIndex !== null;
+    const evaluationReady = !!responseAnalyses && !analyzingResponses;
+    const feedbackReady = !!feedbacks && !isFeedbackLoading;
+    const summaryProgress = !inSummaryView ? 0 : (((evaluationReady ? 1 : 0) + (feedbackReady ? 1 : 0)) / 2) * 100;
+    const showSummaryProgress = inSummaryView && (!evaluationReady || !feedbackReady);
 
     const handleGetAllFeedback = () => {
         if (!responseAnalyses?.length || loadingFeedbackIndex !== null) return;
         setLoadingFeedbackIndex(-1);
-        getInterviewFeedback(generatedQuestions, responses, responseAnalyses)
+        const videoSummaries = (generatedQuestions || []).map((_, i) => buildVideoSummaryForQuestion(i));
+        getInterviewFeedback(generatedQuestions, responses, responseAnalyses, videoSummaries)
             .then(setFeedbacks)
             .catch(() => setFeedbacks([]))
             .finally(() => setLoadingFeedbackIndex(null));
     };
 
-    /** Build and download a single PDF with questions, responses, model findings, and AI feedback. */
+    /** Average emotions from log entries in [start, end] for PDF segment alignment. */
+    const getEmotionsForSegment = (emotionLog, start, end) => {
+        if (!Array.isArray(emotionLog) || emotionLog.length === 0) return null;
+        const inRange = emotionLog.filter((e) => e.time >= start && e.time <= end);
+        if (inRange.length === 0) return null;
+        const expressions = {};
+        inRange.forEach((e) => {
+            if (!e.expressions || typeof e.expressions !== 'object') return;
+            Object.entries(e.expressions).forEach(([k, v]) => {
+                if (typeof v === 'number' && v >= 0) expressions[k] = (expressions[k] ?? 0) + v;
+            });
+        });
+        const n = inRange.length;
+        Object.keys(expressions).forEach((k) => { expressions[k] = expressions[k] / n; });
+        const dominant = inRange.map((e) => e.dominant).filter(Boolean).pop() ?? null;
+        return { dominant, expressions: Object.keys(expressions).length ? expressions : null };
+    };
+
+    /** Fraction of log entries in [start, end] where isSpeaking was true (for video speaking vs silence). */
+    const getPctSpeakingForSegment = (emotionLog, start, end) => {
+        if (!Array.isArray(emotionLog) || emotionLog.length === 0) return null;
+        const inRange = emotionLog.filter((e) => e.time >= start && e.time <= end);
+        if (inRange.length === 0) return null;
+        const speaking = inRange.filter((e) => e.isSpeaking === true).length;
+        return speaking / inRange.length;
+    };
+
+    /** Average gaze (eye contact) score in [start, end]; null if no data. Returns 0–1. */
+    const getAvgGazeForSegment = (emotionLog, start, end) => {
+        if (!Array.isArray(emotionLog) || emotionLog.length === 0) return null;
+        const inRange = emotionLog.filter((e) => e.time >= start && e.time <= end && typeof e.gazeScore === 'number');
+        if (inRange.length === 0) return null;
+        const sum = inRange.reduce((a, e) => a + e.gazeScore, 0);
+        return sum / inRange.length;
+    };
+
+    /** Top N expression names from emotions object, sorted by score (for finer display). */
+    const getTopExpressionNames = (expressions, n = 3) => {
+        if (!expressions || typeof expressions !== 'object') return [];
+        return Object.entries(expressions)
+            .filter(([, v]) => typeof v === 'number' && v >= 0)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, n)
+            .map(([k]) => k.replace(/_/g, ' '));
+    };
+
+    /** AU key to display label (e.g. browRaise -> "brow raise"). */
+    const AU_LABELS = { browRaise: 'brow raise', browLower: 'brow lower', eyeWiden: 'eye widen', lipPress: 'lip press', mouthStretch: 'mouth stretch' };
+
+    /** Average action units in [start, end]; null if no data. */
+    const getAggregatedAUsForSegment = (emotionLog, start, end) => {
+        if (!Array.isArray(emotionLog) || emotionLog.length === 0) return null;
+        const inRange = emotionLog.filter((e) => e.time >= start && e.time <= end && e.actionUnits && typeof e.actionUnits === 'object');
+        if (inRange.length === 0) return null;
+        const keys = ['browRaise', 'browLower', 'eyeWiden', 'lipPress', 'mouthStretch'];
+        const agg = {};
+        keys.forEach((k) => { agg[k] = 0; });
+        inRange.forEach((e) => {
+            keys.forEach((k) => { if (typeof e.actionUnits[k] === 'number') agg[k] += e.actionUnits[k]; });
+        });
+        keys.forEach((k) => { agg[k] /= inRange.length; });
+        return agg;
+    };
+
+    /** Top N AU names from actionUnits object, sorted by value. */
+    const getTopAUNames = (actionUnits, n = 3) => {
+        if (!actionUnits || typeof actionUnits !== 'object') return [];
+        return Object.entries(actionUnits)
+            .filter(([, v]) => typeof v === 'number' && v >= 0)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, n)
+            .map(([k]) => (AU_LABELS[k] || k.replace(/([A-Z])/g, ' $1').trim().toLowerCase()));
+    };
+
+    /** Average gaze (eye contact) over the full emotion log for a question. */
+    const getAvgGazeForQuestion = (emotionLog) => {
+        if (!Array.isArray(emotionLog) || emotionLog.length === 0) return null;
+        const withGaze = emotionLog.filter((e) => typeof e.gazeScore === 'number');
+        if (withGaze.length === 0) return null;
+        return withGaze.reduce((a, e) => a + e.gazeScore, 0) / withGaze.length;
+    };
+
+    /** Average action units over the full emotion log for a question. */
+    const getAggregatedAUsForQuestion = (emotionLog) => {
+        if (!Array.isArray(emotionLog) || emotionLog.length === 0) return null;
+        const withAU = emotionLog.filter((e) => e.actionUnits && typeof e.actionUnits === 'object');
+        if (withAU.length === 0) return null;
+        const keys = ['browRaise', 'browLower', 'eyeWiden', 'lipPress', 'mouthStretch'];
+        const agg = {};
+        keys.forEach((k) => { agg[k] = 0; });
+        withAU.forEach((e) => {
+            keys.forEach((k) => { if (typeof e.actionUnits[k] === 'number') agg[k] += e.actionUnits[k]; });
+        });
+        keys.forEach((k) => { agg[k] /= withAU.length; });
+        return agg;
+    };
+
+    /** One-line extras for a segment: eye contact %, top expressions, and top AUs (for display). */
+    const getSegmentExtras = (emotionLog, start, end, segEmo) => {
+        const parts = [];
+        const avgGaze = getAvgGazeForSegment(emotionLog, start, end);
+        if (avgGaze != null) parts.push(`Eye contact: ${Math.round(avgGaze * 100)}%`);
+        if (segEmo?.expressions && Object.keys(segEmo.expressions).length > 0) {
+            const top = getTopExpressionNames(segEmo.expressions, 3);
+            if (top.length > 0) parts.push(`Top: ${top.join(', ')}`);
+        }
+        const segAUs = getAggregatedAUsForSegment(emotionLog, start, end);
+        if (segAUs && Object.keys(segAUs).length > 0) {
+            const topAUs = getTopAUNames(segAUs, 3);
+            if (topAUs.length > 0) parts.push(`AUs: ${topAUs.join(', ')}`);
+        }
+        return parts.length > 0 ? ` · ${parts.join(' · ')}` : '';
+    };
+
+    /** Build a short video summary string for one question (for personalized feedback). */
+    const buildVideoSummaryForQuestion = (index) => {
+        const log = emotionLogs[index];
+        const segments = transcriptSegments[index];
+        const windows = getSegmentsWithGaps(segments, log);
+        if (!Array.isArray(log) || log.length === 0) return '';
+        const parts = [];
+        const aggregated = getAggregatedEmotionsForQuestion(log);
+        if (aggregated && Object.keys(aggregated).length > 0) {
+            const str = Object.entries(aggregated)
+                .filter(([, v]) => typeof v === 'number' && v >= 0)
+                .sort((a, b) => b[1] - a[1])
+                .map(([k, v]) => `${k.replace(/_/g, ' ')} ${Math.round((v ?? 0) * 100)}%`)
+                .join(', ');
+            parts.push(`Facial: ${str}`);
+            const top = getTopExpressionNames(aggregated, 3);
+            if (top.length > 0) parts.push(`Top: ${top.join(', ')}`);
+        }
+        const avgGaze = getAvgGazeForQuestion(log);
+        if (avgGaze != null) parts.push(`Eye contact: ${Math.round(avgGaze * 100)}%`);
+        const questionAUs = getAggregatedAUsForQuestion(log);
+        if (questionAUs && Object.keys(questionAUs).length > 0) {
+            const auStrs = Object.entries(questionAUs)
+                .filter(([, v]) => typeof v === 'number' && v >= 0)
+                .sort((a, b) => b[1] - a[1])
+                .map(([k, v]) => `${AU_LABELS[k] || k} ${Math.round((v ?? 0) * 100)}%`);
+            if (auStrs.length > 0) parts.push(`Action units (micro-expressions): ${auStrs.join(', ')}. Top AUs: ${getTopAUNames(questionAUs, 3).join(', ')}`);
+        }
+        const pctSpeaking = log.filter((e) => e.isSpeaking === true).length / log.length;
+        parts.push(`Speaking (mouth open): ${Math.round(pctSpeaking * 100)}% of time`);
+        const gapWindows = windows.filter((w) => w.isGap);
+        if (gapWindows.length > 0) {
+            const silent = gapWindows.filter((w) => getPctSpeakingForSegment(log, w.start, w.end) != null && getPctSpeakingForSegment(log, w.start, w.end) < 0.2).length;
+            const mouthOpen = gapWindows.filter((w) => getPctSpeakingForSegment(log, w.start, w.end) != null && getPctSpeakingForSegment(log, w.start, w.end) >= 0.4).length;
+            parts.push(`Pauses: ${silent} silent, ${mouthOpen} with mouth open`);
+        }
+        return parts.join('. ');
+    };
+
+    /**
+     * Single integrated label for a no-speech window: transcript + video (mouth) together.
+     * Returns one short phrase so the line reads as one idea, e.g. "Silent" or "Pause (mouth open)".
+     */
+    const getGapLabel = (emotionLog, start, end) => {
+        const pct = getPctSpeakingForSegment(emotionLog, start, end);
+        if (pct == null) return 'Pause (no speech)';
+        if (pct >= 0.4) return 'Pause — mouth open (possible speech)';
+        if (pct >= 0.2) return 'Pause — some mouth movement';
+        return 'Silent (mouth closed)';
+    };
+
+    /** Aggregate full emotion log for a question into one summary (average all expressions). */
+    const getAggregatedEmotionsForQuestion = (emotionLog) => {
+        if (!Array.isArray(emotionLog) || emotionLog.length === 0) return null;
+        const expressions = {};
+        emotionLog.forEach((e) => {
+            if (!e.expressions || typeof e.expressions !== 'object') return;
+            Object.entries(e.expressions).forEach(([k, v]) => {
+                if (typeof v === 'number' && v >= 0) expressions[k] = (expressions[k] ?? 0) + v;
+            });
+        });
+        const n = emotionLog.length;
+        Object.keys(expressions).forEach((k) => { expressions[k] = expressions[k] / n; });
+        return Object.keys(expressions).length ? expressions : null;
+    };
+
+    /** Fixed window size (seconds) for timeline chunks (speech + pauses). */
+    const WINDOW_SIZE_SECONDS = 5;
+
+    /**
+     * Build a continuous list of time windows covering the whole recording.
+     * Each item: { start, end, text: string | null, isGap: boolean }.
+     * - text: phrases whose midpoint falls inside this window (so each phrase
+     *   appears in at most one window instead of being duplicated across many)
+     * - isGap: true when there is no speech in this window (only expressions / silence)
+     */
+    const getSegmentsWithGaps = (segments, emotionLog) => {
+        const windows = [];
+        const hasSegments = Array.isArray(segments) && segments.length > 0;
+        const hasLog = Array.isArray(emotionLog) && emotionLog.length > 0;
+        const totalDuration = hasLog
+            ? emotionLog[emotionLog.length - 1].time
+            : hasSegments
+                ? segments[segments.length - 1].end
+                : 0;
+        if (!totalDuration) return windows;
+
+        const windowCount = Math.max(1, Math.ceil(totalDuration / WINDOW_SIZE_SECONDS));
+        for (let i = 0; i < windowCount; i++) {
+            const start = i * WINDOW_SIZE_SECONDS;
+            const end = i === windowCount - 1 ? totalDuration : (i + 1) * WINDOW_SIZE_SECONDS;
+            windows.push({ start, end, text: null, isGap: true });
+        }
+
+        if (hasSegments) {
+            const sortedSegments = [...segments].sort((a, b) => a.start - b.start);
+            sortedSegments.forEach((seg) => {
+                const mid = (seg.start + seg.end) / 2;
+                const idx = Math.min(windowCount - 1, Math.max(0, Math.floor(mid / WINDOW_SIZE_SECONDS)));
+                const t = (seg.text || '').trim();
+                if (!t) return;
+                windows[idx].text = windows[idx].text ? `${windows[idx].text} ${t}` : t;
+                windows[idx].isGap = false;
+            });
+        }
+
+        return windows;
+    };
+
+    /** Build and download a single PDF with questions, responses, model findings, and personalized feedback. */
     const handleDownloadInterviewPDF = () => {
         const sections = {};
         const overall = evaluationOverall;
@@ -317,14 +581,39 @@ export default function InterviewSimulatorPage() {
 
         (generatedQuestions || []).forEach((question, index) => {
             const response = (responses[index] ?? '').trim() || '—';
+            const emotionLog = emotionLogs[index];
+            const aggregated = getAggregatedEmotionsForQuestion(emotionLog);
             const emotions = responseEmotions[index];
-            const emotionsLine = emotions?.expressions && Object.keys(emotions.expressions).length > 0
-                ? Object.entries(emotions.expressions)
+            const emotionsSource = (aggregated && Object.keys(aggregated).length > 0)
+                ? aggregated
+                : emotions?.expressions && Object.keys(emotions.expressions).length > 0
+                    ? emotions.expressions
+                    : null;
+            const emotionsLine = emotionsSource
+                ? Object.entries(emotionsSource)
                     .filter(([, v]) => typeof v === 'number' && v >= 0)
                     .sort((a, b) => b[1] - a[1])
                     .map(([k, v]) => `${k.replace(/_/g, ' ')} ${Math.round((v ?? 0) * 100)}%`)
                     .join(', ')
                 : '—';
+            const segments = transcriptSegments[index];
+            const withGaps = getSegmentsWithGaps(segments, emotionLog);
+            const hasSegmentAlignment = withGaps.length > 0 && Array.isArray(emotionLog) && emotionLog.length > 0;
+            const segmentLines = hasSegmentAlignment
+                ? withGaps.map((seg) => {
+                    const segEmo = getEmotionsForSegment(emotionLog, seg.start, seg.end);
+                    const segEmoStr = segEmo?.expressions && Object.keys(segEmo.expressions).length > 0
+                        ? Object.entries(segEmo.expressions)
+                            .filter(([, v]) => typeof v === 'number' && v >= 0)
+                            .sort((a, b) => b[1] - a[1])
+                            .map(([k, v]) => `${k.replace(/_/g, ' ')} ${Math.round((v ?? 0) * 100)}%`)
+                            .join(', ')
+                        : '—';
+                    const label = seg.isGap ? getGapLabel(emotionLog, seg.start, seg.end) : `"${seg.text}"`;
+                    const extras = getSegmentExtras(emotionLog, seg.start, seg.end, segEmo);
+                    return `[${seg.start.toFixed(1)}s–${seg.end.toFixed(1)}s] ${label} — ${segEmoStr}${extras}`;
+                })
+                : [];
             const analysis = responseAnalyses?.[index];
             const findings = analysis
                 ? [
@@ -335,21 +624,21 @@ export default function InterviewSimulatorPage() {
                 ].filter(Boolean).join(' · ')
                 : '—';
             const feedback = (feedbacks && feedbacks[index]) ? feedbacks[index].replace(/\*\*([^*]+)\*\*/g, '$1') : '—';
-            sections[`Question ${index + 1}`] = [
+            const block = [
                 question,
                 '',
                 'Your response:',
                 response,
                 '',
                 'Emotions noted:',
-                emotionsLine,
-                '',
-                'Model findings:',
-                findings,
-                '',
-                'AI feedback:',
-                feedback
-            ].join('\n');
+                emotionsLine
+            ];
+            if (segmentLines.length > 0) {
+                block.push('', 'Phrase-by-phrase (time-aligned):');
+                segmentLines.forEach((line) => block.push(line));
+            }
+            block.push('', 'Model findings:', findings, '', 'Personalized feedback:', feedback);
+            sections[`Question ${index + 1}`] = block.join('\n');
         });
 
         generatePDF(sections, {
@@ -360,33 +649,68 @@ export default function InterviewSimulatorPage() {
     };
 
     const startRecording = async () => {
+        const SpeechRecognitionAPI = typeof window !== 'undefined' && (window.SpeechRecognition || window.webkitSpeechRecognition);
+        if (!SpeechRecognitionAPI) {
+            console.warn('SpeechRecognition not supported; falling back to no live transcript.');
+        }
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
             streamRef.current = stream;
+            recordingStartTimeRef.current = Date.now();
+            emotionLogRef.current = [];
+            currentSegmentsRef.current = [];
+            lastSegmentEndRef.current = 0;
+            lastFinalTranscriptRef.current = '';
+
+            if (SpeechRecognitionAPI) {
+                const recognition = new SpeechRecognitionAPI();
+                recognition.continuous = true;
+                recognition.interimResults = true;
+                recognition.lang = document.documentElement?.lang === 'fr' ? 'fr-FR' : 'en-US';
+                recognition.onresult = (e) => {
+                    for (let i = e.resultIndex; i < e.results.length; i++) {
+                        const res = e.results[i];
+                        if (!res.isFinal) continue;
+                        const text = res[0]?.transcript?.trim();
+                        if (!text || text === lastFinalTranscriptRef.current) continue;
+                        lastFinalTranscriptRef.current = text;
+                        const start = lastSegmentEndRef.current;
+                        const end = (Date.now() - recordingStartTimeRef.current) / 1000;
+                        lastSegmentEndRef.current = end;
+                        currentSegmentsRef.current.push({ start, end, text });
+                        const qIdx = currentQuestionIndex;
+                        setResponses(prev => {
+                            const next = [...prev];
+                            const cur = next[qIdx] ?? '';
+                            next[qIdx] = cur ? cur + ' ' + text : text;
+                            return next;
+                        });
+                    }
+                };
+                recognition.onerror = (e) => { if (e.error !== 'no-speech') console.warn('SpeechRecognition error:', e.error); };
+                speechRecognitionRef.current = recognition;
+                recognition.start();
+            }
+
+            emotionLogIntervalRef.current = setInterval(() => {
+                const t = (Date.now() - recordingStartTimeRef.current) / 1000;
+                const { dominant, secondary, expressions, mouthAspectRatio: mar, isSpeaking: speaking, gazeScore: gaze, actionUnits: au } = latestFaceRef.current;
+                emotionLogRef.current.push({
+                    time: t,
+                    dominant: dominant ?? null,
+                    secondary: secondary ?? null,
+                    expressions: expressions ? { ...expressions } : {},
+                    mouthAspectRatio: typeof mar === 'number' ? mar : 0,
+                    isSpeaking: !!speaking,
+                    gazeScore: typeof gaze === 'number' ? gaze : null,
+                    actionUnits: au && typeof au === 'object' ? { ...au } : null
+                });
+            }, 800);
+
             const mime = MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus' : 'audio/webm';
             const recorder = new MediaRecorder(stream);
             mediaRecorderRef.current = recorder;
-            const chunks = [];
-            recorder.ondataavailable = (e) => e.data.size > 0 && chunks.push(e.data);
-            recorder.onstop = async () => {
-                stream.getTracks().forEach((t) => t.stop());
-                if (chunks.length === 0) return;
-                const blob = new Blob(chunks, { type: mime });
-                setIsTranscribing(true);
-                try {
-                    const form = new FormData();
-                    form.append('file', blob, 'audio.webm');
-                    const res = await fetch('/api/interview/transcribe', { method: 'POST', body: form });
-                    const data = await res.json();
-                    if (res.ok && typeof data.text === 'string') {
-                        handleResponseChange((responses[currentQuestionIndex] ?? '') + (responses[currentQuestionIndex] ? ' ' : '') + data.text);
-                    }
-                } catch (err) {
-                    console.warn('Transcribe failed:', err);
-                } finally {
-                    setIsTranscribing(false);
-                }
-            };
+            recorder.onstop = () => stream.getTracks().forEach((t) => t.stop());
             recorder.start(1000);
             setIsRecording(true);
         } catch (err) {
@@ -394,13 +718,39 @@ export default function InterviewSimulatorPage() {
         }
     };
 
-    /** Stops recording, runs transcription, and stores current face emotions for this question. */
+    /** Stops recording, saves timestamped segments and emotion log for this question. */
     const stopRecording = (faceSnapshot) => {
+        if (emotionLogIntervalRef.current) {
+            clearInterval(emotionLogIntervalRef.current);
+            emotionLogIntervalRef.current = null;
+        }
+        const sr = speechRecognitionRef.current;
+        if (sr) {
+            try { sr.stop(); } catch (_) {}
+            speechRecognitionRef.current = null;
+        }
+        const qIdx = currentQuestionIndex;
+        // Defer persisting segments so any final onresult (e.g. last phrase) that fires after stop() is included
+        const persistSegmentsAndLog = () => {
+            setTranscriptSegments(prev => {
+                const next = [...prev];
+                while (next.length <= qIdx) next.push([]);
+                next[qIdx] = [...currentSegmentsRef.current];
+                return next;
+            });
+            setEmotionLogs(prev => {
+                const next = [...prev];
+                while (next.length <= qIdx) next.push([]);
+                next[qIdx] = [...emotionLogRef.current];
+                return next;
+            });
+        };
+        setTimeout(persistSegmentsAndLog, 150);
         if (faceSnapshot) {
             setResponseEmotions((prev) => {
                 const next = [...prev];
-                while (next.length <= currentQuestionIndex) next.push(null);
-                next[currentQuestionIndex] = {
+                while (next.length <= qIdx) next.push(null);
+                next[qIdx] = {
                     dominant: faceSnapshot.dominant ?? null,
                     expressions: faceSnapshot.expressions ? { ...faceSnapshot.expressions } : {}
                 };
@@ -409,8 +759,8 @@ export default function InterviewSimulatorPage() {
         }
         if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
             mediaRecorderRef.current.stop();
-            setIsRecording(false);
         }
+        setIsRecording(false);
     };
 
     useEffect(() => {
@@ -431,6 +781,16 @@ export default function InterviewSimulatorPage() {
             })
             .finally(() => setAnalyzingResponses(false));
     }, [inSummaryView, responseAnalyses, analyzingResponses, responses, generatedQuestions, interviewType]);
+
+    // Automatically fetch personalized feedback once analysis is ready on the summary view.
+    useEffect(() => {
+        if (!inSummaryView) return;
+        if (hasRequestedFeedback) return;
+        if (!responseAnalyses || !responseAnalyses.length) return;
+        if (loadingFeedbackIndex !== null) return;
+        setHasRequestedFeedback(true);
+        handleGetAllFeedback();
+    }, [inSummaryView, responseAnalyses, loadingFeedbackIndex, hasRequestedFeedback]);
 
     const handleGenerateQuestions = async () => {
         if (!jobDescription || !role || !companyName || !interviewType) {
@@ -983,6 +1343,9 @@ export default function InterviewSimulatorPage() {
                                                                 {!faceLoading && !faceError && faceDominant && (
                                                                     <p className={`text-sm font-medium ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>
                                                                         Expression: <span className="capitalize">{faceDominant.replace(/_/g, ' ')}</span>
+                                                                        {faceSecondary && faceSecondary !== faceDominant && (
+                                                                            <span className="opacity-80">, also <span className="capitalize">{faceSecondary.replace(/_/g, ' ')}</span></span>
+                                                                        )}
                                                                     </p>
                                                                 )}
                                                                 {faceExpressions && Object.keys(faceExpressions).length > 0 && (
@@ -993,6 +1356,11 @@ export default function InterviewSimulatorPage() {
                                                                             .slice(0, 3)
                                                                             .map(([k]) => k.replace(/_/g, ' '))
                                                                             .join(', ')}
+                                                                    </p>
+                                                                )}
+                                                                {typeof faceGazeScore === 'number' && (
+                                                                    <p className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
+                                                                        Eye contact: {Math.round(faceGazeScore * 100)}%
                                                                     </p>
                                                                 )}
                                                             </div>
@@ -1012,33 +1380,83 @@ export default function InterviewSimulatorPage() {
                                             </div>
                                         </div>
 
-                                        {(responses[currentQuestionIndex] ?? '').trim() && (
-                                            <div className={`rounded-lg border ${isDark ? 'bg-gray-800/50 border-gray-700' : 'bg-gray-50 border-gray-300'} p-3`}>
-                                                <p className={`text-xs font-medium mb-1 ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>{t.interviewTranscript ?? 'Transcript'}</p>
-                                                <textarea
-                                                    id="interview-response"
-                                                    value={responses[currentQuestionIndex] ?? ''}
-                                                    onChange={(e) => handleResponseChange(e.target.value)}
-                                                    rows={2}
-                                                    className={`w-full px-2 py-1.5 rounded text-xs min-h-[48px] max-h-[80px] resize-y ${isDark ? 'bg-gray-800 border border-gray-700 text-gray-300' : 'bg-white border border-gray-300 text-gray-700'}`}
-                                                    placeholder={t.interviewEditTranscript ?? 'Edit if needed...'}
-                                                />
-                                                {responseEmotions[currentQuestionIndex] && (
-                                                    <div className={`mt-2 pt-2 border-t ${isDark ? 'border-gray-600/50 text-gray-400' : 'border-gray-200 text-gray-500'}`}>
-                                                        <p className="text-xs font-medium mb-1">Emotions noted</p>
-                                                        {responseEmotions[currentQuestionIndex].expressions && Object.keys(responseEmotions[currentQuestionIndex].expressions).length > 0 ? (
-                                                            <p className="text-xs leading-relaxed">
-                                                                {Object.entries(responseEmotions[currentQuestionIndex].expressions)
-                                                                    .filter(([, v]) => typeof v === 'number' && v >= 0)
-                                                                    .sort((a, b) => b[1] - a[1])
-                                                                    .map(([k, v]) => `${k.replace(/_/g, ' ')} ${Math.round((v ?? 0) * 100)}%`)
-                                                                    .join(' · ')}
-                                                            </p>
-                                                        ) : (
-                                                            <p className="text-xs opacity-75">No face detected</p>
+                                        {!isRecording && ((responses[currentQuestionIndex] ?? '').trim() || (transcriptSegments[currentQuestionIndex]?.length > 0)) && (
+                                            <div className={`rounded-lg border ${isDark ? 'bg-gray-800/50 border-gray-700' : 'bg-gray-50 border-gray-300'} p-3 flex flex-col min-h-0`}>
+                                                <p className={`text-xs font-semibold mb-1 flex-shrink-0 ${isDark ? 'text-white' : 'text-gray-700'}`}>{t.interviewTranscript ?? 'Transcript'}</p>
+                                                <div className="min-h-0 overflow-y-auto max-h-[50vh] pr-1 -mr-1">
+                                                    <textarea
+                                                        id="interview-response"
+                                                        value={responses[currentQuestionIndex] ?? ''}
+                                                        onChange={(e) => handleResponseChange(e.target.value)}
+                                                        rows={2}
+                                                        className={`w-full px-2 py-1.5 rounded text-xs min-h-[48px] max-h-[80px] resize-y ${isDark ? 'bg-gray-800 border border-gray-700 text-gray-300' : 'bg-white border border-gray-300 text-gray-700'}`}
+                                                        placeholder={t.interviewEditTranscript ?? 'Edit if needed...'}
+                                                    />
+                                                    {(getAggregatedEmotionsForQuestion(emotionLogs[currentQuestionIndex]) || responseEmotions[currentQuestionIndex] || (transcriptSegments[currentQuestionIndex]?.length > 0 && emotionLogs[currentQuestionIndex]?.length > 0)) && (
+                                                        <div className={`mt-2 pt-2 border-t ${isDark ? 'border-gray-600/50 text-gray-400' : 'border-gray-200 text-gray-500'}`}>
+                                                        <p className={`text-xs font-semibold mb-1 ${isDark ? 'text-white' : 'text-gray-700'}`}>Emotions noted</p>
+                                                        {(() => {
+                                                            const aggregated = getAggregatedEmotionsForQuestion(emotionLogs[currentQuestionIndex]);
+                                                            const snapshot = responseEmotions[currentQuestionIndex]?.expressions;
+                                                            const emotionsSource = (aggregated && Object.keys(aggregated).length > 0) ? aggregated : (snapshot && Object.keys(snapshot).length > 0 ? snapshot : null);
+                                                            const avgGaze = getAvgGazeForQuestion(emotionLogs[currentQuestionIndex]);
+                                                            const topNames = emotionsSource ? getTopExpressionNames(emotionsSource, 3) : [];
+                                                            return (
+                                                                <>
+                                                                    {emotionsSource ? (
+                                                                        <p className="text-xs leading-relaxed mb-1">
+                                                                            {Object.entries(emotionsSource)
+                                                                                .filter(([, v]) => typeof v === 'number' && v >= 0)
+                                                                                .sort((a, b) => b[1] - a[1])
+                                                                                .map(([k, v]) => `${k.replace(/_/g, ' ')} ${Math.round((v ?? 0) * 100)}%`)
+                                                                                .join(' · ')}
+                                                                        </p>
+                                                                    ) : (transcriptSegments[currentQuestionIndex]?.length > 0 && emotionLogs[currentQuestionIndex]?.length > 0) ? null : (
+                                                                        <p className="text-xs opacity-75 mb-1">No face detected</p>
+                                                                    )}
+                                                                    {(avgGaze != null || topNames.length > 0) && (
+                                                                        <p className="text-xs leading-relaxed opacity-90">
+                                                                            {avgGaze != null && <span>Eye contact: {Math.round(avgGaze * 100)}%</span>}
+                                                                            {avgGaze != null && topNames.length > 0 && ' · '}
+                                                                            {topNames.length > 0 && <span>Top: {topNames.join(', ')}</span>}
+                                                                        </p>
+                                                                    )}
+                                                                    {(() => {
+                                                                        const questionAUs = getAggregatedAUsForQuestion(emotionLogs[currentQuestionIndex]);
+                                                                        const topAUs = questionAUs ? getTopAUNames(questionAUs, 3) : [];
+                                                                        return topAUs.length > 0 ? (
+                                                                            <p className="text-xs leading-relaxed opacity-90">Micro-expressions (AUs): {topAUs.join(', ')}</p>
+                                                                        ) : null;
+                                                                    })()}
+                                                                </>
+                                                            );
+                                                        })()}
+                                                        {getSegmentsWithGaps(transcriptSegments[currentQuestionIndex], emotionLogs[currentQuestionIndex]).length > 0 && emotionLogs[currentQuestionIndex]?.length > 0 && (
+                                                            <div className="mt-2 space-y-1">
+                                                                <p className={`text-xs font-semibold ${isDark ? 'text-white' : 'text-gray-700'}`}>Per phrase / pause</p>
+                                                                {getSegmentsWithGaps(transcriptSegments[currentQuestionIndex], emotionLogs[currentQuestionIndex]).map((seg, i) => {
+                                                                    const segEmo = getEmotionsForSegment(emotionLogs[currentQuestionIndex], seg.start, seg.end);
+                                                                    const str = segEmo?.expressions && Object.keys(segEmo.expressions).length > 0
+                                                                        ? Object.entries(segEmo.expressions)
+                                                                            .filter(([, v]) => typeof v === 'number' && v >= 0)
+                                                                            .sort((a, b) => b[1] - a[1])
+                                                                            .map(([k, v]) => `${k.replace(/_/g, ' ')} ${Math.round((v ?? 0) * 100)}%`)
+                                                                            .join(', ')
+                                                                        : '—';
+                                                                    const label = seg.isGap ? getGapLabel(emotionLogs[currentQuestionIndex], seg.start, seg.end) : `"${seg.text}"`;
+                                                                    const extras = getSegmentExtras(emotionLogs[currentQuestionIndex], seg.start, seg.end, segEmo);
+                                                                    return (
+                                                                        <p key={i} className="text-xs leading-snug">
+                                                                            <span className="opacity-75">[{seg.start.toFixed(1)}s–{seg.end.toFixed(1)}s]</span> {label} — {str}
+                                                                            {extras && <span className="opacity-80">{extras}</span>}
+                                                                        </p>
+                                                                    );
+                                                                })}
+                                                            </div>
                                                         )}
-                                                    </div>
-                                                )}
+                                                        </div>
+                                                    )}
+                                                </div>
                                             </div>
                                         )}
                                     </div>
@@ -1065,7 +1483,7 @@ export default function InterviewSimulatorPage() {
                                                 className="flex-1 min-w-0 flex items-center justify-center gap-1.5 px-2 sm:px-3 py-3 rounded-xl font-semibold text-sm bg-red-500/20 text-red-400 hover:bg-red-500/30"
                                             >
                                                 <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse shrink-0" />
-                                                {t.interviewStopRecording ?? 'Stop'}
+                                                {t.interviewStopRecording ?? 'Stop recording'}
                                             </button>
                                         ) : (
                                             <button
@@ -1078,7 +1496,7 @@ export default function InterviewSimulatorPage() {
                                                 }`}
                                             >
                                                 {isTranscribing ? <Loader2 className="w-4 h-4 animate-spin shrink-0" /> : <Mic className="w-4 h-4 shrink-0" />}
-                                                {isTranscribing ? (t.interviewTranscribing ?? 'Transcribing...') : (t.interviewRecord ?? 'Record')}
+                                                {isTranscribing ? (t.interviewTranscribing ?? 'Transcribing...') : (t.interviewRecord ?? 'Start recording')}
                                             </button>
                                         )}
                                         <button
@@ -1114,6 +1532,27 @@ export default function InterviewSimulatorPage() {
                                                 )}
                                             </div>
                                         </div>
+
+                                        {showSummaryProgress && (
+                                            <div className="px-2 sm:px-4 mb-4 max-w-2xl mx-auto">
+                                                <div className="flex items-center justify-between text-[11px] mb-1 text-gray-400">
+                                                    <span className="flex items-center gap-1">
+                                                        <span className={`w-2 h-2 rounded-full ${evaluationReady ? 'bg-emerald-400' : 'bg-emerald-500/40 animate-pulse'}`} />
+                                                        <span>{evaluationReady ? 'Model evaluation complete' : 'Running model evaluation'}</span>
+                                                    </span>
+                                                    <span className="flex items-center gap-1">
+                                                        <span className={`w-2 h-2 rounded-full ${feedbackReady ? 'bg-sky-400' : isFeedbackLoading ? 'bg-sky-500/60 animate-pulse' : 'bg-gray-500/40'}`} />
+                                                        <span>{feedbackReady ? 'Personalized feedback ready' : 'Generating personalized feedback'}</span>
+                                                    </span>
+                                                </div>
+                                                <div className={`h-1.5 rounded-full overflow-hidden ${isDark ? 'bg-gray-700/80' : 'bg-gray-200'}`}>
+                                                    <div
+                                                        className={`${isDark ? 'bg-gradient-to-r from-emerald-400 via-sky-400 to-emerald-400' : 'bg-gradient-to-r from-emerald-500 via-sky-500 to-emerald-500'} h-full transition-all duration-500`}
+                                                        style={{ width: `${Math.max(10, Math.min(100, summaryProgress))}%` }}
+                                                    />
+                                                </div>
+                                            </div>
+                                        )}
 
                                         <div className="flex-1 min-h-0 overflow-y-auto space-y-6">
                                         {generatedQuestions.map((question, index) => {
@@ -1158,48 +1597,115 @@ export default function InterviewSimulatorPage() {
                                                         )}
                                                     </div>
                                                     <div className={`pl-12 border-l-2 ${isDark ? 'border-gray-600' : 'border-gray-200'}`}>
-                                                        <p className={`text-sm font-medium mb-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                                                            {t.interviewYourResponse}:
+                                                        <p className={`text-sm font-semibold mb-1 ${isDark ? 'text-white' : 'text-gray-700'}`}>
+                                                            {t.interviewTranscript ?? 'Transcript'}
                                                         </p>
                                                         <p className={`${isDark ? 'text-gray-300' : 'text-gray-700'} whitespace-pre-wrap`}>
                                                             {responses[index]?.trim() || '—'}
                                                         </p>
+                                                        {(getAggregatedEmotionsForQuestion(emotionLogs[index]) || responseEmotions[index] || getSegmentsWithGaps(transcriptSegments[index], emotionLogs[index]).length > 0) && (
+                                                            <div className={`mt-3 pt-3 border-t ${isDark ? 'border-gray-600/50 text-gray-400' : 'border-gray-200 text-gray-500'}`}>
+                                                                <p className={`text-xs font-semibold mb-1 ${isDark ? 'text-white' : 'text-gray-700'}`}>Facial analysis</p>
+                                                                {(() => {
+                                                                    const aggregated = getAggregatedEmotionsForQuestion(emotionLogs[index]);
+                                                                    const snapshot = responseEmotions[index]?.expressions;
+                                                                    const emotionsSource = (aggregated && Object.keys(aggregated).length > 0) ? aggregated : (snapshot && Object.keys(snapshot).length > 0 ? snapshot : null);
+                                                                    const avgGaze = getAvgGazeForQuestion(emotionLogs[index]);
+                                                                    const topNames = emotionsSource ? getTopExpressionNames(emotionsSource, 3) : [];
+                                                                    return (
+                                                                        <>
+                                                                            {emotionsSource ? (
+                                                                                <p className="text-xs leading-relaxed mb-1">
+                                                                                    {Object.entries(emotionsSource)
+                                                                                        .filter(([, v]) => typeof v === 'number' && v >= 0)
+                                                                                        .sort((a, b) => b[1] - a[1])
+                                                                                        .map(([k, v]) => `${k.replace(/_/g, ' ')} ${Math.round((v ?? 0) * 100)}%`)
+                                                                                        .join(' · ')}
+                                                                                </p>
+                                                                            ) : null}
+                                                                            {(avgGaze != null || topNames.length > 0) && (
+                                                                                <p className="text-xs leading-relaxed opacity-90 mb-2">
+                                                                                    {avgGaze != null && <span>Eye contact: {Math.round(avgGaze * 100)}%</span>}
+                                                                                    {avgGaze != null && topNames.length > 0 && ' · '}
+                                                                                    {topNames.length > 0 && <span>Top: {topNames.join(', ')}</span>}
+                                                                                </p>
+                                                                            )}
+                                                                            {(() => {
+                                                                                const questionAUs = getAggregatedAUsForQuestion(emotionLogs[index]);
+                                                                                const topAUs = questionAUs ? getTopAUNames(questionAUs, 3) : [];
+                                                                                return topAUs.length > 0 ? (
+                                                                                    <p className="text-xs leading-relaxed opacity-90 mb-2">Micro-expressions (AUs): {topAUs.join(', ')}</p>
+                                                                                ) : null;
+                                                                            })()}
+                                                                        </>
+                                                                    );
+                                                                })()}
+                                                                {getSegmentsWithGaps(transcriptSegments[index], emotionLogs[index]).length > 0 && emotionLogs[index]?.length > 0 && (
+                                                                    <div className="mt-2 space-y-1">
+                                                                        <p className={`text-xs font-semibold ${isDark ? 'text-white' : 'text-gray-700'}`}>Per phrase / pause</p>
+                                                                        {getSegmentsWithGaps(transcriptSegments[index], emotionLogs[index]).map((seg, i) => {
+                                                                            const segEmo = getEmotionsForSegment(emotionLogs[index], seg.start, seg.end);
+                                                                            const str = segEmo?.expressions && Object.keys(segEmo.expressions).length > 0
+                                                                                ? Object.entries(segEmo.expressions)
+                                                                                    .filter(([, v]) => typeof v === 'number' && v >= 0)
+                                                                                    .sort((a, b) => b[1] - a[1])
+                                                                                    .map(([k, v]) => `${k.replace(/_/g, ' ')} ${Math.round((v ?? 0) * 100)}%`)
+                                                                                    .join(', ')
+                                                                                : '—';
+                                                                            const label = seg.isGap ? getGapLabel(emotionLogs[index], seg.start, seg.end) : `"${seg.text}"`;
+                                                                            const extras = getSegmentExtras(emotionLogs[index], seg.start, seg.end, segEmo);
+                                                                            return (
+                                                                                <p key={i} className="text-xs leading-snug">
+                                                                                    <span className="opacity-75">[{seg.start.toFixed(1)}s–{seg.end.toFixed(1)}s]</span> {label} — {str}
+                                                                                    {extras && <span className="opacity-80">{extras}</span>}
+                                                                                </p>
+                                                                            );
+                                                                        })}
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        )}
                                                         {analysis && !analyzingResponses && (responses[index]?.trim() || '').length > 0 && (
-                                                            <div className="mt-3 flex flex-wrap gap-2">
-                                                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${isDark ? 'bg-violet-500/20 text-violet-300' : 'bg-violet-100 text-violet-700'}`}>
-                                                                    {t.interviewEmotion}: {emotionText}
-                                                                </span>
-                                                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                                                    certaintyLabel === 'confident' ? (isDark ? 'bg-emerald-500/20 text-emerald-400' : 'bg-emerald-100 text-emerald-700') :
-                                                                    certaintyLabel === 'uncertain' || certaintyLabel === 'hedging' ? (isDark ? 'bg-amber-500/20 text-amber-400' : 'bg-amber-100 text-amber-700') :
-                                                                    isDark ? 'bg-gray-500/20 text-gray-400' : 'bg-gray-100 text-gray-600'
-                                                                }`}>
-                                                                    {t.interviewCertainty}: {certaintyT}
-                                                                </span>
-                                                                {toneLabel != null && (
-                                                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${isDark ? 'bg-sky-500/20 text-sky-300' : 'bg-sky-100 text-sky-700'}`}>
-                                                                        {t.interviewTone}: {toneLabel}
+                                                            <div className="mt-4">
+                                                                <p className={`text-xs font-semibold mb-1 ${isDark ? 'text-white' : 'text-gray-700'}`}>
+                                                                    Sentiment analysis
+                                                                </p>
+                                                                <div className="mt-1 flex flex-wrap gap-2">
+                                                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${isDark ? 'bg-violet-500/20 text-violet-300' : 'bg-violet-100 text-violet-700'}`}>
+                                                                        {t.interviewEmotion}: {emotionText}
                                                                     </span>
-                                                                )}
-                                                                {answeredLabel != null && (
                                                                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                                                        answeredLabel === 'fully_answered' ? (isDark ? 'bg-emerald-500/20 text-emerald-400' : 'bg-emerald-100 text-emerald-700') :
-                                                                        answeredLabel === 'not_answered' ? (isDark ? 'bg-red-500/20 text-red-400' : 'bg-red-100 text-red-700') :
-                                                                        isDark ? 'bg-amber-500/20 text-amber-400' : 'bg-amber-100 text-amber-700'
+                                                                        certaintyLabel === 'confident' ? (isDark ? 'bg-emerald-500/20 text-emerald-400' : 'bg-emerald-100 text-emerald-700') :
+                                                                        certaintyLabel === 'uncertain' || certaintyLabel === 'hedging' ? (isDark ? 'bg-amber-500/20 text-amber-400' : 'bg-amber-100 text-amber-700') :
+                                                                        isDark ? 'bg-gray-500/20 text-gray-400' : 'bg-gray-100 text-gray-600'
                                                                     }`}>
-                                                                        {t.interviewAnswered}: {answeredT}
+                                                                        {t.interviewCertainty}: {certaintyT}
                                                                     </span>
-                                                                )}
-                                                                {relevanceLabel != null && (
-                                                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${isDark ? 'bg-indigo-500/20 text-indigo-300' : 'bg-indigo-100 text-indigo-700'}`}>
-                                                                        {t.interviewRelevance}: {relevanceT}
-                                                                    </span>
-                                                                )}
-                                                                {formalityLabel != null && (
-                                                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${isDark ? 'bg-slate-500/20 text-slate-300' : 'bg-slate-100 text-slate-700'}`}>
-                                                                        {t.interviewFormality}: {formalityT}
-                                                                    </span>
-                                                                )}
+                                                                    {toneLabel != null && (
+                                                                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${isDark ? 'bg-sky-500/20 text-sky-300' : 'bg-sky-100 text-sky-700'}`}>
+                                                                            {t.interviewTone}: {toneLabel}
+                                                                        </span>
+                                                                    )}
+                                                                    {answeredLabel != null && (
+                                                                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                                                            answeredLabel === 'fully_answered' ? (isDark ? 'bg-emerald-500/20 text-emerald-400' : 'bg-emerald-100 text-emerald-700') :
+                                                                            answeredLabel === 'not_answered' ? (isDark ? 'bg-red-500/20 text-red-400' : 'bg-red-100 text-red-700') :
+                                                                            isDark ? 'bg-amber-500/20 text-amber-400' : 'bg-amber-100 text-amber-700'
+                                                                        }`}>
+                                                                            {t.interviewAnswered}: {answeredT}
+                                                                        </span>
+                                                                    )}
+                                                                    {relevanceLabel != null && (
+                                                                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${isDark ? 'bg-indigo-500/20 text-indigo-300' : 'bg-indigo-100 text-indigo-700'}`}>
+                                                                            {t.interviewRelevance}: {relevanceT}
+                                                                        </span>
+                                                                    )}
+                                                                    {formalityLabel != null && (
+                                                                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${isDark ? 'bg-slate-500/20 text-slate-300' : 'bg-slate-100 text-slate-700'}`}>
+                                                                            {t.interviewFormality}: {formalityT}
+                                                                        </span>
+                                                                    )}
+                                                                </div>
                                                             </div>
                                                         )}
                                                         {feedbacks && feedbacks[index] && (
@@ -1216,23 +1722,10 @@ export default function InterviewSimulatorPage() {
                                         })}
                                         </div>
 
-                                        <div className={`flex-shrink-0 pt-4 mt-4 flex flex-col sm:flex-row gap-3 border-t ${isDark ? 'border-gray-700/80' : 'border-gray-200'}`}>
-                                            <button
-                                                type="button"
-                                                onClick={handleGetAllFeedback}
-                                                disabled={loadingFeedbackIndex !== null || !responseAnalyses?.length}
-                                                className={`flex-1 px-6 py-3.5 rounded-xl font-semibold transition-all duration-200 flex items-center justify-center gap-2 ${
-                                                    loadingFeedbackIndex !== null || !responseAnalyses?.length
-                                                        ? isDark ? 'bg-gray-700 text-gray-400 cursor-not-allowed' : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                                                        : isDark ? 'bg-sky-600 hover:bg-sky-500 text-white shadow-lg' : 'bg-sky-500 hover:bg-sky-600 text-white shadow-lg shadow-sky-500/25'
-                                                }`}
-                                            >
-                                                {loadingFeedbackIndex === -1 ? <Loader2 className="w-5 h-5 animate-spin" /> : null}
-                                                <span>{t.interviewGetFeedback ?? 'Get AI feedback'}</span>
-                                            </button>
+                                        <div className={`flex-shrink-0 pt-4 mt-4 flex border-t ${isDark ? 'border-gray-700/80' : 'border-gray-200'}`}>
                                             <button
                                                 onClick={() => setShowThankYouPopup(true)}
-                                                className={`flex-1 px-6 py-3.5 rounded-xl font-semibold transition-all duration-200 ${
+                                                className={`w-full px-6 py-3.5 mt-4 rounded-xl font-semibold transition-all duration-200 ${
                                                     isDark
                                                         ? 'bg-gray-800 hover:bg-gray-700 border border-gray-700 text-white shadow-md'
                                                         : 'bg-gray-100 hover:bg-gray-200 border border-gray-200 text-gray-900 shadow-md'

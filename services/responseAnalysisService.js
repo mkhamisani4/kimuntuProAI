@@ -159,17 +159,20 @@ function buildEvaluationSummary(analysis) {
   }
   if (analysis.relevance?.label) parts.push(`Relevance: ${analysis.relevance.label}`);
   if (analysis.formality?.label) parts.push(`Formality: ${analysis.formality.label}`);
+  if (analysis.band != null) parts.push(`Band: ${analysis.band}`);
+  if (typeof analysis.score === 'number') parts.push(`Score: ${Math.round(analysis.score * 100)}%`);
   return parts.join('. ');
 }
 
 /**
- * Get adaptive AI feedback for each question/answer using evaluation results.
+ * Get adaptive AI feedback for each question/answer using evaluation results and optional video findings.
  * @param {string[]} questions
- * @param {string[]} responses
- * @param {object[]} responseAnalyses - items from evaluateInterviewResponses().items
+ * @param {string[]} responses - transcript per question
+ * @param {object[]} responseAnalyses - items from evaluateInterviewResponses().items (sentiment/model findings)
+ * @param {string[]} [videoSummaries] - optional per-question video summary (facial, gaze, speaking)
  * @returns {Promise<string[]>} feedbacks - one string per item (may be empty if API fails)
  */
-export async function getInterviewFeedback(questions, responses, responseAnalyses) {
+export async function getInterviewFeedback(questions, responses, responseAnalyses, videoSummaries = []) {
   if (!Array.isArray(questions) || !Array.isArray(responses) || !Array.isArray(responseAnalyses) || questions.length !== responses.length) {
     return [];
   }
@@ -177,6 +180,7 @@ export async function getInterviewFeedback(questions, responses, responseAnalyse
     question: String(q ?? '').trim(),
     answer: String(responses[i] ?? '').trim(),
     evaluationSummary: buildEvaluationSummary(responseAnalyses[i]),
+    videoSummary: Array.isArray(videoSummaries) && videoSummaries[i] != null ? String(videoSummaries[i]).trim() : '',
   }));
   const res = await fetch('/api/interview/feedback', {
     method: 'POST',

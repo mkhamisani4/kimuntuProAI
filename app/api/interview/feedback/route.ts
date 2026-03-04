@@ -1,7 +1,7 @@
 /**
  * POST /api/interview/feedback
- * Uses OpenAI to generate adaptive, constructive feedback from the question, answer, and evaluation results.
- * Body: { items: Array<{ question: string, answer: string, evaluationSummary: string }> }
+ * Uses OpenAI to generate adaptive, constructive feedback from the question, transcript, text-based sentiment/model findings, and video findings.
+ * Body: { items: Array<{ question, answer, evaluationSummary, videoSummary? }> }
  * Env: OPENAI_API_KEY or NEXT_PUBLIC_OPENAI_API_KEY
  */
 
@@ -9,16 +9,39 @@ import { NextRequest, NextResponse } from 'next/server';
 
 const MODEL = 'gpt-4o-mini';
 
-function buildFeedbackPrompt(question: string, answer: string, evaluationSummary: string): string {
-  return `You are an expert interview coach. Given an interview question, the candidate's answer, and automated evaluation results, provide brief, actionable feedback to help them give a stronger answer next time.
+function buildFeedbackPrompt(
+  question: string,
+  answer: string,
+  evaluationSummary: string,
+  videoSummary: string
+): string {
+  return `You are an expert interview coach. Your task is to give brief, actionable feedback based only on the content inside the tagged blocks below.
 
-**Question:** ${question}
+Instructions:
+- Provide 2–4 short bullet points of constructive feedback. Be specific.
+- Reference the transcript (e.g. suggest clearer wording or structure).
+- Reference the text evaluation (e.g. if "Partially answered", suggest what to add; if "Hedging" or "Uncertain", suggest more direct language; if "Low relevance", tie the answer back to the question; mention band/score if relevant).
+- When video findings are provided, reference them (e.g. eye contact, facial expressions, action units / micro-expressions such as brow raise, brow lower, lip press, mouth stretch, and speaking vs pauses) where relevant to delivery and presence.
+- Keep tone supportive and professional. Write in the same language as the question (e.g. English or French).
+- Use plain text only: no markdown (no ** for bold, no ##). Start each bullet with a short label and a colon (e.g. "Be More Direct:" or "Eye Contact:") as plain text, then the explanation.
 
-**Candidate's answer:** ${answer || '(No answer provided)'}
+<QUESTION>
+${question || '(No question)'}
+</QUESTION>
 
-**Evaluation results:** ${evaluationSummary}
+<TRANSCRIPT>
+${answer || '(No answer provided)'}
+</TRANSCRIPT>
 
-Provide 2–4 short bullet points of constructive feedback. Be specific: reference the evaluation (e.g. if "Partially answered", suggest what to add; if "Hedging" or "Uncertain", suggest more direct language; if "Low relevance", suggest tying the answer back to the question). Keep tone supportive and professional. Write in the same language as the question (e.g. English or French). Use plain text only: no markdown formatting (no ** for bold, no ##). Start each bullet with a short label and a colon (e.g. "Be More Direct:" or "Enhance Structure:") as plain text, then the explanation.`;
+<TEXT_EVALUATION>
+${evaluationSummary || 'None.'}
+</TEXT_EVALUATION>
+
+<VIDEO_FINDINGS>
+${videoSummary || 'None.'}
+</VIDEO_FINDINGS>
+
+Using only the content above between the tags, output your feedback bullets now.`;
 }
 
 export async function POST(req: NextRequest) {
@@ -30,12 +53,19 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  let body: { items?: Array<{ question?: string; answer?: string; evaluationSummary?: string }> };
+  let body: {
+    items?: Array<{
+      question?: string;
+      answer?: string;
+      evaluationSummary?: string;
+      videoSummary?: string;
+    }>;
+  };
   try {
     body = await req.json();
   } catch {
     return NextResponse.json(
-      { error: 'Invalid JSON. Expected { items: [{ question, answer, evaluationSummary }] }.' },
+      { error: 'Invalid JSON. Expected { items: [{ question, answer, evaluationSummary, videoSummary? }] }.' },
       { status: 400 }
     );
   }
@@ -51,13 +81,14 @@ export async function POST(req: NextRequest) {
     const question = String(it?.question ?? '').trim();
     const answer = String(it?.answer ?? '').trim();
     const evaluationSummary = String(it?.evaluationSummary ?? '').trim();
+    const videoSummary = String(it?.videoSummary ?? '').trim();
 
     if (!question && !answer) {
       feedbacks.push('');
       continue;
     }
 
-    const prompt = buildFeedbackPrompt(question, answer, evaluationSummary || 'No evaluation data.');
+    const prompt = buildFeedbackPrompt(question, answer, evaluationSummary || 'No evaluation data.', videoSummary);
 
     try {
       const res = await fetch('https://api.openai.com/v1/chat/completions', {

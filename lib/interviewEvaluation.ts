@@ -329,12 +329,13 @@ export function computeWeightedScore(item: EvaluationItem): { score: number; ban
     0.20 * toneConfidence +
     0.20 * emotionalStability +
     0.30 * professionalism;
-  const score = Math.min(1, Math.max(0, raw));
+  // Harsher scoring: scale down so percentages are lower, and raise band thresholds.
+  const score = Math.min(1, Math.max(0, raw * 0.88));
 
   let band: ScoreBand;
-  if (score >= 0.8) band = 'excellent';
-  else if (score >= 0.6) band = 'strong';
-  else if (score >= 0.4) band = 'needs_improvement';
+  if (score >= 0.85) band = 'excellent';
+  else if (score >= 0.65) band = 'strong';
+  else if (score >= 0.45) band = 'needs_improvement';
   else band = 'poor';
 
   return { score, band };
