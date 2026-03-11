@@ -9,7 +9,7 @@ import { useState, useEffect } from 'react';
 import { ChevronRight, Upload, X, Image as ImageIcon, Sparkles, Palette } from 'lucide-react';
 import { toast } from '@/components/ai/Toast';
 import type { WizardInput } from '@kimuntupro/shared';
-import { getPrimaryLogo } from '@kimuntupro/db';
+import { getPrimaryLogo, type Logo } from '@kimuntupro/db';
 import { auth } from '@/lib/firebase';
 
 interface Step1Props {
@@ -169,7 +169,7 @@ export default function Step1BrandBasics({ data, updateData, onNext, hasPlanAtta
 
       // Convert LogoSpec to SVG string
       const { logoSpecToSVGString } = await import('../../../logo-studio/utils/svgRenderer');
-      const svgString = logoSpecToSVGString(primaryLogo.currentSpec);
+      const svgString = logoSpecToSVGString((primaryLogo as Logo).currentSpec);
 
       // Convert SVG to data URL
       const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });

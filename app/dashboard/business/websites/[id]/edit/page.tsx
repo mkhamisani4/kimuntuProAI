@@ -89,26 +89,25 @@ export default function WebsiteEditPage() {
     const pollInterval = setInterval(async () => {
       try {
         const updated = await getWebsite(websiteId);
-        if (updated && updated.status !== 'generating') {
-          // Update website state - this will trigger iframe re-render via key prop
-          setWebsite(updated);
+        const site = updated as Website | null;
+        if (site && site.status !== 'generating') {
+          setWebsite(site);
           setIsEditing(false);
 
-          // Update last message status
           setMessages((prev) =>
             prev.map((msg, idx) =>
               idx === prev.length - 1 && msg.role === 'assistant'
-                ? { ...msg, status: updated.status === 'ready' ? 'complete' : 'error' }
+                ? { ...msg, status: site.status === 'ready' ? 'complete' : 'error' }
                 : msg
             )
           );
 
           clearInterval(pollInterval);
 
-          if (updated.status === 'ready') {
+          if (site.status === 'ready') {
             toast.success('Edit applied successfully! Preview updated.', { duration: 3000 });
-          } else if (updated.status === 'failed') {
-            toast.error('Edit failed: ' + updated.errorMessage);
+          } else if (site.status === 'failed') {
+            toast.error('Edit failed: ' + (site.errorMessage ?? 'Unknown error'));
           }
         }
       } catch (err) {
