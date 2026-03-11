@@ -1,26 +1,51 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import faceApiFromShim from '@/lib/faceApiShim';
 
-// Weights from CDN. To use local weights, download from https://github.com/justadudewhohacks/face-api.js/tree/master/weights into public/models and use '/models'
-const MODELS_BASE = typeof window !== 'undefined' ? 'https://cdn.jsdelivr.net/gh/justadudewhohacks/face-api.js@0.22.2/weights' : '';
+// Weights from CDN (with fallback). For local: put weights in public/models and use '/models'
+const MODELS_BASE = typeof window !== 'undefined' ? 'https://cdn.jsdelivr.net/gh/justadudewhohacks/face-api.js@0.22.2/weights/' : '';
+const MODELS_BASE_FALLBACK = typeof window !== 'undefined' ? 'https://cdn.jsdelivr.net/gh/justadudewhohacks/face-api.js@0.22.0/weights/' : '';
 let faceapi = null;
 let modelsLoaded = false;
 
 async function loadModels() {
-  if (modelsLoaded) return true;
+  if (modelsLoaded) return { ok: true };
   try {
-    faceapi = await import('face-api.js');
-    await Promise.all([
-      faceapi.nets.tinyFaceDetector.loadFromUri(MODELS_BASE),
-      faceapi.nets.faceLandmark68Net.loadFromUri(MODELS_BASE),
-      faceapi.nets.faceExpressionNet.loadFromUri(MODELS_BASE),
-    ]);
+    const api = faceApiFromShim;
+    faceapi = api?.nets ? api : (api?.default || null);
+    if (!faceapi?.nets) {
+      console.warn('[useFaceExpressionAnalysis] face-api.js API not available:', Object.keys(api || {}));
+      return { ok: false, message: 'Face API not available (missing .nets)' };
+    }
+    const base = MODELS_BASE || MODELS_BASE_FALLBACK;
+    const load = async () => {
+      await Promise.all([
+        faceapi.nets.tinyFaceDetector.loadFromUri(base),
+        faceapi.nets.faceLandmark68Net.loadFromUri(base),
+        faceapi.nets.faceExpressionNet.loadFromUri(base),
+      ]);
+    };
+    try {
+      await load();
+    } catch (loadErr) {
+      if (base !== MODELS_BASE_FALLBACK && MODELS_BASE_FALLBACK) {
+        console.warn('[useFaceExpressionAnalysis] CDN failed, trying fallback:', loadErr?.message);
+        await Promise.all([
+          faceapi.nets.tinyFaceDetector.loadFromUri(MODELS_BASE_FALLBACK),
+          faceapi.nets.faceLandmark68Net.loadFromUri(MODELS_BASE_FALLBACK),
+          faceapi.nets.faceExpressionNet.loadFromUri(MODELS_BASE_FALLBACK),
+        ]);
+      } else {
+        throw loadErr;
+      }
+    }
     modelsLoaded = true;
-    return true;
+    return { ok: true };
   } catch (err) {
+    const msg = err?.message || String(err);
     console.warn('[useFaceExpressionAnalysis] Failed to load models:', err);
-    return false;
+    return { ok: false, message: msg };
   }
 }
 
@@ -219,10 +244,10 @@ export function useFaceExpressionAnalysis(videoRef, enabled, options = {}) {
     (async () => {
       setLoading(true);
       setError(null);
-      const ok = await loadModels();
+      const result = await loadModels();
       if (!mountedRef.current) return;
-      if (!ok) {
-        setError('Face analysis models failed to load');
+      if (!result?.ok) {
+        setError(result?.message || 'Face analysis models failed to load');
         setLoading(false);
         return;
       }

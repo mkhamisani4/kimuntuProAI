@@ -53,7 +53,7 @@ export async function POST(req) {
   });
 
   console.log('\n[Interview Questions] ========== REQUEST ==========');
-  console.log('[Interview Questions] model: gpt-4o-mini, temperature: 0.7, max_tokens: 800');
+  console.log('[Interview Questions] model: gpt-4o-mini, temperature: 0.7, max_tokens: 1200');
   console.log('[Interview Questions] systemContent length:', systemContent.length);
   console.log('[Interview Questions] userContent length:', userContent.length);
   console.log('[Interview Questions] --- systemContent ---\n', systemContent);
@@ -70,7 +70,7 @@ export async function POST(req) {
         { role: 'user', content: userContent },
       ],
       temperature: 0.7,
-      max_tokens: 800,
+      max_tokens: 1200,
     });
 
     const questionsText = completion.choices[0]?.message?.content?.trim() ?? '';
@@ -89,7 +89,7 @@ export async function POST(req) {
       }
     }
     if (current.trim()) questions.push(current.trim());
-    const parsed = questions.slice(0, 6);
+    const parsed = questions.slice(0, 10);
 
     console.log('\n[Interview Questions] ========== RESPONSE ==========');
     console.log('[Interview Questions] --- rawText ---\n', questionsText);

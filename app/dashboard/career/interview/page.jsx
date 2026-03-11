@@ -9,6 +9,17 @@ import { generateInterviewQuestions, extractResumeText } from '@/services/openai
 import { evaluateInterviewResponses, getInterviewFeedback } from '@/services/responseAnalysisService';
 import { useFaceExpressionAnalysis } from '@/hooks/useFaceExpressionAnalysis';
 import { generatePDF } from '@/lib/pdf/generatePDF';
+import dynamic from 'next/dynamic';
+
+const InterviewAvatarVrm = dynamic(() => import('@/components/InterviewAvatarVrm'), {
+    ssr: false,
+    loading: () => (
+        <div className="flex flex-col items-center justify-center gap-3 text-gray-500 min-h-[200px]">
+            <div className="w-20 h-20 rounded-full bg-gray-600/30 animate-pulse" />
+            <span className="text-sm">Loading avatar...</span>
+        </div>
+    )
+});
 
 /** Strip HTML tags so class names like "text-emerald-400" never show as visible text. */
 function stripHtmlFromText(html) {
@@ -48,6 +59,27 @@ function highlightPythonCode(code) {
         .replace(builtins, '<span class="text-amber-400">$1</span>')
         .replace(/"([^"]*)"/g, '<span class="text-cyan-400">"$1"</span>')
         .replace(/'([^']*)'/g, '<span class="text-cyan-400">\'$1\'</span>');
+}
+
+/** First question for all interview types: elevator pitch / tell me about yourself. */
+const ELEVATOR_PITCH_QUESTION = 'To start off, could you tell me a little about yourself and walk me through your background, particularly the experiences that have led you to apply for this role?';
+
+/** Shuffle array in place (Fisher–Yates) and return a new array with first n elements. */
+function shuffleAndTake(arr, n) {
+    if (!Array.isArray(arr) || arr.length === 0) return [];
+    const out = [...arr];
+    for (let i = out.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [out[i], out[j]] = [out[j], out[i]];
+    }
+    return out.slice(0, Math.min(n, out.length));
+}
+
+/** Build final 5 questions: elevator pitch first, then 4 random from the generated pool. */
+function buildFinalQuestions(apiQuestions) {
+    const pool = Array.isArray(apiQuestions) ? apiQuestions.filter(Boolean) : [];
+    const fourRandom = shuffleAndTake(pool, 4);
+    return [ELEVATOR_PITCH_QUESTION, ...fourRandom];
 }
 
 /** Concise thank-you overlay after closing the interview summary */
@@ -117,6 +149,9 @@ export default function InterviewSimulatorPage() {
     const [feedbacks, setFeedbacks] = useState(null);
     const [loadingFeedbackIndex, setLoadingFeedbackIndex] = useState(null);
     const [hasRequestedFeedback, setHasRequestedFeedback] = useState(false);
+    const [isTailoringNextQuestion, setIsTailoringNextQuestion] = useState(false);
+    /** One extra tailoring at a random transition: 1 = after Q2, 2 = after Q3, 3 = after Q4. Q1→Q2 is always tailored. */
+    const [tailorAtTransitionIndex, setTailorAtTransitionIndex] = useState(null);
     const [isRecording, setIsRecording] = useState(false);
     const [isTranscribing, setIsTranscribing] = useState(false);
     const [speechVoices, setSpeechVoices] = useState([]);
@@ -309,8 +344,39 @@ export default function InterviewSimulatorPage() {
         });
     };
 
-    const handleNext = () => {
+    const handleNext = async () => {
         if (currentQuestionIndex < generatedQuestions.length - 1) {
+            const shouldTailor = (currentQuestionIndex === 0) || (currentQuestionIndex === tailorAtTransitionIndex);
+            const nextIndex = currentQuestionIndex + 1;
+            if (shouldTailor && generatedQuestions.length > nextIndex) {
+                setIsTailoringNextQuestion(true);
+                try {
+                    const res = await fetch('/api/interview/tailor-question', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            previousQuestion: generatedQuestions[currentQuestionIndex],
+                            previousAnswer: (responses[currentQuestionIndex] ?? '').trim(),
+                            suggestedNextQuestion: generatedQuestions[nextIndex],
+                            jobDescription: jobDescription || '',
+                            role: role || '',
+                            companyName: companyName || ''
+                        })
+                    });
+                    const data = await res.json();
+                    if (res.ok && data?.tailoredQuestion) {
+                        setGeneratedQuestions(prev => {
+                            const next = [...prev];
+                            next[nextIndex] = data.tailoredQuestion;
+                            return next;
+                        });
+                    }
+                } catch (_) {
+                    // Keep suggested question on failure
+                } finally {
+                    setIsTailoringNextQuestion(false);
+                }
+            }
             setCurrentQuestionIndex(prev => prev + 1);
         } else {
             setCurrentQuestionIndex(generatedQuestions.length);
@@ -811,7 +877,8 @@ export default function InterviewSimulatorPage() {
                 skills
             });
 
-            setGeneratedQuestions(Array.isArray(questions) ? questions.slice(0, 6) : []);
+            setGeneratedQuestions(buildFinalQuestions(questions));
+            setTailorAtTransitionIndex(1 + Math.floor(Math.random() * 3));
             setShowQuestionsModal(true);
             setSimulationActive(false);
             setCurrentQuestionIndex(0);
@@ -1371,11 +1438,10 @@ export default function InterviewSimulatorPage() {
                                                     <p className="text-sm text-red-400 px-3 py-2">{videoError}</p>
                                                 )}
                                             </div>
-                                            {/* Avatar slot (placeholder: green circle + label) */}
+                                            {/* Avatar slot: VRM avatar (Phase A) */}
                                             <div className={`flex-1 min-w-0 flex flex-col rounded-xl overflow-hidden border shadow-md ${isDark ? 'border-gray-600/80 bg-gray-800/30' : 'border-gray-200 bg-gray-50/50'}`}>
-                                                <div className={`flex-1 min-h-0 flex flex-col items-center justify-center gap-3 ${isDark ? 'bg-gray-800/50 text-gray-500' : 'bg-gray-100/80 text-gray-500'}`}>
-                                                    <div className={`w-20 h-20 sm:w-24 sm:h-24 rounded-full flex-shrink-0 shadow-lg ${isDark ? 'bg-gradient-to-br from-emerald-500/30 to-teal-500/30 ring-2 ring-emerald-500/40 ring-offset-2 ring-offset-gray-800' : 'bg-gradient-to-br from-emerald-400/50 to-teal-400/50 ring-2 ring-emerald-400/50 ring-offset-2 ring-offset-gray-100'}`} />
-                                                    <span className={`text-sm font-semibold ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Avatar</span>
+                                                <div className="flex-1 min-h-0 min-w-0 flex flex-col">
+                                                    <InterviewAvatarVrm className="flex-1 min-h-0" />
                                                 </div>
                                             </div>
                                         </div>
@@ -1500,11 +1566,25 @@ export default function InterviewSimulatorPage() {
                                             </button>
                                         )}
                                         <button
+                                            type="button"
                                             onClick={handleNext}
-                                            className="flex-1 min-w-0 px-2 sm:px-4 py-3 rounded-xl font-semibold text-sm transition-all duration-200 bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:from-emerald-600 hover:to-teal-600 flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-500/25 hover:shadow-xl hover:shadow-emerald-500/30 hover:-translate-y-0.5"
+                                            disabled={isTailoringNextQuestion}
+                                            className={`flex-1 min-w-0 px-2 sm:px-4 py-3 rounded-xl font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-1.5 shadow-lg ${isTailoringNextQuestion
+                                                ? 'bg-emerald-500/70 text-white cursor-wait shadow-emerald-500/20'
+                                                : 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:from-emerald-600 hover:to-teal-600 shadow-emerald-500/25 hover:shadow-xl hover:shadow-emerald-500/30 hover:-translate-y-0.5'
+                                            }`}
                                         >
-                                            <span className="truncate">{currentQuestionIndex === generatedQuestions.length - 1 ? t.interviewFinish : t.interviewNext}</span>
-                                            <ChevronRight className="w-4 h-4 shrink-0" />
+                                            {isTailoringNextQuestion ? (
+                                                <>
+                                                    <Loader2 className="w-4 h-4 shrink-0 animate-spin" />
+                                                    <span className="truncate">Preparing next question...</span>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <span className="truncate">{currentQuestionIndex === generatedQuestions.length - 1 ? t.interviewFinish : t.interviewNext}</span>
+                                                    <ChevronRight className="w-4 h-4 shrink-0" />
+                                                </>
+                                            )}
                                         </button>
                                     </div>
                                     </div>

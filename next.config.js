@@ -1,4 +1,5 @@
 /** @type {import('next').NextConfig} */
+const path = require('path');
 const nextConfig = {
     // Disable TypeScript errors during build (only show warnings)
     typescript: {
@@ -12,8 +13,8 @@ const nextConfig = {
         domains: [],
         unoptimized: false,
     },
-    // Transpile local workspace packages
-    transpilePackages: ['@kimuntupro/db', '@kimuntupro/ai-core', '@kimuntupro/rag-core', '@kimuntupro/shared'],
+    // Transpile local workspace packages and face-api.js (avoids 404 on dynamic chunk)
+    transpilePackages: ['@kimuntupro/db', '@kimuntupro/ai-core', '@kimuntupro/rag-core', '@kimuntupro/shared', 'face-api.js'],
     // Ensure compatibility with Firebase
     webpack: (config, { isServer }) => {
         if (!isServer) {
@@ -25,6 +26,13 @@ const nextConfig = {
                 encoding: false,
             };
         }
+        // Force face-api.js to CommonJS so the es6 chunk is never requested (fixes 404)
+        const faceApiCjs = path.resolve(__dirname, 'node_modules/face-api.js/build/commonjs/index.js');
+        config.resolve.alias = {
+            ...config.resolve.alias,
+            'face-api.js': faceApiCjs,
+            'face-api.js/build/es6/index.js': faceApiCjs,
+        };
         // Handle .mjs files from node_modules
         config.module.rules.push({
             test: /\.mjs$/,
