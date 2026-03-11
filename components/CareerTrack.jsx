@@ -1144,6 +1144,8 @@ const CareerTrack = () => {
                   onClick={() => {
                     if (feature.id === 'interview') {
                       router.push('/dashboard/career/interview');
+                    } else if (feature.id === 'jobmatch') {
+                      router.push('/dashboard/career/job-matching');
                     } else {
                       showFeature(feature.id);
                     }

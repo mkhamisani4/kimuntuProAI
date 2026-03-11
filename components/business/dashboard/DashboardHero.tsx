@@ -33,7 +33,7 @@ export default function DashboardHero({ userName, tenantId, userId }: DashboardH
 
           // Convert LogoSpec to data URL
           const { logoSpecToSVGString } = await import('../../../app/dashboard/business/logo-studio/utils/svgRenderer');
-          const svgString = logoSpecToSVGString(logo.currentSpec);
+          const svgString = logoSpecToSVGString((logo as any).currentSpec);
           const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
           const svgUrl = URL.createObjectURL(svgBlob);
 
