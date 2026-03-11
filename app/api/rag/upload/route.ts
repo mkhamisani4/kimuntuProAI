@@ -7,7 +7,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { saveDocumentMeta, getDocumentMeta } from '@kimuntupro/db';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { app } from '@/packages/db/src/firebase/client';
-import { chunkText, generateEmbeddings, WeaviateClient } from '@kimuntupro/rag-core';
 import crypto from 'crypto';
 
 export const runtime = 'nodejs';
@@ -19,6 +18,8 @@ export const maxDuration = 60; // Allow up to 60s for large file processing
  */
 export async function POST(req: NextRequest) {
   try {
+    // Lazy import to avoid build-time env requirements
+    const { chunkText, generateEmbeddings, WeaviateClient } = await import('@kimuntupro/rag-core');
     // Parse form data
     const formData = await req.formData();
     const file = formData.get('file') as File;

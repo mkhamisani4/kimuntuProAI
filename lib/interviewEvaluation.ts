@@ -113,7 +113,9 @@ export async function getCertainty(apiKey: string, text: string): Promise<Certai
     );
     const scores = Array.isArray(data)
       ? (data as Array<{ label: string; score: number }>).map((x) => ({ label: String(x?.label ?? ''), score: Number(x?.score ?? 0) }))
-      : data?.labels?.map((l, i) => ({ label: l, score: data.scores?.[i] ?? 0 })) ?? [];
+      : !Array.isArray(data) && Array.isArray(data?.labels) && Array.isArray(data?.scores)
+        ? data.labels.map((l, i) => ({ label: l, score: data.scores[i] ?? 0 }))
+        : [];
     const top = scores[0];
     const label = top?.label ?? 'neutral';
     return { label, score: top?.score ?? 0.5, scores, model: BART_MODEL };
@@ -198,8 +200,8 @@ export async function getAnswered(apiKey: string, question: string, answer: stri
         label: String(x?.label ?? ''),
         score: Number(x?.score ?? 0),
       }));
-    } else if (data?.labels && data?.scores) {
-      scores = data.labels.map((l, i) => ({ label: l, score: data.scores![i] ?? 0 }));
+    } else if (!Array.isArray(data) && Array.isArray(data?.labels) && Array.isArray(data?.scores)) {
+      scores = data.labels.map((l, i) => ({ label: l, score: data.scores[i] ?? 0 }));
     } else {
       return { label: 'partially_answered', score: 0.5, scores: [], model: BART_MODEL };
     }
@@ -247,8 +249,8 @@ export async function getRelevance(apiKey: string, question: string, answer: str
         label: String(x?.label ?? ''),
         score: Number(x?.score ?? 0),
       }));
-    } else if (data?.labels && data?.scores) {
-      scores = data.labels.map((l, i) => ({ label: l, score: data.scores![i] ?? 0 }));
+    } else if (!Array.isArray(data) && Array.isArray(data?.labels) && Array.isArray(data?.scores)) {
+      scores = data.labels.map((l, i) => ({ label: l, score: data.scores[i] ?? 0 }));
     } else {
       return { score: 0.5, label: 'medium', model: BART_MODEL };
     }

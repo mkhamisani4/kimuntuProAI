@@ -4,7 +4,6 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { retrieve } from '@kimuntupro/rag-core';
 
 export const runtime = 'nodejs';
 
@@ -14,6 +13,8 @@ export const runtime = 'nodejs';
  */
 export async function GET(req: NextRequest) {
   try {
+    // Lazy import to avoid build-time env requirements
+    const { retrieve } = await import('@kimuntupro/rag-core');
     const { searchParams } = req.nextUrl;
     const tenantId = searchParams.get('tenantId');
     const query = searchParams.get('q');

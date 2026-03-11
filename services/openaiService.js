@@ -14,9 +14,9 @@ const getPdfjsLib = async () => {
       // pdfjs-dist exports everything on the module object
       pdfjsLib = pdfjsModule;
       
-      // Configure worker BEFORE any operations
+      // Configure worker BEFORE any operations (must match pdfjs-dist version; copied in postinstall)
       if (pdfjsLib && pdfjsLib.GlobalWorkerOptions) {
-        pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
+        pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
       }
       
       // Verify we have the required functions
