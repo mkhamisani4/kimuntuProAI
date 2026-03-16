@@ -19,13 +19,18 @@ function useInView(options = {}) {
     const ref = useRef(null);
     const [isInView, setIsInView] = useState(false);
     useEffect(() => {
+        if (!ref.current) {
+            // Fallback: if ref not attached, show content anyway
+            setIsInView(true);
+            return;
+        }
         const observer = new IntersectionObserver(([entry]) => {
             if (entry.isIntersecting) {
                 setIsInView(true);
                 observer.unobserve(entry.target);
             }
-        }, { threshold: 0.1, ...options });
-        if (ref.current) observer.observe(ref.current);
+        }, { threshold: 0.05, ...options });
+        observer.observe(ref.current);
         return () => observer.disconnect();
     }, []);
     return [ref, isInView];
@@ -296,10 +301,13 @@ export default function LandingPage() {
             <section ref={heroRef} className="relative z-10 pt-20 pb-16 px-6">
                 <div className="max-w-7xl mx-auto text-center">
                     {/* Badge */}
-                    <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full mb-8 opacity-0 ${heroInView ? 'animate-fadeInUp' : ''} ${isDark
-                        ? 'bg-emerald-500/10 border border-emerald-500/20'
-                        : 'bg-emerald-50 border border-emerald-200'
-                    }`}>
+                    <div
+                        className={`inline-flex items-center gap-2 px-4 py-2 rounded-full mb-8 ${isDark
+                            ? 'bg-emerald-500/10 border border-emerald-500/20'
+                            : 'bg-emerald-50 border border-emerald-200'
+                        }`}
+                        style={{ opacity: heroInView ? 1 : 0, transform: heroInView ? 'translateY(0)' : 'translateY(30px)', transition: 'opacity 0.8s ease, transform 0.8s ease' }}
+                    >
                         <Sparkles className={`w-4 h-4 ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`} />
                         <span className={`text-sm font-medium ${isDark ? 'text-emerald-300' : 'text-emerald-700'}`}>
                             AI-Powered Professional Platform
@@ -307,7 +315,7 @@ export default function LandingPage() {
                     </div>
 
                     {/* Main Headline */}
-                    <h1 className={`text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold leading-[1.05] mb-6 opacity-0 ${heroInView ? 'animate-fadeInUp delay-200' : ''} ${isDark ? 'text-white' : 'text-black'}`}>
+                    <h1 className={`text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold leading-[1.05] mb-6 ${isDark ? 'text-white' : 'text-black'}`} style={{ opacity: heroInView ? 1 : 0, transform: heroInView ? 'translateY(0)' : 'translateY(30px)', transition: 'opacity 0.8s ease 0.1s, transform 0.8s ease 0.1s' }}>
                         Empowering Your
                         <br />
                         <span className="bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent text-gradient-animate">
@@ -316,13 +324,13 @@ export default function LandingPage() {
                     </h1>
 
                     {/* Subtitle */}
-                    <p className={`text-lg sm:text-xl max-w-2xl mx-auto mb-10 opacity-0 ${heroInView ? 'animate-fadeInUp delay-300' : ''} ${isDark ? 'text-white/60' : 'text-black/60'}`}>
+                    <p className={`text-lg sm:text-xl max-w-2xl mx-auto mb-10 ${isDark ? 'text-white/60' : 'text-black/60'}`} style={{ opacity: heroInView ? 1 : 0, transform: heroInView ? 'translateY(0)' : 'translateY(30px)', transition: 'opacity 0.8s ease 0.2s, transform 0.8s ease 0.2s' }}>
                         Career development, business growth, legal assistance, and innovation
                         — all powered by cutting-edge artificial intelligence in one platform.
                     </p>
 
                     {/* CTA Buttons */}
-                    <div className={`flex flex-wrap gap-4 justify-center mb-16 opacity-0 ${heroInView ? 'animate-fadeInUp delay-400' : ''}`}>
+                    <div className="flex flex-wrap gap-4 justify-center mb-16" style={{ opacity: heroInView ? 1 : 0, transform: heroInView ? 'translateY(0)' : 'translateY(30px)', transition: 'opacity 0.8s ease 0.3s, transform 0.8s ease 0.3s' }}>
                         <button
                             onClick={scrollToAuth}
                             className="group relative px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-semibold rounded-2xl hover:shadow-lg hover:shadow-emerald-500/25 transition-all hover:scale-105"
@@ -347,7 +355,7 @@ export default function LandingPage() {
                     </div>
 
                     {/* Feature Pills */}
-                    <div className={`flex flex-wrap gap-3 justify-center opacity-0 ${heroInView ? 'animate-fadeInUp delay-500' : ''}`}>
+                    <div className="flex flex-wrap gap-3 justify-center" style={{ opacity: heroInView ? 1 : 0, transform: heroInView ? 'translateY(0)' : 'translateY(30px)', transition: 'opacity 0.8s ease 0.4s, transform 0.8s ease 0.4s' }}>
                         {[
                             { icon: Briefcase, label: 'Career Development', color: 'text-blue-400' },
                             { icon: BarChart, label: 'Business Planning', color: 'text-emerald-400' },
@@ -381,7 +389,7 @@ export default function LandingPage() {
                             { value: 99, suffix: '%', label: 'Uptime' },
                             { value: 4, suffix: '.9', label: 'User Rating' },
                         ].map((stat, i) => (
-                            <div key={i} className={`text-center opacity-0 ${statsInView ? 'animate-countUp' : ''}`} style={{ animationDelay: `${i * 150}ms` }}>
+                            <div key={i} className="text-center" style={{ opacity: statsInView ? 1 : 0, transform: statsInView ? 'translateY(0)' : 'translateY(20px)', transition: `opacity 0.6s ease ${i * 0.1}s, transform 0.6s ease ${i * 0.1}s` }}>
                                 <div className={`text-3xl sm:text-4xl font-bold mb-1 ${isDark ? 'text-white' : 'text-black'}`}>
                                     <AnimatedCounter end={stat.value} suffix={stat.suffix} />
                                 </div>
@@ -396,13 +404,13 @@ export default function LandingPage() {
             <section id="features" ref={featuresRef} className="relative z-10 py-20 px-6">
                 <div className="max-w-7xl mx-auto">
                     <div className="text-center mb-16">
-                        <h2 className={`text-4xl sm:text-5xl font-bold mb-4 opacity-0 ${featuresInView ? 'animate-fadeInUp' : ''} ${isDark ? 'text-white' : 'text-black'}`}>
+                        <h2 className={`text-4xl sm:text-5xl font-bold mb-4 ${isDark ? 'text-white' : 'text-black'}`} style={{ opacity: featuresInView ? 1 : 0, transform: featuresInView ? 'translateY(0)' : 'translateY(30px)', transition: 'opacity 0.8s ease, transform 0.8s ease' }}>
                             Why Choose{' '}
                             <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
                                 KimuntuPro
                             </span>
                         </h2>
-                        <p className={`text-lg max-w-2xl mx-auto opacity-0 ${featuresInView ? 'animate-fadeInUp delay-200' : ''} ${isDark ? 'text-white/50' : 'text-black/50'}`}>
+                        <p className={`text-lg max-w-2xl mx-auto ${isDark ? 'text-white/50' : 'text-black/50'}`} style={{ opacity: featuresInView ? 1 : 0, transform: featuresInView ? 'translateY(0)' : 'translateY(30px)', transition: 'opacity 0.8s ease 0.1s, transform 0.8s ease 0.1s' }}>
                             A single platform that combines AI power with professional tools
                         </p>
                     </div>
@@ -411,11 +419,11 @@ export default function LandingPage() {
                         {features.map((feature, i) => (
                             <div
                                 key={i}
-                                className={`group relative p-6 rounded-2xl transition-all duration-300 card-hover opacity-0 ${featuresInView ? 'animate-fadeInUp' : ''} ${isDark
+                                className={`group relative p-6 rounded-2xl transition-all duration-300 card-hover ${isDark
                                     ? 'glass-card hover:bg-white/[0.08]'
                                     : 'bg-white border border-black/5 shadow-sm hover:shadow-lg'
                                 }`}
-                                style={{ animationDelay: `${200 + i * 100}ms` }}
+                                style={{ opacity: featuresInView ? 1 : 0, transform: featuresInView ? 'translateY(0)' : 'translateY(30px)', transition: `opacity 0.6s ease ${0.1 + i * 0.08}s, transform 0.6s ease ${0.1 + i * 0.08}s` }}
                             >
                                 <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${isDark
                                     ? 'bg-emerald-500/10 border border-emerald-500/20'
@@ -439,13 +447,13 @@ export default function LandingPage() {
             <section ref={tracksRef} className="relative z-10 py-20 px-6">
                 <div className="max-w-7xl mx-auto">
                     <div className="text-center mb-16">
-                        <h2 className={`text-4xl sm:text-5xl font-bold mb-4 opacity-0 ${tracksInView ? 'animate-fadeInUp' : ''} ${isDark ? 'text-white' : 'text-black'}`}>
+                        <h2 className={`text-4xl sm:text-5xl font-bold mb-4 ${isDark ? 'text-white' : 'text-black'}`} style={{ opacity: tracksInView ? 1 : 0, transform: tracksInView ? 'translateY(0)' : 'translateY(30px)', transition: 'opacity 0.8s ease, transform 0.8s ease' }}>
                             Four Powerful{' '}
                             <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
                                 AI Tracks
                             </span>
                         </h2>
-                        <p className={`text-lg max-w-2xl mx-auto opacity-0 ${tracksInView ? 'animate-fadeInUp delay-200' : ''} ${isDark ? 'text-white/50' : 'text-black/50'}`}>
+                        <p className={`text-lg max-w-2xl mx-auto ${isDark ? 'text-white/50' : 'text-black/50'}`} style={{ opacity: tracksInView ? 1 : 0, transform: tracksInView ? 'translateY(0)' : 'translateY(30px)', transition: 'opacity 0.8s ease 0.1s, transform 0.8s ease 0.1s' }}>
                             Specialized AI tools for every aspect of your professional journey
                         </p>
                     </div>
@@ -454,11 +462,11 @@ export default function LandingPage() {
                         {tracks.map((track, i) => (
                             <div
                                 key={i}
-                                className={`group relative p-8 rounded-3xl transition-all duration-500 card-hover overflow-hidden opacity-0 ${tracksInView ? 'animate-fadeInUp' : ''} ${isDark
+                                className={`group relative p-8 rounded-3xl card-hover overflow-hidden ${isDark
                                     ? 'glass-card hover:bg-white/[0.08]'
                                     : 'bg-white border border-black/5 shadow-sm hover:shadow-xl'
                                 }`}
-                                style={{ animationDelay: `${200 + i * 150}ms` }}
+                                style={{ opacity: tracksInView ? 1 : 0, transform: tracksInView ? 'translateY(0)' : 'translateY(30px)', transition: `opacity 0.6s ease ${0.1 + i * 0.12}s, transform 0.6s ease ${0.1 + i * 0.12}s` }}
                             >
                                 {/* Gradient accent line */}
                                 <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${track.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
@@ -499,7 +507,7 @@ export default function LandingPage() {
             <section ref={testimonialsRef} className="relative z-10 py-20 px-6">
                 <div className="max-w-7xl mx-auto">
                     <div className="text-center mb-16">
-                        <h2 className={`text-4xl sm:text-5xl font-bold mb-4 opacity-0 ${testimonialsInView ? 'animate-fadeInUp' : ''} ${isDark ? 'text-white' : 'text-black'}`}>
+                        <h2 className={`text-4xl sm:text-5xl font-bold mb-4 ${isDark ? 'text-white' : 'text-black'}`} style={{ opacity: testimonialsInView ? 1 : 0, transform: testimonialsInView ? 'translateY(0)' : 'translateY(30px)', transition: 'opacity 0.8s ease, transform 0.8s ease' }}>
                             Loved by{' '}
                             <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
                                 Professionals
@@ -511,11 +519,11 @@ export default function LandingPage() {
                         {testimonials.map((t, i) => (
                             <div
                                 key={i}
-                                className={`p-6 rounded-2xl opacity-0 ${testimonialsInView ? 'animate-fadeInUp' : ''} ${isDark
+                                className={`p-6 rounded-2xl ${isDark
                                     ? 'glass-card'
                                     : 'bg-white border border-black/5 shadow-sm'
                                 }`}
-                                style={{ animationDelay: `${200 + i * 150}ms` }}
+                                style={{ opacity: testimonialsInView ? 1 : 0, transform: testimonialsInView ? 'translateY(0)' : 'translateY(30px)', transition: `opacity 0.6s ease ${0.1 + i * 0.12}s, transform 0.6s ease ${0.1 + i * 0.12}s` }}
                             >
                                 <div className="flex gap-1 mb-4">
                                     {Array.from({ length: t.rating }).map((_, j) => (
@@ -560,7 +568,7 @@ export default function LandingPage() {
                 <div className="max-w-7xl mx-auto">
                     <div ref={ctaRef} className="grid lg:grid-cols-2 gap-12 items-center">
                         {/* Left: CTA content */}
-                        <div className={`opacity-0 ${ctaInView ? 'animate-fadeInLeft' : ''}`}>
+                        <div style={{ opacity: ctaInView ? 1 : 0, transform: ctaInView ? 'translateX(0)' : 'translateX(-30px)', transition: 'opacity 0.8s ease, transform 0.8s ease' }}>
                             <h2 className={`text-4xl sm:text-5xl font-bold mb-6 leading-tight ${isDark ? 'text-white' : 'text-black'}`}>
                                 Ready to Transform
                                 <br />
@@ -588,7 +596,7 @@ export default function LandingPage() {
                         </div>
 
                         {/* Right: Auth Card */}
-                        <div className={`w-full max-w-md mx-auto opacity-0 ${ctaInView ? 'animate-fadeInRight delay-200' : ''}`}>
+                        <div className="w-full max-w-md mx-auto" style={{ opacity: ctaInView ? 1 : 0, transform: ctaInView ? 'translateX(0)' : 'translateX(30px)', transition: 'opacity 0.8s ease 0.15s, transform 0.8s ease 0.15s' }}>
                             <div className={`relative rounded-3xl p-8 overflow-hidden ${isDark
                                 ? 'glass-card animate-border-glow'
                                 : 'bg-white border border-black/5 shadow-xl'
@@ -680,7 +688,7 @@ export default function LandingPage() {
                                             <div className={`w-full border-t ${isDark ? 'border-white/10' : 'border-black/10'}`} />
                                         </div>
                                         <div className="relative flex justify-center text-sm">
-                                            <span className={`px-3 ${isDark ? 'bg-black/60 text-white/40' : 'bg-white text-black/40'}`}>or</span>
+                                            <span className={`px-3 ${isDark ? 'bg-black text-white/40' : 'bg-white text-black/40'}`}>or</span>
                                         </div>
                                     </div>
 

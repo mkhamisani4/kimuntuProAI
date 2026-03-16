@@ -89,15 +89,7 @@ html {
   background: rgba(59, 130, 246, 0.7);
 }
 
-/* Smooth transitions for theme changes */
-* {
-  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
-}
-
-/* Prevent transition on page load */
-.preload * {
-  transition: none !important;
-}
+/* Smooth transitions for theme changes - scoped to avoid conflicting with animations */
 
 /* Hide scrollbar but keep functionality */
 .scrollbar-hide {
