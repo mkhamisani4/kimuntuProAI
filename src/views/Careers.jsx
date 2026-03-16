@@ -78,9 +78,9 @@ const Careers = () => {
                                     } transition-all cursor-pointer`}
                             >
                                 <div className="flex items-start gap-4">
-                                    <div className={`p-3 rounded-xl ${isDark ? 'bg-purple-500/20' : 'bg-purple-100'
+                                    <div className={`p-3 rounded-xl ${isDark ? 'bg-emerald-500/20' : 'bg-emerald-100'
                                         }`}>
-                                        <position.icon className={`w-6 h-6 ${isDark ? 'text-purple-400' : 'text-purple-600'
+                                        <position.icon className={`w-6 h-6 ${isDark ? 'text-emerald-400' : 'text-emerald-600'
                                             }`} />
                                     </div>
                                     <div className="flex-1">
@@ -96,8 +96,8 @@ const Careers = () => {
                                         </div>
                                         <p className="mb-4">{position.description}</p>
                                         <button className={`px-4 py-2 rounded-lg font-medium transition-all ${isDark
-                                                ? 'bg-purple-500/20 text-purple-400 hover:bg-purple-500/30'
-                                                : 'bg-purple-100 text-purple-700 hover:bg-purple-200'
+                                                ? 'bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30'
+                                                : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
                                             }`}>
                                             Apply Now
                                         </button>
@@ -118,7 +118,7 @@ const Careers = () => {
                                 key={index}
                                 className="flex items-start gap-3"
                             >
-                                <div className={`mt-1 w-2 h-2 rounded-full ${isDark ? 'bg-purple-400' : 'bg-purple-600'
+                                <div className={`mt-1 w-2 h-2 rounded-full ${isDark ? 'bg-emerald-400' : 'bg-emerald-600'
                                     }`}></div>
                                 <span>{benefit}</span>
                             </div>
@@ -127,8 +127,8 @@ const Careers = () => {
                 </section>
 
                 <section className={`p-8 rounded-2xl border ${isDark
-                        ? 'bg-gradient-to-br from-purple-500/10 to-pink-500/10 border-purple-500/30'
-                        : 'bg-gradient-to-br from-purple-100 to-pink-100 border-purple-300'
+                        ? 'bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border-emerald-500/30'
+                        : 'bg-gradient-to-br from-emerald-100 to-teal-100 border-emerald-300'
                     }`}>
                     <h3 className={`text-2xl font-semibold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                         Don't See Your Role?
@@ -136,7 +136,7 @@ const Careers = () => {
                     <p className="mb-4">
                         We're always interested in hearing from talented individuals. Send us your resume and let us know what you're passionate about!
                     </p>
-                    <p className={`${isDark ? 'text-purple-400' : 'text-purple-600'}`}>
+                    <p className={`${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>
                         careers@kimuntupro.com
                     </p>
                 </section>

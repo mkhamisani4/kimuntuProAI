@@ -37,15 +37,15 @@ const Team = () => {
                                 } transition-all`}
                         >
                             <div className={`w-20 h-20 rounded-full mb-4 flex items-center justify-center text-2xl font-bold ${isDark
-                                ? 'bg-gradient-to-br from-purple-500 to-pink-500'
-                                : 'bg-gradient-to-br from-purple-400 to-pink-400'
+                                ? 'bg-gradient-to-br from-emerald-500 to-teal-500'
+                                : 'bg-gradient-to-br from-emerald-400 to-teal-400'
                                 } text-white`}>
                                 {member.name.split(' ').map(n => n[0]).join('')}
                             </div>
                             <h3 className={`text-xl font-bold mb-1 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                                 {member.name}
                             </h3>
-                            <p className={`text-sm mb-3 ${isDark ? 'text-purple-400' : 'text-purple-600'}`}>
+                            <p className={`text-sm mb-3 ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>
                                 {member.role}
                             </p>
                             <p className="text-sm mb-4">
@@ -77,7 +77,7 @@ const Team = () => {
                     ))}
                 </div>
 
-                <section className="mt-12 p-8 rounded-2xl border ${isDark ? 'bg-gradient-to-br from-purple-500/10 to-pink-500/10 border-purple-500/30' : 'bg-gradient-to-br from-purple-100 to-pink-100 border-purple-300'}">
+                <section className={`mt-12 p-8 rounded-2xl border ${isDark ? 'glass-card' : 'bg-emerald-50 border-emerald-200'}`}>
                     <h3 className={`text-2xl font-semibold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                         Join Our Team
                     </h3>
@@ -86,7 +86,7 @@ const Team = () => {
                     </p>
                     <a
                         href="#/page/careers"
-                        className="inline-block px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-xl hover:from-purple-600 hover:to-pink-600 transition-all"
+                        className="inline-block px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-semibold rounded-xl hover:from-emerald-600 hover:to-teal-600 transition-all"
                     >
                         View Open Positions
                     </a>
