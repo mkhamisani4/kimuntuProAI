@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Mail, Phone, MapPin, Facebook, Twitter, Linkedin, Instagram, Youtube, FileText, Shield, Info, Heart, Sparkles } from 'lucide-react';
+import { Mail, Phone, MapPin, Facebook, Twitter, Linkedin, Instagram, Youtube, FileText, Shield, Info, Heart } from 'lucide-react';
 import { useTheme } from '@/components/providers/ThemeProvider';
 import { useLanguage } from '@/components/providers/LanguageProvider';
 
@@ -255,10 +255,6 @@ const Footer = () => {
                     <div className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'} text-center md:text-right`}>
                         <p className="flex items-center justify-center md:justify-end gap-1.5 mb-1">
                             © {currentYear} KimuntuPro AI. {t.footerMadeWith} <Heart className="w-4 h-4 text-red-500 fill-current animate-pulse" /> {t.footerForInnovation}
-                        </p>
-                        <p className="text-xs flex items-center justify-center md:justify-end gap-1">
-                            <Sparkles className="w-3 h-3" />
-                            {t.footerBuiltWith}
                         </p>
                     </div>
                 </div>
