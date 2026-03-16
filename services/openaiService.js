@@ -31,10 +31,21 @@ const getPdfjsLib = async () => {
   return pdfjsLib;
 };
 
-const openai = new OpenAI({
-  apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
-  dangerouslyAllowBrowser: true // Required for client-side usage
-});
+let openai = null;
+
+const getOpenAI = () => {
+  if (!openai) {
+    const apiKey = process.env.NEXT_PUBLIC_OPENAI_API_KEY;
+    if (!apiKey) {
+      throw new Error('OpenAI API key is not configured. Please set NEXT_PUBLIC_OPENAI_API_KEY in your environment variables.');
+    }
+    openai = new OpenAI({
+      apiKey,
+      dangerouslyAllowBrowser: true
+    });
+  }
+  return openai;
+};
 
 /**
  * Extract text from a PDF file
@@ -331,7 +342,7 @@ ${miscInfo ? `Miscellaneous Information: ${miscInfo}` : ''}
 Generate a highly tailored, one-page resume that perfectly matches this job description, really make sure to incorporate the keywords and sentiment of the job description. Make each bullet point sound like it was custom-written specifically for this exact job and make it descriptive.`;
 
   try {
-    const completion = await openai.chat.completions.create({
+    const completion = await getOpenAI().chat.completions.create({
       model: 'gpt-4o-mini',
       messages: [
         {
@@ -491,7 +502,7 @@ IMPORTANT FORMATTING REMINDER:
 - **CRITICAL - Human & Respectful Tone**: Write in a natural, warm, respectful, and authentically human way. Sound like a real person writing a genuine letter, not a robot or template. Be respectful of the company and opportunity. Include forward-looking statements naturally: "If given this opportunity, I would be honored to [specific contribution] that would [specific impact]" or "I am excited about the possibility of [contributing to specific goal]". Make these statements sound genuine and respectful, not presumptuous.`;
 
   try {
-    const completion = await openai.chat.completions.create({
+    const completion = await getOpenAI().chat.completions.create({
       model: 'gpt-4o-mini',
       messages: [
         {
@@ -631,7 +642,7 @@ Answer the user's question comprehensively and helpfully.`;
       }
     ];
 
-    const completion = await openai.chat.completions.create({
+    const completion = await getOpenAI().chat.completions.create({
       model: 'gpt-4o-mini',
       messages: messages,
       temperature: 0.7,
