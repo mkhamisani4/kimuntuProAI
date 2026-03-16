@@ -77,9 +77,9 @@ const API = () => {
                                         : 'bg-white/60 border-gray-200'
                                     }`}
                             >
-                                <div className={`w-12 h-12 rounded-xl mb-4 flex items-center justify-center ${isDark ? 'bg-purple-500/20' : 'bg-purple-100'
+                                <div className={`w-12 h-12 rounded-xl mb-4 flex items-center justify-center ${isDark ? 'bg-emerald-500/20' : 'bg-emerald-100'
                                     }`}>
-                                    <feature.icon className={`w-6 h-6 ${isDark ? 'text-purple-400' : 'text-purple-600'
+                                    <feature.icon className={`w-6 h-6 ${isDark ? 'text-emerald-400' : 'text-emerald-600'
                                         }`} />
                                 </div>
                                 <h4 className={`text-lg font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
@@ -147,7 +147,7 @@ const API = () => {
                                         } text-white`}>
                                         {endpoint.method}
                                     </span>
-                                    <code className={`font-mono text-sm ${isDark ? 'text-purple-400' : 'text-purple-600'}`}>
+                                    <code className={`font-mono text-sm ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>
                                         {endpoint.path}
                                     </code>
                                     <span className="ml-auto text-sm">{endpoint.description}</span>
@@ -158,8 +158,8 @@ const API = () => {
                 </section>
 
                 <div className={`p-8 rounded-2xl border ${isDark
-                        ? 'bg-gradient-to-br from-purple-500/10 to-pink-500/10 border-purple-500/30'
-                        : 'bg-gradient-to-br from-purple-100 to-pink-100 border-purple-300'
+                        ? 'bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border-emerald-500/30'
+                        : 'bg-gradient-to-br from-emerald-100 to-teal-100 border-emerald-300'
                     }`}>
                     <h3 className={`text-2xl font-semibold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                         Need Help with the API?
@@ -167,7 +167,7 @@ const API = () => {
                     <p className="mb-4">
                         Our developer support team is here to help you integrate successfully.
                     </p>
-                    <p className={`${isDark ? 'text-purple-400' : 'text-purple-600'}`}>
+                    <p className={`${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>
                         api-support@kimuntupro.com
                     </p>
                 </div>

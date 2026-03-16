@@ -481,11 +481,11 @@ const Database = () => {
                                                 <span className={isDark ? 'text-emerald-300' : 'text-emerald-700'}>"penalty_range"</span>: {'{'}
                                                 <div className="ml-8">
                                                     <span className={isDark ? 'text-emerald-300' : 'text-emerald-700'}>"min"</span>
-                                                    : <span className={isDark ? 'text-purple-300' : 'text-purple-700'}>{entry.data.penalty_range.min === null ? 'null' : entry.data.penalty_range.min}</span>,
+                                                    : <span className={isDark ? 'text-emerald-300' : 'text-emerald-700'}>{entry.data.penalty_range.min === null ? 'null' : entry.data.penalty_range.min}</span>,
                                                 </div>
                                                 <div className="ml-8">
                                                     <span className={isDark ? 'text-emerald-300' : 'text-emerald-700'}>"max_years"</span>
-                                                    : <span className={isDark ? 'text-purple-300' : 'text-purple-700'}>{entry.data.penalty_range.max_years === null ? 'null' : entry.data.penalty_range.max_years}</span>,
+                                                    : <span className={isDark ? 'text-emerald-300' : 'text-emerald-700'}>{entry.data.penalty_range.max_years === null ? 'null' : entry.data.penalty_range.max_years}</span>,
                                                 </div>
                                                 <div className="ml-8">
                                                     <span className={isDark ? 'text-emerald-300' : 'text-emerald-700'}>"type"</span>
@@ -520,7 +520,7 @@ const Database = () => {
                                             </div>
                                             <div className="ml-4">
                                                 <span className={isDark ? 'text-emerald-300' : 'text-emerald-700'}>"version"</span>
-                                                : <span className={isDark ? 'text-purple-300' : 'text-purple-700'}>{entry.data.version}</span>
+                                                : <span className={isDark ? 'text-emerald-300' : 'text-emerald-700'}>{entry.data.version}</span>
                                             </div>
                                             <div>{'}'}</div>
                                         </div>

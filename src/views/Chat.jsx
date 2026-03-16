@@ -166,7 +166,7 @@ const formatTime = (date) => {
 /* ------------------------------------------------------------------ */
 const TypingIndicator = ({ isDark }) => (
     <div className="flex items-start gap-3 animate-fade-in">
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center flex-shrink-0">
+        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center flex-shrink-0">
             <Bot className="w-4 h-4 text-white" />
         </div>
         <div className={`px-4 py-3 rounded-2xl rounded-tl-sm backdrop-blur-xl border ${isDark
@@ -177,7 +177,7 @@ const TypingIndicator = ({ isDark }) => (
                 {[0, 1, 2].map((i) => (
                     <span
                         key={i}
-                        className={`w-2 h-2 rounded-full ${isDark ? 'bg-purple-300' : 'bg-purple-500'}`}
+                        className={`w-2 h-2 rounded-full ${isDark ? 'bg-emerald-300' : 'bg-emerald-500'}`}
                         style={{
                             animation: 'bounce-dot 1.4s ease-in-out infinite',
                             animationDelay: `${i * 0.2}s`,
@@ -204,7 +204,7 @@ const MessageBubble = ({ message, isDark, isLatestAssistant }) => {
         >
             {/* Avatar */}
             {!isUser && (
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center flex-shrink-0">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center flex-shrink-0">
                     <Bot className="w-4 h-4 text-white" />
                 </div>
             )}
@@ -213,7 +213,7 @@ const MessageBubble = ({ message, isDark, isLatestAssistant }) => {
             <div className={`max-w-[80%] sm:max-w-[75%]`}>
                 <div
                     className={`px-4 py-3 rounded-2xl text-sm leading-relaxed ${isUser
-                        ? 'rounded-tr-sm bg-gradient-to-r from-purple-500 to-pink-500 text-white'
+                        ? 'rounded-tr-sm bg-gradient-to-r from-emerald-500 to-teal-500 text-white'
                         : isDark
                             ? 'rounded-tl-sm bg-white/10 backdrop-blur-xl border border-white/10 text-gray-200'
                             : 'rounded-tl-sm bg-white backdrop-blur-xl border border-gray-200 text-gray-800'
@@ -234,7 +234,7 @@ const MessageBubble = ({ message, isDark, isLatestAssistant }) => {
             {isUser && (
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold ${isDark
                     ? 'bg-white/20 text-white'
-                    : 'bg-purple-100 text-purple-700'
+                    : 'bg-emerald-100 text-emerald-700'
                     }`}>
                     U
                 </div>
@@ -362,7 +362,7 @@ const Chat = () => {
                     {/* Left: assistant identity */}
                     <div className="flex items-center gap-3">
                         <div className="relative">
-                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center">
                                 <Bot className="w-5 h-5 text-white" />
                             </div>
                             {/* Online status dot */}
@@ -383,8 +383,8 @@ const Chat = () => {
                     <div className="flex items-center gap-3">
                         {/* Demo badge */}
                         <span className={`hidden sm:inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full font-medium ${isDark
-                            ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30'
-                            : 'bg-purple-50 text-purple-600 border border-purple-200'
+                            ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                            : 'bg-emerald-50 text-emerald-600 border border-emerald-200'
                             }`}>
                             <Sparkles className="w-3 h-3" />
                             Demo Mode
@@ -451,8 +451,8 @@ const Chat = () => {
                                     ? 'opacity-50 cursor-not-allowed'
                                     : 'hover:scale-[1.02] active:scale-[0.98]'
                                     } ${isDark
-                                        ? 'border-white/10 text-gray-300 hover:bg-white/10 hover:border-purple-500/40'
-                                        : 'border-gray-300 text-gray-600 hover:bg-purple-50 hover:border-purple-300'
+                                        ? 'border-white/10 text-gray-300 hover:bg-white/10 hover:border-emerald-500/40'
+                                        : 'border-gray-300 text-gray-600 hover:bg-emerald-50 hover:border-emerald-300'
                                     }`}
                             >
                                 {prompt}
@@ -478,7 +478,7 @@ const Chat = () => {
                         }}
                         placeholder="Ask about criminal law..."
                         disabled={isTyping}
-                        className={`flex-1 px-4 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all ${isDark
+                        className={`flex-1 px-4 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all ${isDark
                             ? 'bg-white/10 text-white border border-white/10 placeholder:text-gray-500'
                             : 'bg-white text-gray-900 border border-gray-200 placeholder:text-gray-400'
                             } ${isTyping ? 'opacity-50 cursor-not-allowed' : ''}`}
@@ -486,9 +486,9 @@ const Chat = () => {
                     <button
                         onClick={handleSend}
                         disabled={!input.trim() || isTyping}
-                        className={`px-4 py-3 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 text-white transition-all flex items-center justify-center ${!input.trim() || isTyping
+                        className={`px-4 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white transition-all flex items-center justify-center ${!input.trim() || isTyping
                             ? 'opacity-50 cursor-not-allowed'
-                            : 'hover:from-purple-600 hover:to-pink-600 hover:shadow-lg hover:shadow-purple-500/25 active:scale-95'
+                            : 'hover:from-emerald-600 hover:to-teal-600 hover:shadow-lg hover:shadow-emerald-500/25 active:scale-95'
                             }`}
                     >
                         <Send className="w-5 h-5" />
@@ -529,7 +529,7 @@ const Chat = () => {
                             {/* Knowledge sources */}
                             <div className={`p-3 rounded-xl border ${isDark ? 'bg-white/5 border-white/10' : 'bg-white/70 border-gray-200'}`}>
                                 <div className="flex items-center gap-2 mb-2">
-                                    <Database className={`w-3.5 h-3.5 ${isDark ? 'text-purple-300' : 'text-purple-600'}`} />
+                                    <Database className={`w-3.5 h-3.5 ${isDark ? 'text-emerald-300' : 'text-emerald-600'}`} />
                                     <span className="text-xs font-medium">Knowledge Sources</span>
                                 </div>
                                 <div className="flex flex-wrap gap-2">
@@ -544,8 +544,8 @@ const Chat = () => {
                                         <span
                                             key={source}
                                             className={`text-[10px] px-2 py-1 rounded-full ${isDark
-                                                ? 'bg-purple-500/15 text-purple-300 border border-purple-500/20'
-                                                : 'bg-purple-50 text-purple-600 border border-purple-100'
+                                                ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/20'
+                                                : 'bg-emerald-50 text-emerald-600 border border-emerald-100'
                                                 }`}
                                         >
                                             {source}
@@ -559,8 +559,8 @@ const Chat = () => {
                                 <Link
                                     href="/research"
                                     className={`inline-flex items-center gap-1.5 text-xs font-medium transition-colors ${isDark
-                                        ? 'text-purple-300 hover:text-purple-200'
-                                        : 'text-purple-600 hover:text-purple-700'
+                                        ? 'text-emerald-300 hover:text-emerald-200'
+                                        : 'text-emerald-600 hover:text-emerald-700'
                                         }`}
                                 >
                                     <BookOpen className="w-3.5 h-3.5" />
