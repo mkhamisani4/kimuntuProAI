@@ -105,59 +105,55 @@ export default function PricingPage() {
                 </h2>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {plans.map((plan) => {
                     const Icon = plan.icon;
                     const isPopular = plan.popular;
-                    
+
                     return (
                         <div
                             key={plan.name}
-                            className={`relative rounded-2xl p-8 transition-all ${
+                            className={`relative rounded-2xl p-8 transition-all card-hover ${
                                 isPopular
                                     ? isDark
-                                        ? 'bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border-2 border-blue-500/50 shadow-xl scale-105'
-                                        : 'bg-gradient-to-br from-blue-50 to-cyan-50 border-2 border-blue-300 shadow-xl scale-105'
+                                        ? 'bg-emerald-500/5 border-2 border-emerald-500/30 shadow-xl shadow-emerald-500/5 scale-105'
+                                        : 'bg-emerald-50/50 border-2 border-emerald-300 shadow-xl scale-105'
                                     : isDark
-                                        ? 'bg-gray-900/80 border border-gray-800'
-                                        : 'bg-white border border-gray-200'
+                                        ? 'glass-card'
+                                        : 'bg-white border border-black/5 shadow-sm'
                             }`}
                         >
                             {isPopular && (
-                                <div className={`absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-xs font-semibold ${
-                                    isDark
-                                        ? 'bg-blue-500 text-white'
-                                        : 'bg-blue-500 text-white'
-                                }`}>
+                                <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full text-xs font-semibold bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-lg shadow-emerald-500/20">
                                     {t.pricingMostPopular}
                                 </div>
                             )}
 
                             <div className="flex items-center gap-3 mb-6">
-                                <div className={`p-3 rounded-lg ${
+                                <div className={`p-3 rounded-xl border ${
                                     plan.color === 'gray'
-                                        ? isDark ? 'bg-gray-500/20' : 'bg-gray-100'
+                                        ? isDark ? 'bg-white/5 border-white/10' : 'bg-black/5 border-black/5'
                                         : plan.color === 'emerald'
-                                        ? isDark ? 'bg-emerald-500/20' : 'bg-emerald-100'
+                                        ? isDark ? 'bg-emerald-500/10 border-emerald-500/20' : 'bg-emerald-50 border-emerald-100'
                                         : plan.color === 'blue'
-                                        ? isDark ? 'bg-blue-500/20' : 'bg-blue-100'
-                                        : isDark ? 'bg-purple-500/20' : 'bg-purple-100'
+                                        ? isDark ? 'bg-blue-500/10 border-blue-500/20' : 'bg-blue-50 border-blue-100'
+                                        : isDark ? 'bg-violet-500/10 border-violet-500/20' : 'bg-violet-50 border-violet-100'
                                 }`}>
                                     <Icon className={`w-6 h-6 ${
                                         plan.color === 'gray'
-                                            ? isDark ? 'text-gray-400' : 'text-gray-600'
+                                            ? isDark ? 'text-white/50' : 'text-black/50'
                                             : plan.color === 'emerald'
                                             ? isDark ? 'text-emerald-400' : 'text-emerald-600'
                                             : plan.color === 'blue'
                                             ? isDark ? 'text-blue-400' : 'text-blue-600'
-                                            : isDark ? 'text-purple-400' : 'text-purple-600'
+                                            : isDark ? 'text-violet-400' : 'text-violet-600'
                                     }`} />
                                 </div>
                                 <div>
                                     <h3 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
                                         {plan.name}
                                     </h3>
-                                    <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                                    <p className={`text-sm ${isDark ? 'text-white/40' : 'text-black/40'}`}>
                                         {plan.description}
                                     </p>
                                 </div>
@@ -168,25 +164,23 @@ export default function PricingPage() {
                                     <span className={`text-4xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
                                         {plan.price}
                                     </span>
-                                    <span className={`text-lg ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                                    <span className={`text-lg ${isDark ? 'text-white/40' : 'text-black/40'}`}>
                                         {plan.period}
                                     </span>
                                 </div>
                             </div>
 
                             <button
-                                className={`w-full py-3 rounded-lg font-semibold transition-all mb-6 ${
+                                className={`w-full py-3 rounded-xl font-semibold transition-all mb-6 hover:scale-[1.02] ${
                                     plan.name === t.pricingFree
                                         ? isDark
-                                            ? 'bg-gray-500/20 text-gray-300 border border-gray-500/50 hover:bg-gray-500/30'
-                                            : 'bg-gray-100 text-gray-700 border border-gray-300 hover:bg-gray-200'
+                                            ? 'bg-white/5 text-white/60 border border-white/10 hover:bg-white/10'
+                                            : 'bg-black/5 text-black/60 border border-black/5 hover:bg-black/10'
                                         : isPopular
-                                        ? isDark
-                                            ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white hover:from-blue-600 hover:to-cyan-600'
-                                            : 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white hover:from-blue-600 hover:to-cyan-600'
+                                        ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:shadow-lg hover:shadow-emerald-500/25'
                                         : isDark
-                                            ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/50 hover:bg-emerald-500/30'
-                                            : 'bg-emerald-100 text-emerald-600 border border-emerald-300 hover:bg-emerald-200'
+                                            ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20'
+                                            : 'bg-emerald-50 text-emerald-600 border border-emerald-200 hover:bg-emerald-100'
                                 }`}
                             >
                                 {plan.name === t.pricingFree ? t.pricingStartFree : isPopular ? t.pricingGetStarted : t.pricingChoosePlan}
@@ -198,7 +192,7 @@ export default function PricingPage() {
                                         <Check className={`w-5 h-5 flex-shrink-0 mt-0.5 ${
                                             isDark ? 'text-emerald-400' : 'text-emerald-600'
                                         }`} />
-                                        <span className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                                        <span className={`text-sm ${isDark ? 'text-white/60' : 'text-black/60'}`}>
                                             {feature}
                                         </span>
                                     </li>
@@ -210,8 +204,8 @@ export default function PricingPage() {
             </div>
 
             <div className={`mt-12 rounded-2xl p-8 ${isDark
-                ? 'bg-gray-900/80 border border-gray-800'
-                : 'bg-white border border-gray-200'
+                ? 'glass-card'
+                : 'bg-white border border-black/5 shadow-sm'
             }`}>
                 <h3 className={`text-xl font-semibold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                     {t.pricingAllPlansInclude}
@@ -219,25 +213,25 @@ export default function PricingPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="flex items-center gap-3">
                         <Check className={`w-5 h-5 ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`} />
-                        <span className={isDark ? 'text-gray-300' : 'text-gray-700'}>
+                        <span className={isDark ? 'text-white/60' : 'text-black/60'}>
                             {t.pricingSecureEncryption}
                         </span>
                     </div>
                     <div className="flex items-center gap-3">
                         <Check className={`w-5 h-5 ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`} />
-                        <span className={isDark ? 'text-gray-300' : 'text-gray-700'}>
+                        <span className={isDark ? 'text-white/60' : 'text-black/60'}>
                             {t.pricingFeatureUpdates}
                         </span>
                     </div>
                     <div className="flex items-center gap-3">
                         <Check className={`w-5 h-5 ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`} />
-                        <span className={isDark ? 'text-gray-300' : 'text-gray-700'}>
+                        <span className={isDark ? 'text-white/60' : 'text-black/60'}>
                             {t.pricingCancelAnytime}
                         </span>
                     </div>
                     <div className="flex items-center gap-3">
                         <Check className={`w-5 h-5 ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`} />
-                        <span className={isDark ? 'text-gray-300' : 'text-gray-700'}>
+                        <span className={isDark ? 'text-white/60' : 'text-black/60'}>
                             {t.pricingMoneyBack}
                         </span>
                     </div>
