@@ -3,15 +3,17 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
+import { useTheme } from '@/components/providers/ThemeProvider';
 import AuthForm from '@/components/AuthForm';
 import { translations } from '@/lib/translations';
+import Image from 'next/image';
 
 export default function LoginPage() {
   const router = useRouter();
   const { user, loading } = useAuth();
-  const t = translations.en; // Default to English for now
+  const { isDark } = useTheme();
+  const t = translations.en;
 
-  // Redirect authenticated users to home page
   useEffect(() => {
     if (user && !loading) {
       router.push('/');
@@ -20,21 +22,35 @@ export default function LoginPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="text-emerald-400 text-2xl">Loading...</div>
+      <div className={`min-h-screen flex items-center justify-center ${isDark ? 'bg-black' : 'bg-gray-50'}`}>
+        <div className="flex flex-col items-center gap-6">
+          <div className="relative">
+            <Image src="/assets/LOGOS(9).svg" alt="KimuntuPro AI" width={64} height={64} className="animate-float" />
+            <div className="absolute inset-0 bg-emerald-500/20 rounded-full blur-2xl animate-pulse" />
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="w-2 h-2 rounded-full bg-emerald-400 animate-bounce" style={{ animationDelay: '0ms' }} />
+            <div className="w-2 h-2 rounded-full bg-emerald-400 animate-bounce" style={{ animationDelay: '150ms' }} />
+            <div className="w-2 h-2 rounded-full bg-emerald-400 animate-bounce" style={{ animationDelay: '300ms' }} />
+          </div>
+        </div>
       </div>
     );
   }
 
-  // If user is authenticated, show loading while redirecting
   if (user) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="text-emerald-400 text-2xl">Redirecting...</div>
+      <div className={`min-h-screen flex items-center justify-center ${isDark ? 'bg-black' : 'bg-gray-50'}`}>
+        <div className="flex flex-col items-center gap-4">
+          <div className="relative">
+            <Image src="/assets/LOGOS(9).svg" alt="KimuntuPro AI" width={64} height={64} className="animate-float" />
+            <div className="absolute inset-0 bg-emerald-500/20 rounded-full blur-2xl animate-pulse" />
+          </div>
+          <p className={`text-sm ${isDark ? 'text-white/50' : 'text-black/50'}`}>Redirecting...</p>
+        </div>
       </div>
     );
   }
 
-  // Show auth form for unauthenticated users
   return <AuthForm t={t} />;
 }
