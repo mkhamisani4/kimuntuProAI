@@ -65,14 +65,16 @@ export default function DashboardLayout({ children }) {
 
     if (loading) {
         return (
-            <div className={`min-h-screen flex items-center justify-center ${isDark
-                ? 'bg-black'
-                : 'bg-white'
-                }`}>
-                <div className="flex flex-col items-center gap-4">
-                    <Image src="/assets/LOGOS(9).svg" alt="KimuntuPro AI" width={80} height={80} className="animate-bounce" />
-                    <div className={`text-2xl font-semibold ${isDark ? 'text-white' : 'text-black'}`}>
-                        Loading...
+            <div className={`min-h-screen flex items-center justify-center ${isDark ? 'bg-black' : 'bg-gray-50'}`}>
+                <div className="flex flex-col items-center gap-6">
+                    <div className="relative">
+                        <Image src="/assets/LOGOS(9).svg" alt="KimuntuPro AI" width={64} height={64} className="animate-float" />
+                        <div className="absolute inset-0 bg-emerald-500/20 rounded-full blur-2xl animate-pulse" />
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <div className="w-2 h-2 rounded-full bg-emerald-400 animate-bounce" style={{ animationDelay: '0ms' }} />
+                        <div className="w-2 h-2 rounded-full bg-emerald-400 animate-bounce" style={{ animationDelay: '150ms' }} />
+                        <div className="w-2 h-2 rounded-full bg-emerald-400 animate-bounce" style={{ animationDelay: '300ms' }} />
                     </div>
                 </div>
             </div>
