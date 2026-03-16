@@ -175,11 +175,11 @@ const InnovativeTrack = ({ user }) => {
   ];
 
   const statusOptions = [
-    { value: 'ideation', label: 'Ideation', color: isDark ? 'bg-white text-black' : 'bg-black text-white' },
-    { value: 'planning', label: 'Planning', color: isDark ? 'bg-white text-black' : 'bg-black text-white' },
-    { value: 'development', label: 'Development', color: isDark ? 'bg-white text-black' : 'bg-black text-white' },
-    { value: 'testing', label: 'Testing', color: isDark ? 'bg-white text-black' : 'bg-black text-white' },
-    { value: 'launch', label: 'Launch', color: isDark ? 'bg-white text-black' : 'bg-black text-white' },
+    { value: 'ideation', label: 'Ideation', color: 'bg-amber-500/20 text-amber-400 border border-amber-500/30' },
+    { value: 'planning', label: 'Planning', color: 'bg-blue-500/20 text-blue-400 border border-blue-500/30' },
+    { value: 'development', label: 'Development', color: 'bg-violet-500/20 text-violet-400 border border-violet-500/30' },
+    { value: 'testing', label: 'Testing', color: 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30' },
+    { value: 'launch', label: 'Launch', color: 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' },
   ];
 
   const renderOverview = () => (
@@ -191,8 +191,8 @@ const InnovativeTrack = ({ user }) => {
         }`}>
         <div className="relative z-10">
           <div className="flex items-center gap-3 mb-4">
-            <div className={`p-3 rounded-2xl ${isDark ? 'bg-white' : 'bg-black'}`}>
-              <Sparkles className={`w-8 h-8 ${isDark ? 'text-black' : 'text-white'}`} />
+            <div className="p-3 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-500">
+              <Sparkles className="w-8 h-8 text-white" />
             </div>
             <h2 className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
               {t.innovativeTrack}
@@ -204,10 +204,7 @@ const InnovativeTrack = ({ user }) => {
           <div className="flex flex-wrap gap-4">
             <button
               onClick={() => setActiveTab('create')}
-              className={`px-6 py-3 font-semibold rounded-xl transition-all shadow-lg flex items-center gap-2 ${isDark
-                ? 'bg-white text-black hover:bg-white/90'
-                : 'bg-black text-white hover:bg-black/90'
-                }`}
+              className="px-6 py-3 font-semibold rounded-xl transition-all shadow-lg flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:from-emerald-600 hover:to-teal-600"
             >
               <Plus className="w-5 h-5" />
               {t.innovativeStartProject}
@@ -239,8 +236,8 @@ const InnovativeTrack = ({ user }) => {
             }}
           >
             <div className="relative z-10">
-              <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform ${isDark ? 'bg-white' : 'bg-black'}`}>
-                <feature.icon className={`w-6 h-6 ${isDark ? 'text-black' : 'text-white'}`} />
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform ${isDark ? 'bg-emerald-500/10 border border-emerald-500/20' : 'bg-emerald-100'}`}>
+                <feature.icon className={`w-6 h-6 ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`} />
               </div>
               <h3 className={`font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                 {feature.title}
@@ -295,7 +292,7 @@ const InnovativeTrack = ({ user }) => {
   const renderCreateProject = () => (
     <div className="max-w-4xl mx-auto">
         <div className={`rounded-2xl p-8 ${isDark
-        ? 'bg-gray-900/80 border border-gray-800'
+        ? 'glass-card'
         : 'bg-white border border-gray-200'
         }`}>
         <div className="flex items-center justify-between mb-6">
@@ -305,8 +302,8 @@ const InnovativeTrack = ({ user }) => {
           <button
             onClick={() => setShowAIAssistant(true)}
             className={`flex items-center gap-2 px-4 py-2 font-semibold rounded-xl transition-all shadow-lg ${isDark
-              ? 'bg-white text-black hover:bg-white/90'
-              : 'bg-black text-white hover:bg-black/90'
+              ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:from-emerald-600 hover:to-teal-600'
+              : 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:from-emerald-600 hover:to-teal-600'
               }`}
           >
             <Sparkles className="w-5 h-5" />
@@ -337,7 +334,7 @@ const InnovativeTrack = ({ user }) => {
         <div className="space-y-6">
           {/* Title */}
           <div>
-            <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'
+            <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-white/60' : 'text-gray-700'
               }`}>
               {t.innovativeProjectTitle} *
             </label>
@@ -347,7 +344,7 @@ const InnovativeTrack = ({ user }) => {
               onChange={(e) => setNewProject({ ...newProject, title: e.target.value })}
               placeholder={t.innovativeProjectTitle}
               className={`w-full px-4 py-3 rounded-xl transition-all ${isDark
-                ? 'bg-gray-800/50 border border-gray-700 text-white placeholder-gray-500 focus:bg-gray-800 focus:border-white/50'
+                ? 'bg-white/5 border border-white/10 text-white placeholder-white/30 focus:bg-white/10 focus:border-emerald-500/50'
                 : 'bg-white border border-gray-300 text-gray-900 placeholder-gray-500 focus:bg-white focus:border-black/50'
                 } focus:outline-none focus:ring-2 ${isDark ? 'focus:ring-white/20' : 'focus:ring-black/20'}`}
             />
@@ -355,7 +352,7 @@ const InnovativeTrack = ({ user }) => {
 
           {/* Description */}
           <div>
-            <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'
+            <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-white/60' : 'text-gray-700'
               }`}>
               {t.innovativeDescription} *
             </label>
@@ -365,7 +362,7 @@ const InnovativeTrack = ({ user }) => {
               placeholder={t.innovativeDescription}
               rows={4}
               className={`w-full px-4 py-3 rounded-xl transition-all ${isDark
-                ? 'bg-gray-800/50 border border-gray-700 text-white placeholder-gray-500 focus:bg-gray-800 focus:border-white/50'
+                ? 'bg-white/5 border border-white/10 text-white placeholder-white/30 focus:bg-white/10 focus:border-emerald-500/50'
                 : 'bg-white border border-gray-300 text-gray-900 placeholder-gray-500 focus:bg-white focus:border-black/50'
                 } focus:outline-none focus:ring-2 ${isDark ? 'focus:ring-white/20' : 'focus:ring-black/20'}`}
             />
@@ -373,7 +370,7 @@ const InnovativeTrack = ({ user }) => {
 
           {/* Category */}
           <div>
-            <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'
+            <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-white/60' : 'text-gray-700'
               }`}>
               {t.innovativeCategory}
             </label>
@@ -384,10 +381,10 @@ const InnovativeTrack = ({ user }) => {
                   onClick={() => setNewProject({ ...newProject, category: cat.value })}
                   className={`p-3 rounded-xl text-sm font-medium transition-all flex items-center gap-2 ${newProject.category === cat.value
                     ? isDark
-                      ? 'bg-white text-black'
-                      : 'bg-black text-white'
+                      ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
+                      : 'bg-emerald-500 text-white'
                     : isDark
-                      ? 'bg-gray-800 border border-gray-700 text-gray-400 hover:bg-gray-700'
+                      ? 'bg-white/5 border border-white/10 text-white/50 hover:bg-white/10'
                       : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
                     }`}
                 >
@@ -400,7 +397,7 @@ const InnovativeTrack = ({ user }) => {
 
           {/* Status */}
           <div>
-            <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'
+            <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-white/60' : 'text-gray-700'
               }`}>
               {t.innovativeCurrentStatus}
             </label>
@@ -412,7 +409,7 @@ const InnovativeTrack = ({ user }) => {
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${newProject.status === status.value
                     ? `${status.color} text-white`
                     : isDark
-                      ? 'bg-gray-800 border border-gray-700 text-gray-400 hover:bg-gray-700'
+                      ? 'bg-white/5 border border-white/10 text-white/50 hover:bg-white/10'
                       : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
                     }`}
                 >
@@ -424,7 +421,7 @@ const InnovativeTrack = ({ user }) => {
 
           {/* Goals */}
           <div>
-            <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'
+            <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-white/60' : 'text-gray-700'
               }`}>
               {t.innovativeProjectGoals}
             </label>
@@ -434,7 +431,7 @@ const InnovativeTrack = ({ user }) => {
               placeholder={t.innovativeProjectGoals}
               rows={3}
               className={`w-full px-4 py-3 rounded-xl transition-all ${isDark
-                ? 'bg-gray-800/50 border border-gray-700 text-white placeholder-gray-500 focus:bg-gray-800 focus:border-white/50'
+                ? 'bg-white/5 border border-white/10 text-white placeholder-white/30 focus:bg-white/10 focus:border-emerald-500/50'
                 : 'bg-white border border-gray-300 text-gray-900 placeholder-gray-500 focus:bg-white focus:border-black/50'
                 } focus:outline-none focus:ring-2 ${isDark ? 'focus:ring-white/20' : 'focus:ring-black/20'}`}
             />
@@ -442,7 +439,7 @@ const InnovativeTrack = ({ user }) => {
 
           {/* Challenges */}
           <div>
-            <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'
+            <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-white/60' : 'text-gray-700'
               }`}>
               {t.innovativeChallengesRisks}
             </label>
@@ -452,7 +449,7 @@ const InnovativeTrack = ({ user }) => {
               placeholder={t.innovativeChallengesRisks}
               rows={3}
               className={`w-full px-4 py-3 rounded-xl transition-all ${isDark
-                ? 'bg-gray-800/50 border border-gray-700 text-white placeholder-gray-500 focus:bg-gray-800 focus:border-white/50'
+                ? 'bg-white/5 border border-white/10 text-white placeholder-white/30 focus:bg-white/10 focus:border-emerald-500/50'
                 : 'bg-white border border-gray-300 text-gray-900 placeholder-gray-500 focus:bg-white focus:border-black/50'
                 } focus:outline-none focus:ring-2 ${isDark ? 'focus:ring-white/20' : 'focus:ring-black/20'}`}
             />
@@ -460,7 +457,7 @@ const InnovativeTrack = ({ user }) => {
 
           {/* Resources */}
           <div>
-            <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'
+            <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-white/60' : 'text-gray-700'
               }`}>
               {t.innovativeRequiredResources}
             </label>
@@ -470,7 +467,7 @@ const InnovativeTrack = ({ user }) => {
               placeholder={t.innovativeRequiredResources}
               rows={3}
               className={`w-full px-4 py-3 rounded-xl transition-all ${isDark
-                ? 'bg-gray-800/50 border border-gray-700 text-white placeholder-gray-500 focus:bg-gray-800 focus:border-white/50'
+                ? 'bg-white/5 border border-white/10 text-white placeholder-white/30 focus:bg-white/10 focus:border-emerald-500/50'
                 : 'bg-white border border-gray-300 text-gray-900 placeholder-gray-500 focus:bg-white focus:border-black/50'
                 } focus:outline-none focus:ring-2 ${isDark ? 'focus:ring-white/20' : 'focus:ring-black/20'}`}
             />
@@ -482,8 +479,8 @@ const InnovativeTrack = ({ user }) => {
               onClick={handleSaveProject}
               disabled={saving}
               className={`flex-1 px-6 py-3 font-semibold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg flex items-center justify-center gap-2 ${isDark
-                ? 'bg-white text-black hover:bg-white/90'
-                : 'bg-black text-white hover:bg-black/90'
+                ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:from-emerald-600 hover:to-teal-600'
+                : 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:from-emerald-600 hover:to-teal-600'
                 }`}
             >
               {saving ? (
@@ -501,7 +498,7 @@ const InnovativeTrack = ({ user }) => {
             <button
               onClick={() => setActiveTab('overview')}
               className={`px-6 py-3 rounded-xl font-semibold transition-all ${isDark
-                ? 'bg-gray-800 text-white hover:bg-gray-700 border border-gray-700'
+                ? 'bg-white/10 text-white hover:bg-white/15 border border-white/10'
                 : 'bg-white text-gray-900 hover:bg-gray-50 border border-gray-300'
                 }`}
             >
@@ -522,8 +519,8 @@ const InnovativeTrack = ({ user }) => {
         <button
           onClick={() => setActiveTab('create')}
           className={`px-4 py-2 font-semibold rounded-lg transition-all shadow-lg flex items-center gap-2 ${isDark
-            ? 'bg-white text-black hover:bg-white/90'
-            : 'bg-black text-white hover:bg-black/90'
+            ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:from-emerald-600 hover:to-teal-600'
+            : 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:from-emerald-600 hover:to-teal-600'
             }`}
         >
           <Plus className="w-4 h-4" />
@@ -540,15 +537,15 @@ const InnovativeTrack = ({ user }) => {
           ? 'bg-white/5 border border-white/10'
           : 'bg-white/60 border border-gray-200'
           }`}>
-          <Lightbulb className={`w-16 h-16 mx-auto mb-4 ${isDark ? 'text-gray-600' : 'text-gray-400'}`} />
-          <p className={`text-lg mb-4 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+          <Lightbulb className={`w-16 h-16 mx-auto mb-4 ${isDark ? 'text-white/40' : 'text-black/40'}`} />
+          <p className={`text-lg mb-4 ${isDark ? 'text-white/50' : 'text-black/60'}`}>
             {t.innovativeNoProjects}
           </p>
           <button
             onClick={() => setActiveTab('create')}
             className={`px-6 py-3 font-semibold rounded-xl transition-all shadow-lg ${isDark
-              ? 'bg-white text-black hover:bg-white/90'
-              : 'bg-black text-white hover:bg-black/90'
+              ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:from-emerald-600 hover:to-teal-600'
+              : 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:from-emerald-600 hover:to-teal-600'
               }`}
           >
             {t.innovativeCreateFirstProject}
@@ -567,7 +564,7 @@ const InnovativeTrack = ({ user }) => {
                   setIsEditing(false);
                 }}
                 className={`rounded-2xl p-6 transition-all hover:scale-105 cursor-pointer ${isDark
-                  ? 'bg-gray-800/80 border border-gray-700 hover:bg-gray-700'
+                  ? 'glass-card hover:bg-white/[0.08]'
                   : 'bg-white border border-gray-200 hover:bg-gray-50'
                   }`}
               >
@@ -604,14 +601,14 @@ const InnovativeTrack = ({ user }) => {
                 <h3 className={`text-xl font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                   {project.title}
                 </h3>
-                <p className={`text-sm mb-4 line-clamp-2 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                <p className={`text-sm mb-4 line-clamp-2 ${isDark ? 'text-white/50' : 'text-black/60'}`}>
                   {project.description}
                 </p>
                 {project.goals && (
-                    <div className={`text-sm mt-3 pt-3 border-t ${isDark ? 'border-gray-800' : 'border-gray-200'
+                    <div className={`text-sm mt-3 pt-3 border-t ${isDark ? 'border-white/10' : 'border-gray-200'
                     }`}>
-                    <span className={`font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>Goals: </span>
-                    <span className={isDark ? 'text-gray-400' : 'text-gray-600'}>{project.goals}</span>
+                    <span className={`font-medium ${isDark ? 'text-white/60' : 'text-gray-700'}`}>Goals: </span>
+                    <span className={isDark ? 'text-white/50' : 'text-black/60'}>{project.goals}</span>
                   </div>
                 )}
                 <div className={`text-xs mt-3 ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
@@ -639,20 +636,18 @@ const InnovativeTrack = ({ user }) => {
     <div>
       {/* Tab Navigation */}
       <div className={`flex gap-2 mb-8 p-2 rounded-2xl ${isDark
-        ? 'bg-gray-800/80 border border-gray-700'
-        : 'bg-white border border-gray-200'
+        ? 'glass-card'
+        : 'bg-white border border-black/5 shadow-sm'
         }`}>
         {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-medium transition-all ${activeTab === tab.id
-              ? isDark
-                ? 'bg-white text-black shadow-lg'
-                : 'bg-black text-white shadow-lg'
+              ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-lg'
               : isDark
-                ? 'text-gray-400 hover:bg-gray-800'
-                : 'text-gray-600 hover:bg-gray-50'
+                ? 'text-white/50 hover:bg-white/10'
+                : 'text-black/50 hover:bg-black/5'
               }`}
           >
             <tab.icon className="w-5 h-5" />
@@ -673,12 +668,12 @@ const InnovativeTrack = ({ user }) => {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
           <div
             className={`relative w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-3xl ${isDark
-              ? 'bg-gray-900 border border-gray-800'
+              ? 'glass-strong border border-white/10'
               : 'bg-white border border-gray-200'
               } shadow-2xl`}
           >
             {/* Header */}
-            <div className={`sticky top-0 z-10 flex items-center justify-between p-6 border-b ${isDark ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200'
+            <div className={`sticky top-0 z-10 flex items-center justify-between p-6 border-b ${isDark ? 'bg-black/80 backdrop-blur-xl border-white/10' : 'bg-white border-gray-200'
               }`}>
               <h2 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
                 {isEditing ? 'Edit Project' : 'Project Details'}
@@ -688,8 +683,8 @@ const InnovativeTrack = ({ user }) => {
                   <button
                     onClick={() => setIsEditing(true)}
                     className={`px-4 py-2 rounded-lg transition-all ${isDark
-                      ? 'bg-white text-black hover:bg-white/90'
-                      : 'bg-black text-white hover:bg-black/90'
+                      ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:from-emerald-600 hover:to-teal-600'
+                      : 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:from-emerald-600 hover:to-teal-600'
                       }`}
                   >
                     Edit Project
@@ -700,7 +695,7 @@ const InnovativeTrack = ({ user }) => {
                     setSelectedProject(null);
                     setIsEditing(false);
                   }}
-                  className={`p-2 rounded-lg transition-all ${isDark ? 'hover:bg-gray-800' : 'hover:bg-gray-100'
+                  className={`p-2 rounded-lg transition-all ${isDark ? 'hover:bg-white/10' : 'hover:bg-gray-100'
                     }`}
                 >
                   <X className="w-6 h-6" />
@@ -733,7 +728,7 @@ const InnovativeTrack = ({ user }) => {
               <div className="space-y-6">
                 {/* Title */}
                 <div>
-                  <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                  <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-white/60' : 'text-gray-700'}`}>
                     Project Title *
                   </label>
                   {isEditing ? (
@@ -742,7 +737,7 @@ const InnovativeTrack = ({ user }) => {
                       value={selectedProject.title}
                       onChange={(e) => setSelectedProject({ ...selectedProject, title: e.target.value })}
                       className={`w-full px-4 py-3 rounded-lg ${isDark
-                        ? 'bg-gray-800/50 border border-gray-700 text-white placeholder-gray-500'
+                        ? 'bg-white/5 border border-white/10 text-white placeholder-white/30'
                         : 'bg-white border border-gray-300 text-gray-900 placeholder-gray-400'
                         } focus:outline-none focus:ring-2 ${isDark ? 'focus:ring-white/20' : 'focus:ring-black/20'}`}
                     />
@@ -756,7 +751,7 @@ const InnovativeTrack = ({ user }) => {
                 {/* Category & Status */}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                    <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-white/60' : 'text-gray-700'}`}>
                       Category
                     </label>
                     {isEditing ? (
@@ -773,13 +768,13 @@ const InnovativeTrack = ({ user }) => {
                         ))}
                       </select>
                     ) : (
-                      <p className={`px-3 py-2 rounded-lg ${isDark ? 'bg-gray-800/50' : 'bg-gray-100'}`}>
+                      <p className={`px-3 py-2 rounded-lg ${isDark ? 'bg-white/5' : 'bg-gray-100'}`}>
                         {categories.find(c => c.value === selectedProject.category)?.label}
                       </p>
                     )}
                   </div>
                   <div>
-                    <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                    <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-white/60' : 'text-gray-700'}`}>
                       Status
                     </label>
                     {isEditing ? (
@@ -806,7 +801,7 @@ const InnovativeTrack = ({ user }) => {
 
                 {/* Description */}
                 <div>
-                  <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                  <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-white/60' : 'text-gray-700'}`}>
                     Description *
                   </label>
                   {isEditing ? (
@@ -820,7 +815,7 @@ const InnovativeTrack = ({ user }) => {
                         } focus:outline-none focus:ring-2 ${isDark ? 'focus:ring-white/20' : 'focus:ring-black/20'}`}
                     />
                   ) : (
-                    <p className={`whitespace-pre-wrap ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                    <p className={`whitespace-pre-wrap ${isDark ? 'text-white/60' : 'text-gray-700'}`}>
                       {selectedProject.description}
                     </p>
                   )}
@@ -828,7 +823,7 @@ const InnovativeTrack = ({ user }) => {
 
                 {/* Goals */}
                 <div>
-                  <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                  <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-white/60' : 'text-gray-700'}`}>
                     Goals
                   </label>
                   {isEditing ? (
@@ -837,12 +832,12 @@ const InnovativeTrack = ({ user }) => {
                       onChange={(e) => setSelectedProject({ ...selectedProject, goals: e.target.value })}
                       rows={3}
                       className={`w-full px-4 py-3 rounded-lg ${isDark
-                        ? 'bg-gray-800/50 border border-gray-700 text-white placeholder-gray-500'
+                        ? 'bg-white/5 border border-white/10 text-white placeholder-white/30'
                         : 'bg-white border border-gray-300 text-gray-900 placeholder-gray-400'
                         } focus:outline-none focus:ring-2 ${isDark ? 'focus:ring-white/20' : 'focus:ring-black/20'}`}
                     />
                   ) : (
-                    <p className={`whitespace-pre-wrap ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                    <p className={`whitespace-pre-wrap ${isDark ? 'text-white/60' : 'text-gray-700'}`}>
                       {selectedProject.goals || 'No goals set'}
                     </p>
                   )}
@@ -850,7 +845,7 @@ const InnovativeTrack = ({ user }) => {
 
                 {/* Challenges */}
                 <div>
-                  <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                  <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-white/60' : 'text-gray-700'}`}>
                     Challenges
                   </label>
                   {isEditing ? (
@@ -859,12 +854,12 @@ const InnovativeTrack = ({ user }) => {
                       onChange={(e) => setSelectedProject({ ...selectedProject, challenges: e.target.value })}
                       rows={3}
                       className={`w-full px-4 py-3 rounded-lg ${isDark
-                        ? 'bg-gray-800/50 border border-gray-700 text-white placeholder-gray-500'
+                        ? 'bg-white/5 border border-white/10 text-white placeholder-white/30'
                         : 'bg-white border border-gray-300 text-gray-900 placeholder-gray-400'
                         } focus:outline-none focus:ring-2 ${isDark ? 'focus:ring-white/20' : 'focus:ring-black/20'}`}
                     />
                   ) : (
-                    <p className={`whitespace-pre-wrap ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                    <p className={`whitespace-pre-wrap ${isDark ? 'text-white/60' : 'text-gray-700'}`}>
                       {selectedProject.challenges || 'No challenges identified'}
                     </p>
                   )}
@@ -872,7 +867,7 @@ const InnovativeTrack = ({ user }) => {
 
                 {/* Resources */}
                 <div>
-                  <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                  <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-white/60' : 'text-gray-700'}`}>
                     Resources
                   </label>
                   {isEditing ? (
@@ -881,12 +876,12 @@ const InnovativeTrack = ({ user }) => {
                       onChange={(e) => setSelectedProject({ ...selectedProject, resources: e.target.value })}
                       rows={3}
                       className={`w-full px-4 py-3 rounded-lg ${isDark
-                        ? 'bg-gray-800/50 border border-gray-700 text-white placeholder-gray-500'
+                        ? 'bg-white/5 border border-white/10 text-white placeholder-white/30'
                         : 'bg-white border border-gray-300 text-gray-900 placeholder-gray-400'
                         } focus:outline-none focus:ring-2 ${isDark ? 'focus:ring-white/20' : 'focus:ring-black/20'}`}
                     />
                   ) : (
-                    <p className={`whitespace-pre-wrap ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                    <p className={`whitespace-pre-wrap ${isDark ? 'text-white/60' : 'text-gray-700'}`}>
                       {selectedProject.resources || 'No resources listed'}
                     </p>
                   )}
@@ -899,8 +894,8 @@ const InnovativeTrack = ({ user }) => {
                       onClick={handleUpdateProject}
                       disabled={saving}
                       className={`flex-1 py-3 font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${isDark
-                        ? 'bg-white text-black hover:bg-white/90'
-                        : 'bg-black text-white hover:bg-black/90'
+                        ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:from-emerald-600 hover:to-teal-600'
+                        : 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:from-emerald-600 hover:to-teal-600'
                         }`}
                     >
                       {saving ? (
