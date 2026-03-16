@@ -515,6 +515,14 @@ html {
   animation: marquee 30s linear infinite;
 }
 
+.marquee-track {
+  animation: marquee 40s linear infinite;
+}
+
+.marquee-track:hover {
+  animation-play-state: paused;
+}
+
 /* ========================================
    RIPPLE EFFECT ON CLICK
    ======================================== */
