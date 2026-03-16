@@ -21,10 +21,113 @@ const InterviewAvatarVrm = dynamic(() => import('@/components/InterviewAvatarVrm
     )
 });
 
+/**
+ * Quick client-side check for suspected PII in resume text.
+ * Returns { hasSuspectedPII, summary } for emails, phone numbers, and address-like patterns.
+ */
+function validateResumePII(text) {
+    if (!text || typeof text !== 'string') return { hasSuspectedPII: false, summary: '' };
+    const t = text.trim();
+    const found = [];
+    const emailRegex = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/g;
+    if (emailRegex.test(t)) found.push('email addresses');
+    const phoneRegex = /(?:\+?1[-.\s]?)?\(?[0-9]{3}\)?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4}\b|(?:\+[0-9]{1,3}[-.\s]?)?[0-9]{3}[-.\s]?[0-9]{3}[-.\s]?[0-9]{4}\b/g;
+    if (phoneRegex.test(t)) found.push('phone numbers');
+    const addressRegex = /\d+\s+[\w\s]+(?:Street|St\.?|Avenue|Ave\.?|Road|Rd\.?|Boulevard|Blvd\.?|Drive|Dr\.?|Lane|Ln\.?|Suite|Ste\.?|Apt\.?|#\d+)\b|,\s*[A-Za-z\s]+,\s*[A-Z]{2}\s+\d{5}(?:-\d{4})?\b|\b\d{5}(?:-\d{4})?\b/g;
+    if (addressRegex.test(t)) found.push('addresses or zip codes');
+    const nameLabelRegex = /(?:^|\n)\s*(?:Full\s+)?Name\s*:?\s*[A-Z][a-z]+\s+[A-Z][a-z]+/im;
+    if (nameLabelRegex.test(t)) found.push('a full name');
+    const hasSuspectedPII = found.length > 0;
+    const summary = found.length ? found.join(', ') : '';
+    return { hasSuspectedPII, summary };
+}
+
 /** Strip HTML tags so class names like "text-emerald-400" never show as visible text. */
 function stripHtmlFromText(html) {
     if (!html || typeof html !== 'string') return html || '';
     return html.replace(/<[^>]+>/g, '').trim();
+}
+
+const WAVEFORM_BAR_COUNT = 12;
+const WAVEFORM_BAR_CLASS = 'rounded-sm transition-all duration-100 flex-shrink-0';
+
+/** Shared bar strip: same look for user and avatar. heights = array of 0..1, barCount elements. */
+function WaveformBars({ heights, isDark, label }) {
+    return (
+        <div className="flex flex-col flex-1 min-w-0">
+            {label && (
+                <p className="text-[10px] font-medium text-gray-500 mb-0.5 truncate">{label}</p>
+            )}
+            <div className="flex items-end justify-center gap-0.5 h-8 w-full">
+                {heights.map((h, i) => (
+                    <div
+                        key={i}
+                        className={`${WAVEFORM_BAR_CLASS} ${isDark ? 'bg-emerald-500/80' : 'bg-emerald-500'}`}
+                        style={{ width: 4, minHeight: 2, height: `${Math.max(8, Math.round(h * 100))}%` }}
+                    />
+                ))}
+            </div>
+        </div>
+    );
+}
+
+/** User waveform: reacts to mic via Web Audio API, drives same bar strip. */
+function UserWaveform({ stream, isDark, className = '' }) {
+    const [heights, setHeights] = useState(() => Array(WAVEFORM_BAR_COUNT).fill(0.15));
+    const frameRef = useRef(0);
+    useEffect(() => {
+        if (!stream || typeof window === 'undefined') return;
+        const Ctx = window.AudioContext || window.webkitAudioContext;
+        if (!Ctx) return;
+        const ctx = new Ctx();
+        const src = ctx.createMediaStreamSource(stream);
+        const analyser = ctx.createAnalyser();
+        analyser.fftSize = 64;
+        analyser.smoothingTimeConstant = 0.6;
+        src.connect(analyser);
+        const data = new Uint8Array(analyser.frequencyBinCount);
+        let rafId;
+        const update = () => {
+            rafId = requestAnimationFrame(update);
+            analyser.getByteFrequencyData(data);
+            const next = Array.from({ length: WAVEFORM_BAR_COUNT }, (_, i) => {
+                const j = Math.floor((i / WAVEFORM_BAR_COUNT) * data.length);
+                return 0.15 + (data[j] / 255) * 0.85;
+            });
+            setHeights(next);
+        };
+        update();
+        return () => {
+            if (rafId) cancelAnimationFrame(rafId);
+            src.disconnect();
+            ctx.close();
+        };
+    }, [stream]);
+    return (
+        <div className={className}>
+            <WaveformBars heights={heights} isDark={isDark} />
+        </div>
+    );
+}
+
+/** Avatar waveform: animates when TTS is active, same bar strip. */
+function AvatarWaveform({ isActive, isDark, className = '' }) {
+    const [heights, setHeights] = useState(() => Array(WAVEFORM_BAR_COUNT).fill(0.15));
+    useEffect(() => {
+        if (!isActive) {
+            setHeights(Array(WAVEFORM_BAR_COUNT).fill(0.15));
+            return;
+        }
+        const id = setInterval(() => {
+            setHeights(Array.from({ length: WAVEFORM_BAR_COUNT }, () => 0.15 + Math.random() * 0.85));
+        }, 100);
+        return () => clearInterval(id);
+    }, [isActive]);
+    return (
+        <div className={className}>
+            <WaveformBars heights={heights} isDark={isDark} />
+        </div>
+    );
 }
 
 /** Parse question text into segments; code blocks (```lang\n...\n```) become { type: 'code', language, code }. */
@@ -154,8 +257,6 @@ export default function InterviewSimulatorPage() {
     const [tailorAtTransitionIndex, setTailorAtTransitionIndex] = useState(null);
     const [isRecording, setIsRecording] = useState(false);
     const [isTranscribing, setIsTranscribing] = useState(false);
-    const [speechVoices, setSpeechVoices] = useState([]);
-    const [selectedVoiceUri, setSelectedVoiceUri] = useState('');
     const [videoStream, setVideoStream] = useState(null);
     const [videoError, setVideoError] = useState(null);
     const [showThankYouPopup, setShowThankYouPopup] = useState(false);
@@ -176,6 +277,17 @@ export default function InterviewSimulatorPage() {
     const lastFinalTranscriptRef = useRef('');
     const speechRecognitionRef = useRef(null);
     const latestFaceRef = useRef({ dominant: null, expressions: null });
+    const resumeFileInputRef = useRef(null);
+    const [showResumeConfirmModal, setShowResumeConfirmModal] = useState(false);
+    const [pendingResumeFile, setPendingResumeFile] = useState(null);
+    const [showPIIWarningModal, setShowPIIWarningModal] = useState(false);
+    const [piiWarningSummary, setPiiWarningSummary] = useState('');
+    const [recordingStream, setRecordingStream] = useState(null);
+    const [isAvatarSpeaking, setIsAvatarSpeaking] = useState(false);
+    const [pendingFollowUpQuestion, setPendingFollowUpQuestion] = useState(null);
+    const [isLoadingFollowUp, setIsLoadingFollowUp] = useState(false);
+    /** Indices after which we may show a mini follow-up (0 = after Q1, 2 = after Q3). */
+    const followUpAtIndices = [0, 2];
 
     const { expressions: faceExpressions, dominant: faceDominant, secondary: faceSecondary, loading: faceLoading, error: faceError, log: faceLog, mouthAspectRatio: faceMouthAspectRatio, isSpeaking: faceIsSpeaking, gazeScore: faceGazeScore, actionUnits: faceActionUnits } = useFaceExpressionAnalysis(videoPreviewRef, !!videoStream, { intervalMs: 800 });
 
@@ -191,22 +303,6 @@ export default function InterviewSimulatorPage() {
         };
     }, [faceDominant, faceSecondary, faceExpressions, faceMouthAspectRatio, faceIsSpeaking, faceGazeScore, faceActionUnits]);
 
-    useEffect(() => {
-        if (typeof window === 'undefined' || !window.speechSynthesis) return;
-        const load = () => setSpeechVoices(window.speechSynthesis.getVoices());
-        load();
-        window.speechSynthesis.onvoiceschanged = load;
-        return () => { window.speechSynthesis.onvoiceschanged = null; };
-    }, []);
-
-    useEffect(() => {
-        if (speechVoices.length > 0 && !selectedVoiceUri) {
-            const lang = document.documentElement?.lang === 'fr' ? 'fr' : 'en';
-            const match = speechVoices.find((v) => v.lang.startsWith(lang)) || speechVoices[0];
-            setSelectedVoiceUri(match?.voiceURI ?? '');
-        }
-    }, [speechVoices, selectedVoiceUri]);
-
     const interviewTypes = [
         'Technical',
         'Behavioral',
@@ -217,18 +313,47 @@ export default function InterviewSimulatorPage() {
         'Other'
     ];
 
-    const handleResumeFileChange = async (e) => {
+    const handleResumeFileChange = (e) => {
         const file = e.target.files[0];
         if (file) {
-            setResumeFile(file);
-            try {
-                const text = await extractResumeText(file);
-                setResumeText(text);
-            } catch (err) {
-                console.error('Error extracting resume text:', err);
-                setError(t.interviewErrorExtract);
-            }
+            setPendingResumeFile(file);
+            setShowResumeConfirmModal(true);
         }
+    };
+
+    const confirmResumeUpload = async () => {
+        if (!pendingResumeFile) {
+            setShowResumeConfirmModal(false);
+            setPendingResumeFile(null);
+            return;
+        }
+        const file = pendingResumeFile;
+        setShowResumeConfirmModal(false);
+        setError(null);
+        try {
+            const text = await extractResumeText(file);
+            const { hasSuspectedPII, summary } = validateResumePII(text);
+            if (hasSuspectedPII) {
+                setPiiWarningSummary(summary);
+                setShowPIIWarningModal(true);
+                setPendingResumeFile(null);
+                if (resumeFileInputRef.current) resumeFileInputRef.current.value = '';
+                return;
+            }
+            setResumeFile(file);
+            setResumeText(text);
+        } catch (err) {
+            console.error('Error extracting resume text:', err);
+            setError(err?.message || t.interviewErrorExtract);
+        } finally {
+            setPendingResumeFile(null);
+        }
+    };
+
+    const cancelResumeUpload = () => {
+        setPendingResumeFile(null);
+        setShowResumeConfirmModal(false);
+        if (resumeFileInputRef.current) resumeFileInputRef.current.value = '';
     };
 
     const startVideoPreview = async () => {
@@ -271,6 +396,8 @@ export default function InterviewSimulatorPage() {
         stopVideoPreview();
         setShowThankYouPopup(false);
         setShowQuestionsModal(false);
+        setPendingFollowUpQuestion(null);
+        setRecordingStream(null);
         setSimulationActive(false);
         setCurrentQuestionIndex(0);
         setResponses([]);
@@ -324,16 +451,32 @@ export default function InterviewSimulatorPage() {
         const question = generatedQuestions[currentQuestionIndex];
         if (!question || typeof window === 'undefined' || !window.speechSynthesis) return;
         window.speechSynthesis.cancel();
+        setIsAvatarSpeaking(true);
         const u = new SpeechSynthesisUtterance(question);
         u.rate = 0.95;
-        u.lang = document.documentElement?.lang === 'fr' ? 'fr-FR' : 'en-US';
-        const voice = speechVoices.find((v) => v.voiceURI === selectedVoiceUri);
+        u.lang = 'en-GB';
+        u.onend = () => setIsAvatarSpeaking(false);
+        u.onerror = () => setIsAvatarSpeaking(false);
+        const voices = window.speechSynthesis.getVoices();
+        const voice = voices.find((v) => v.name === 'Google UK English Male')
+            || voices.find((v) => v.lang.startsWith('en-GB'))
+            || voices.find((v) => v.lang.startsWith('en'));
         if (voice) u.voice = voice;
         window.speechSynthesis.speak(u);
     };
 
+    useEffect(() => {
+        if (!simulationActive || !generatedQuestions?.length) return;
+        if (currentQuestionIndex >= generatedQuestions.length) return;
+        const question = generatedQuestions[currentQuestionIndex];
+        if (!question) return;
+        const t = setTimeout(() => speakQuestion(), 400);
+        return () => clearTimeout(t);
+    }, [simulationActive, currentQuestionIndex]);
+
     const stopSpeech = () => {
         if (typeof window !== 'undefined' && window.speechSynthesis) window.speechSynthesis.cancel();
+        setIsAvatarSpeaking(false);
     };
 
     const handleResponseChange = (value) => {
@@ -344,7 +487,7 @@ export default function InterviewSimulatorPage() {
         });
     };
 
-    const handleNext = async () => {
+    const doAdvanceToNext = async () => {
         if (currentQuestionIndex < generatedQuestions.length - 1) {
             const shouldTailor = (currentQuestionIndex === 0) || (currentQuestionIndex === tailorAtTransitionIndex);
             const nextIndex = currentQuestionIndex + 1;
@@ -360,7 +503,8 @@ export default function InterviewSimulatorPage() {
                             suggestedNextQuestion: generatedQuestions[nextIndex],
                             jobDescription: jobDescription || '',
                             role: role || '',
-                            companyName: companyName || ''
+                            companyName: companyName || '',
+                            resumeText: resumeText || ''
                         })
                     });
                     const data = await res.json();
@@ -383,7 +527,45 @@ export default function InterviewSimulatorPage() {
         }
     };
 
+    const handleNext = async () => {
+        if (pendingFollowUpQuestion) return;
+        if (currentQuestionIndex >= generatedQuestions.length) return;
+        const answer = (responses[currentQuestionIndex] ?? '').trim();
+        if (followUpAtIndices.includes(currentQuestionIndex) && answer.length > 20) {
+            setIsLoadingFollowUp(true);
+            try {
+                const res = await fetch('/api/interview/follow-up', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        question: generatedQuestions[currentQuestionIndex],
+                        userAnswer: answer,
+                        role: role || '',
+                        companyName: companyName || ''
+                    })
+                });
+                const data = await res.json();
+                if (data?.followUpQuestion) {
+                    setPendingFollowUpQuestion(data.followUpQuestion);
+                    setIsLoadingFollowUp(false);
+                    return;
+                }
+            } catch (_) {
+                // ignore, advance without follow-up
+            } finally {
+                setIsLoadingFollowUp(false);
+            }
+        }
+        await doAdvanceToNext();
+    };
+
+    const dismissFollowUpAndAdvance = () => {
+        setPendingFollowUpQuestion(null);
+        doAdvanceToNext();
+    };
+
     const handlePrevious = () => {
+        setPendingFollowUpQuestion(null);
         if (currentQuestionIndex > 0) {
             setCurrentQuestionIndex(prev => prev - 1);
         }
@@ -722,6 +904,7 @@ export default function InterviewSimulatorPage() {
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
             streamRef.current = stream;
+            setRecordingStream(stream);
             recordingStartTimeRef.current = Date.now();
             emotionLogRef.current = [];
             currentSegmentsRef.current = [];
@@ -786,6 +969,7 @@ export default function InterviewSimulatorPage() {
 
     /** Stops recording, saves timestamped segments and emotion log for this question. */
     const stopRecording = (faceSnapshot) => {
+        setRecordingStream(null);
         if (emotionLogIntervalRef.current) {
             clearInterval(emotionLogIntervalRef.current);
             emotionLogIntervalRef.current = null;
@@ -893,6 +1077,63 @@ export default function InterviewSimulatorPage() {
 
     return (
         <div>
+            {/* Resume upload: confirm identifiable info removed */}
+            {showResumeConfirmModal && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50" onClick={cancelResumeUpload}>
+                    <div
+                        className={`rounded-2xl shadow-xl max-w-md w-full p-6 ${isDark ? 'bg-gray-800 border border-gray-600' : 'bg-white border border-gray-200'}`}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <p className={`text-base font-medium ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
+                            Have you removed all identifiable information from this document?
+                        </p>
+                        <p className={`mt-2 text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                            For your privacy, remove or redact your name, address, phone, email, and any other personal details before continuing.
+                        </p>
+                        <div className="mt-6 flex gap-3 justify-end">
+                            <button
+                                type="button"
+                                onClick={cancelResumeUpload}
+                                className={`px-4 py-2.5 rounded-xl text-sm font-semibold ${isDark ? 'bg-gray-700 text-gray-200 hover:bg-gray-600' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                            >
+                                No, cancel
+                            </button>
+                            <button
+                                type="button"
+                                onClick={confirmResumeUpload}
+                                className="px-4 py-2.5 rounded-xl text-sm font-semibold bg-emerald-500 text-white hover:bg-emerald-600"
+                            >
+                                Yes, continue
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {/* PII detected: ask user to upload resume without identifiable info */}
+            {showPIIWarningModal && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50" onClick={() => setShowPIIWarningModal(false)}>
+                    <div
+                        className={`rounded-2xl shadow-xl max-w-md w-full p-6 ${isDark ? 'bg-gray-800 border border-gray-600' : 'bg-white border border-gray-200'}`}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <p className={`text-base font-medium ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
+                            We detected possible identifiable information in your document.
+                        </p>
+                        <p className={`mt-2 text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                            Our check found: <span className="font-medium">{piiWarningSummary}</span>. Please upload a resume without this information to protect your privacy.
+                        </p>
+                        <div className="mt-6 flex justify-end">
+                            <button
+                                type="button"
+                                onClick={() => setShowPIIWarningModal(false)}
+                                className="px-4 py-2.5 rounded-xl text-sm font-semibold bg-emerald-500 text-white hover:bg-emerald-600"
+                            >
+                                OK
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
             {/* Header with Back Button */}
             <div className="flex items-center gap-3 mb-6">
                 <button
@@ -1030,6 +1271,7 @@ export default function InterviewSimulatorPage() {
                                 {t.interviewResume} <span className="text-gray-500">{t.interviewOptional}</span>
                             </label>
                             <input
+                                ref={resumeFileInputRef}
                                 type="file"
                                 accept=".txt,.pdf"
                                 onChange={handleResumeFileChange}
@@ -1207,25 +1449,6 @@ export default function InterviewSimulatorPage() {
                                                 <span>Stop camera</span>
                                             </button>
                                         )}
-                                        {speechVoices.length > 1 && (
-                                            <label className="block w-full">
-                                                <span className={`block text-xs font-medium mb-1.5 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Voice</span>
-                                                <select
-                                                    value={selectedVoiceUri}
-                                                    onChange={(e) => setSelectedVoiceUri(e.target.value)}
-                                                    className={`w-full text-sm rounded-xl px-3 py-2.5 border transition-colors ${isDark
-                                                        ? 'bg-gray-800 border-gray-600 text-gray-200 focus:border-emerald-500/50'
-                                                        : 'bg-white border-gray-300 text-gray-900 focus:border-emerald-500'
-                                                    } focus:outline-none focus:ring-2 focus:ring-emerald-500/50`}
-                                                >
-                                                    {speechVoices.map((v) => (
-                                                        <option key={v.voiceURI} value={v.voiceURI}>
-                                                            {v.name} {v.lang ? `(${v.lang})` : ''}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                            </label>
-                                        )}
                                     </div>
                                 )}
                             </div>
@@ -1321,6 +1544,13 @@ export default function InterviewSimulatorPage() {
                                                 )
                                             )}
                                         </div>
+                                        {pendingFollowUpQuestion && (
+                                            <div className={`flex-shrink-0 mt-2 p-3 rounded-xl border ${isDark ? 'bg-amber-500/10 border-amber-500/40' : 'bg-amber-50 border-amber-200'}`}>
+                                                <p className={`text-xs font-semibold uppercase tracking-wider mb-1 ${isDark ? 'text-amber-400' : 'text-amber-700'}`}>Follow-up</p>
+                                                <p className={`text-sm ${isDark ? 'text-gray-200' : 'text-gray-800'}`}>{pendingFollowUpQuestion}</p>
+                                                <p className={`mt-2 text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Answer briefly if you like, then click Continue to go to the next question.</p>
+                                            </div>
+                                        )}
                                     </div>
 
                                     <div className="flex flex-col flex-1 min-h-0 gap-2 min-w-0 overflow-hidden">
@@ -1376,8 +1606,13 @@ export default function InterviewSimulatorPage() {
 
                                         {/* Two camera slots side by side: User | Avatar */}
                                         <div className="flex-1 min-h-0 flex gap-2 min-w-0">
-                                            {/* User camera slot */}
+                                            {/* User camera slot: interviewee card + video */}
                                             <div className={`flex-1 min-w-0 flex flex-col rounded-xl overflow-hidden border shadow-md ${isDark ? 'border-gray-600/80 bg-gray-800/30' : 'border-gray-200 bg-gray-50/50'}`}>
+                                                {/* Interviewee persona card (placeholder) */}
+                                                <div className={`flex-shrink-0 px-3 py-2 border-b ${isDark ? 'border-gray-600/80 bg-gray-800/50' : 'border-gray-200 bg-gray-100/80'}`}>
+                                                    <p className={`text-sm font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>Interviewee</p>
+                                                    <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Role here</p>
+                                                </div>
                                                 <div className="w-full flex-1 min-h-0 flex flex-col">
                                                     {!videoStream ? (
                                                         <div className={`flex-1 flex flex-col items-center justify-center gap-2 min-h-0 ${isDark ? 'bg-gray-800/50 text-gray-500' : 'bg-gray-100/80 text-gray-500'}`}>
@@ -1438,11 +1673,30 @@ export default function InterviewSimulatorPage() {
                                                     <p className="text-sm text-red-400 px-3 py-2">{videoError}</p>
                                                 )}
                                             </div>
-                                            {/* Avatar slot: VRM avatar (Phase A) */}
+                                            {/* Avatar slot: interviewer persona card + VRM avatar */}
                                             <div className={`flex-1 min-w-0 flex flex-col rounded-xl overflow-hidden border shadow-md ${isDark ? 'border-gray-600/80 bg-gray-800/30' : 'border-gray-200 bg-gray-50/50'}`}>
+                                                {/* Interviewer persona card */}
+                                                <div className={`flex-shrink-0 px-3 py-2 border-b ${isDark ? 'border-gray-600/80 bg-gray-800/50' : 'border-gray-200 bg-gray-100/80'}`}>
+                                                    <p className={`text-sm font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>Alex Chen</p>
+                                                    <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>{role || 'Senior Software Engineer'}</p>
+                                                    <p className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>{companyName || '—'}</p>
+                                                </div>
                                                 <div className="flex-1 min-h-0 min-w-0 flex flex-col">
                                                     <InterviewAvatarVrm className="flex-1 min-h-0" />
                                                 </div>
+                                            </div>
+                                        </div>
+                                        {/* Waveforms below cameras: same style for both */}
+                                        <div className={`flex-shrink-0 flex gap-2 items-stretch px-2 py-2 rounded-b-xl border-t ${isDark ? 'border-gray-600/80 bg-gray-800/40' : 'border-gray-200 bg-gray-100/60'}`}>
+                                            <div className="flex-1 min-w-0 flex flex-col rounded-lg overflow-hidden">
+                                                {recordingStream ? (
+                                                    <UserWaveform stream={recordingStream} isDark={isDark} />
+                                                ) : (
+                                                    <WaveformBars heights={Array(WAVEFORM_BAR_COUNT).fill(0.15)} isDark={isDark} />
+                                                )}
+                                            </div>
+                                            <div className="flex-1 min-w-0 flex flex-col rounded-lg overflow-hidden">
+                                                <AvatarWaveform isActive={isAvatarSpeaking} isDark={isDark} />
                                             </div>
                                         </div>
 
@@ -1567,9 +1821,9 @@ export default function InterviewSimulatorPage() {
                                         )}
                                         <button
                                             type="button"
-                                            onClick={handleNext}
-                                            disabled={isTailoringNextQuestion}
-                                            className={`flex-1 min-w-0 px-2 sm:px-4 py-3 rounded-xl font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-1.5 shadow-lg ${isTailoringNextQuestion
+                                            onClick={pendingFollowUpQuestion ? dismissFollowUpAndAdvance : handleNext}
+                                            disabled={isTailoringNextQuestion || isLoadingFollowUp}
+                                            className={`flex-1 min-w-0 px-2 sm:px-4 py-3 rounded-xl font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-1.5 shadow-lg ${isTailoringNextQuestion || isLoadingFollowUp
                                                 ? 'bg-emerald-500/70 text-white cursor-wait shadow-emerald-500/20'
                                                 : 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:from-emerald-600 hover:to-teal-600 shadow-emerald-500/25 hover:shadow-xl hover:shadow-emerald-500/30 hover:-translate-y-0.5'
                                             }`}
@@ -1578,6 +1832,16 @@ export default function InterviewSimulatorPage() {
                                                 <>
                                                     <Loader2 className="w-4 h-4 shrink-0 animate-spin" />
                                                     <span className="truncate">Preparing next question...</span>
+                                                </>
+                                            ) : isLoadingFollowUp ? (
+                                                <>
+                                                    <Loader2 className="w-4 h-4 shrink-0 animate-spin" />
+                                                    <span className="truncate">Checking for follow-up...</span>
+                                                </>
+                                            ) : pendingFollowUpQuestion ? (
+                                                <>
+                                                    <span className="truncate">Continue</span>
+                                                    <ChevronRight className="w-4 h-4 shrink-0" />
                                                 </>
                                             ) : (
                                                 <>

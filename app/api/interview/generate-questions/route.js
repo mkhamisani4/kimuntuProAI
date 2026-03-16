@@ -54,6 +54,8 @@ export async function POST(req) {
 
   console.log('\n[Interview Questions] ========== REQUEST ==========');
   console.log('[Interview Questions] model: gpt-4o-mini, temperature: 0.7, max_tokens: 1200');
+  console.log('[Interview Questions] resumeText included:', !!resumeText, resumeText ? `(${resumeText.length} chars)` : '(none – questions not tailored to candidate resume)');
+  console.log('[Interview Questions] skills included:', !!skills, skills ? `(${skills.length} chars)` : '(none)');
   console.log('[Interview Questions] systemContent length:', systemContent.length);
   console.log('[Interview Questions] userContent length:', userContent.length);
   console.log('[Interview Questions] --- systemContent ---\n', systemContent);

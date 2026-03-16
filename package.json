@@ -6,6 +6,7 @@
     "packages/*"
   ],
   "scripts": {
+    "postinstall": "node scripts/copy-pdf-worker.js",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
