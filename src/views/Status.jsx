@@ -218,7 +218,7 @@ const Status = () => {
                             <p className={`text-sm mb-2 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
                                 Incidents Resolved
                             </p>
-                            <p className={`text-3xl font-bold ${isDark ? 'text-purple-400' : 'text-purple-600'}`}>
+                            <p className={`text-3xl font-bold ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>
                                 100%
                             </p>
                         </div>
@@ -226,8 +226,8 @@ const Status = () => {
                 </section>
 
                 <div className={`p-8 rounded-2xl border ${isDark
-                        ? 'bg-gradient-to-br from-purple-500/10 to-pink-500/10 border-purple-500/30'
-                        : 'bg-gradient-to-br from-purple-100 to-pink-100 border-purple-300'
+                        ? 'bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border-emerald-500/30'
+                        : 'bg-gradient-to-br from-emerald-100 to-teal-100 border-emerald-300'
                     }`}>
                     <h3 className={`text-2xl font-semibold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                         Subscribe to Updates
@@ -242,9 +242,9 @@ const Status = () => {
                             className={`flex-1 px-4 py-3 rounded-lg ${isDark
                                     ? 'bg-white/10 border border-white/20 text-white placeholder-gray-400'
                                     : 'bg-white border border-gray-300 text-gray-900 placeholder-gray-500'
-                                } focus:outline-none focus:ring-2 focus:ring-purple-500/50`}
+                                } focus:outline-none focus:ring-2 focus:ring-emerald-500/50`}
                         />
-                        <button className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all">
+                        <button className="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-semibold rounded-lg hover:from-emerald-600 hover:to-teal-600 transition-all">
                             Subscribe
                         </button>
                     </div>

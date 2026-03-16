@@ -9,6 +9,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { useTheme } from '@/components/providers/ThemeProvider';
 import { useLanguage } from '@/components/providers/LanguageProvider';
 import Footer from '@/components/Footer';
+import FloatingChatbot from '@/components/FloatingChatbot';
 import Image from 'next/image';
 
 export default function DashboardLayout({ children }) {
@@ -64,14 +65,16 @@ export default function DashboardLayout({ children }) {
 
     if (loading) {
         return (
-            <div className={`min-h-screen flex items-center justify-center ${isDark
-                ? 'bg-gradient-to-br from-gray-950 via-gray-900 to-black'
-                : 'bg-gradient-to-br from-gray-50 via-blue-50 to-gray-100'
-                }`}>
-                <div className="flex flex-col items-center gap-4">
-                    <Image src="/assets/LOGOS(4).svg" alt="KimuntuPro AI" width={80} height={80} className="animate-bounce" />
-                    <div className={`text-2xl font-semibold ${isDark ? 'text-blue-400' : 'text-blue-600'}`}>
-                        Loading...
+            <div className={`min-h-screen flex items-center justify-center ${isDark ? 'bg-black' : 'bg-gray-50'}`}>
+                <div className="flex flex-col items-center gap-6">
+                    <div className="relative">
+                        <Image src="/assets/LOGOS(9).svg" alt="KimuntuPro AI" width={64} height={64} className="animate-float" />
+                        <div className="absolute inset-0 bg-emerald-500/20 rounded-full blur-2xl animate-pulse" />
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <div className="w-2 h-2 rounded-full bg-emerald-400 animate-bounce" style={{ animationDelay: '0ms' }} />
+                        <div className="w-2 h-2 rounded-full bg-emerald-400 animate-bounce" style={{ animationDelay: '150ms' }} />
+                        <div className="w-2 h-2 rounded-full bg-emerald-400 animate-bounce" style={{ animationDelay: '300ms' }} />
                     </div>
                 </div>
             </div>
@@ -80,67 +83,86 @@ export default function DashboardLayout({ children }) {
 
     return (
         <div className={`min-h-screen transition-all duration-500 ${isDark
-            ? 'bg-gradient-to-br from-gray-950 via-gray-900 to-black'
-            : 'bg-gradient-to-br from-gray-50 via-blue-50 to-gray-100'
+            ? 'bg-black'
+            : 'bg-white'
             }`}>
-            {/* Glassmorphism Sidebar */}
-            <div className={`fixed left-0 top-0 h-full w-64 shadow-2xl z-40 ${isDark
-                ? 'bg-gray-900'
-                : 'bg-white'
+            {/* Premium Sidebar */}
+            <div className={`fixed left-0 top-0 h-full w-64 shadow-2xl z-40 backdrop-blur-xl ${isDark
+                ? 'bg-black/80 border-r border-white/10'
+                : 'bg-white/80 border-r border-black/5'
                 }`}>
 
                 <div className="flex flex-col h-full relative z-10 overflow-hidden">
                     <div className="p-6 flex-shrink-0">
                         <Link
                             href="/dashboard"
-                            className="flex items-center justify-center mb-8 hover:opacity-80 transition-opacity cursor-pointer w-full"
+                            className="flex items-center gap-3 mb-8 hover:opacity-80 transition-opacity cursor-pointer w-full"
                         >
                             <Image
-                                src={isDark ? "/assets/white_logo.png" : "/assets/dark_logo.png"}
+                                src="/assets/LOGOS(9).svg"
                                 alt="KimuntuPro AI"
-                                width={144}
-                                height={144}
+                                width={36}
+                                height={36}
                             />
+                            <span className={`text-lg font-bold ${isDark ? 'text-white' : 'text-black'}`}>
+                                KimuntuPro
+                            </span>
                         </Link>
                     </div>
-                    
-                    <nav className="flex-1 overflow-y-auto px-6 space-y-1 min-h-0 scrollbar-hide">
-                        {navItems.map((item) => (
-                            <Link
-                                key={item.id}
-                                href={item.href}
-                                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all ${isDark
-                                    ? 'text-gray-400 hover:bg-white/5 hover:text-white'
-                                    : 'text-gray-600 hover:bg-white/50 hover:text-gray-900'
+
+                    <nav className="flex-1 overflow-y-auto px-4 space-y-1 min-h-0 scrollbar-hide">
+                        {navItems.map((item) => {
+                            const isActive = pathname === item.href ||
+                                (item.href !== '/dashboard' && pathname.startsWith(item.href));
+                            return (
+                                <Link
+                                    key={item.id}
+                                    href={item.href}
+                                    className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-left transition-all text-sm ${isActive
+                                        ? isDark
+                                            ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                                            : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                        : isDark
+                                            ? 'text-white/50 hover:bg-white/5 hover:text-white border border-transparent'
+                                            : 'text-black/50 hover:bg-black/5 hover:text-black border border-transparent'
                                     }`}
-                            >
-                                <item.icon className="w-5 h-5" />
-                                <span className="font-medium">{item.label}</span>
-                            </Link>
-                        ))}
+                                >
+                                    <item.icon className="w-[18px] h-[18px]" />
+                                    <span className="font-medium">{item.label}</span>
+                                </Link>
+                            );
+                        })}
                     </nav>
 
-                    <div className={`flex-shrink-0 p-6 ${isDark ? 'border-t border-white/10' : 'border-t border-gray-200'}`}>
-                        <div className={`rounded-xl p-4 mb-4 backdrop-blur-xl ${isDark
-                            ? 'bg-gradient-to-br from-blue-600/10 to-cyan-600/10 border border-blue-500/30'
-                            : 'bg-gradient-to-br from-blue-100 to-cyan-100 border border-blue-300'
+                    <div className={`flex-shrink-0 p-4 mx-4 mb-4 rounded-2xl ${isDark
+                        ? 'bg-white/[0.03] border border-white/10'
+                        : 'bg-black/[0.02] border border-black/5'
+                    }`}>
+                        <div className="flex items-center gap-3 mb-3">
+                            <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold ${isDark
+                                ? 'bg-emerald-500/20 text-emerald-400'
+                                : 'bg-emerald-100 text-emerald-700'
                             }`}>
-                            <p className={`text-xs mb-1 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                                {t.loggedInAs}
-                            </p>
-                            <p className={`text-sm font-medium truncate ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                                {user?.email || user?.displayName}
-                            </p>
+                                {(user?.displayName || user?.email || '?').charAt(0).toUpperCase()}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <p className={`text-xs ${isDark ? 'text-white/40' : 'text-black/40'}`}>
+                                    {t.loggedInAs}
+                                </p>
+                                <p className={`text-sm font-medium truncate ${isDark ? 'text-white' : 'text-black'}`}>
+                                    {user?.displayName || user?.email}
+                                </p>
+                            </div>
                         </div>
                         <button
                             onClick={handleSignOut}
-                            className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl transition-all backdrop-blur-xl ${isDark
-                                ? 'bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/30'
-                                : 'bg-red-50 text-red-600 hover:bg-red-100 border border-red-300'
-                                }`}
+                            className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm transition-all ${isDark
+                                ? 'bg-white/5 text-white/60 hover:bg-white/10 hover:text-white border border-white/10'
+                                : 'bg-black/5 text-black/60 hover:bg-black/10 hover:text-black border border-black/5'
+                            }`}
                         >
                             <LogOut className="w-4 h-4" />
-                            <span className="text-sm">{t.signOut}</span>
+                            <span className="font-medium">{t.signOut}</span>
                         </button>
                     </div>
                 </div>
@@ -148,15 +170,32 @@ export default function DashboardLayout({ children }) {
 
             {/* Main Content */}
             <div className="ml-64 flex flex-col min-h-screen">
+                {/* Theme Toggle - Top Right */}
+                <div className="fixed top-6 right-6 z-30">
+                    <button
+                        onClick={toggleTheme}
+                        className={`p-3 rounded-xl transition-all duration-300 backdrop-blur-xl ${isDark
+                            ? 'bg-white/5 border border-white/10 hover:bg-white/10'
+                            : 'bg-black/5 border border-black/5 hover:bg-black/10'
+                            }`}
+                    >
+                        {isDark ? (
+                            <Sun className="w-5 h-5 text-white" />
+                        ) : (
+                            <Moon className="w-5 h-5 text-black" />
+                        )}
+                    </button>
+                </div>
+
                 <div className="flex-1 p-8">
                     <div className="max-w-7xl mx-auto">
                         {children}
                     </div>
                 </div>
-                
-                {/* Footer - Hidden on specific pages */}
-                {shouldShowFooter && <Footer />}
             </div>
+
+            {/* Floating Chatbot */}
+            <FloatingChatbot />
         </div>
     );
 }

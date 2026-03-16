@@ -97,9 +97,9 @@ const SupportCenter = () => {
                                         : 'bg-white/60 border-gray-200 hover:bg-white/80'
                                     } transition-all`}
                             >
-                                <div className={`w-14 h-14 rounded-full mx-auto mb-4 flex items-center justify-center ${isDark ? 'bg-purple-500/20' : 'bg-purple-100'
+                                <div className={`w-14 h-14 rounded-full mx-auto mb-4 flex items-center justify-center ${isDark ? 'bg-emerald-500/20' : 'bg-emerald-100'
                                     }`}>
-                                    <method.icon className={`w-7 h-7 ${isDark ? 'text-purple-400' : 'text-purple-600'
+                                    <method.icon className={`w-7 h-7 ${isDark ? 'text-emerald-400' : 'text-emerald-600'
                                         }`} />
                                 </div>
                                 <h4 className={`text-lg font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
@@ -175,8 +175,8 @@ const SupportCenter = () => {
                 </section>
 
                 <div className={`p-8 rounded-2xl border ${isDark
-                        ? 'bg-gradient-to-br from-purple-500/10 to-pink-500/10 border-purple-500/30'
-                        : 'bg-gradient-to-br from-purple-100 to-pink-100 border-purple-300'
+                        ? 'bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border-emerald-500/30'
+                        : 'bg-gradient-to-br from-emerald-100 to-teal-100 border-emerald-300'
                     }`}>
                     <h3 className={`text-2xl font-semibold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                         Can't Find What You're Looking For?
@@ -184,7 +184,7 @@ const SupportCenter = () => {
                     <p className="mb-4">
                         Our support team is here to help. Send us a message and we'll get back to you as soon as possible.
                     </p>
-                    <button className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-xl hover:from-purple-600 hover:to-pink-600 transition-all">
+                    <button className="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-semibold rounded-xl hover:from-emerald-600 hover:to-teal-600 transition-all">
                         Contact Support
                     </button>
                 </div>

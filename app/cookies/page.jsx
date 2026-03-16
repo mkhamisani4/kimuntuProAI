@@ -1,4 +1,6 @@
-import Cookies from '@/src/pages/Cookies';
+'use client';
+
+import Cookies from '@/src/views/Cookies';
 
 export default function CookiesPage() {
     return <Cookies />;

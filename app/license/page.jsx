@@ -1,4 +1,6 @@
-import License from '@/src/pages/License';
+'use client';
+
+import License from '@/src/views/License';
 
 export default function LicensePage() {
     return <License />;

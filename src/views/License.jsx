@@ -120,7 +120,7 @@ const License = () => {
                     <p className="mb-4">
                         For licensing inquiries, contact:
                     </p>
-                    <p className={`${isDark ? 'text-purple-400' : 'text-purple-600'}`}>
+                    <p className={`${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>
                         legal@kimuntupro.com
                     </p>
                 </section>

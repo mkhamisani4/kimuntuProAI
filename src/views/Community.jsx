@@ -58,21 +58,21 @@ const Community = () => {
                                     : 'bg-white/60 border-gray-200 hover:bg-white/80'
                                 } transition-all cursor-pointer`}
                         >
-                            <div className={`w-14 h-14 rounded-xl mb-4 flex items-center justify-center ${isDark ? 'bg-purple-500/20' : 'bg-purple-100'
+                            <div className={`w-14 h-14 rounded-xl mb-4 flex items-center justify-center ${isDark ? 'bg-emerald-500/20' : 'bg-emerald-100'
                                 }`}>
-                                <channel.icon className={`w-7 h-7 ${isDark ? 'text-purple-400' : 'text-purple-600'
+                                <channel.icon className={`w-7 h-7 ${isDark ? 'text-emerald-400' : 'text-emerald-600'
                                     }`} />
                             </div>
                             <h3 className={`text-xl font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                                 {channel.title}
                             </h3>
                             <p className="mb-3">{channel.description}</p>
-                            <p className={`text-sm font-medium mb-4 ${isDark ? 'text-purple-400' : 'text-purple-600'}`}>
+                            <p className={`text-sm font-medium mb-4 ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>
                                 {channel.members}
                             </p>
                             <button className={`px-5 py-2 rounded-lg font-medium transition-all ${isDark
-                                    ? 'bg-purple-500/20 text-purple-400 hover:bg-purple-500/30'
-                                    : 'bg-purple-100 text-purple-700 hover:bg-purple-200'
+                                    ? 'bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30'
+                                    : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
                                 }`}>
                                 Join Now →
                             </button>
@@ -90,23 +90,23 @@ const Community = () => {
                         }`}>
                         <ul className="space-y-3">
                             <li className="flex items-start gap-3">
-                                <span className={`mt-1.5 w-2 h-2 rounded-full ${isDark ? 'bg-purple-400' : 'bg-purple-600'}`}></span>
+                                <span className={`mt-1.5 w-2 h-2 rounded-full ${isDark ? 'bg-emerald-400' : 'bg-emerald-600'}`}></span>
                                 <span><strong>Be respectful:</strong> Treat everyone with kindness and professionalism</span>
                             </li>
                             <li className="flex items-start gap-3">
-                                <span className={`mt-1.5 w-2 h-2 rounded-full ${isDark ? 'bg-purple-400' : 'bg-purple-600'}`}></span>
+                                <span className={`mt-1.5 w-2 h-2 rounded-full ${isDark ? 'bg-emerald-400' : 'bg-emerald-600'}`}></span>
                                 <span><strong>Share knowledge:</strong> Help others by sharing your experiences and insights</span>
                             </li>
                             <li className="flex items-start gap-3">
-                                <span className={`mt-1.5 w-2 h-2 rounded-full ${isDark ? 'bg-purple-400' : 'bg-purple-600'}`}></span>
+                                <span className={`mt-1.5 w-2 h-2 rounded-full ${isDark ? 'bg-emerald-400' : 'bg-emerald-600'}`}></span>
                                 <span><strong>Stay on topic:</strong> Keep discussions relevant to the channel or forum</span>
                             </li>
                             <li className="flex items-start gap-3">
-                                <span className={`mt-1.5 w-2 h-2 rounded-full ${isDark ? 'bg-purple-400' : 'bg-purple-600'}`}></span>
+                                <span className={`mt-1.5 w-2 h-2 rounded-full ${isDark ? 'bg-emerald-400' : 'bg-emerald-600'}`}></span>
                                 <span><strong>No spam:</strong> Avoid self-promotion and off-topic content</span>
                             </li>
                             <li className="flex items-start gap-3">
-                                <span className={`mt-1.5 w-2 h-2 rounded-full ${isDark ? 'bg-purple-400' : 'bg-purple-600'}`}></span>
+                                <span className={`mt-1.5 w-2 h-2 rounded-full ${isDark ? 'bg-emerald-400' : 'bg-emerald-600'}`}></span>
                                 <span><strong>Protect privacy:</strong> Don't share personal or confidential information</span>
                             </li>
                         </ul>
@@ -114,8 +114,8 @@ const Community = () => {
                 </section>
 
                 <div className={`p-8 rounded-2xl border text-center ${isDark
-                        ? 'bg-gradient-to-br from-purple-500/10 to-pink-500/10 border-purple-500/30'
-                        : 'bg-gradient-to-br from-purple-100 to-pink-100 border-purple-300'
+                        ? 'bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border-emerald-500/30'
+                        : 'bg-gradient-to-br from-emerald-100 to-teal-100 border-emerald-300'
                     }`}>
                     <h3 className={`text-2xl font-semibold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                         Connect on Social Media

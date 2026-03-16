@@ -78,9 +78,9 @@ const About = () => {
                                     : 'bg-white/60 border-gray-200'
                                     } transition-all hover:scale-105`}
                             >
-                                <div className={`w-12 h-12 rounded-lg mb-4 flex items-center justify-center ${isDark ? 'bg-purple-500/20' : 'bg-purple-100'
+                                <div className={`w-12 h-12 rounded-lg mb-4 flex items-center justify-center ${isDark ? 'bg-emerald-500/20' : 'bg-emerald-100'
                                     }`}>
-                                    <value.icon className={`w-6 h-6 ${isDark ? 'text-purple-400' : 'text-purple-600'
+                                    <value.icon className={`w-6 h-6 ${isDark ? 'text-emerald-400' : 'text-emerald-600'
                                         }`} />
                                 </div>
                                 <h4 className={`text-xl font-semibold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
@@ -98,19 +98,19 @@ const About = () => {
                     </h3>
                     <ul className="space-y-3">
                         <li className="flex items-start gap-3">
-                            <span className={`mt-1.5 w-2 h-2 rounded-full ${isDark ? 'bg-purple-400' : 'bg-purple-600'}`}></span>
+                            <span className={`mt-1.5 w-2 h-2 rounded-full ${isDark ? 'bg-emerald-400' : 'bg-emerald-600'}`}></span>
                             <span><strong>Career Track:</strong> AI-powered resume building, job matching, and interview preparation</span>
                         </li>
                         <li className="flex items-start gap-3">
-                            <span className={`mt-1.5 w-2 h-2 rounded-full ${isDark ? 'bg-purple-400' : 'bg-purple-600'}`}></span>
+                            <span className={`mt-1.5 w-2 h-2 rounded-full ${isDark ? 'bg-emerald-400' : 'bg-emerald-600'}`}></span>
                             <span><strong>Business Track:</strong> Comprehensive business planning, market analysis, and growth strategies</span>
                         </li>
                         <li className="flex items-start gap-3">
-                            <span className={`mt-1.5 w-2 h-2 rounded-full ${isDark ? 'bg-purple-400' : 'bg-purple-600'}`}></span>
+                            <span className={`mt-1.5 w-2 h-2 rounded-full ${isDark ? 'bg-emerald-400' : 'bg-emerald-600'}`}></span>
                             <span><strong>Legal Track:</strong> Document review, contract analysis, and legal guidance</span>
                         </li>
                         <li className="flex items-start gap-3">
-                            <span className={`mt-1.5 w-2 h-2 rounded-full ${isDark ? 'bg-purple-400' : 'bg-purple-600'}`}></span>
+                            <span className={`mt-1.5 w-2 h-2 rounded-full ${isDark ? 'bg-emerald-400' : 'bg-emerald-600'}`}></span>
                             <span><strong>Innovative Track:</strong> AI-powered ideation, rapid prototyping, and project management</span>
                         </li>
                     </ul>
@@ -123,7 +123,7 @@ const About = () => {
                     <p className="mb-4">
                         Have questions or want to learn more? Get in touch with us:
                     </p>
-                    <p className={isDark ? 'text-purple-400' : 'text-purple-600'}>
+                    <p className={isDark ? 'text-emerald-400' : 'text-emerald-600'}>
                         contact@kimuntupro.com
                     </p>
                 </section>

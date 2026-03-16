@@ -15,20 +15,20 @@ const PageWrapper = ({ children, title }) => {
 
     return (
         <div className={`min-h-screen transition-all duration-500 ${isDark
-            ? 'bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900'
-            : 'bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50'
+            ? 'bg-black'
+            : 'bg-gray-50'
             }`}>
             {/* Header with Back Button */}
             <header className={`sticky top-0 z-50 backdrop-blur-xl border-b ${isDark
-                ? 'bg-black/40 border-white/10'
-                : 'bg-white/40 border-gray-200'
+                ? 'bg-black/60 border-white/10'
+                : 'bg-white/60 border-black/5'
                 }`}>
                 <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
                     <Link
                         href="/"
                         className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all ${isDark
-                            ? 'text-gray-300 hover:text-white hover:bg-white/10'
-                            : 'text-gray-600 hover:text-gray-900 hover:bg-white/60'
+                            ? 'text-white/60 hover:text-white hover:bg-white/10'
+                            : 'text-black/60 hover:text-black hover:bg-black/5'
                             }`}
                     >
                         <Home className="w-5 h-5" />
@@ -45,16 +45,10 @@ const PageWrapper = ({ children, title }) => {
 
             {/* Main Content */}
             <main className="max-w-7xl mx-auto px-6 py-12">
-                <div className={`rounded-3xl p-8 backdrop-blur-xl border ${isDark
-                    ? 'bg-white/5 border-white/10'
-                    : 'bg-white/60 border-gray-200'
-                    } shadow-2xl`}>
-                    {/* Glass reflection effect */}
-                    <div className={`absolute inset-0 rounded-3xl ${isDark
-                        ? 'bg-gradient-to-br from-white/5 via-transparent to-transparent'
-                        : 'bg-gradient-to-br from-white/40 via-transparent to-transparent'
-                        } pointer-events-none`}></div>
-
+                <div className={`rounded-3xl p-8 md:p-10 border relative overflow-hidden ${isDark
+                    ? 'glass-card'
+                    : 'bg-white border-black/5 shadow-lg'
+                    }`}>
                     <div className="relative z-10">
                         {children}
                     </div>
