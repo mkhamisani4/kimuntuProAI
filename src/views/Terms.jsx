@@ -102,7 +102,7 @@ const Terms = () => {
                     <p className="mb-4">
                         For questions about these Terms, contact us at:
                     </p>
-                    <p className={`${isDark ? 'text-purple-400' : 'text-purple-600'}`}>
+                    <p className={`${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>
                         legal@kimuntupro.com
                     </p>
                 </section>

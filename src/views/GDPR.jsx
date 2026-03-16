@@ -69,9 +69,9 @@ const GDPR = () => {
                                     } transition-all`}
                             >
                                 <div className="flex items-start gap-3">
-                                    <div className={`p-2 rounded-lg ${isDark ? 'bg-purple-500/20' : 'bg-purple-100'
+                                    <div className={`p-2 rounded-lg ${isDark ? 'bg-emerald-500/20' : 'bg-emerald-100'
                                         }`}>
-                                        <right.icon className={`w-5 h-5 ${isDark ? 'text-purple-400' : 'text-purple-600'
+                                        <right.icon className={`w-5 h-5 ${isDark ? 'text-emerald-400' : 'text-emerald-600'
                                             }`} />
                                     </div>
                                     <div>
@@ -140,8 +140,8 @@ const GDPR = () => {
                     <p className="mb-4">
                         To exercise any of your GDPR rights, please contact our Data Protection Officer at:
                     </p>
-                    <div className={`p-4 rounded-lg ${isDark ? 'bg-purple-500/10 border border-purple-500/30' : 'bg-purple-50 border border-purple-200'}`}>
-                        <p className={`font-semibold mb-2 ${isDark ? 'text-purple-400' : 'text-purple-600'}`}>
+                    <div className={`p-4 rounded-lg ${isDark ? 'bg-emerald-500/10 border border-emerald-500/30' : 'bg-emerald-50 border border-emerald-200'}`}>
+                        <p className={`font-semibold mb-2 ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>
                             Data Protection Officer
                         </p>
                         <p>Email: dpo@kimuntupro.com</p>

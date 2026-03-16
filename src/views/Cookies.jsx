@@ -109,7 +109,7 @@ const Cookies = () => {
                     <p className="mb-4">
                         If you have questions about our use of cookies, contact us at:
                     </p>
-                    <p className={`${isDark ? 'text-purple-400' : 'text-purple-600'}`}>
+                    <p className={`${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>
                         privacy@kimuntupro.com
                     </p>
                 </section>

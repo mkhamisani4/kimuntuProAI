@@ -102,7 +102,7 @@ const Privacy = () => {
                     <p className="mb-4">
                         If you have questions about this Privacy Policy, please contact us at:
                     </p>
-                    <p className={`${isDark ? 'text-purple-400' : 'text-purple-600'}`}>
+                    <p className={`${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>
                         privacy@kimuntupro.com
                     </p>
                 </section>
