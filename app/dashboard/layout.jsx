@@ -85,63 +85,82 @@ export default function DashboardLayout({ children }) {
             : 'bg-white'
             }`}>
             {/* Premium Sidebar */}
-            <div className={`fixed left-0 top-0 h-full w-64 shadow-2xl z-40 ${isDark
-                ? 'bg-black border-r border-white/10'
-                : 'bg-white border-r border-black/10'
+            <div className={`fixed left-0 top-0 h-full w-64 shadow-2xl z-40 backdrop-blur-xl ${isDark
+                ? 'bg-black/80 border-r border-white/10'
+                : 'bg-white/80 border-r border-black/5'
                 }`}>
 
                 <div className="flex flex-col h-full relative z-10 overflow-hidden">
                     <div className="p-6 flex-shrink-0">
                         <Link
                             href="/dashboard"
-                            className="flex items-center justify-center mb-8 hover:opacity-80 transition-opacity cursor-pointer w-full"
+                            className="flex items-center gap-3 mb-8 hover:opacity-80 transition-opacity cursor-pointer w-full"
                         >
                             <Image
                                 src="/assets/LOGOS(9).svg"
                                 alt="KimuntuPro AI"
-                                width={80}
-                                height={80}
+                                width={36}
+                                height={36}
                             />
+                            <span className={`text-lg font-bold ${isDark ? 'text-white' : 'text-black'}`}>
+                                KimuntuPro
+                            </span>
                         </Link>
                     </div>
-                    
-                    <nav className="flex-1 overflow-y-auto px-6 space-y-1 min-h-0 scrollbar-hide">
-                        {navItems.map((item) => (
-                            <Link
-                                key={item.id}
-                                href={item.href}
-                                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all ${isDark
-                                    ? 'text-white/60 hover:bg-white/10 hover:text-white'
-                                    : 'text-black/60 hover:bg-black/5 hover:text-black'
+
+                    <nav className="flex-1 overflow-y-auto px-4 space-y-1 min-h-0 scrollbar-hide">
+                        {navItems.map((item) => {
+                            const isActive = pathname === item.href ||
+                                (item.href !== '/dashboard' && pathname.startsWith(item.href));
+                            return (
+                                <Link
+                                    key={item.id}
+                                    href={item.href}
+                                    className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-left transition-all text-sm ${isActive
+                                        ? isDark
+                                            ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                                            : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                        : isDark
+                                            ? 'text-white/50 hover:bg-white/5 hover:text-white border border-transparent'
+                                            : 'text-black/50 hover:bg-black/5 hover:text-black border border-transparent'
                                     }`}
-                            >
-                                <item.icon className="w-5 h-5" />
-                                <span className="font-medium">{item.label}</span>
-                            </Link>
-                        ))}
+                                >
+                                    <item.icon className="w-[18px] h-[18px]" />
+                                    <span className="font-medium">{item.label}</span>
+                                </Link>
+                            );
+                        })}
                     </nav>
 
-                    <div className={`flex-shrink-0 p-6 ${isDark ? 'border-t border-white/10' : 'border-t border-black/10'}`}>
-                        <div className={`rounded-xl p-4 mb-4 ${isDark
-                            ? 'bg-white/5 border border-white/10'
-                            : 'bg-black/5 border border-black/10'
+                    <div className={`flex-shrink-0 p-4 mx-4 mb-4 rounded-2xl ${isDark
+                        ? 'bg-white/[0.03] border border-white/10'
+                        : 'bg-black/[0.02] border border-black/5'
+                    }`}>
+                        <div className="flex items-center gap-3 mb-3">
+                            <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold ${isDark
+                                ? 'bg-emerald-500/20 text-emerald-400'
+                                : 'bg-emerald-100 text-emerald-700'
                             }`}>
-                            <p className={`text-xs mb-1 ${isDark ? 'text-white/60' : 'text-black/60'}`}>
-                                {t.loggedInAs}
-                            </p>
-                            <p className={`text-sm font-medium truncate ${isDark ? 'text-white' : 'text-black'}`}>
-                                {user?.email || user?.displayName}
-                            </p>
+                                {(user?.displayName || user?.email || '?').charAt(0).toUpperCase()}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <p className={`text-xs ${isDark ? 'text-white/40' : 'text-black/40'}`}>
+                                    {t.loggedInAs}
+                                </p>
+                                <p className={`text-sm font-medium truncate ${isDark ? 'text-white' : 'text-black'}`}>
+                                    {user?.displayName || user?.email}
+                                </p>
+                            </div>
                         </div>
                         <button
                             onClick={handleSignOut}
-                            className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl transition-all ${isDark
-                                ? 'bg-white text-black hover:bg-white/90'
-                                : 'bg-black text-white hover:bg-black/90'
-                                }`}
+                            className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm transition-all ${isDark
+                                ? 'bg-white/5 text-white/60 hover:bg-white/10 hover:text-white border border-white/10'
+                                : 'bg-black/5 text-black/60 hover:bg-black/10 hover:text-black border border-black/5'
+                            }`}
                         >
                             <LogOut className="w-4 h-4" />
-                            <span className="text-sm font-medium">{t.signOut}</span>
+                            <span className="font-medium">{t.signOut}</span>
                         </button>
                     </div>
                 </div>
@@ -153,15 +172,15 @@ export default function DashboardLayout({ children }) {
                 <div className="fixed top-6 right-6 z-30">
                     <button
                         onClick={toggleTheme}
-                        className={`p-4 rounded-full transition-all duration-300 shadow-lg ${isDark
-                            ? 'bg-white/10 border border-white/20 hover:bg-white/20'
-                            : 'bg-black/5 border border-black/10 hover:bg-black/10'
+                        className={`p-3 rounded-xl transition-all duration-300 backdrop-blur-xl ${isDark
+                            ? 'bg-white/5 border border-white/10 hover:bg-white/10'
+                            : 'bg-black/5 border border-black/5 hover:bg-black/10'
                             }`}
                     >
                         {isDark ? (
-                            <Sun className="w-6 h-6 text-white" />
+                            <Sun className="w-5 h-5 text-white" />
                         ) : (
-                            <Moon className="w-6 h-6 text-black" />
+                            <Moon className="w-5 h-5 text-black" />
                         )}
                     </button>
                 </div>
