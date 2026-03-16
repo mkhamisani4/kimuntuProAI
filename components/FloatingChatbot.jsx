@@ -89,19 +89,19 @@ const FloatingChatbot = () => {
         ]);
     };
 
-    // Premium colors - pure black/white
-    const bgColor = isDark ? 'bg-black' : 'bg-white';
+    // Premium colors - consistent with app design
+    const bgColor = isDark ? 'bg-black/90 backdrop-blur-xl' : 'bg-white/90 backdrop-blur-xl';
     const textColor = isDark ? 'text-white' : 'text-black';
-    const borderColor = isDark ? 'border-white/20' : 'border-black/20';
+    const borderColor = isDark ? 'border-white/10' : 'border-black/5';
     const hoverBg = isDark ? 'hover:bg-white/10' : 'hover:bg-black/5';
-    const inputBg = isDark ? 'bg-white/10' : 'bg-black/5';
-    const inputFocus = isDark ? 'focus:bg-white/20' : 'focus:bg-black/10';
+    const inputBg = isDark ? 'bg-white/5' : 'bg-black/[0.02]';
+    const inputFocus = isDark ? 'focus:bg-white/10' : 'focus:bg-white';
 
     if (!isOpen) {
         return (
             <button
                 onClick={() => setIsOpen(true)}
-                className={`fixed bottom-6 right-6 z-50 p-4 rounded-full ${bgColor} ${textColor} border ${borderColor} shadow-2xl hover:scale-110 transition-all duration-300`}
+                className={`fixed bottom-6 right-6 z-50 p-4 rounded-2xl shadow-2xl hover:scale-110 transition-all duration-300 bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:shadow-lg hover:shadow-emerald-500/25`}
             >
                 <MessageSquare className="w-6 h-6" />
             </button>
@@ -146,8 +146,8 @@ const FloatingChatbot = () => {
                             <div
                                 className={`max-w-[80%] p-3 rounded-2xl text-sm ${
                                     message.role === 'user'
-                                        ? isDark ? 'bg-white text-black' : 'bg-black text-white'
-                                        : isDark ? 'bg-white/10' : 'bg-black/5'
+                                        ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white'
+                                        : isDark ? 'bg-white/5 border border-white/10' : 'bg-black/[0.03] border border-black/5'
                                 }`}
                             >
                                 {message.content}
@@ -176,13 +176,13 @@ const FloatingChatbot = () => {
                             onChange={(e) => setInput(e.target.value)}
                             onKeyPress={(e) => e.key === 'Enter' && handleSend()}
                             placeholder="Type a message..."
-                            className={`flex-1 px-4 py-2 rounded-xl ${inputBg} ${inputFocus} border ${borderColor} focus:outline-none focus:ring-2 ${isDark ? 'focus:ring-white/20' : 'focus:ring-black/20'} transition-all text-sm`}
+                            className={`flex-1 px-4 py-2 rounded-xl ${inputBg} ${inputFocus} border ${borderColor} focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500/50 transition-all text-sm`}
                             disabled={isTyping}
                         />
                         <button
                             onClick={handleSend}
                             disabled={!input.trim() || isTyping}
-                            className={`p-2 rounded-xl ${isDark ? 'bg-white text-black hover:bg-white/90' : 'bg-black text-white hover:bg-black/90'} disabled:opacity-50 disabled:cursor-not-allowed transition-all`}
+                            className="p-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:shadow-lg hover:shadow-emerald-500/25 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                         >
                             <Send className="w-5 h-5" />
                         </button>
@@ -237,8 +237,8 @@ const FloatingChatbot = () => {
                             <div
                                 className={`p-4 rounded-2xl ${
                                     message.role === 'user'
-                                        ? isDark ? 'bg-white text-black' : 'bg-black text-white'
-                                        : isDark ? 'bg-white/10' : 'bg-black/5'
+                                        ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white'
+                                        : isDark ? 'bg-white/5 border border-white/10' : 'bg-black/[0.03] border border-black/5'
                                 }`}
                             >
                                 {message.content}
@@ -271,13 +271,13 @@ const FloatingChatbot = () => {
                         onChange={(e) => setInput(e.target.value)}
                         onKeyPress={(e) => e.key === 'Enter' && handleSend()}
                         placeholder="Type your message..."
-                        className={`flex-1 px-6 py-4 rounded-2xl ${inputBg} ${inputFocus} border ${borderColor} focus:outline-none focus:ring-2 ${isDark ? 'focus:ring-white/20' : 'focus:ring-black/20'} transition-all`}
+                        className={`flex-1 px-6 py-4 rounded-2xl ${inputBg} ${inputFocus} border ${borderColor} focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500/50 transition-all`}
                         disabled={isTyping}
                     />
                     <button
                         onClick={handleSend}
                         disabled={!input.trim() || isTyping}
-                        className={`px-6 py-4 rounded-2xl ${isDark ? 'bg-white text-black hover:bg-white/90' : 'bg-black text-white hover:bg-black/90'} disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2 font-medium`}
+                        className="px-6 py-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:shadow-lg hover:shadow-emerald-500/25 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2 font-medium"
                     >
                         <Send className="w-5 h-5" />
                         Send
