@@ -64,8 +64,8 @@ const Footer = () => {
 
     return (
         <footer className={`relative overflow-hidden border-t ${isDark
-            ? 'bg-black border-white/10'
-            : 'bg-white border-black/10'
+            ? 'bg-black/80 backdrop-blur-xl border-white/10'
+            : 'bg-white/80 backdrop-blur-xl border-black/5'
             }`}>
 
             <div className="relative z-10 max-w-7xl mx-auto px-6 py-16">
