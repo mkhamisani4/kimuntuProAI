@@ -5,7 +5,7 @@
 
 import type { PlannerInput, PlannerOutput } from '@kimuntupro/shared';
 import { PlannerOutputSchema, PlannerInputSchema } from '@kimuntupro/shared';
-import { OpenAIClient } from '../llm/client.js';
+import { AnthropicClient } from '../llm/client.js';
 import { getPlannerSystemPrompt, getPlannerDeveloperPrompt, buildPlannerUserMessage } from './prompts.js';
 import { preflightPlannerCheck } from './middleware.js';
 
@@ -255,10 +255,10 @@ function buildFallbackPlan(input: PlannerInput, heuristics: PlanHeuristics): Pla
  */
 export async function plan(
   input: PlannerInput,
-  client?: OpenAIClient
+  client?: AnthropicClient
 ): Promise<PlannerOutput> {
   // Create client if not provided (defaults to mini model)
-  const aiClient = client || new OpenAIClient();
+  const aiClient = client || new AnthropicClient();
 
   // Derive heuristics first (cheap, fast)
   const heuristics = deriveHeuristics(input);
@@ -387,7 +387,7 @@ export function validatePlannerInput(input: unknown): {
  */
 export async function planWithQuotaCheck(
   input: PlannerInput,
-  client?: OpenAIClient
+  client?: AnthropicClient
 ): Promise<PlannerOutput> {
   // === Quota Preflight Check (Step 11) ===
   try {

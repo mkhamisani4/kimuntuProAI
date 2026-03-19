@@ -1,12 +1,13 @@
 /**
  * LLM Model Configuration
  * Defines model capabilities, token limits, and default settings
+ * Anthropic Claude models
  */
 
 /**
  * Supported model IDs
  */
-export type ModelId = 'gpt-4o-mini' | 'gpt-4o' | 'gpt-4o-2024-08-06' | 'gpt-4-turbo' | 'gpt-3.5-turbo';
+export type ModelId = 'claude-haiku-4-5-20251001' | 'claude-sonnet-4-5-20250929' | 'claude-opus-4-20250514';
 
 /**
  * Model capability flags
@@ -35,25 +36,11 @@ export interface ModelConfig {
  * Model configurations by ID
  */
 export const MODEL_CONFIGS: Record<ModelId, ModelConfig> = {
-  'gpt-4o-mini': {
-    id: 'gpt-4o-mini',
-    displayName: 'GPT-4o Mini',
-    maxInputTokens: 120000,
-    maxOutputTokens: 16384,
-    capabilities: {
-      supportsTools: true,
-      supportsStructured: true,
-      supportsCaching: true,
-      supportsVision: false,
-    },
-    defaultTemperature: 0.7,
-    contextWindow: 128000,
-  },
-  'gpt-4o': {
-    id: 'gpt-4o',
-    displayName: 'GPT-4o',
-    maxInputTokens: 120000,
-    maxOutputTokens: 16384,
+  'claude-haiku-4-5-20251001': {
+    id: 'claude-haiku-4-5-20251001',
+    displayName: 'Claude Haiku 4.5',
+    maxInputTokens: 200000,
+    maxOutputTokens: 8192,
     capabilities: {
       supportsTools: true,
       supportsStructured: true,
@@ -61,12 +48,12 @@ export const MODEL_CONFIGS: Record<ModelId, ModelConfig> = {
       supportsVision: true,
     },
     defaultTemperature: 0.7,
-    contextWindow: 128000,
+    contextWindow: 200000,
   },
-  'gpt-4o-2024-08-06': {
-    id: 'gpt-4o-2024-08-06',
-    displayName: 'GPT-4o (2024-08-06)',
-    maxInputTokens: 120000,
+  'claude-sonnet-4-5-20250929': {
+    id: 'claude-sonnet-4-5-20250929',
+    displayName: 'Claude Sonnet 4.5',
+    maxInputTokens: 200000,
     maxOutputTokens: 16384,
     capabilities: {
       supportsTools: true,
@@ -75,47 +62,33 @@ export const MODEL_CONFIGS: Record<ModelId, ModelConfig> = {
       supportsVision: true,
     },
     defaultTemperature: 0.7,
-    contextWindow: 128000,
+    contextWindow: 200000,
   },
-  'gpt-4-turbo': {
-    id: 'gpt-4-turbo',
-    displayName: 'GPT-4 Turbo',
-    maxInputTokens: 120000,
-    maxOutputTokens: 4096,
+  'claude-opus-4-20250514': {
+    id: 'claude-opus-4-20250514',
+    displayName: 'Claude Opus 4',
+    maxInputTokens: 200000,
+    maxOutputTokens: 32768,
     capabilities: {
       supportsTools: true,
-      supportsStructured: false,
-      supportsCaching: false,
+      supportsStructured: true,
+      supportsCaching: true,
       supportsVision: true,
     },
     defaultTemperature: 0.7,
-    contextWindow: 128000,
-  },
-  'gpt-3.5-turbo': {
-    id: 'gpt-3.5-turbo',
-    displayName: 'GPT-3.5 Turbo',
-    maxInputTokens: 16000,
-    maxOutputTokens: 4096,
-    capabilities: {
-      supportsTools: true,
-      supportsStructured: false,
-      supportsCaching: false,
-      supportsVision: false,
-    },
-    defaultTemperature: 0.7,
-    contextWindow: 16385,
+    contextWindow: 200000,
   },
 };
 
 /**
  * Default model for mini/cheap operations
  */
-export const DEFAULT_MODEL_MINI: ModelId = 'gpt-4o-mini';
+export const DEFAULT_MODEL_MINI: ModelId = 'claude-haiku-4-5-20251001';
 
 /**
  * Default model for escalation/complex operations
  */
-export const DEFAULT_MODEL_ESCALATION: ModelId = 'gpt-4o';
+export const DEFAULT_MODEL_ESCALATION: ModelId = 'claude-sonnet-4-5-20250929';
 
 /**
  * Get model configuration by ID

@@ -9,7 +9,7 @@ import {
   buildOpenAIWebSearchToolSpec,
   resetWebSearchState,
 } from '../../src/tools/openaiWebSearch.js';
-import type { OpenAIClient } from '../../src/llm/client.js';
+import type { AnthropicClient } from '../../src/llm/client.js';
 
 // Mock environment variables
 const originalEnv = process.env;
@@ -24,7 +24,7 @@ describe('buildOpenAIWebSearchTools', () => {
 });
 
 describe('webSearchWithOpenAI', () => {
-  let mockClient: OpenAIClient;
+  let mockClient: AnthropicClient;
 
   beforeEach(() => {
     // Reset environment
@@ -96,7 +96,7 @@ describe('webSearchWithOpenAI', () => {
       raw: {},
       tokensIn: 100,
       tokensOut: 50,
-      model: 'gpt-4o-mini',
+      model: 'claude-haiku-4-5-20251001',
       latencyMs: 1000,
       costCents: 0.01,
     };
@@ -144,7 +144,7 @@ describe('webSearchWithOpenAI', () => {
       raw: {},
       tokensIn: 100,
       tokensOut: 50,
-      model: 'gpt-4o-mini',
+      model: 'claude-haiku-4-5-20251001',
       latencyMs: 1000,
       costCents: 0.01,
     };
@@ -170,7 +170,7 @@ describe('webSearchWithOpenAI', () => {
       raw: {},
       tokensIn: 100,
       tokensOut: 50,
-      model: 'gpt-4o-mini',
+      model: 'claude-haiku-4-5-20251001',
       latencyMs: 1000,
       costCents: 0.01,
     };
@@ -201,7 +201,7 @@ describe('webSearchWithOpenAI', () => {
       raw: {},
       tokensIn: 100,
       tokensOut: 50,
-      model: 'gpt-4o-mini',
+      model: 'claude-haiku-4-5-20251001',
       latencyMs: 1000,
       costCents: 0.01,
     };
@@ -242,7 +242,7 @@ describe('webSearchWithOpenAI', () => {
       raw: {},
       tokensIn: 100,
       tokensOut: 50,
-      model: 'gpt-4o-mini',
+      model: 'claude-haiku-4-5-20251001',
       latencyMs: 1000,
       costCents: 0.01,
     };
@@ -294,7 +294,7 @@ describe('webSearchWithOpenAI', () => {
       raw: {},
       tokensIn: 100,
       tokensOut: 50,
-      model: 'gpt-4o-mini',
+      model: 'claude-haiku-4-5-20251001',
       latencyMs: 1000,
       costCents: 0.01,
     };
@@ -333,7 +333,7 @@ describe('webSearchWithOpenAI', () => {
       raw: {},
       tokensIn: 100,
       tokensOut: 50,
-      model: 'gpt-4o-mini',
+      model: 'claude-haiku-4-5-20251001',
       latencyMs: 1000,
       costCents: 0.01,
     };
@@ -369,7 +369,7 @@ describe('webSearchWithOpenAI', () => {
       raw: {},
       tokensIn: 100,
       tokensOut: 50,
-      model: 'gpt-4o-mini',
+      model: 'claude-haiku-4-5-20251001',
       latencyMs: 1000,
       costCents: 0.01,
     };
@@ -399,7 +399,7 @@ describe('webSearchWithOpenAI', () => {
       raw: {},
       tokensIn: 100,
       tokensOut: 50,
-      model: 'gpt-4o-mini',
+      model: 'claude-haiku-4-5-20251001',
       latencyMs: 1000,
       costCents: 0.01,
     };
@@ -437,7 +437,7 @@ describe('webSearchWithOpenAI', () => {
       raw: {},
       tokensIn: 100,
       tokensOut: 50,
-      model: 'gpt-4o-mini',
+      model: 'claude-haiku-4-5-20251001',
       latencyMs: 1000,
       costCents: 0.01,
     };
@@ -464,7 +464,7 @@ describe('webSearchWithOpenAI', () => {
 });
 
 describe('buildOpenAIWebSearchToolSpec', () => {
-  let mockClient: OpenAIClient;
+  let mockClient: AnthropicClient;
 
   beforeEach(() => {
     process.env.OPENAI_WEB_SEARCH_ENABLED = 'true';
@@ -496,7 +496,7 @@ describe('buildOpenAIWebSearchToolSpec', () => {
       raw: {},
       tokensIn: 100,
       tokensOut: 50,
-      model: 'gpt-4o-mini',
+      model: 'claude-haiku-4-5-20251001',
       latencyMs: 1000,
       costCents: 0.01,
     };

@@ -46,7 +46,7 @@ vi.mock('../../src/orchestration/executor.js', () => ({
       ],
       rawModelOutput: 'Mock raw output',
       metadata: {
-        model: 'gpt-4o-mini',
+        model: 'claude-haiku-4-5-20251001',
         tokensUsed: 1000,
         latencyMs: 500,
         cost: 0.01,

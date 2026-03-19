@@ -13,10 +13,10 @@ import type {
   PlannerOutput,
   UsageMetric,
 } from '@kimuntupro/shared';
-import { OpenAIClient } from '../../src/llm/client.js';
+import { AnthropicClient } from '../../src/llm/client.js';
 
 describe('Executor', () => {
-  let mockClient: OpenAIClient;
+  let mockClient: AnthropicClient;
   let mockBM25Query: any;
   let mockVectorQuery: any;
   let mockEmbed: any;
@@ -42,7 +42,7 @@ Target customers are SMBs [W1].
         raw: {},
         tokensIn: 1000,
         tokensOut: 500,
-        model: 'gpt-4o-mini',
+        model: 'claude-haiku-4-5-20251001',
         latencyMs: 1000,
         costCents: 10,
       })),
@@ -151,7 +151,7 @@ Market size is $5B [W1].
         raw: {},
         tokensIn: 800,
         tokensOut: 400,
-        model: 'gpt-4o-mini',
+        model: 'claude-haiku-4-5-20251001',
         latencyMs: 1000,
         costCents: 8,
       })) as any;
@@ -204,7 +204,7 @@ Finance calculations based on provided inputs`,
         raw: {},
         tokensIn: 1200,
         tokensOut: 600,
-        model: 'gpt-4o-mini',
+        model: 'claude-haiku-4-5-20251001',
         latencyMs: 1000,
         costCents: 12,
       })) as any;
@@ -279,7 +279,7 @@ Finance calculations based on provided inputs`,
 
       // Verify larger model was used
       const callArgs = (mockClient.chatWithTools as any).mock.calls[0][0];
-      expect(callArgs.model).toBe('gpt-4o'); // Escalation model
+      expect(callArgs.model).toBe('claude-sonnet-4-5-20250929'); // Escalation model
     });
 
     it('should track usage metrics', async () => {

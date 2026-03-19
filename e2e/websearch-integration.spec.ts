@@ -24,7 +24,7 @@ test.describe('Web Search Integration (Phase 4)', () => {
             { type: 'web', title: 'Meal Prep Pricing Study', url: 'https://example.com/pricing', snippet: 'Average price point $10-12 per meal' },
           ],
           meta: {
-            model: 'gpt-4o-mini',
+            model: 'claude-haiku-4-5-20251001',
             tokensIn: 500,
             tokensOut: 1500,
             costCents: 25,
@@ -128,7 +128,7 @@ test.describe('Web Search Integration (Phase 4)', () => {
             { type: 'rag', title: 'Internal Document', snippet: 'Internal knowledge' },
           ],
           meta: {
-            model: 'gpt-4o-mini',
+            model: 'claude-haiku-4-5-20251001',
             tokensIn: 300,
             tokensOut: 800,
             costCents: 15,

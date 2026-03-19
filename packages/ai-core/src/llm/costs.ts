@@ -1,6 +1,7 @@
 /**
  * LLM Cost Calculation
  * Pricing table and cost calculation utilities
+ * Anthropic Claude models
  */
 
 import type { ModelId } from './models.js';
@@ -12,37 +13,28 @@ import type { ModelId } from './models.js';
 export interface ModelPricing {
   inputCentsPer1k: number;
   outputCentsPer1k: number;
-  cachedInputCentsPer1k?: number; // If different from regular input
+  cachedInputCentsPer1k?: number;
 }
 
 /**
- * Pricing table for OpenAI models
- * Updated as of January 2025
- * Source: https://openai.com/pricing
+ * Pricing table for Anthropic Claude models
+ * Source: https://docs.anthropic.com/en/docs/about-claude/models
  */
 export const MODEL_PRICING: Record<ModelId, ModelPricing> = {
-  'gpt-4o-mini': {
-    inputCentsPer1k: 0.015, // $0.150 per 1M tokens = $0.00015 per 1k = 0.015 cents per 1k
-    outputCentsPer1k: 0.06, // $0.600 per 1M tokens = $0.00060 per 1k = 0.06 cents per 1k
-    cachedInputCentsPer1k: 0.0075, // 50% discount for cached
+  'claude-haiku-4-5-20251001': {
+    inputCentsPer1k: 0.08,   // $0.80 per 1M tokens = $0.0008 per 1k = 0.08 cents per 1k
+    outputCentsPer1k: 0.4,   // $4.00 per 1M tokens = $0.004 per 1k = 0.4 cents per 1k
+    cachedInputCentsPer1k: 0.016, // 80% discount on cached input
   },
-  'gpt-4o': {
-    inputCentsPer1k: 0.25, // $2.50 per 1M tokens
-    outputCentsPer1k: 1.0, // $10.00 per 1M tokens
-    cachedInputCentsPer1k: 0.125, // 50% discount for cached
+  'claude-sonnet-4-5-20250929': {
+    inputCentsPer1k: 0.3,    // $3.00 per 1M tokens
+    outputCentsPer1k: 1.5,   // $15.00 per 1M tokens
+    cachedInputCentsPer1k: 0.03, // 90% discount on cached input
   },
-  'gpt-4o-2024-08-06': {
-    inputCentsPer1k: 0.25,
-    outputCentsPer1k: 1.0,
-    cachedInputCentsPer1k: 0.125,
-  },
-  'gpt-4-turbo': {
-    inputCentsPer1k: 1.0, // $10 per 1M tokens
-    outputCentsPer1k: 3.0, // $30 per 1M tokens
-  },
-  'gpt-3.5-turbo': {
-    inputCentsPer1k: 0.05, // $0.50 per 1M tokens
-    outputCentsPer1k: 0.15, // $1.50 per 1M tokens
+  'claude-opus-4-20250514': {
+    inputCentsPer1k: 1.5,    // $15.00 per 1M tokens
+    outputCentsPer1k: 7.5,   // $75.00 per 1M tokens
+    cachedInputCentsPer1k: 0.15, // 90% discount on cached input
   },
 };
 
@@ -108,7 +100,7 @@ export function estimateCostCents(params: {
     model,
     tokensIn: estimatedInputTokens,
     tokensOut: estimatedOutputTokens,
-    cachedInputTokens: useCaching ? Math.floor(estimatedInputTokens * 0.8) : 0, // Assume 80% cache hit
+    cachedInputTokens: useCaching ? Math.floor(estimatedInputTokens * 0.8) : 0,
   });
 }
 

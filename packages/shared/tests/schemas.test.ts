@@ -96,7 +96,7 @@ describe('Schemas - Validation Tests', () => {
   describe('UsageMetricSchema', () => {
     it('should validate valid usage metric', () => {
       const valid = {
-        model: 'gpt-4o-mini',
+        model: 'claude-haiku-4-5-20251001',
         tokensIn: 1000,
         tokensOut: 500,
         costCents: 10,
@@ -114,7 +114,7 @@ describe('Schemas - Validation Tests', () => {
 
     it('should reject negative token counts', () => {
       const invalid = {
-        model: 'gpt-4o-mini',
+        model: 'claude-haiku-4-5-20251001',
         tokensIn: -100,
         tokensOut: 500,
         costCents: 10,
@@ -322,7 +322,7 @@ describe('Schemas - Validation Tests', () => {
         ],
         rawModelOutput: 'Full output',
         metadata: {
-          model: 'gpt-4o-mini',
+          model: 'claude-haiku-4-5-20251001',
           tokensUsed: 1500,
           latencyMs: 3000,
           cost: 0.05,

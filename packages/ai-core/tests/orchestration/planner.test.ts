@@ -5,7 +5,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { plan, deriveHeuristics, validatePlannerInput } from '../../src/orchestration/planner.js';
 import type { PlannerInput, PlannerOutput } from '@kimuntupro/shared';
-import { OpenAIClient } from '../../src/llm/client.js';
+import { AnthropicClient } from '../../src/llm/client.js';
 
 describe('deriveHeuristics', () => {
   it('should extract query terms from input', () => {
@@ -227,7 +227,7 @@ describe('validatePlannerInput', () => {
 });
 
 describe('plan with mocked OpenAI', () => {
-  let mockClient: OpenAIClient;
+  let mockClient: AnthropicClient;
 
   beforeEach(() => {
     mockClient = {
@@ -251,7 +251,7 @@ describe('plan with mocked OpenAI', () => {
       raw: {},
       tokensIn: 200,
       tokensOut: 150,
-      model: 'gpt-4o-mini',
+      model: 'claude-haiku-4-5-20251001',
       latencyMs: 500,
       cachedInputApplied: false,
       costCents: 0.01,
@@ -294,7 +294,7 @@ describe('plan with mocked OpenAI', () => {
       raw: {},
       tokensIn: 200,
       tokensOut: 150,
-      model: 'gpt-4o-mini',
+      model: 'claude-haiku-4-5-20251001',
       latencyMs: 500,
       cachedInputApplied: false,
       costCents: 0.01,
@@ -335,7 +335,7 @@ describe('plan with mocked OpenAI', () => {
       raw: {},
       tokensIn: 200,
       tokensOut: 150,
-      model: 'gpt-4o-mini',
+      model: 'claude-haiku-4-5-20251001',
       latencyMs: 500,
       cachedInputApplied: false,
       costCents: 0.01,
@@ -378,7 +378,7 @@ describe('plan with mocked OpenAI', () => {
       raw: {},
       tokensIn: 200,
       tokensOut: 150,
-      model: 'gpt-4o-mini',
+      model: 'claude-haiku-4-5-20251001',
       latencyMs: 500,
       cachedInputApplied: false,
       costCents: 0.01,
@@ -415,7 +415,7 @@ describe('plan with mocked OpenAI', () => {
       raw: {},
       tokensIn: 200,
       tokensOut: 150,
-      model: 'gpt-4o-mini',
+      model: 'claude-haiku-4-5-20251001',
       latencyMs: 500,
       cachedInputApplied: false,
       costCents: 0.01,
@@ -456,7 +456,7 @@ describe('plan with mocked OpenAI', () => {
       raw: {},
       tokensIn: 200,
       tokensOut: 150,
-      model: 'gpt-4o-mini',
+      model: 'claude-haiku-4-5-20251001',
       latencyMs: 500,
       cachedInputApplied: false,
       costCents: 0.01,
@@ -510,7 +510,7 @@ describe('plan with mocked OpenAI', () => {
       raw: {},
       tokensIn: 200,
       tokensOut: 150,
-      model: 'gpt-4o-mini',
+      model: 'claude-haiku-4-5-20251001',
       latencyMs: 500,
       cachedInputApplied: false,
       costCents: 0.01,
@@ -546,7 +546,7 @@ describe('plan with mocked OpenAI', () => {
       raw: {},
       tokensIn: 200,
       tokensOut: 150,
-      model: 'gpt-4o-mini',
+      model: 'claude-haiku-4-5-20251001',
       latencyMs: 500,
       cachedInputApplied: false,
       costCents: 0.01,
@@ -582,7 +582,7 @@ describe('plan with mocked OpenAI', () => {
       raw: {},
       tokensIn: 200,
       tokensOut: 150,
-      model: 'gpt-4o-mini',
+      model: 'claude-haiku-4-5-20251001',
       latencyMs: 500,
       cachedInputApplied: false,
       costCents: 0.01,

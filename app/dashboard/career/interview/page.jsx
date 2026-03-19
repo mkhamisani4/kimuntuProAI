@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, Users, Loader2, Mic, Video, MessageSquare, TrendingUp, AlertCircle, X, FileText } from 'lucide-react';
 import { useTheme } from '@/components/providers/ThemeProvider';
 import { useLanguage } from '@/components/providers/LanguageProvider';
-import { generateInterviewQuestions, extractResumeText } from '@/services/openaiService';
+import { generateInterviewQuestions, extractResumeText } from '@/services/aiService';
 
 export default function InterviewSimulatorPage() {
     const router = useRouter();

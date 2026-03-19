@@ -163,7 +163,7 @@ test.describe('Mock Result Generation', () => {
           },
           sources: [],
           meta: {
-            model: 'gpt-4o-mini',
+            model: 'claude-haiku-4-5-20251001',
             tokensIn: 100,
             tokensOut: 200,
             costCents: 5,

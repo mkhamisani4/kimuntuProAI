@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { FileText, Target, Users, Shield, X, Loader2, Download, Copy, Check, Mail, MessageCircle, Send } from 'lucide-react';
-import { tailorResume, extractResumeText, generateCoverLetter, chatJobAssistant } from '../services/openaiService';
+import { tailorResume, extractResumeText, generateCoverLetter, chatJobAssistant } from '../services/aiService';
 import jsPDF from 'jspdf';
 import { Document, Packer, Paragraph, TextRun } from 'docx';
 import { saveAs } from 'file-saver';

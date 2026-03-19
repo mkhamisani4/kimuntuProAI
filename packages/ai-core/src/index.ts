@@ -5,6 +5,7 @@
 
 // Export LLM client and utilities
 export {
+  AnthropicClient,
   OpenAIClient,
   type ChatMessage,
   type ChatResponse,
@@ -15,6 +16,7 @@ export {
   type ToolHandler,
   type UsageCallback,
   type Logger,
+  type AnthropicClientConfig,
   type OpenAIClientConfig,
 } from './llm/client.js';
 
@@ -62,6 +64,7 @@ export {
   asJsonSchema,
   parseStructured,
   extractJsonFromMarkdown,
+  buildStructuredPromptInstructions,
 } from './llm/structured.js';
 
 // Export tools
