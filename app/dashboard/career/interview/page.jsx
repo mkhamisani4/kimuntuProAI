@@ -2,14 +2,28 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Users, Loader2, Mic, Video, TrendingUp, AlertCircle, X, FileText, ChevronRight, ChevronLeft, Volume2, Square } from 'lucide-react';
+import { ArrowLeft, Users, Loader2, Mic, Video, TrendingUp, AlertCircle, X, FileText, ChevronRight, ChevronLeft, ChevronDown, Sparkles, MessageSquare, LayoutDashboard } from 'lucide-react';
+import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, Radar, Tooltip } from 'recharts';
 import { useTheme } from '@/components/providers/ThemeProvider';
 import { useLanguage } from '@/components/providers/LanguageProvider';
 import { generateInterviewQuestions, extractResumeText } from '@/services/openaiService';
 import { evaluateInterviewResponses, getInterviewFeedback } from '@/services/responseAnalysisService';
 import { useFaceExpressionAnalysis } from '@/hooks/useFaceExpressionAnalysis';
 import { generatePDF } from '@/lib/pdf/generatePDF';
+import InterviewLiveAvatar from '@/components/InterviewLiveAvatar';
+import InterviewLiveAvatarEmbed from '@/components/InterviewLiveAvatarEmbed';
 import dynamic from 'next/dynamic';
+
+/** Hosted iframe embed: https://embed.liveavatar.com/v1/{id} — no backend token; cannot drive per-question script */
+const LIVE_AVATAR_EMBED_ID = (process.env.NEXT_PUBLIC_LIVEAVATAR_EMBED_ID || '').trim();
+const LIVE_AVATAR_EMBED_URL = (process.env.NEXT_PUBLIC_LIVEAVATAR_EMBED_URL || '').trim();
+/**
+ * Web SDK (sandbox or full API): one session for the whole simulation; repeat() per question.
+ * When NEXT_PUBLIC_INTERVIEW_USE_LIVEAVATAR=true, SDK wins over embed (embed vars ignored for the slot).
+ */
+const USE_LIVE_AVATAR_SDK = process.env.NEXT_PUBLIC_INTERVIEW_USE_LIVEAVATAR === 'true';
+const USE_LIVE_AVATAR_EMBED =
+    !USE_LIVE_AVATAR_SDK && Boolean(LIVE_AVATAR_EMBED_ID || LIVE_AVATAR_EMBED_URL);
 
 const InterviewAvatarVrm = dynamic(() => import('@/components/InterviewAvatarVrm'), {
     ssr: false,
@@ -46,6 +60,165 @@ function validateResumePII(text) {
 function stripHtmlFromText(html) {
     if (!html || typeof html !== 'string') return html || '';
     return html.replace(/<[^>]+>/g, '').trim();
+}
+
+/**
+ * Split AI feedback into titled sections ("Label: body"). Handles **markdown**, blank-line bullets, or line-start labels.
+ */
+function parseFeedbackIntoSections(text) {
+    if (!text || typeof text !== 'string') return [];
+    const cleaned = text.replace(/\*\*/g, '').trim();
+    if (!cleaned) return [];
+
+    const parseBlock = (block) => {
+        const lines = block.split('\n');
+        const first = lines[0];
+        const m = first.match(/^([^:\n]{1,100}):\s*(.*)$/);
+        if (m && m[1].trim().length >= 2 && m[1].trim().split(/\s+/).length <= 15) {
+            const body = [m[2], ...lines.slice(1)].filter(Boolean).join('\n').trim();
+            return { title: `${m[1].trim()}:`, body };
+        }
+        return null;
+    };
+
+    const blocks = cleaned.split(/\n{2,}/).map((b) => b.trim()).filter(Boolean);
+    const sections = [];
+    for (const block of blocks) {
+        const p = parseBlock(block);
+        if (p) sections.push(p);
+        else sections.push({ title: 'Feedback', body: block });
+    }
+
+    if (sections.length === 1 && sections[0].title === 'Feedback' && sections[0].body.includes('\n')) {
+        const lines = sections[0].body.split('\n');
+        const multi = [];
+        let cur = null;
+        for (const line of lines) {
+            const m = line.match(/^([^:\n]{1,100}):\s*(.*)$/);
+            if (m && m[1].trim().split(/\s+/).length <= 15 && m[1].length < 95) {
+                if (cur) multi.push(cur);
+                cur = { title: `${m[1].trim()}:`, body: (m[2] || '').trim() };
+            } else if (cur) {
+                cur.body += (cur.body ? '\n' : '') + line;
+            } else {
+                multi.push({ title: 'Feedback', body: line });
+            }
+        }
+        if (cur) multi.push(cur);
+        if (multi.length > 1) {
+            return multi.filter((s) => s.body?.trim() || s.title !== 'Feedback');
+        }
+    }
+
+    return sections.filter((s) => s.body?.trim() || s.title !== 'Feedback');
+}
+
+/** Collapsible panel for summary sections (emotions tab). */
+function SummaryCollapsible({ title, isDark, defaultOpen, children }) {
+    const [open, setOpen] = useState(defaultOpen ?? false);
+    return (
+        <div className={`rounded-lg border overflow-hidden ${isDark ? 'border-gray-600/60 bg-gray-800/30' : 'border-gray-200 bg-white'}`}>
+            <button
+                type="button"
+                onClick={() => setOpen((o) => !o)}
+                className={`w-full flex items-center justify-between gap-2 px-3 py-2 text-left text-xs font-semibold ${isDark ? 'text-gray-200 hover:bg-gray-700/40' : 'text-gray-800 hover:bg-gray-50'}`}
+            >
+                <span className="truncate">{title}</span>
+                <ChevronDown className={`w-4 h-4 shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} />
+            </button>
+            {open && (
+                <div
+                    className={`px-3 pb-3 pt-2 text-xs leading-relaxed border-t ${
+                        isDark ? 'border-gray-600/50 text-gray-200' : 'border-gray-100 text-gray-700'
+                    }`}
+                >
+                    {children}
+                </div>
+            )}
+        </div>
+    );
+}
+
+/** Accordion list for personalized feedback bullets. */
+function InterviewFeedbackAccordion({ feedbackText, isDark, questionIndex }) {
+    const sections = parseFeedbackIntoSections(feedbackText || '');
+    const [open, setOpen] = useState(() => new Set());
+
+    useEffect(() => {
+        setOpen(new Set());
+    }, [questionIndex, feedbackText]);
+
+    const toggle = (i) => {
+        setOpen((prev) => {
+            const next = new Set(prev);
+            if (next.has(i)) next.delete(i);
+            else next.add(i);
+            return next;
+        });
+    };
+
+    const display = (feedbackText || '').replace(/\*\*([^*]+)\*\*/g, '$1');
+
+    if (!sections.length) {
+        return (
+            <p className={`text-sm whitespace-pre-wrap leading-relaxed ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                {display.trim() || '—'}
+            </p>
+        );
+    }
+
+    return (
+        <div className="space-y-2">
+            {sections.map((sec, i) => {
+                const isOpen = open.has(i);
+                const headingLabel = (sec.title || '').replace(/:\s*$/, '').trim() || sec.title;
+                return (
+                    <div
+                        key={`${sec.title}-${i}`}
+                        className={`rounded-lg border overflow-hidden ${isDark ? 'border-sky-500/25 bg-sky-500/5' : 'border-sky-200 bg-white'}`}
+                    >
+                        <button
+                            type="button"
+                            onClick={() => toggle(i)}
+                            className={`w-full flex items-center justify-between gap-2 px-3 py-2.5 text-left text-sm font-semibold ${isDark ? 'text-sky-200 hover:bg-sky-500/10' : 'text-sky-800 hover:bg-sky-50'}`}
+                        >
+                            <span className="truncate">{headingLabel}</span>
+                            <ChevronDown className={`w-4 h-4 shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+                        </button>
+                        {isOpen && (
+                            <div
+                                className={`px-3 pb-3 pt-0 text-sm leading-relaxed border-t whitespace-pre-wrap ${isDark ? 'border-sky-500/20 text-gray-300' : 'border-sky-100 text-gray-700'}`}
+                            >
+                                {sec.body}
+                            </div>
+                        )}
+                    </div>
+                );
+            })}
+        </div>
+    );
+}
+
+/** Spoken / on-screen intro before question 1 (Alex Chen persona). */
+function getInterviewerIntroScript({ companyName, role, interviewType, numQuestions, language }) {
+    const co = (companyName || 'the company').trim();
+    const r = (role || 'this role').trim();
+    const it = (interviewType || 'practice').trim();
+    const n = Math.max(1, numQuestions || 1);
+    if (language === 'fr') {
+        return (
+            `Bonjour, je suis Alex Chen, responsable du recrutement chez ${co}. ` +
+            `Je vais mener votre entrevue ${it} pour le poste de ${r}. ` +
+            `Nous avons environ ${n} questions. Prenez votre temps : utilisez le bouton d’enregistrement quand vous êtes prêt à répondre. ` +
+            `Quand vous êtes prêt, appuyez sur Commencer l’entrevue pour voir la première question.`
+        );
+    }
+    return (
+        `Hi, I'm Alex Chen, and I'm conducting hiring conversations for ${co}. ` +
+        `I'll run your ${it} interview for the ${r} role. ` +
+        `We'll work through about ${n} questions. Take your time — use the record button when you're ready to answer each one. ` +
+        `When you're set, tap Begin interview to open the first question.`
+    );
 }
 
 const WAVEFORM_BAR_COUNT = 12;
@@ -130,24 +303,63 @@ function AvatarWaveform({ isActive, isDark, className = '' }) {
     );
 }
 
-/** Parse question text into segments; code blocks (```lang\n...\n```) become { type: 'code', language, code }. */
+/**
+ * Parse question text into segments.
+ * Code fences (```lang\\n...\\n```) become { type: 'code', language, code } and any remaining
+ * markdown backticks in text segments are stripped so technical questions render cleanly.
+ */
 function parseQuestionWithCodeBlocks(text) {
     if (!text || typeof text !== 'string') return [{ type: 'text', content: text || '' }];
-    const parts = text.split('```');
+
+    const normalized = text.replace(/\r\n/g, '\n');
     const segments = [];
-    for (let i = 0; i < parts.length; i++) {
-        if (i % 2 === 0) {
-            const textContent = stripHtmlFromText(parts[i]);
-            if (parts[i].trim()) segments.push({ type: 'text', content: textContent.length ? textContent : parts[i] });
-        } else {
-            const block = parts[i].trim();
-            const firstNewline = block.indexOf('\n');
-            const lang = firstNewline >= 0 ? block.slice(0, firstNewline).trim().toLowerCase() || undefined : undefined;
-            let code = firstNewline >= 0 ? block.slice(firstNewline + 1).trimEnd() : block;
-            code = stripHtmlFromText(code) || code;
-            if (code) segments.push({ type: 'code', language: lang, code });
+
+    // ```python\n...``` or ```\n...``` (language is optional, newline is optional)
+    const fenceRe = /```\\s*([a-zA-Z0-9_-]+)?\\s*\\n?([\\s\\S]*?)```/g;
+
+    let lastIndex = 0;
+    let match;
+    while ((match = fenceRe.exec(normalized)) !== null) {
+        const before = normalized.slice(lastIndex, match.index);
+        if (before && before.trim()) {
+            let cleaned = stripHtmlFromText(before);
+            // Remove leftover fence markers/backticks if the model produced slightly malformed markdown.
+            cleaned = cleaned
+                .replace(/```[a-zA-Z0-9_-]*\\n?/g, '')
+                .replace(/```/g, '')
+                .replace(/`{1,3}/g, '');
+            // Remove inline code backticks but keep content.
+            cleaned = cleaned.replace(/`([^`]+)`/g, '$1');
+            // Drop heading markers to reduce noise in question text.
+            cleaned = cleaned.replace(/^#{1,6}\\s+/gm, '');
+            segments.push({ type: 'text', content: cleaned || before });
         }
+
+        const lang = match[1] ? String(match[1]).trim().toLowerCase() : undefined;
+        let code = match[2] ?? '';
+        code = stripHtmlFromText(code);
+        // Avoid a leading newline right after the fence language token.
+        code = code.replace(/^\\n/, '').replace(/\\n$/, '');
+
+        if (code && code.trim()) {
+            segments.push({ type: 'code', language: lang, code: code.trimEnd() });
+        }
+
+        lastIndex = fenceRe.lastIndex;
     }
+
+    const after = normalized.slice(lastIndex);
+    if (after && after.trim()) {
+        let cleaned = stripHtmlFromText(after);
+        cleaned = cleaned
+            .replace(/```[a-zA-Z0-9_-]*\\n?/g, '')
+            .replace(/```/g, '')
+            .replace(/`{1,3}/g, '')
+            .replace(/`([^`]+)`/g, '$1');
+        cleaned = cleaned.replace(/^#{1,6}\\s+/gm, '');
+        segments.push({ type: 'text', content: cleaned || after });
+    }
+
     if (segments.length === 0) segments.push({ type: 'text', content: stripHtmlFromText(text) || text });
     return segments;
 }
@@ -162,6 +374,39 @@ function highlightPythonCode(code) {
         .replace(builtins, '<span class="text-amber-400">$1</span>')
         .replace(/"([^"]*)"/g, '<span class="text-cyan-400">"$1"</span>')
         .replace(/'([^']*)'/g, '<span class="text-cyan-400">\'$1\'</span>');
+}
+
+function answeredLabelToScore(label) {
+    if (!label) return 0.3;
+    if (label === 'fully_answered') return 1;
+    if (label === 'partially_answered') return 0.65;
+    if (label === 'not_answered') return 0.25;
+    return 0.3;
+}
+
+function relevanceLabelToScore(label) {
+    if (!label) return 0.3;
+    if (label === 'high') return 1;
+    if (label === 'medium') return 0.65;
+    if (label === 'low') return 0.25;
+    return 0.3;
+}
+
+function formalityLabelToScore(label) {
+    if (!label) return 0.7;
+    if (label === 'formal') return 1;
+    if (label === 'informal') return 0.7;
+    return 0.75;
+}
+
+function toneLabelToScore(tone) {
+    const raw = (tone || '').toString().toLowerCase();
+    if (!raw) return 0.7;
+    const positive = ['joy', 'love', 'excited', 'excitation', 'admiration', 'approval', 'gratitude', 'optimism', 'curiosity', 'caring', 'relief', 'amusement'];
+    const negative = ['anger', 'disgust', 'fear', 'sadness', 'nervousness', 'confusion', 'remorse', 'grief', 'disapproval', 'embarrassment', 'disappointment', 'annoyance', 'sad', 'worried', 'anxious'];
+    if (positive.some((k) => raw.includes(k))) return 0.95;
+    if (negative.some((k) => raw.includes(k))) return 0.45;
+    return 0.7;
 }
 
 /** First question for all interview types: elevator pitch / tell me about yourself. */
@@ -230,7 +475,7 @@ function ThankYouOverlay({ companyName, evaluationOverall, getThankYouSummary, i
 export default function InterviewSimulatorPage() {
     const router = useRouter();
     const { isDark } = useTheme();
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
     const [jobDescription, setJobDescription] = useState('');
     const [role, setRole] = useState('');
     const [companyName, setCompanyName] = useState('');
@@ -284,6 +529,23 @@ export default function InterviewSimulatorPage() {
     const [piiWarningSummary, setPiiWarningSummary] = useState('');
     const [recordingStream, setRecordingStream] = useState(null);
     const [isAvatarSpeaking, setIsAvatarSpeaking] = useState(false);
+    /** After Start simulation: intro screen before question 1 */
+    const [showPreInterviewIntro, setShowPreInterviewIntro] = useState(false);
+    /** Summary: report vs emotions vs feedback tab */
+    const [summaryResultsTab, setSummaryResultsTab] = useState('report');
+    /** Summary: selected question for the sub-tab panel */
+    const [summarySelectedQuestionIndex, setSummarySelectedQuestionIndex] = useState(0);
+    /** Delay after eval+feedback ready before showing results (progress bar finishes) */
+    const [summaryRevealReady, setSummaryRevealReady] = useState(false);
+    /** LiveAvatar UI / initial gate; can be cleared by onError while session still works for manual Listen */
+    const [liveAvatarSessionReady, setLiveAvatarSessionReady] = useState(() => !USE_LIVE_AVATAR_SDK);
+    /**
+     * Once LiveAvatar stream is up, stay true until sim ends. Auto-speak uses this ref so a stale
+     * `liveAvatarSessionReady === false` (e.g. onError edge cases) does not block Q2–Q5; manual Listen ignores that state.
+     */
+    const liveAvatarHudReadyRef = useRef(false);
+    const liveAvatarRef = useRef(null);
+    const introScriptSpokenRef = useRef(false);
     const [pendingFollowUpQuestion, setPendingFollowUpQuestion] = useState(null);
     const [isLoadingFollowUp, setIsLoadingFollowUp] = useState(false);
     /** Indices after which we may show a mini follow-up (0 = after Q1, 2 = after Q3). */
@@ -377,15 +639,37 @@ export default function InterviewSimulatorPage() {
     useEffect(() => {
         const video = videoPreviewRef.current;
         const stream = videoStream;
+
         if (video && stream) {
+            // The question container uses `key` and can remount the <video> element.
+            // Re-attach the existing stream on every question change to prevent a "blank" camera.
             video.srcObject = stream;
+            // Ensure playback starts (some browsers need an explicit play() after srcObject changes).
+            try {
+                const p = video.play();
+                if (p && typeof p.catch === 'function') p.catch(() => {});
+            } catch (_) {
+                /* noop */
+            }
         }
+
         return () => {
             if (video && video.srcObject) video.srcObject = null;
         };
-    }, [videoStream]);
+    }, [videoStream, currentQuestionIndex, showPreInterviewIntro]);
 
     const closeModal = () => {
+        // Stop any currently playing avatar/browser speech.
+        try {
+            if (USE_LIVE_AVATAR_SDK && liveAvatarRef.current) {
+                liveAvatarRef.current.interrupt?.();
+            }
+        } catch (_) {
+            /* noop */
+        }
+        if (typeof window !== 'undefined' && window.speechSynthesis) {
+            window.speechSynthesis.cancel();
+        }
         if (mediaRecorderRef.current?.state !== 'inactive') mediaRecorderRef.current?.stop();
         streamRef.current?.getTracks().forEach((t) => t.stop());
         if (emotionLogIntervalRef.current) clearInterval(emotionLogIntervalRef.current);
@@ -411,6 +695,12 @@ export default function InterviewSimulatorPage() {
         setAnalyzingResponses(false);
         setIsRecording(false);
         setIsTranscribing(false);
+        liveAvatarHudReadyRef.current = false;
+        setLiveAvatarSessionReady(!USE_LIVE_AVATAR_SDK);
+        setShowPreInterviewIntro(false);
+        setSummaryResultsTab('report');
+        setSummarySelectedQuestionIndex(0);
+        setSummaryRevealReady(false);
     };
 
     /** Concise strengths & improvements from evaluation (for thank-you popup) */
@@ -438,18 +728,123 @@ export default function InterviewSimulatorPage() {
     };
 
     const handleStartSimulation = () => {
+        // Stop any currently playing avatar/browser speech from the previous run.
+        try {
+            if (USE_LIVE_AVATAR_SDK && liveAvatarRef.current) {
+                liveAvatarRef.current.interrupt?.();
+            }
+        } catch (_) {
+            /* noop */
+        }
+        if (typeof window !== 'undefined' && window.speechSynthesis) {
+            window.speechSynthesis.cancel();
+        }
+        setIsAvatarSpeaking(false);
+        liveAvatarHudReadyRef.current = false;
+        if (USE_LIVE_AVATAR_SDK) setLiveAvatarSessionReady(false);
+        introScriptSpokenRef.current = false;
+        setSummarySelectedQuestionIndex(0);
         setSimulationActive(true);
+        setShowPreInterviewIntro(true);
         setCurrentQuestionIndex(0);
         setResponses(generatedQuestions.map(() => ''));
         setResponseEmotions(generatedQuestions.map(() => null));
         setTranscriptSegments(generatedQuestions.map(() => []));
         setEmotionLogs(generatedQuestions.map(() => []));
         startVideoPreview();
+
+        // In embed/VRM modes (no LiveAvatar SDK control), autoplay TTS can be blocked.
+        // Trigger the pre-intro speaking immediately from this user click so audio starts.
+        if (!USE_LIVE_AVATAR_SDK && typeof window !== 'undefined' && window.speechSynthesis) {
+            try {
+                const script = getInterviewerIntroScript({
+                    companyName,
+                    role,
+                    interviewType,
+                    numQuestions: generatedQuestions.length,
+                    language,
+                });
+                window.speechSynthesis.cancel();
+                setIsAvatarSpeaking(true);
+                const u = new SpeechSynthesisUtterance(script);
+                u.rate = 0.95;
+                u.lang = language === 'fr' ? 'fr-FR' : 'en-GB';
+                u.onend = () => setIsAvatarSpeaking(false);
+                u.onerror = () => setIsAvatarSpeaking(false);
+                const voices = window.speechSynthesis.getVoices();
+                const voice = voices.find((v) => v.name === 'Google UK English Male')
+                    || voices.find((v) => v.lang.startsWith('en-GB'))
+                    || voices.find((v) => v.lang.startsWith('en'));
+                if (voice) u.voice = voice;
+                introScriptSpokenRef.current = true;
+                window.speechSynthesis.speak(u);
+            } catch (_) {
+                // ignore
+            }
+        }
+    };
+
+    const dismissPreInterviewIntro = () => {
+        if (USE_LIVE_AVATAR_SDK && liveAvatarRef.current) {
+            try {
+                liveAvatarRef.current.interrupt?.();
+            } catch (_) {
+                /* noop */
+            }
+        }
+        // Force "ready" to be re-established for the Q1 avatar instance.
+        // The pre-intro avatar unmounts and a new avatar instance mounts for the first question.
+        liveAvatarHudReadyRef.current = false;
+        if (USE_LIVE_AVATAR_SDK) setLiveAvatarSessionReady(false);
+        if (typeof window !== 'undefined' && window.speechSynthesis) {
+            window.speechSynthesis.cancel();
+        }
+        setIsAvatarSpeaking(false);
+        setShowPreInterviewIntro(false);
     };
 
     const speakQuestion = () => {
         const question = generatedQuestions[currentQuestionIndex];
-        if (!question || typeof window === 'undefined' || !window.speechSynthesis) return;
+        if (!question || typeof window === 'undefined') return;
+        if (USE_LIVE_AVATAR_SDK && liveAvatarRef.current) {
+            if (window.speechSynthesis) window.speechSynthesis.cancel();
+            const plain = stripHtmlFromText(question);
+            const runFallbackTts = () => {
+                if (!window.speechSynthesis) return;
+                window.speechSynthesis.cancel();
+                setIsAvatarSpeaking(true);
+                const u = new SpeechSynthesisUtterance(plain);
+                u.rate = 0.95;
+                u.lang = 'en-GB';
+                u.onend = () => setIsAvatarSpeaking(false);
+                u.onerror = () => setIsAvatarSpeaking(false);
+                const voices = window.speechSynthesis.getVoices();
+                const voice = voices.find((v) => v.name === 'Google UK English Male')
+                    || voices.find((v) => v.lang.startsWith('en-GB'))
+                    || voices.find((v) => v.lang.startsWith('en'));
+                if (voice) u.voice = voice;
+                window.speechSynthesis.speak(u);
+            };
+            try {
+                try {
+                    liveAvatarRef.current.interrupt();
+                } catch (_) {
+                    /* noop */
+                }
+                window.setTimeout(() => {
+                    try {
+                        liveAvatarRef.current?.speak(plain);
+                    } catch (err) {
+                        console.warn('[Interview] LiveAvatar speak', err);
+                        runFallbackTts();
+                    }
+                }, 220);
+            } catch (_) {
+                runFallbackTts();
+            }
+            return;
+        }
+        if (!window.speechSynthesis) return;
         window.speechSynthesis.cancel();
         setIsAvatarSpeaking(true);
         const u = new SpeechSynthesisUtterance(question);
@@ -465,16 +860,64 @@ export default function InterviewSimulatorPage() {
         window.speechSynthesis.speak(u);
     };
 
+    const speakQuestionRef = useRef(speakQuestion);
+    speakQuestionRef.current = speakQuestion;
+
+    /** Re-run auto-speak when tailored question text updates at the same index */
+    const interviewQuestionTextForSpeech =
+        simulationActive &&
+        !showPreInterviewIntro &&
+        generatedQuestions.length > 0 &&
+        currentQuestionIndex < generatedQuestions.length
+            ? (generatedQuestions[currentQuestionIndex] ?? '')
+            : '';
+
     useEffect(() => {
         if (!simulationActive || !generatedQuestions?.length) return;
+        // Pre-interview screen: only the intro script should play, not Q1.
+        if (showPreInterviewIntro) return;
         if (currentQuestionIndex >= generatedQuestions.length) return;
         const question = generatedQuestions[currentQuestionIndex];
         if (!question) return;
-        const t = setTimeout(() => speakQuestion(), 400);
-        return () => clearTimeout(t);
-    }, [simulationActive, currentQuestionIndex]);
+        const delayMs = USE_LIVE_AVATAR_SDK ? 550 : 400;
+        let cancelled = false;
+        let retryTimer = null;
+
+        const speakLoop = () => {
+            if (cancelled) return;
+            if (USE_LIVE_AVATAR_SDK && !liveAvatarHudReadyRef.current) {
+                retryTimer = window.setTimeout(speakLoop, 350);
+                return;
+            }
+            speakQuestionRef.current?.();
+        };
+
+        const t = window.setTimeout(() => {
+            speakLoop();
+        }, delayMs);
+
+        return () => {
+            cancelled = true;
+            window.clearTimeout(t);
+            if (retryTimer) window.clearTimeout(retryTimer);
+        };
+    }, [
+        simulationActive,
+        showPreInterviewIntro,
+        currentQuestionIndex,
+        liveAvatarSessionReady,
+        generatedQuestions.length,
+        interviewQuestionTextForSpeech,
+    ]);
 
     const stopSpeech = () => {
+        if (USE_LIVE_AVATAR_SDK && liveAvatarRef.current) {
+            try {
+                liveAvatarRef.current.interrupt();
+            } catch (_) {
+                /* noop */
+            }
+        }
         if (typeof window !== 'undefined' && window.speechSynthesis) window.speechSynthesis.cancel();
         setIsAvatarSpeaking(false);
     };
@@ -521,7 +964,7 @@ export default function InterviewSimulatorPage() {
                     setIsTailoringNextQuestion(false);
                 }
             }
-            setCurrentQuestionIndex(prev => prev + 1);
+            setCurrentQuestionIndex((prev) => prev + 1);
         } else {
             setCurrentQuestionIndex(generatedQuestions.length);
         }
@@ -572,11 +1015,151 @@ export default function InterviewSimulatorPage() {
     };
 
     const inSummaryView = showQuestionsModal && simulationActive && generatedQuestions.length > 0 && currentQuestionIndex >= generatedQuestions.length;
+    const inQuestionPhase = simulationActive && !showPreInterviewIntro && currentQuestionIndex < generatedQuestions.length;
     const isFeedbackLoading = loadingFeedbackIndex !== null;
     const evaluationReady = !!responseAnalyses && !analyzingResponses;
     const feedbackReady = !!feedbacks && !isFeedbackLoading;
+    const summaryDataReady = evaluationReady && feedbackReady;
     const summaryProgress = !inSummaryView ? 0 : (((evaluationReady ? 1 : 0) + (feedbackReady ? 1 : 0)) / 2) * 100;
-    const showSummaryProgress = inSummaryView && (!evaluationReady || !feedbackReady);
+    const showSummaryLoadingPanel = inSummaryView && !summaryRevealReady;
+
+    // Interview report overview (radar chart + improvement breakdown).
+    const reportAnalyses = Array.isArray(responseAnalyses) ? responseAnalyses : [];
+    const reportCount = reportAnalyses.length || 1;
+    const reportAvgCertainty =
+        reportAnalyses.reduce((s, a) => s + (typeof a?.certainty?.score === 'number' ? a.certainty?.score : 0.5), 0) / reportCount;
+    const reportAvgRelevance =
+        reportAnalyses.reduce((s, a) => s + relevanceLabelToScore(a?.relevance?.label), 0) / reportCount;
+    const reportAvgAnswered =
+        reportAnalyses.reduce((s, a) => s + answeredLabelToScore(a?.answered?.label), 0) / reportCount;
+    const reportAvgFormality =
+        reportAnalyses.reduce((s, a) => s + formalityLabelToScore(a?.formality?.label), 0) / reportCount;
+    const reportAvgTone =
+        reportAnalyses.reduce((s, a) => s + toneLabelToScore(a?.tone?.tone), 0) / reportCount;
+
+    const reportAxes = [
+        { key: 'certainty', label: 'Confidence', value: Math.round(reportAvgCertainty * 100) },
+        { key: 'relevance', label: 'Relevance', value: Math.round(reportAvgRelevance * 100) },
+        { key: 'answered', label: 'Coverage', value: Math.round(reportAvgAnswered * 100) },
+        { key: 'formality', label: 'Professionalism', value: Math.round(reportAvgFormality * 100) },
+        { key: 'tone', label: 'Tone', value: Math.round(reportAvgTone * 100) },
+    ];
+
+    const reportRadarData = reportAxes.map((a) => ({ subject: a.label, score: a.value }));
+    const reportWeakAreas = [...reportAxes].sort((a, b) => a.value - b.value).slice(0, 3);
+
+    const reportImprovementCopy = (axisKey) => {
+        switch (axisKey) {
+            case 'certainty':
+                return { title: 'Increase confidence', hint: 'Use assertive wording and concrete outcomes (e.g., “I led…”, “I delivered…”).' };
+            case 'relevance':
+                return { title: 'Answer more directly', hint: 'Address the core requirement first, then add context and supporting examples.' };
+            case 'answered':
+                return { title: 'Improve coverage', hint: 'Use a simple structure (STAR or 3-step flow) to ensure every part of the question is answered.' };
+            case 'formality':
+                return { title: 'Sound more professional', hint: 'Keep sentences concise, avoid filler, and maintain a consistent professional tone.' };
+            case 'tone':
+                return { title: 'Refine your tone', hint: 'Emphasize positivity and engagement by highlighting achievements and what you learned.' };
+            default:
+                return { title: 'Improve', hint: 'Focus on clarity, structure, and confident delivery.' };
+        }
+    };
+
+    const reportImprovementItems = reportWeakAreas.map((a) => ({ ...a, ...(reportImprovementCopy(a.key)) }));
+
+    useEffect(() => {
+        if (!inSummaryView || !summaryDataReady) {
+            setSummaryRevealReady(false);
+            return;
+        }
+        const t = window.setTimeout(() => setSummaryRevealReady(true), 700);
+        return () => window.clearTimeout(t);
+    }, [inSummaryView, summaryDataReady]);
+
+    useEffect(() => {
+        if (!inSummaryView) setSummaryResultsTab('report');
+    }, [inSummaryView]);
+
+    useEffect(() => {
+        if (inSummaryView) setSummarySelectedQuestionIndex(0);
+    }, [inSummaryView]);
+
+    useEffect(() => {
+        if (!showPreInterviewIntro || !simulationActive) return;
+        // Only auto-speak via LiveAvatar SDK. In embed/VRM modes we trigger speaking from
+        // the user's "Start simulation" click (see handleStartSimulation) to avoid autoplay blocks.
+        if (!USE_LIVE_AVATAR_SDK) return;
+
+        // Ensure no old audio is still playing while we show the intro.
+        try {
+            liveAvatarRef.current?.interrupt?.();
+        } catch (_) {
+            /* noop */
+        }
+        if (typeof window !== 'undefined' && window.speechSynthesis) {
+            window.speechSynthesis.cancel();
+        }
+
+        const script = getInterviewerIntroScript({
+            companyName,
+            role,
+            interviewType,
+            numQuestions: generatedQuestions.length,
+            language,
+        });
+        const delay = USE_LIVE_AVATAR_SDK ? 1200 : 450;
+        let cancelled = false;
+        let retryTimer = null;
+
+        const speakLoop = () => {
+            if (cancelled || introScriptSpokenRef.current) return;
+            if (typeof window === 'undefined') return;
+
+            const canSpeak = !!liveAvatarRef.current && liveAvatarHudReadyRef.current;
+            if (!canSpeak) {
+                // LiveAvatar sessions can take a while (especially if previous sessions are still winding down).
+                // Keep waiting until the avatar is truly ready, then speak.
+                retryTimer = window.setTimeout(speakLoop, 450);
+                return;
+            }
+
+            introScriptSpokenRef.current = true;
+            try {
+                liveAvatarRef.current.interrupt?.();
+            } catch (_) {
+                /* noop */
+            }
+            window.setTimeout(() => {
+                if (cancelled) return;
+                try {
+                    liveAvatarRef.current?.speak?.(script);
+                } catch (_) {
+                    // If speak fails for any reason, allow another loop attempt.
+                    introScriptSpokenRef.current = false;
+                    retryTimer = window.setTimeout(speakLoop, 450);
+                }
+            }, 280);
+        };
+
+        const timer = window.setTimeout(() => {
+            speakLoop();
+        }, delay);
+        return () => {
+            cancelled = true;
+            window.clearTimeout(timer);
+            if (retryTimer) window.clearTimeout(retryTimer);
+        };
+    }, [showPreInterviewIntro, simulationActive, companyName, role, interviewType, generatedQuestions.length, language, liveAvatarSessionReady]);
+
+    // When the question changes, the avatar subtree can remount (due to `key` on the question wrapper).
+    // Reset readiness so the auto-speak logic waits for the new avatar instance's `onReady`.
+    useEffect(() => {
+        if (!USE_LIVE_AVATAR_SDK) return;
+        if (!simulationActive) return;
+        if (showPreInterviewIntro) return;
+        liveAvatarHudReadyRef.current = false;
+        setLiveAvatarSessionReady(false);
+    }, [USE_LIVE_AVATAR_SDK, simulationActive, showPreInterviewIntro, currentQuestionIndex]);
 
     const handleGetAllFeedback = () => {
         if (!responseAnalyses?.length || loadingFeedbackIndex !== null) return;
@@ -1349,7 +1932,7 @@ export default function InterviewSimulatorPage() {
             {/* Questions Modal - large viewport with AI interviewer avatar */}
             {showQuestionsModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-sm animate-interview-backdrop-in" onClick={closeModal}>
-                    <div className={(`${isDark ? 'bg-gray-900' : 'bg-white'} rounded-2xl sm:rounded-3xl w-full max-w-7xl h-[90vh] max-h-[calc(100vh-2rem)] flex overflow-hidden border ${isDark ? 'border-gray-700/80' : 'border-gray-200'} shadow-2xl ${isDark ? 'shadow-black/50' : 'shadow-xl shadow-gray-400/20'} relative animate-interview-modal-in`)} onClick={(e) => e.stopPropagation()}>
+                    <div className={(`${isDark ? 'bg-gray-900' : 'bg-white'} rounded-2xl sm:rounded-3xl w-full max-w-7xl h-[min(90vh,calc(100dvh-1rem))] flex min-h-0 overflow-hidden border ${isDark ? 'border-gray-700/80' : 'border-gray-200'} shadow-2xl ${isDark ? 'shadow-black/50' : 'shadow-xl shadow-gray-400/20'} relative animate-interview-modal-in`)} onClick={(e) => e.stopPropagation()}>
                         <button
                             onClick={closeModal}
                             className={(`absolute top-4 right-4 w-10 h-10 flex items-center justify-center rounded-xl transition-all duration-200 z-20 ${isDark
@@ -1360,8 +1943,8 @@ export default function InterviewSimulatorPage() {
                             <X className="w-5 h-5" />
                         </button>
 
-                        {/* Left pane: session info + controls at bottom (questions view + ending screen only) */}
-                        {simulationActive && (
+                        {/* Left pane: session info + download (hidden during live questions — Zoom-style full-width stage) */}
+                        {simulationActive && !inQuestionPhase && (
                             <div className={`hidden sm:flex flex-col items-stretch justify-between pt-8 pb-6 px-4 w-56 flex-shrink-0 border-r min-h-0 ${isDark ? 'border-gray-700/80 bg-gray-800/40' : 'border-gray-200 bg-gray-50/90'}`}>
                                 <div className="flex-1 min-h-0 flex flex-col w-full">
                                     {/* Upper section: role + details, vertically centered within this block */}
@@ -1400,63 +1983,12 @@ export default function InterviewSimulatorPage() {
                                         )}
                                     </div>
                                 </div>
-                                {currentQuestionIndex < generatedQuestions.length && (
-                                    <div className="mt-auto pt-4 space-y-3 w-full border-t border-gray-600/50">
-                                        <button
-                                            type="button"
-                                            onClick={speakQuestion}
-                                            className={`w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${isDark
-                                                ? 'bg-emerald-500/30 text-emerald-200 hover:bg-emerald-500/40 border border-emerald-400/50 shadow-lg shadow-emerald-500/10'
-                                                : 'bg-emerald-500 text-white hover:bg-emerald-600 border border-emerald-600 shadow-md shadow-emerald-500/20'
-                                            }`}
-                                        >
-                                            <Volume2 className="w-4 h-4" aria-hidden />
-                                            <span>{t.interviewListenQuestion ?? 'Listen'}</span>
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={stopSpeech}
-                                            title="Stop"
-                                            className={`w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${isDark
-                                                ? 'bg-red-500/25 text-red-300 hover:bg-red-500/35 border border-red-500/50'
-                                                : 'bg-red-100 text-red-700 hover:bg-red-200 border border-red-300'
-                                            }`}
-                                        >
-                                            <Square className="w-4 h-4" aria-hidden />
-                                            <span>Stop</span>
-                                        </button>
-                                        {!videoStream ? (
-                                            <button
-                                                type="button"
-                                                onClick={startVideoPreview}
-                                                className={`w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${isDark
-                                                    ? 'bg-gray-700/80 text-gray-200 hover:bg-gray-600 border border-gray-600'
-                                                    : 'bg-gray-200 text-gray-800 hover:bg-gray-300 border border-gray-300'
-                                                }`}
-                                            >
-                                                <Video className="w-4 h-4" />
-                                                <span>Start camera</span>
-                                            </button>
-                                        ) : (
-                                            <button
-                                                type="button"
-                                                onClick={stopVideoPreview}
-                                                className={`w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${isDark
-                                                    ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30 border border-red-500/40'
-                                                    : 'bg-red-100 text-red-600 hover:bg-red-200 border border-red-200'
-                                                }`}
-                                            >
-                                                <span>Stop camera</span>
-                                            </button>
-                                        )}
-                                    </div>
-                                )}
                             </div>
                         )}
 
-                        <div className="flex-1 flex flex-col min-w-0 min-h-0 overflow-y-auto">
-                        {/* Mobile: compact session bar (only when simulation is active) */}
-                        {simulationActive && (
+                        <div className={`flex-1 flex flex-col min-w-0 min-h-0 max-h-full ${inQuestionPhase ? 'overflow-hidden' : 'overflow-y-auto'}`}>
+                        {/* Mobile: compact session bar (pre-intro / summary — hidden during questions for a fuller meeting view) */}
+                        {simulationActive && !inQuestionPhase && (
                             <div className={`sm:hidden flex items-center gap-3 px-6 py-4 border-b ${isDark ? 'border-gray-700/80 bg-gray-800/60' : 'border-gray-200 bg-gray-50 shadow-sm'}`}>
                                 <div className={`w-12 h-12 rounded-full flex-shrink-0 ring-2 ${isDark ? 'bg-gradient-to-br from-emerald-500/30 to-teal-500/30 ring-emerald-500/40' : 'bg-gradient-to-br from-emerald-400/40 to-teal-400/40 ring-emerald-400/40'}`} />
                                 <div className="min-w-0">
@@ -1465,7 +1997,7 @@ export default function InterviewSimulatorPage() {
                                 </div>
                             </div>
                         )}
-                        <div className={`p-4 sm:p-6 flex-1 flex flex-col min-h-0 min-w-0 ${simulationActive && currentQuestionIndex < generatedQuestions.length ? 'overflow-hidden' : ''}`}>
+                        <div className={`flex-1 flex flex-col min-h-0 min-w-0 ${inQuestionPhase ? 'overflow-hidden p-3 sm:p-4 pb-2' : 'overflow-visible p-4 sm:p-6'}`}>
                             {!simulationActive ? (
                                 <div key="welcome" className="flex flex-col flex-1 min-h-0 animate-interview-view-in">
                                     <div className="flex flex-col flex-1 min-h-0">
@@ -1508,14 +2040,78 @@ export default function InterviewSimulatorPage() {
                                         </div>
                                     </div>
                                 </div>
+                            ) : simulationActive && showPreInterviewIntro ? (
+                                <div key="pre-intro" className="flex flex-col flex-1 min-h-0 overflow-hidden animate-interview-view-in">
+                                    <div className="flex flex-col flex-1 min-h-0 max-w-2xl mx-auto w-full px-2 py-4 sm:py-6">
+                                        <div className={`rounded-2xl border p-4 sm:p-6 shadow-lg ${isDark ? 'bg-gray-800/60 border-gray-600/80' : 'bg-gray-50 border-gray-200'} flex flex-col flex-1 min-h-0`}>
+                                            <p className={`text-xs font-semibold uppercase tracking-wider mb-2 ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>
+                                                {t.interviewIntroTitle}
+                                            </p>
+                                            <h2 className={`text-2xl sm:text-3xl font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                                                Alex Chen
+                                            </h2>
+
+                                            {/* LiveAvatar: Alex Chen introduces himself */}
+                                            <div className={`mb-4 flex flex-col rounded-xl overflow-hidden border shadow-md flex-1 min-h-0 ${isDark ? 'border-gray-600/80 bg-gray-800/30' : 'border-gray-200 bg-gray-50/50'}`}>
+                                                <div className={`flex-shrink-0 px-3 py-2 border-b ${isDark ? 'border-gray-600/80 bg-gray-800/50' : 'border-gray-200 bg-gray-100/80'}`}>
+                                                    <p className={`text-sm font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>Alex Chen</p>
+                                                    <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>{role || 'Senior Software Engineer'}</p>
+                                                    <p className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>{companyName || '—'}</p>
+                                                </div>
+                                                <div className="flex-1 min-h-0">
+                                                    {USE_LIVE_AVATAR_EMBED ? (
+                                                        <InterviewLiveAvatarEmbed
+                                                            key="liveavatar-embed-preintro"
+                                                            embedId={LIVE_AVATAR_EMBED_ID}
+                                                            embedUrl={LIVE_AVATAR_EMBED_URL}
+                                                            className="flex-1 min-h-0"
+                                                            compact
+                                                        />
+                                                    ) : USE_LIVE_AVATAR_SDK ? (
+                                                        <InterviewLiveAvatar
+                                                            key="liveavatar-sdk-session-preintro"
+                                                            ref={liveAvatarRef}
+                                                            className="flex-1 min-h-0"
+                                                            onSpeakingChange={setIsAvatarSpeaking}
+                                                            onReady={() => {
+                                                                liveAvatarHudReadyRef.current = true;
+                                                                setLiveAvatarSessionReady(true);
+                                                            }}
+                                                            onError={() => {
+                                                                liveAvatarHudReadyRef.current = false;
+                                                                setLiveAvatarSessionReady(false);
+                                                            }}
+                                                        />
+                                                    ) : (
+                                                        <InterviewAvatarVrm className="flex-1 min-h-0" isSpeaking={isAvatarSpeaking} />
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            <p className={`text-sm mt-4 mb-4 flex-shrink-0 ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>
+                                                {t.interviewIntroHint}
+                                            </p>
+                                            <button
+                                                type="button"
+                                                onClick={dismissPreInterviewIntro}
+                                                className="mt-auto w-full sm:w-auto px-8 py-3.5 rounded-xl font-semibold bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:from-emerald-600 hover:to-teal-600 shadow-lg shadow-emerald-500/25"
+                                            >
+                                                {t.interviewBeginInterview}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
                             ) : currentQuestionIndex < generatedQuestions.length ? (
-                                <div key={`q-${currentQuestionIndex}`} className="flex flex-col flex-1 min-h-0 gap-2 overflow-hidden animate-interview-slide-next">
-                                    <div className="flex flex-col flex-1 min-h-0 gap-2 overflow-hidden">
+                                <div
+                                    key={`q-${currentQuestionIndex}`}
+                                    className="grid grid-rows-[auto_minmax(0,1fr)_auto] flex-1 min-h-0 gap-2 overflow-hidden animate-interview-slide-next"
+                                >
+                                    <div className="flex flex-col gap-2 min-h-0 min-w-0 overflow-hidden">
                                         <div className={`flex-shrink-0 p-3 sm:p-4 rounded-xl ${isDark ? 'bg-gray-800/50 border border-gray-700/80' : 'bg-gray-50/80 border border-gray-200'} shadow-sm overflow-hidden`}>
                                             <div className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold mb-2 ${isDark ? 'bg-emerald-500/20 text-emerald-400' : 'bg-emerald-500/15 text-emerald-700'}`}>
                                                 {t.interviewQuestionOf} {currentQuestionIndex + 1} {t.interviewOf} {generatedQuestions.length}
                                             </div>
-                                            <div className={`text-base sm:text-lg font-bold leading-snug break-words space-y-2 max-h-[18vh] overflow-y-auto pr-1 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                                            <div className={`text-base sm:text-lg font-bold leading-snug break-words space-y-2 max-h-[min(18rem,26vh)] overflow-y-auto pr-1 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                                             {parseQuestionWithCodeBlocks(generatedQuestions[currentQuestionIndex]).map((seg, idx) =>
                                                 seg.type === 'text' ? (
                                                     <div key={idx} className="whitespace-pre-wrap">{seg.content}</div>
@@ -1553,65 +2149,48 @@ export default function InterviewSimulatorPage() {
                                         )}
                                     </div>
 
-                                    <div className="flex flex-col flex-1 min-h-0 gap-2 min-w-0 overflow-hidden">
-                                        {/* Mobile-only: Listen / Stop / Start camera (left pane hidden on small screens) */}
-                                        <div className="flex sm:hidden flex-wrap items-center gap-2 flex-shrink-0">
-                                            <button
-                                                type="button"
-                                                onClick={speakQuestion}
-                                                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold ${isDark
-                                                    ? 'bg-emerald-500/30 text-emerald-200 hover:bg-emerald-500/40 border border-emerald-400/50'
-                                                    : 'bg-emerald-500 text-white hover:bg-emerald-600 border border-emerald-600'
-                                                }`}
-                                            >
-                                                <Volume2 className="w-4 h-4" />
-                                                <span>Listen</span>
-                                            </button>
-                                            <button
-                                                type="button"
-                                                onClick={stopSpeech}
-                                                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold ${isDark
-                                                    ? 'bg-red-500/25 text-red-300 hover:bg-red-500/35 border border-red-500/50'
-                                                    : 'bg-red-100 text-red-700 hover:bg-red-200 border border-red-300'
-                                                }`}
-                                            >
-                                                <Square className="w-4 h-4" />
-                                                <span>Stop</span>
-                                            </button>
-                                            {!videoStream ? (
-                                                <button
-                                                    type="button"
-                                                    onClick={startVideoPreview}
-                                                    className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium ${isDark
-                                                        ? 'bg-gray-700 text-gray-200 hover:bg-gray-600'
-                                                        : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
-                                                    }`}
-                                                >
-                                                    <Video className="w-4 h-4" />
-                                                    <span>Start camera</span>
-                                                </button>
-                                            ) : (
-                                                <button
-                                                    type="button"
-                                                    onClick={stopVideoPreview}
-                                                    className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium ${isDark
-                                                        ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30'
-                                                        : 'bg-red-100 text-red-600 hover:bg-red-200'
-                                                    }`}
-                                                >
-                                                    <span>Stop camera</span>
-                                                </button>
-                                            )}
-                                        </div>
-
+                                    <div className="flex min-h-0 min-w-0 w-full h-full max-h-full flex-col overflow-hidden">
+                                        {/* Grid middle row: fills remaining height; minmax(0,1fr) allows shrink */}
+                                        <div className={`flex min-h-0 h-full max-h-full flex-1 flex-col rounded-2xl overflow-hidden border ${isDark ? 'border-gray-700/70 bg-black/40 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)]' : 'border-gray-300/90 bg-gray-950/[0.04] shadow-inner'}`}>
                                         {/* Two camera slots side by side: User | Avatar */}
-                                        <div className="flex-1 min-h-0 flex gap-2 min-w-0">
+                                        <div className="flex flex-1 min-h-0 min-w-0 gap-1.5 sm:gap-2 p-1.5 sm:p-2 items-stretch">
                                             {/* User camera slot: interviewee card + video */}
-                                            <div className={`flex-1 min-w-0 flex flex-col rounded-xl overflow-hidden border shadow-md ${isDark ? 'border-gray-600/80 bg-gray-800/30' : 'border-gray-200 bg-gray-50/50'}`}>
-                                                {/* Interviewee persona card (placeholder) */}
-                                                <div className={`flex-shrink-0 px-3 py-2 border-b ${isDark ? 'border-gray-600/80 bg-gray-800/50' : 'border-gray-200 bg-gray-100/80'}`}>
+                                            <div className={`flex-1 min-w-0 min-h-0 flex flex-col rounded-xl overflow-hidden border shadow-lg ${isDark ? 'border-gray-600/60 bg-gray-900/80' : 'border-gray-200 bg-white/95'}`}>
+                                                {/* Interviewee header — camera aligned with “Role here” row */}
+                                                <div className={`flex-shrink-0 px-3 py-2 border-b ${isDark ? 'border-gray-600/80 bg-gray-900/90' : 'border-gray-200 bg-gray-100/90'}`}>
                                                     <p className={`text-sm font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>Interviewee</p>
-                                                    <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Role here</p>
+                                                    <div className="mt-0.5 flex flex-wrap items-center justify-between gap-2">
+                                                        <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Role here</p>
+                                                        {!videoStream ? (
+                                                            <button
+                                                                type="button"
+                                                                onClick={startVideoPreview}
+                                                                aria-label="Start camera"
+                                                                title="Start camera"
+                                                                className={`flex-shrink-0 inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-[11px] font-semibold transition-all ${isDark
+                                                                    ? 'bg-gray-600 text-gray-50 hover:bg-gray-500 border border-gray-500 ring-1 ring-white/15'
+                                                                    : 'bg-gray-200 text-gray-800 hover:bg-gray-300 border border-gray-300'
+                                                                }`}
+                                                            >
+                                                                <Video className="w-3.5 h-3.5 shrink-0" aria-hidden />
+                                                                <span>Camera</span>
+                                                            </button>
+                                                        ) : (
+                                                            <button
+                                                                type="button"
+                                                                onClick={stopVideoPreview}
+                                                                aria-label="Stop camera"
+                                                                title="Stop camera"
+                                                                className={`flex-shrink-0 inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-[11px] font-semibold transition-all ${isDark
+                                                                    ? 'bg-red-500/25 text-red-300 hover:bg-red-500/35 border border-red-500/50 ring-1 ring-red-400/20'
+                                                                    : 'bg-red-100 text-red-600 hover:bg-red-200 border border-red-200'
+                                                                }`}
+                                                            >
+                                                                <Video className="w-3.5 h-3.5 shrink-0 opacity-80" aria-hidden />
+                                                                <span>Stop</span>
+                                                            </button>
+                                                        )}
+                                                    </div>
                                                 </div>
                                                 <div className="w-full flex-1 min-h-0 flex flex-col">
                                                     {!videoStream ? (
@@ -1623,13 +2202,13 @@ export default function InterviewSimulatorPage() {
                                                         </div>
                                                     ) : (
                                                         <>
-                                                            <div className="relative flex-1 min-h-0 w-full bg-black/20 flex items-center justify-center">
+                                                            <div className="relative flex-1 min-h-0 w-full overflow-hidden bg-black">
                                                                 <video
                                                                     ref={videoPreviewRef}
                                                                     autoPlay
                                                                     muted
                                                                     playsInline
-                                                                    className="max-w-full max-h-full w-full h-full object-contain"
+                                                                    className="absolute inset-0 h-full w-full object-cover object-center"
                                                                 />
                                                                 <span className={`absolute bottom-2 left-2 text-xs font-medium px-2 py-1 rounded ${isDark ? 'bg-black/60 text-white' : 'bg-white/80 text-gray-800'}`}>
                                                                     You
@@ -1674,114 +2253,60 @@ export default function InterviewSimulatorPage() {
                                                 )}
                                             </div>
                                             {/* Avatar slot: interviewer persona card + VRM avatar */}
-                                            <div className={`flex-1 min-w-0 flex flex-col rounded-xl overflow-hidden border shadow-md ${isDark ? 'border-gray-600/80 bg-gray-800/30' : 'border-gray-200 bg-gray-50/50'}`}>
-                                                {/* Interviewer persona card */}
-                                                <div className={`flex-shrink-0 px-3 py-2 border-b ${isDark ? 'border-gray-600/80 bg-gray-800/50' : 'border-gray-200 bg-gray-100/80'}`}>
+                                            <div className={`flex-1 min-w-0 min-h-0 flex flex-col rounded-xl overflow-hidden border shadow-lg ${isDark ? 'border-gray-600/60 bg-gray-900/80' : 'border-gray-200 bg-white/95'}`}>
+                                                {/* Interviewer persona — stays above video (embed cannot overlap) */}
+                                                <div className={`relative z-10 flex-shrink-0 px-3 py-2 border-b ${isDark ? 'border-gray-600/80 bg-gray-900/95' : 'border-gray-200 bg-gray-100/95'}`}>
                                                     <p className={`text-sm font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>Alex Chen</p>
                                                     <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>{role || 'Senior Software Engineer'}</p>
                                                     <p className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>{companyName || '—'}</p>
                                                 </div>
-                                                <div className="flex-1 min-h-0 min-w-0 flex flex-col">
-                                                    <InterviewAvatarVrm className="flex-1 min-h-0" />
+                                                <div className="relative flex-1 min-h-0 min-w-0 flex flex-col overflow-hidden bg-black/30">
+                                                    {USE_LIVE_AVATAR_EMBED ? (
+                                                        <InterviewLiveAvatarEmbed
+                                                            key="liveavatar-embed"
+                                                            embedId={LIVE_AVATAR_EMBED_ID}
+                                                            embedUrl={LIVE_AVATAR_EMBED_URL}
+                                                            className="flex-1 min-h-0"
+                                                        />
+                                                    ) : USE_LIVE_AVATAR_SDK ? (
+                                                        <InterviewLiveAvatar
+                                                            key="liveavatar-sdk-session"
+                                                            ref={liveAvatarRef}
+                                                            className="flex-1 min-h-0"
+                                                            onSpeakingChange={setIsAvatarSpeaking}
+                                                            onReady={() => {
+                                                                liveAvatarHudReadyRef.current = true;
+                                                                setLiveAvatarSessionReady(true);
+                                                            }}
+                                                            onError={() => {
+                                                                liveAvatarHudReadyRef.current = false;
+                                                                setLiveAvatarSessionReady(false);
+                                                            }}
+                                                        />
+                                                    ) : (
+                                                        <InterviewAvatarVrm className="flex-1 min-h-0" isSpeaking={isAvatarSpeaking} />
+                                                    )}
                                                 </div>
                                             </div>
                                         </div>
-                                        {/* Waveforms below cameras: same style for both */}
-                                        <div className={`flex-shrink-0 flex gap-2 items-stretch px-2 py-2 rounded-b-xl border-t ${isDark ? 'border-gray-600/80 bg-gray-800/40' : 'border-gray-200 bg-gray-100/60'}`}>
-                                            <div className="flex-1 min-w-0 flex flex-col rounded-lg overflow-hidden">
+                                        {/* Waveforms below cameras — slightly taller strip */}
+                                        <div className={`flex-shrink-0 flex gap-2 items-stretch px-2 py-2.5 min-h-[3rem] border-t ${isDark ? 'border-gray-700/60 bg-gray-950/50' : 'border-gray-200/90 bg-gray-100/80'}`}>
+                                            <div className="flex-1 min-w-0 flex flex-col rounded-lg overflow-hidden justify-center">
                                                 {recordingStream ? (
                                                     <UserWaveform stream={recordingStream} isDark={isDark} />
                                                 ) : (
                                                     <WaveformBars heights={Array(WAVEFORM_BAR_COUNT).fill(0.15)} isDark={isDark} />
                                                 )}
                                             </div>
-                                            <div className="flex-1 min-w-0 flex flex-col rounded-lg overflow-hidden">
+                                            <div className="flex-1 min-w-0 flex flex-col rounded-lg overflow-hidden justify-center">
                                                 <AvatarWaveform isActive={isAvatarSpeaking} isDark={isDark} />
                                             </div>
                                         </div>
-
-                                        {!isRecording && ((responses[currentQuestionIndex] ?? '').trim() || (transcriptSegments[currentQuestionIndex]?.length > 0)) && (
-                                            <div className={`rounded-lg border ${isDark ? 'bg-gray-800/50 border-gray-700' : 'bg-gray-50 border-gray-300'} p-3 flex flex-col min-h-0`}>
-                                                <p className={`text-xs font-semibold mb-1 flex-shrink-0 ${isDark ? 'text-white' : 'text-gray-700'}`}>{t.interviewTranscript ?? 'Transcript'}</p>
-                                                <div className="min-h-0 overflow-y-auto max-h-[50vh] pr-1 -mr-1">
-                                                    <textarea
-                                                        id="interview-response"
-                                                        value={responses[currentQuestionIndex] ?? ''}
-                                                        onChange={(e) => handleResponseChange(e.target.value)}
-                                                        rows={2}
-                                                        className={`w-full px-2 py-1.5 rounded text-xs min-h-[48px] max-h-[80px] resize-y ${isDark ? 'bg-gray-800 border border-gray-700 text-gray-300' : 'bg-white border border-gray-300 text-gray-700'}`}
-                                                        placeholder={t.interviewEditTranscript ?? 'Edit if needed...'}
-                                                    />
-                                                    {(getAggregatedEmotionsForQuestion(emotionLogs[currentQuestionIndex]) || responseEmotions[currentQuestionIndex] || (transcriptSegments[currentQuestionIndex]?.length > 0 && emotionLogs[currentQuestionIndex]?.length > 0)) && (
-                                                        <div className={`mt-2 pt-2 border-t ${isDark ? 'border-gray-600/50 text-gray-400' : 'border-gray-200 text-gray-500'}`}>
-                                                        <p className={`text-xs font-semibold mb-1 ${isDark ? 'text-white' : 'text-gray-700'}`}>Emotions noted</p>
-                                                        {(() => {
-                                                            const aggregated = getAggregatedEmotionsForQuestion(emotionLogs[currentQuestionIndex]);
-                                                            const snapshot = responseEmotions[currentQuestionIndex]?.expressions;
-                                                            const emotionsSource = (aggregated && Object.keys(aggregated).length > 0) ? aggregated : (snapshot && Object.keys(snapshot).length > 0 ? snapshot : null);
-                                                            const avgGaze = getAvgGazeForQuestion(emotionLogs[currentQuestionIndex]);
-                                                            const topNames = emotionsSource ? getTopExpressionNames(emotionsSource, 3) : [];
-                                                            return (
-                                                                <>
-                                                                    {emotionsSource ? (
-                                                                        <p className="text-xs leading-relaxed mb-1">
-                                                                            {Object.entries(emotionsSource)
-                                                                                .filter(([, v]) => typeof v === 'number' && v >= 0)
-                                                                                .sort((a, b) => b[1] - a[1])
-                                                                                .map(([k, v]) => `${k.replace(/_/g, ' ')} ${Math.round((v ?? 0) * 100)}%`)
-                                                                                .join(' · ')}
-                                                                        </p>
-                                                                    ) : (transcriptSegments[currentQuestionIndex]?.length > 0 && emotionLogs[currentQuestionIndex]?.length > 0) ? null : (
-                                                                        <p className="text-xs opacity-75 mb-1">No face detected</p>
-                                                                    )}
-                                                                    {(avgGaze != null || topNames.length > 0) && (
-                                                                        <p className="text-xs leading-relaxed opacity-90">
-                                                                            {avgGaze != null && <span>Eye contact: {Math.round(avgGaze * 100)}%</span>}
-                                                                            {avgGaze != null && topNames.length > 0 && ' · '}
-                                                                            {topNames.length > 0 && <span>Top: {topNames.join(', ')}</span>}
-                                                                        </p>
-                                                                    )}
-                                                                    {(() => {
-                                                                        const questionAUs = getAggregatedAUsForQuestion(emotionLogs[currentQuestionIndex]);
-                                                                        const topAUs = questionAUs ? getTopAUNames(questionAUs, 3) : [];
-                                                                        return topAUs.length > 0 ? (
-                                                                            <p className="text-xs leading-relaxed opacity-90">Micro-expressions (AUs): {topAUs.join(', ')}</p>
-                                                                        ) : null;
-                                                                    })()}
-                                                                </>
-                                                            );
-                                                        })()}
-                                                        {getSegmentsWithGaps(transcriptSegments[currentQuestionIndex], emotionLogs[currentQuestionIndex]).length > 0 && emotionLogs[currentQuestionIndex]?.length > 0 && (
-                                                            <div className="mt-2 space-y-1">
-                                                                <p className={`text-xs font-semibold ${isDark ? 'text-white' : 'text-gray-700'}`}>Per phrase / pause</p>
-                                                                {getSegmentsWithGaps(transcriptSegments[currentQuestionIndex], emotionLogs[currentQuestionIndex]).map((seg, i) => {
-                                                                    const segEmo = getEmotionsForSegment(emotionLogs[currentQuestionIndex], seg.start, seg.end);
-                                                                    const str = segEmo?.expressions && Object.keys(segEmo.expressions).length > 0
-                                                                        ? Object.entries(segEmo.expressions)
-                                                                            .filter(([, v]) => typeof v === 'number' && v >= 0)
-                                                                            .sort((a, b) => b[1] - a[1])
-                                                                            .map(([k, v]) => `${k.replace(/_/g, ' ')} ${Math.round((v ?? 0) * 100)}%`)
-                                                                            .join(', ')
-                                                                        : '—';
-                                                                    const label = seg.isGap ? getGapLabel(emotionLogs[currentQuestionIndex], seg.start, seg.end) : `"${seg.text}"`;
-                                                                    const extras = getSegmentExtras(emotionLogs[currentQuestionIndex], seg.start, seg.end, segEmo);
-                                                                    return (
-                                                                        <p key={i} className="text-xs leading-snug">
-                                                                            <span className="opacity-75">[{seg.start.toFixed(1)}s–{seg.end.toFixed(1)}s]</span> {label} — {str}
-                                                                            {extras && <span className="opacity-80">{extras}</span>}
-                                                                        </p>
-                                                                    );
-                                                                })}
-                                                            </div>
-                                                        )}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        )}
+                                        </div>
+                                        {/* Transcript is captured in the background but not shown until the end summary */}
                                     </div>
 
-                                    <div className={`flex items-stretch gap-2 sm:gap-3 pt-2 flex-shrink-0 border-t mt-2 ${isDark ? 'border-gray-700/60' : 'border-gray-200'}`}>
+                                    <div className={`flex items-stretch gap-2 sm:gap-3 pt-2 pb-2 sm:pb-3 flex-shrink-0 border-t ${isDark ? 'border-gray-700/60 bg-gray-900' : 'border-gray-200 bg-white'}`}>
                                         <button
                                             onClick={handlePrevious}
                                             disabled={currentQuestionIndex === 0}
@@ -1856,8 +2381,40 @@ export default function InterviewSimulatorPage() {
                             ) : (
                                 <div key="summary" className="flex-1 flex flex-col min-h-0 animate-interview-view-in">
                                     <div className="flex-1 flex flex-col min-h-0">
+                                        {showSummaryLoadingPanel ? (
+                                            <div className="flex flex-col items-center justify-center flex-1 min-h-[42vh] py-10 px-4">
+                                                <Loader2 className="w-10 h-10 animate-spin text-emerald-500 mb-4" aria-hidden />
+                                                <p className={`text-sm font-medium text-center ${isDark ? 'text-gray-200' : 'text-gray-800'}`}>
+                                                    {summaryDataReady ? t.interviewSummaryAlmost : t.interviewSummaryPreparing}
+                                                </p>
+                                                {analyzingResponses && !summaryDataReady && (
+                                                    <p className={`mt-2 text-xs text-center ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>
+                                                        {t.interviewAnalyzing}
+                                                    </p>
+                                                )}
+                                                <div className="w-full max-w-md mt-8 px-2">
+                                                    <div className="flex items-center justify-between text-[11px] mb-1 text-gray-400">
+                                                        <span className="flex items-center gap-1">
+                                                            <span className={`w-2 h-2 rounded-full ${evaluationReady ? 'bg-emerald-400' : 'bg-emerald-500/40 animate-pulse'}`} />
+                                                            <span>{evaluationReady ? 'Model evaluation complete' : 'Running model evaluation'}</span>
+                                                        </span>
+                                                        <span className="flex items-center gap-1">
+                                                            <span className={`w-2 h-2 rounded-full ${feedbackReady ? 'bg-sky-400' : isFeedbackLoading ? 'bg-sky-500/60 animate-pulse' : 'bg-gray-500/40'}`} />
+                                                            <span>{feedbackReady ? 'Personalized feedback ready' : 'Generating personalized feedback'}</span>
+                                                        </span>
+                                                    </div>
+                                                    <div className={`h-2 rounded-full overflow-hidden ${isDark ? 'bg-gray-700/80' : 'bg-gray-200'}`}>
+                                                        <div
+                                                            className={`${isDark ? 'bg-gradient-to-r from-emerald-400 via-sky-400 to-emerald-400' : 'bg-gradient-to-r from-emerald-500 via-sky-500 to-emerald-500'} h-full transition-all duration-500 ease-out`}
+                                                            style={{ width: `${Math.max(10, Math.min(100, summaryProgress))}%` }}
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <>
                                         <div className="flex-shrink-0">
-                                            <div className="text-center mb-6">
+                                            <div className="text-center mb-4">
                                                 {evaluationOverall && !analyzingResponses && (
                                                     <div className={`inline-flex items-center gap-3 px-5 py-3 rounded-2xl shadow-lg ${isDark ? 'bg-emerald-500/20 border border-emerald-500/40' : 'bg-emerald-50 border border-emerald-200 shadow-emerald-500/10'}`}>
                                                         <span className={`text-sm font-semibold ${isDark ? 'text-emerald-300' : 'text-emerald-700'}`}>
@@ -1868,38 +2425,189 @@ export default function InterviewSimulatorPage() {
                                                         </span>
                                                     </div>
                                                 )}
-                                                {analyzingResponses && (
-                                                    <p className={`mt-2 text-sm flex items-center justify-center gap-2 ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>
-                                                        <Loader2 className="w-4 h-4 animate-spin" />
-                                                        {t.interviewAnalyzing}
-                                                    </p>
-                                                )}
                                             </div>
                                         </div>
 
-                                        {showSummaryProgress && (
-                                            <div className="px-2 sm:px-4 mb-4 max-w-2xl mx-auto">
-                                                <div className="flex items-center justify-between text-[11px] mb-1 text-gray-400">
-                                                    <span className="flex items-center gap-1">
-                                                        <span className={`w-2 h-2 rounded-full ${evaluationReady ? 'bg-emerald-400' : 'bg-emerald-500/40 animate-pulse'}`} />
-                                                        <span>{evaluationReady ? 'Model evaluation complete' : 'Running model evaluation'}</span>
-                                                    </span>
-                                                    <span className="flex items-center gap-1">
-                                                        <span className={`w-2 h-2 rounded-full ${feedbackReady ? 'bg-sky-400' : isFeedbackLoading ? 'bg-sky-500/60 animate-pulse' : 'bg-gray-500/40'}`} />
-                                                        <span>{feedbackReady ? 'Personalized feedback ready' : 'Generating personalized feedback'}</span>
-                                                    </span>
-                                                </div>
-                                                <div className={`h-1.5 rounded-full overflow-hidden ${isDark ? 'bg-gray-700/80' : 'bg-gray-200'}`}>
-                                                    <div
-                                                        className={`${isDark ? 'bg-gradient-to-r from-emerald-400 via-sky-400 to-emerald-400' : 'bg-gradient-to-r from-emerald-500 via-sky-500 to-emerald-500'} h-full transition-all duration-500`}
-                                                        style={{ width: `${Math.max(10, Math.min(100, summaryProgress))}%` }}
-                                                    />
+                                        <div className="flex-shrink-0 px-2 sm:px-4 mb-3 max-w-3xl mx-auto w-full">
+                                            <p className={`text-xs text-center mb-2 ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>
+                                                {summaryResultsTab === 'report'
+                                                    ? t.interviewSummaryTabReportDesc
+                                                    : summaryResultsTab === 'emotions'
+                                                        ? t.interviewSummaryTabEmotionsDesc
+                                                        : t.interviewSummaryTabFeedbackDesc}
+                                            </p>
+                                            <div
+                                                role="tablist"
+                                                className={`grid grid-cols-1 sm:grid-cols-3 rounded-xl p-1 gap-1 ${isDark ? 'bg-gray-800/80 border border-gray-700' : 'bg-gray-100 border border-gray-200'}`}
+                                            >
+                                                <button
+                                                    type="button"
+                                                    role="tab"
+                                                    aria-selected={summaryResultsTab === 'report'}
+                                                    onClick={() => setSummaryResultsTab('report')}
+                                                    className={`flex items-center justify-center gap-2 py-2 px-2 rounded-lg text-xs sm:text-sm font-semibold transition-all ${
+                                                        summaryResultsTab === 'report'
+                                                            ? isDark
+                                                                ? 'bg-violet-500/25 text-violet-200 shadow-sm'
+                                                                : 'bg-white text-violet-900 shadow-sm'
+                                                            : isDark
+                                                                ? 'text-gray-400 hover:text-gray-200'
+                                                                : 'text-gray-600 hover:text-gray-900'
+                                                    }`}
+                                                >
+                                                    <LayoutDashboard className="w-4 h-4 shrink-0" aria-hidden />
+                                                    <span className="truncate">{t.interviewSummaryTabReport}</span>
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    role="tab"
+                                                    aria-selected={summaryResultsTab === 'emotions'}
+                                                    onClick={() => setSummaryResultsTab('emotions')}
+                                                    className={`flex items-center justify-center gap-2 py-2 px-2 rounded-lg text-xs sm:text-sm font-semibold transition-all ${
+                                                        summaryResultsTab === 'emotions'
+                                                            ? isDark
+                                                                ? 'bg-emerald-500/25 text-emerald-300 shadow-sm'
+                                                                : 'bg-white text-emerald-800 shadow-sm'
+                                                            : isDark
+                                                                ? 'text-gray-400 hover:text-gray-200'
+                                                                : 'text-gray-600 hover:text-gray-900'
+                                                    }`}
+                                                >
+                                                    <Sparkles className="w-4 h-4 shrink-0" aria-hidden />
+                                                    <span className="truncate">{t.interviewSummaryTabEmotions}</span>
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    role="tab"
+                                                    aria-selected={summaryResultsTab === 'feedback'}
+                                                    onClick={() => setSummaryResultsTab('feedback')}
+                                                    className={`flex items-center justify-center gap-2 py-2 px-2 rounded-lg text-xs sm:text-sm font-semibold transition-all ${
+                                                        summaryResultsTab === 'feedback'
+                                                            ? isDark
+                                                                ? 'bg-sky-500/25 text-sky-300 shadow-sm'
+                                                                : 'bg-white text-sky-800 shadow-sm'
+                                                            : isDark
+                                                                ? 'text-gray-400 hover:text-gray-200'
+                                                                : 'text-gray-600 hover:text-gray-900'
+                                                    }`}
+                                                >
+                                                    <MessageSquare className="w-4 h-4 shrink-0" aria-hidden />
+                                                    <span className="truncate">{t.interviewSummaryTabFeedback}</span>
+                                                </button>
+                                            </div>
+
+                                            {/* Sub-tabs: pick a specific question to inspect */}
+                                            {summaryResultsTab !== 'report' && (
+                                            <div className="mt-3">
+                                                <div
+                                                    role="tablist"
+                                                    aria-label="Summary question selector"
+                                                    className="overflow-x-auto pb-1"
+                                                >
+                                                    <div className="flex gap-2 min-w-max">
+                                                        {generatedQuestions.map((_, idx) => {
+                                                            const isActive = idx === summarySelectedQuestionIndex;
+                                                            const activeCls =
+                                                                summaryResultsTab === 'emotions'
+                                                                    ? isDark
+                                                                        ? 'bg-emerald-500/25 text-emerald-200 border border-emerald-500/40'
+                                                                        : 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                                                                    : isDark
+                                                                        ? 'bg-sky-500/25 text-sky-200 border border-sky-500/40'
+                                                                        : 'bg-sky-50 text-sky-800 border border-sky-200';
+                                                            const inactiveCls = isDark
+                                                                ? 'bg-gray-800/50 text-gray-300 border border-gray-700/60 hover:bg-gray-700/50'
+                                                                : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50';
+                                                            return (
+                                                                <button
+                                                                    key={idx}
+                                                                    type="button"
+                                                                    role="tab"
+                                                                    aria-selected={isActive}
+                                                                    onClick={() => setSummarySelectedQuestionIndex(idx)}
+                                                                    className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap border transition-colors duration-150 ${
+                                                                        isActive ? activeCls : inactiveCls
+                                                                    }`}
+                                                                >
+                                                                    Q{idx + 1}
+                                                                </button>
+                                                            );
+                                                        })}
+                                                    </div>
                                                 </div>
                                             </div>
-                                        )}
+                                            )}
+                                        </div>
 
                                         <div className="flex-1 min-h-0 overflow-y-auto space-y-6">
-                                        {generatedQuestions.map((question, index) => {
+                                        {summaryResultsTab === 'report' ? (
+                                            <div className={`rounded-xl border p-3 sm:p-4 ${isDark ? 'bg-gray-800/40 border-gray-700/80' : 'bg-white/60 border-gray-200'}`}>
+                                                <div className="flex flex-wrap items-baseline justify-between gap-2 mb-3">
+                                                    <h3 className={`text-base sm:text-lg font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>{t.interviewSummaryTabReport}</h3>
+                                                    {evaluationOverall?.overallBand != null && (
+                                                        <span className={`text-xs font-semibold px-2 py-1 rounded-lg ${isDark ? 'bg-emerald-500/20 text-emerald-300' : 'bg-emerald-100 text-emerald-800'}`}>
+                                                            {t[`interviewBand_${evaluationOverall.overallBand}`] ?? evaluationOverall.overallBand}
+                                                            {evaluationOverall?.overallScore != null ? ` · ${Math.round(evaluationOverall.overallScore * 100)}%` : ''}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                <div className="grid lg:grid-cols-12 gap-3 items-start">
+                                                    <div className={`lg:col-span-5 rounded-lg border p-2 ${isDark ? 'border-gray-700/60 bg-gray-900/20' : 'border-gray-200 bg-gray-50/80'}`}>
+                                                        <p className={`text-xs font-semibold mb-1 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>Radar</p>
+                                                        <div className="h-[min(200px,32vh)] w-full">
+                                                            <ResponsiveContainer width="100%" height="100%">
+                                                                <RadarChart data={reportRadarData} outerRadius="72%">
+                                                                    <PolarGrid stroke={isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'} />
+                                                                    <PolarAngleAxis dataKey="subject" tick={{ fill: isDark ? '#cbd5e1' : '#4b5563', fontSize: 10 }} />
+                                                                    <Tooltip
+                                                                        contentStyle={{
+                                                                            background: isDark ? 'rgba(17,24,39,0.95)' : 'rgba(255,255,255,0.98)',
+                                                                            border: isDark ? '1px solid rgba(75,85,99,0.7)' : '1px solid rgba(209,213,219,0.9)'
+                                                                        }}
+                                                                        formatter={(value) => `${Math.round(Number(value))}/100`}
+                                                                    />
+                                                                    <Radar dataKey="score" name="score" stroke={isDark ? '#34d399' : '#059669'} fill={isDark ? 'rgba(52,211,153,0.18)' : 'rgba(5,150,105,0.14)'} />
+                                                                </RadarChart>
+                                                            </ResponsiveContainer>
+                                                        </div>
+                                                    </div>
+                                                    <div className="lg:col-span-7 min-w-0">
+                                                        <p className={`text-xs font-semibold mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>Areas of improvement</p>
+                                                        <div className="space-y-2">
+                                                            {reportImprovementItems.map((it) => (
+                                                                <div key={it.key} className={`rounded-lg border px-2.5 py-2 ${isDark ? 'bg-gray-900/20 border-gray-700/60' : 'bg-white border-gray-200'}`}>
+                                                                    <div className="flex items-start justify-between gap-2">
+                                                                        <p className={`text-sm font-semibold leading-snug ${isDark ? 'text-white' : 'text-gray-900'}`}>{it.title}</p>
+                                                                        <span className={`text-[11px] font-semibold px-1.5 py-0.5 rounded shrink-0 ${isDark ? 'bg-gray-800/60 text-gray-200' : 'bg-gray-100 text-gray-700'}`}>
+                                                                            {it.value}/100
+                                                                        </span>
+                                                                    </div>
+                                                                    <p className={`text-xs mt-1 leading-snug ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>{it.hint}</p>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className={`mt-3 pt-3 border-t ${isDark ? 'border-gray-700/60' : 'border-gray-200'}`}>
+                                                    <p className={`text-xs font-semibold mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>By question</p>
+                                                    <div className="flex flex-wrap gap-1.5">
+                                                        {(generatedQuestions || []).map((_, idx) => {
+                                                            const a = responseAnalyses?.[idx];
+                                                            const band = a?.band != null ? (t[`interviewBand_${a.band}`] ?? a.band) : '—';
+                                                            const pct = a?.score != null ? Math.round(a.score * 100) : null;
+                                                            return (
+                                                                <div key={idx} className={`rounded-md border px-2 py-1 text-[11px] ${isDark ? 'bg-gray-800/40 border-gray-700/60 text-gray-200' : 'bg-gray-50 border-gray-200 text-gray-800'}`}>
+                                                                    <span className="font-semibold">Q{idx + 1}</span>
+                                                                    <span className="opacity-80"> · {band}{pct != null ? ` ${pct}%` : ''}</span>
+                                                                </div>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                        generatedQuestions.map((question, index) => {
+                                            if (index !== summarySelectedQuestionIndex) return null;
                                             const analysis = responseAnalyses?.[index];
                                             const emotions = analysis?.emotion?.emotions ?? [];
                                             const emotionText = emotions.length > 0
@@ -1931,7 +2639,7 @@ export default function InterviewSimulatorPage() {
                                                         }`}>
                                                             {index + 1}
                                                         </div>
-                                                        <p className={`text-lg font-medium flex-1 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                                                        <p className={`text-base font-medium flex-1 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                                                             {question}
                                                         </p>
                                                         {band != null && scorePct != null && !analyzingResponses && (
@@ -1940,16 +2648,37 @@ export default function InterviewSimulatorPage() {
                                                             </span>
                                                         )}
                                                     </div>
-                                                    <div className={`pl-12 border-l-2 ${isDark ? 'border-gray-600' : 'border-gray-200'}`}>
-                                                        <p className={`text-sm font-semibold mb-1 ${isDark ? 'text-white' : 'text-gray-700'}`}>
-                                                            {t.interviewTranscript ?? 'Transcript'}
-                                                        </p>
-                                                        <p className={`${isDark ? 'text-gray-300' : 'text-gray-700'} whitespace-pre-wrap`}>
-                                                            {responses[index]?.trim() || '—'}
-                                                        </p>
+                                                    {summaryResultsTab === 'feedback' ? (
+                                                        <div className={`pl-12 border-l-2 ${isDark ? 'border-gray-600' : 'border-gray-200'} grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 items-start`}>
+                                                            <div className={`rounded-xl p-3 max-h-[min(52vh,380px)] overflow-y-auto ${isDark ? 'bg-gray-800/40 border border-gray-700/60' : 'bg-white border border-gray-200'}`}>
+                                                                <p className={`text-sm font-semibold mb-2 ${isDark ? 'text-white' : 'text-gray-800'}`}>
+                                                                    {t.interviewYourAnswer}
+                                                                </p>
+                                                                <p className={`text-sm whitespace-pre-wrap leading-relaxed ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                                                                    {responses[index]?.trim() || '—'}
+                                                                </p>
+                                                            </div>
+                                                            <div className={`rounded-xl p-3 max-h-[min(52vh,380px)] overflow-y-auto text-sm shadow-sm ${isDark ? 'bg-sky-500/10 border border-sky-500/30' : 'bg-sky-50 border border-sky-200'}`}>
+                                                                <p className={`font-semibold mb-2 shrink-0 ${isDark ? 'text-sky-300' : 'text-sky-700'}`}>{t.interviewAIFeedback}</p>
+                                                                <InterviewFeedbackAccordion
+                                                                    feedbackText={feedbacks && feedbacks[index] ? feedbacks[index] : ''}
+                                                                    isDark={isDark}
+                                                                    questionIndex={index}
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    ) : (
+                                                    <div className={`pl-12 border-l-2 ${isDark ? 'border-gray-600' : 'border-gray-200'} space-y-3`}>
+                                                        <div className={`rounded-xl border p-3 ${isDark ? 'bg-gray-800/30 border-gray-700/60' : 'bg-white border-gray-200'}`}>
+                                                            <p className={`text-sm font-semibold mb-1 ${isDark ? 'text-white' : 'text-gray-800'}`}>
+                                                                {t.interviewTranscript ?? 'Transcript'}
+                                                            </p>
+                                                            <div className={`max-h-36 overflow-y-auto pr-1 ${isDark ? 'text-gray-300' : 'text-gray-700'} text-sm leading-relaxed whitespace-pre-wrap`}>
+                                                                {responses[index]?.trim() || '—'}
+                                                            </div>
+                                                        </div>
                                                         {(getAggregatedEmotionsForQuestion(emotionLogs[index]) || responseEmotions[index] || getSegmentsWithGaps(transcriptSegments[index], emotionLogs[index]).length > 0) && (
-                                                            <div className={`mt-3 pt-3 border-t ${isDark ? 'border-gray-600/50 text-gray-400' : 'border-gray-200 text-gray-500'}`}>
-                                                                <p className={`text-xs font-semibold mb-1 ${isDark ? 'text-white' : 'text-gray-700'}`}>Facial analysis</p>
+                                                            <SummaryCollapsible title={t.interviewFacialAnalysisSection} isDark={isDark} defaultOpen={false}>
                                                                 {(() => {
                                                                     const aggregated = getAggregatedEmotionsForQuestion(emotionLogs[index]);
                                                                     const snapshot = responseEmotions[index]?.expressions;
@@ -1959,7 +2688,7 @@ export default function InterviewSimulatorPage() {
                                                                     return (
                                                                         <>
                                                                             {emotionsSource ? (
-                                                                                <p className="text-xs leading-relaxed mb-1">
+                                                                                <p className={`text-xs leading-relaxed mb-1 ${isDark ? 'text-gray-200' : 'text-gray-700'}`}>
                                                                                     {Object.entries(emotionsSource)
                                                                                         .filter(([, v]) => typeof v === 'number' && v >= 0)
                                                                                         .sort((a, b) => b[1] - a[1])
@@ -1968,7 +2697,7 @@ export default function InterviewSimulatorPage() {
                                                                                 </p>
                                                                             ) : null}
                                                                             {(avgGaze != null || topNames.length > 0) && (
-                                                                                <p className="text-xs leading-relaxed opacity-90 mb-2">
+                                                                                <p className={`text-xs leading-relaxed mb-2 ${isDark ? 'text-gray-300' : 'text-gray-600 opacity-90'}`}>
                                                                                     {avgGaze != null && <span>Eye contact: {Math.round(avgGaze * 100)}%</span>}
                                                                                     {avgGaze != null && topNames.length > 0 && ' · '}
                                                                                     {topNames.length > 0 && <span>Top: {topNames.join(', ')}</span>}
@@ -1978,43 +2707,42 @@ export default function InterviewSimulatorPage() {
                                                                                 const questionAUs = getAggregatedAUsForQuestion(emotionLogs[index]);
                                                                                 const topAUs = questionAUs ? getTopAUNames(questionAUs, 3) : [];
                                                                                 return topAUs.length > 0 ? (
-                                                                                    <p className="text-xs leading-relaxed opacity-90 mb-2">Micro-expressions (AUs): {topAUs.join(', ')}</p>
+                                                                                    <p className={`text-xs leading-relaxed mb-2 ${isDark ? 'text-gray-300' : 'text-gray-600 opacity-90'}`}>Micro-expressions (AUs): {topAUs.join(', ')}</p>
                                                                                 ) : null;
                                                                             })()}
                                                                         </>
                                                                     );
                                                                 })()}
-                                                                {getSegmentsWithGaps(transcriptSegments[index], emotionLogs[index]).length > 0 && emotionLogs[index]?.length > 0 && (
-                                                                    <div className="mt-2 space-y-1">
-                                                                        <p className={`text-xs font-semibold ${isDark ? 'text-white' : 'text-gray-700'}`}>Per phrase / pause</p>
-                                                                        {getSegmentsWithGaps(transcriptSegments[index], emotionLogs[index]).map((seg, i) => {
-                                                                            const segEmo = getEmotionsForSegment(emotionLogs[index], seg.start, seg.end);
-                                                                            const str = segEmo?.expressions && Object.keys(segEmo.expressions).length > 0
-                                                                                ? Object.entries(segEmo.expressions)
-                                                                                    .filter(([, v]) => typeof v === 'number' && v >= 0)
-                                                                                    .sort((a, b) => b[1] - a[1])
-                                                                                    .map(([k, v]) => `${k.replace(/_/g, ' ')} ${Math.round((v ?? 0) * 100)}%`)
-                                                                                    .join(', ')
-                                                                                : '—';
-                                                                            const label = seg.isGap ? getGapLabel(emotionLogs[index], seg.start, seg.end) : `"${seg.text}"`;
-                                                                            const extras = getSegmentExtras(emotionLogs[index], seg.start, seg.end, segEmo);
-                                                                            return (
-                                                                                <p key={i} className="text-xs leading-snug">
-                                                                                    <span className="opacity-75">[{seg.start.toFixed(1)}s–{seg.end.toFixed(1)}s]</span> {label} — {str}
-                                                                                    {extras && <span className="opacity-80">{extras}</span>}
-                                                                                </p>
-                                                                            );
-                                                                        })}
-                                                                    </div>
-                                                                )}
-                                                            </div>
+                                                            </SummaryCollapsible>
+                                                        )}
+                                                        {getSegmentsWithGaps(transcriptSegments[index], emotionLogs[index]).length > 0 && emotionLogs[index]?.length > 0 && (
+                                                            <SummaryCollapsible title={t.interviewPhraseTimingSection} isDark={isDark} defaultOpen={false}>
+                                                                <div className={`space-y-1 max-h-48 overflow-y-auto pr-1 ${isDark ? 'text-gray-200' : 'text-gray-800'}`}>
+                                                                    {getSegmentsWithGaps(transcriptSegments[index], emotionLogs[index]).map((seg, i) => {
+                                                                        const segEmo = getEmotionsForSegment(emotionLogs[index], seg.start, seg.end);
+                                                                        const str = segEmo?.expressions && Object.keys(segEmo.expressions).length > 0
+                                                                            ? Object.entries(segEmo.expressions)
+                                                                                .filter(([, v]) => typeof v === 'number' && v >= 0)
+                                                                                .sort((a, b) => b[1] - a[1])
+                                                                                .map(([k, v]) => `${k.replace(/_/g, ' ')} ${Math.round((v ?? 0) * 100)}%`)
+                                                                                .join(', ')
+                                                                            : '—';
+                                                                        const label = seg.isGap ? getGapLabel(emotionLogs[index], seg.start, seg.end) : `"${seg.text}"`;
+                                                                        const extras = getSegmentExtras(emotionLogs[index], seg.start, seg.end, segEmo);
+                                                                        return (
+                                                                            <p key={i} className={`text-xs leading-snug ${isDark ? 'text-gray-200' : 'text-gray-800'}`}>
+                                                                                <span className={isDark ? 'text-gray-400' : 'opacity-75'}>[{seg.start.toFixed(1)}s–{seg.end.toFixed(1)}s]</span>{' '}
+                                                                                {label} — {str}
+                                                                                {extras && <span className={isDark ? 'text-gray-300' : 'opacity-80'}>{extras}</span>}
+                                                                            </p>
+                                                                        );
+                                                                    })}
+                                                                </div>
+                                                            </SummaryCollapsible>
                                                         )}
                                                         {analysis && !analyzingResponses && (responses[index]?.trim() || '').length > 0 && (
-                                                            <div className="mt-4">
-                                                                <p className={`text-xs font-semibold mb-1 ${isDark ? 'text-white' : 'text-gray-700'}`}>
-                                                                    Sentiment analysis
-                                                                </p>
-                                                                <div className="mt-1 flex flex-wrap gap-2">
+                                                            <SummaryCollapsible title={t.interviewSentimentSection} isDark={isDark} defaultOpen>
+                                                                <div className="flex flex-wrap gap-2 pt-0.5">
                                                                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${isDark ? 'bg-violet-500/20 text-violet-300' : 'bg-violet-100 text-violet-700'}`}>
                                                                         {t.interviewEmotion}: {emotionText}
                                                                     </span>
@@ -2050,20 +2778,14 @@ export default function InterviewSimulatorPage() {
                                                                         </span>
                                                                     )}
                                                                 </div>
-                                                            </div>
-                                                        )}
-                                                        {feedbacks && feedbacks[index] && (
-                                                            <div className={`mt-4 p-4 rounded-xl text-sm shadow-sm ${isDark ? 'bg-sky-500/10 border border-sky-500/30' : 'bg-sky-50 border border-sky-200'}`}>
-                                                                <p className={`font-semibold mb-2 ${isDark ? 'text-sky-300' : 'text-sky-700'}`}>{t.interviewAIFeedback}</p>
-                                                                <p className={`whitespace-pre-wrap ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                                                                    {(feedbacks[index] || '').replace(/\*\*([^*]+)\*\*/g, '$1')}
-                                                                </p>
-                                                            </div>
+                                                            </SummaryCollapsible>
                                                         )}
                                                     </div>
+                                                    )}
                                                 </div>
                                             );
-                                        })}
+                                        })
+                                        )}
                                         </div>
 
                                         <div className={`flex-shrink-0 pt-4 mt-4 flex border-t ${isDark ? 'border-gray-700/80' : 'border-gray-200'}`}>
@@ -2078,6 +2800,8 @@ export default function InterviewSimulatorPage() {
                                                 {t.interviewClose}
                                             </button>
                                         </div>
+                                            </>
+                                        )}
                                     </div>
                                 </div>
                             )}
