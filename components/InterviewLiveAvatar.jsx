@@ -180,18 +180,32 @@ const InterviewLiveAvatar = forwardRef(function InterviewLiveAvatar(
   );
 
   return (
-    <div className={`flex flex-col flex-1 min-h-0 w-full overflow-hidden items-stretch justify-center ${className || ''}`}>
+    <div
+      className={`relative flex-1 min-w-0 w-full max-w-full min-h-[min(28vh,260px)] overflow-hidden rounded-none bg-black ${className || ''}`}
+    >
+      {/*
+        min-h: absolutely positioned <video> does not contribute height; without it flex rows collapse to ~0.
+      */}
       <video
         ref={videoRef}
-        className="h-full w-full min-h-0 flex-1 max-h-full object-contain rounded-b-lg bg-black"
+        className="absolute inset-0 h-full w-full max-h-full max-w-full object-cover object-center bg-black"
         playsInline
         autoPlay
       />
       {status === 'connecting' && (
-        <p className="text-xs text-gray-500 mt-2">Connecting to LiveAvatar…</p>
+        <div
+          className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 bg-black/55 pointer-events-none"
+          aria-busy="true"
+          aria-label="Connecting to LiveAvatar"
+        >
+          <span className="inline-block h-6 w-6 rounded-full border-2 border-emerald-400/30 border-t-emerald-400 animate-spin" />
+          <p className="text-xs text-gray-300 px-2 text-center">Connecting to LiveAvatar…</p>
+        </div>
       )}
       {status === 'error' && errorMsg && (
-        <p className="text-xs text-amber-600 dark:text-amber-400 mt-2 px-2 text-center">{errorMsg}</p>
+        <div className="absolute bottom-0 left-0 right-0 z-10 px-2 py-2 bg-black/70">
+          <p className="text-xs text-amber-400 text-center">{errorMsg}</p>
+        </div>
       )}
     </div>
   );

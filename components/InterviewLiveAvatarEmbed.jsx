@@ -30,7 +30,11 @@ export default function InterviewLiveAvatarEmbed({
   }
 
   return (
-    <div className={`flex flex-col w-full min-h-0 flex-1 overflow-hidden ${className || ''}`}>
+    <div
+      className={`flex flex-col w-full min-w-0 max-w-full flex-1 overflow-hidden rounded-none ${
+        compact ? 'min-h-[min(36vh,360px)]' : 'min-h-0'
+      } ${className || ''}`}
+    >
       <iframe
         src={src}
         allow="microphone; camera; autoplay; fullscreen"
@@ -38,10 +42,9 @@ export default function InterviewLiveAvatarEmbed({
         title={title}
         className={
           compact
-            ? 'w-full flex-1 min-h-[min(320px,38vh)] rounded-lg border-0 bg-black'
-            : 'block h-full w-full min-h-0 flex-1 border-0 bg-black'
+            ? 'w-full h-full min-h-[240px] flex-1 rounded-lg border-0 bg-black'
+            : 'block h-full w-full min-h-0 min-w-0 max-w-full flex-1 border-0 bg-black'
         }
-        style={compact ? { aspectRatio: '16 / 9' } : undefined}
       />
     </div>
   );

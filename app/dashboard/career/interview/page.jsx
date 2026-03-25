@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Users, Loader2, Mic, Video, TrendingUp, AlertCircle, X, FileText, ChevronRight, ChevronLeft, ChevronDown, Sparkles, MessageSquare, LayoutDashboard } from 'lucide-react';
+import { ArrowLeft, Users, Loader2, Mic, Video, TrendingUp, AlertCircle, X, FileText, ChevronRight, ChevronDown, Sparkles, MessageSquare, LayoutDashboard, Download } from 'lucide-react';
 import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, Radar, Tooltip } from 'recharts';
 import { useTheme } from '@/components/providers/ThemeProvider';
 import { useLanguage } from '@/components/providers/LanguageProvider';
@@ -111,6 +111,66 @@ function parseFeedbackIntoSections(text) {
     }
 
     return sections.filter((s) => s.body?.trim() || s.title !== 'Feedback');
+}
+
+/**
+ * Roll up personalized feedback section headings across questions into top themes
+ * (same idea as the per-question accordion, aggregated for the report card).
+ */
+function aggregateImprovementsFromFeedback(feedbacksList) {
+    const list = Array.isArray(feedbacksList) ? feedbacksList : [];
+    if (!list.some((f) => f && String(f).trim())) return [];
+
+    const slugKey = (title) =>
+        String(title)
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/^-|-$/g, '');
+
+    const map = new Map();
+    for (let qi = 0; qi < list.length; qi++) {
+        const text = list[qi];
+        if (!text || !String(text).trim()) continue;
+        const sections = parseFeedbackIntoSections(String(text));
+        for (const sec of sections) {
+            const rawTitle = (sec.title || '').replace(/:\s*$/, '').trim() || 'Feedback';
+            const norm = rawTitle
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, ' ')
+                .replace(/\s+/g, ' ')
+                .trim();
+            if (!norm) continue;
+            const body = String(sec.body || '')
+                .replace(/\s+/g, ' ')
+                .trim();
+            if (!map.has(norm)) {
+                map.set(norm, { displayTitle: rawTitle, bodiesByQ: new Map() });
+            }
+            const entry = map.get(norm);
+            if (rawTitle.length > entry.displayTitle.length) entry.displayTitle = rawTitle;
+            if (body && !entry.bodiesByQ.has(qi)) entry.bodiesByQ.set(qi, body);
+        }
+    }
+
+    const totalSlots = list.length;
+    const rows = [...map.values()].map((e) => {
+        const bodies = [...e.bodiesByQ.values()];
+        let hint = bodies[0] || '';
+        if (bodies.length > 1 && hint.length < 140) {
+            hint = `${hint} ${bodies[1]}`.trim();
+        }
+        if (hint.length > 320) hint = `${hint.slice(0, 317)}…`;
+        return {
+            key: slugKey(e.displayTitle),
+            title: e.displayTitle,
+            hint: hint || 'Open Personalized feedback for this question for full detail.',
+            mentionCount: e.bodiesByQ.size,
+            totalSlots,
+        };
+    });
+
+    rows.sort((a, b) => b.mentionCount - a.mentionCount || b.hint.length - a.hint.length);
+    return rows.slice(0, 3);
 }
 
 /** Collapsible panel for summary sections (emotions tab). */
@@ -227,11 +287,11 @@ const WAVEFORM_BAR_CLASS = 'rounded-sm transition-all duration-100 flex-shrink-0
 /** Shared bar strip: same look for user and avatar. heights = array of 0..1, barCount elements. */
 function WaveformBars({ heights, isDark, label }) {
     return (
-        <div className="flex flex-col flex-1 min-w-0">
+        <div className="flex min-h-0 min-w-0 flex-col justify-end">
             {label && (
                 <p className="text-[10px] font-medium text-gray-500 mb-0.5 truncate">{label}</p>
             )}
-            <div className="flex items-end justify-center gap-0.5 h-8 w-full">
+            <div className="flex h-10 w-full flex-shrink-0 items-end justify-center gap-0.5 sm:h-11">
                 {heights.map((h, i) => (
                     <div
                         key={i}
@@ -430,48 +490,6 @@ function buildFinalQuestions(apiQuestions) {
     return [ELEVATOR_PITCH_QUESTION, ...fourRandom];
 }
 
-/** Concise thank-you overlay after closing the interview summary */
-function ThankYouOverlay({ companyName, evaluationOverall, getThankYouSummary, isDark, t, onClose }) {
-    const summary = getThankYouSummary();
-    const scorePct = evaluationOverall?.overallScore != null ? Math.round(evaluationOverall.overallScore * 100) : null;
-    const bandLabel = evaluationOverall?.overallBand != null ? (t[`interviewBand_${evaluationOverall.overallBand}`] ?? evaluationOverall.overallBand) : null;
-    return (
-        <div className="absolute inset-0 z-30 flex items-center justify-center p-4 bg-black/50 animate-interview-backdrop-in" onClick={onClose}>
-            <div className={'max-w-md w-full rounded-2xl shadow-2xl p-6 animate-interview-thankyou-in ' + (isDark ? 'bg-gray-900 border border-gray-700' : 'bg-white border border-gray-200')} onClick={(e) => e.stopPropagation()}>
-                <h3 className={'text-xl font-bold text-center mb-3 ' + (isDark ? 'text-white' : 'text-gray-900')}>
-                    Thank you for interviewing with {companyName || '—'}
-                </h3>
-                {(bandLabel != null || scorePct != null) && (
-                    <p className={'text-center text-sm font-semibold mb-4 ' + (isDark ? 'text-emerald-400' : 'text-emerald-600')}>
-                        {bandLabel}{scorePct != null ? ' · ' + scorePct + '%' : ''}
-                    </p>
-                )}
-                <div className="space-y-3 text-sm">
-                    <div>
-                        <p className={'font-semibold mb-1 ' + (isDark ? 'text-gray-300' : 'text-gray-700')}>Things you did well</p>
-                        <ul className={'list-disc list-inside space-y-0.5 ' + (isDark ? 'text-gray-400' : 'text-gray-600')}>
-                            {summary.strengths.map((s, i) => <li key={i}>{s}</li>)}
-                        </ul>
-                    </div>
-                    <div>
-                        <p className={'font-semibold mb-1 ' + (isDark ? 'text-gray-300' : 'text-gray-700')}>Things to improve</p>
-                        <ul className={'list-disc list-inside space-y-0.5 ' + (isDark ? 'text-gray-400' : 'text-gray-600')}>
-                            {summary.improvements.map((s, i) => <li key={i}>{s}</li>)}
-                        </ul>
-                    </div>
-                </div>
-                <button
-                    type="button"
-                    onClick={onClose}
-                    className="w-full mt-5 py-3 rounded-xl font-semibold bg-emerald-500 hover:bg-emerald-600 text-white"
-                >
-                    Close
-                </button>
-            </div>
-        </div>
-    );
-}
-
 export default function InterviewSimulatorPage() {
     const router = useRouter();
     const { isDark } = useTheme();
@@ -491,6 +509,7 @@ export default function InterviewSimulatorPage() {
     const [simulationActive, setSimulationActive] = useState(false);
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [responses, setResponses] = useState([]);
+    const responsesRef = useRef(responses);
     const [responseAnalyses, setResponseAnalyses] = useState(null);
     const [evaluationOverall, setEvaluationOverall] = useState(null);
     const [analyzingResponses, setAnalyzingResponses] = useState(false);
@@ -504,7 +523,6 @@ export default function InterviewSimulatorPage() {
     const [isTranscribing, setIsTranscribing] = useState(false);
     const [videoStream, setVideoStream] = useState(null);
     const [videoError, setVideoError] = useState(null);
-    const [showThankYouPopup, setShowThankYouPopup] = useState(false);
     /** Noted emotions per question when user stops recording (dominant + expression scores). */
     const [responseEmotions, setResponseEmotions] = useState([]);
     /** Per-question streaming transcript segments with timestamps for alignment with emotions. */
@@ -564,6 +582,10 @@ export default function InterviewSimulatorPage() {
             actionUnits: faceActionUnits ? { ...faceActionUnits } : null
         };
     }, [faceDominant, faceSecondary, faceExpressions, faceMouthAspectRatio, faceIsSpeaking, faceGazeScore, faceActionUnits]);
+
+    useEffect(() => {
+        responsesRef.current = responses;
+    }, [responses]);
 
     const interviewTypes = [
         'Technical',
@@ -678,7 +700,6 @@ export default function InterviewSimulatorPage() {
         if (sr) try { sr.abort(); } catch (_) {}
         speechRecognitionRef.current = null;
         stopVideoPreview();
-        setShowThankYouPopup(false);
         setShowQuestionsModal(false);
         setPendingFollowUpQuestion(null);
         setRecordingStream(null);
@@ -701,30 +722,6 @@ export default function InterviewSimulatorPage() {
         setSummaryResultsTab('report');
         setSummarySelectedQuestionIndex(0);
         setSummaryRevealReady(false);
-    };
-
-    /** Concise strengths & improvements from evaluation (for thank-you popup) */
-    const getThankYouSummary = () => {
-        const strengths = [];
-        const improvements = [];
-        if (responseAnalyses?.length) {
-            const full = responseAnalyses.filter((a) => a?.answered?.label === 'fully_answered').length;
-            const confident = responseAnalyses.filter((a) => a?.certainty?.label === 'confident').length;
-            const highRel = responseAnalyses.filter((a) => a?.relevance?.label === 'high').length;
-            if (full >= responseAnalyses.length / 2) strengths.push('Answered questions fully');
-            if (confident >= responseAnalyses.length / 2) strengths.push('Confident delivery');
-            if (highRel >= responseAnalyses.length / 2) strengths.push('Relevant responses');
-            if (strengths.length === 0) strengths.push('Completed the simulation');
-            const partial = responseAnalyses.filter((a) => a?.answered?.label === 'partially_answered' || a?.answered?.label === 'not_answered').length;
-            const uncertain = responseAnalyses.filter((a) => a?.certainty?.label === 'uncertain' || a?.certainty?.label === 'hedging').length;
-            if (partial > 0) improvements.push('Address each part of the question');
-            if (uncertain > 0) improvements.push('Use more confident language');
-            if (improvements.length === 0) improvements.push('Keep practicing to refine answers');
-        } else {
-            strengths.push('Completed the simulation');
-            improvements.push('Review your answers and try again');
-        }
-        return { strengths: strengths.slice(0, 3), improvements: improvements.slice(0, 3) };
     };
 
     const handleStartSimulation = () => {
@@ -942,7 +939,7 @@ export default function InterviewSimulatorPage() {
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             previousQuestion: generatedQuestions[currentQuestionIndex],
-                            previousAnswer: (responses[currentQuestionIndex] ?? '').trim(),
+                            previousAnswer: (responsesRef.current[currentQuestionIndex] ?? '').trim(),
                             suggestedNextQuestion: generatedQuestions[nextIndex],
                             jobDescription: jobDescription || '',
                             role: role || '',
@@ -966,6 +963,7 @@ export default function InterviewSimulatorPage() {
             }
             setCurrentQuestionIndex((prev) => prev + 1);
         } else {
+            stopVideoPreview();
             setCurrentQuestionIndex(generatedQuestions.length);
         }
     };
@@ -973,7 +971,7 @@ export default function InterviewSimulatorPage() {
     const handleNext = async () => {
         if (pendingFollowUpQuestion) return;
         if (currentQuestionIndex >= generatedQuestions.length) return;
-        const answer = (responses[currentQuestionIndex] ?? '').trim();
+        const answer = (responsesRef.current[currentQuestionIndex] ?? '').trim();
         if (followUpAtIndices.includes(currentQuestionIndex) && answer.length > 20) {
             setIsLoadingFollowUp(true);
             try {
@@ -1007,14 +1005,11 @@ export default function InterviewSimulatorPage() {
         doAdvanceToNext();
     };
 
-    const handlePrevious = () => {
-        setPendingFollowUpQuestion(null);
-        if (currentQuestionIndex > 0) {
-            setCurrentQuestionIndex(prev => prev - 1);
-        }
-    };
-
     const inSummaryView = showQuestionsModal && simulationActive && generatedQuestions.length > 0 && currentQuestionIndex >= generatedQuestions.length;
+    /** Release camera on the summary screen (not needed for report UI; face hook stops analyzing). */
+    useEffect(() => {
+        if (inSummaryView) stopVideoPreview();
+    }, [inSummaryView]);
     const inQuestionPhase = simulationActive && !showPreInterviewIntro && currentQuestionIndex < generatedQuestions.length;
     const isFeedbackLoading = loadingFeedbackIndex !== null;
     const evaluationReady = !!responseAnalyses && !analyzingResponses;
@@ -1066,6 +1061,13 @@ export default function InterviewSimulatorPage() {
     };
 
     const reportImprovementItems = reportWeakAreas.map((a) => ({ ...a, ...(reportImprovementCopy(a.key)) }));
+
+    const feedbackImprovementAgg = useMemo(
+        () => aggregateImprovementsFromFeedback(Array.isArray(feedbacks) ? feedbacks : []),
+        [feedbacks]
+    );
+    const reportImprovementDisplayItems =
+        feedbackImprovementAgg.length > 0 ? feedbackImprovementAgg : reportImprovementItems;
 
     useEffect(() => {
         if (!inSummaryView || !summaryDataReady) {
@@ -1596,6 +1598,19 @@ export default function InterviewSimulatorPage() {
         setIsRecording(false);
     };
 
+    /** After stop, wait for final speech-recognition updates then same flow as former “Next”. */
+    const stopRecordingAndAdvance = (faceSnapshot) => {
+        setIsTranscribing(true);
+        stopRecording(faceSnapshot);
+        window.setTimeout(async () => {
+            try {
+                await handleNext();
+            } finally {
+                setIsTranscribing(false);
+            }
+        }, 450);
+    };
+
     useEffect(() => {
         if (typeof window !== 'undefined' && window.speechSynthesis) window.speechSynthesis.cancel();
     }, [currentQuestionIndex]);
@@ -1932,7 +1947,7 @@ export default function InterviewSimulatorPage() {
             {/* Questions Modal - large viewport with AI interviewer avatar */}
             {showQuestionsModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-sm animate-interview-backdrop-in" onClick={closeModal}>
-                    <div className={(`${isDark ? 'bg-gray-900' : 'bg-white'} rounded-2xl sm:rounded-3xl w-full max-w-7xl h-[min(90vh,calc(100dvh-1rem))] flex min-h-0 overflow-hidden border ${isDark ? 'border-gray-700/80' : 'border-gray-200'} shadow-2xl ${isDark ? 'shadow-black/50' : 'shadow-xl shadow-gray-400/20'} relative animate-interview-modal-in`)} onClick={(e) => e.stopPropagation()}>
+                    <div className={(`${isDark ? 'bg-gray-900' : 'bg-white'} rounded-2xl sm:rounded-3xl w-full max-w-7xl h-[min(90vh,calc(100dvh-1rem))] flex min-h-0 flex-col overflow-hidden border ${isDark ? 'border-gray-700/80' : 'border-gray-200'} shadow-2xl ${isDark ? 'shadow-black/50' : 'shadow-xl shadow-gray-400/20'} relative animate-interview-modal-in`)} onClick={(e) => e.stopPropagation()}>
                         <button
                             onClick={closeModal}
                             className={(`absolute top-4 right-4 w-10 h-10 flex items-center justify-center rounded-xl transition-all duration-200 z-20 ${isDark
@@ -1943,61 +1958,8 @@ export default function InterviewSimulatorPage() {
                             <X className="w-5 h-5" />
                         </button>
 
-                        {/* Left pane: session info + download (hidden during live questions — Zoom-style full-width stage) */}
-                        {simulationActive && !inQuestionPhase && (
-                            <div className={`hidden sm:flex flex-col items-stretch justify-between pt-8 pb-6 px-4 w-56 flex-shrink-0 border-r min-h-0 ${isDark ? 'border-gray-700/80 bg-gray-800/40' : 'border-gray-200 bg-gray-50/90'}`}>
-                                <div className="flex-1 min-h-0 flex flex-col w-full">
-                                    {/* Upper section: role + details, vertically centered within this block */}
-                                    <div className={`flex-[2] min-h-0 flex flex-col justify-center items-center w-full gap-6 px-1`}>
-                                        <p className={`text-sm font-semibold leading-snug text-center ${isDark ? 'text-gray-200' : 'text-gray-800'}`}>
-                                            {role || '—'}
-                                        </p>
-                                        <div className="w-full text-center space-y-4 flex flex-col items-center">
-                                            <p className={`text-xs leading-relaxed ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
-                                                {t.interviewCompanyName}: {companyName || '—'}
-                                            </p>
-                                            <p className={`text-xs leading-relaxed ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
-                                                {t.interviewInterviewType}: {interviewType || '—'}
-                                            </p>
-                                            <p className={`text-xs leading-relaxed ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
-                                                {t.interviewNumQuestions}: {generatedQuestions?.length ?? 0}
-                                            </p>
-                                        </div>
-                                    </div>
-                                    {/* Divider */}
-                                    <div className={`flex-shrink-0 border-t w-full ${isDark ? 'border-gray-600/50' : 'border-gray-200'}`} />
-                                    {/* Lower section: download — greyed out until summary; blue button on summary that downloads PDF */}
-                                    <div className="flex-1 min-h-0 flex flex-col justify-center items-center w-full px-1">
-                                        {inSummaryView ? (
-                                            <button
-                                                type="button"
-                                                onClick={handleDownloadInterviewPDF}
-                                                className="w-full py-2.5 px-3 rounded-xl text-xs font-semibold text-center transition-all duration-200 bg-blue-500 hover:bg-blue-600 text-white shadow-md hover:shadow-lg"
-                                            >
-                                                {t.interviewDownloadPlaceholder}
-                                            </button>
-                                        ) : (
-                                            <p className={`text-xs leading-relaxed text-center ${isDark ? 'text-gray-600' : 'text-gray-400'}`}>
-                                                {t.interviewDownloadPlaceholder}
-                                            </p>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        <div className={`flex-1 flex flex-col min-w-0 min-h-0 max-h-full ${inQuestionPhase ? 'overflow-hidden' : 'overflow-y-auto'}`}>
-                        {/* Mobile: compact session bar (pre-intro / summary — hidden during questions for a fuller meeting view) */}
-                        {simulationActive && !inQuestionPhase && (
-                            <div className={`sm:hidden flex items-center gap-3 px-6 py-4 border-b ${isDark ? 'border-gray-700/80 bg-gray-800/60' : 'border-gray-200 bg-gray-50 shadow-sm'}`}>
-                                <div className={`w-12 h-12 rounded-full flex-shrink-0 ring-2 ${isDark ? 'bg-gradient-to-br from-emerald-500/30 to-teal-500/30 ring-emerald-500/40' : 'bg-gradient-to-br from-emerald-400/40 to-teal-400/40 ring-emerald-400/40'}`} />
-                                <div className="min-w-0">
-                                    <p className={`text-sm font-semibold truncate ${isDark ? 'text-white' : 'text-gray-900'}`}>{role || '—'}</p>
-                                    <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{companyName} · {interviewType} · {generatedQuestions?.length ?? 0} questions</p>
-                                </div>
-                            </div>
-                        )}
-                        <div className={`flex-1 flex flex-col min-h-0 min-w-0 ${inQuestionPhase ? 'overflow-hidden p-3 sm:p-4 pb-2' : 'overflow-visible p-4 sm:p-6'}`}>
+                        <div className={`flex-1 flex flex-col min-w-0 min-h-0 max-h-full ${inQuestionPhase ? 'overflow-hidden h-full' : 'overflow-y-auto'}`}>
+                        <div className={`flex-1 flex flex-col min-h-0 min-w-0 ${inQuestionPhase ? 'overflow-hidden h-full min-h-0 p-2 sm:p-3 pb-1.5' : 'overflow-visible p-4 sm:p-6'}`}>
                             {!simulationActive ? (
                                 <div key="welcome" className="flex flex-col flex-1 min-h-0 animate-interview-view-in">
                                     <div className="flex flex-col flex-1 min-h-0">
@@ -2041,9 +2003,9 @@ export default function InterviewSimulatorPage() {
                                     </div>
                                 </div>
                             ) : simulationActive && showPreInterviewIntro ? (
-                                <div key="pre-intro" className="flex flex-col flex-1 min-h-0 overflow-hidden animate-interview-view-in">
-                                    <div className="flex flex-col flex-1 min-h-0 max-w-2xl mx-auto w-full px-2 py-4 sm:py-6">
-                                        <div className={`rounded-2xl border p-4 sm:p-6 shadow-lg ${isDark ? 'bg-gray-800/60 border-gray-600/80' : 'bg-gray-50 border-gray-200'} flex flex-col flex-1 min-h-0`}>
+                                <div key="pre-intro" className="flex h-full min-h-0 flex-1 flex-col overflow-hidden animate-interview-view-in">
+                                    <div className="mx-auto flex h-full min-h-0 w-full max-w-2xl flex-1 flex-col px-2 py-4 sm:py-6">
+                                        <div className={`flex min-h-0 flex-1 flex-col rounded-2xl border p-4 sm:p-6 shadow-lg ${isDark ? 'bg-gray-800/60 border-gray-600/80' : 'bg-gray-50 border-gray-200'}`}>
                                             <p className={`text-xs font-semibold uppercase tracking-wider mb-2 ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>
                                                 {t.interviewIntroTitle}
                                             </p>
@@ -2052,26 +2014,26 @@ export default function InterviewSimulatorPage() {
                                             </h2>
 
                                             {/* LiveAvatar: Alex Chen introduces himself */}
-                                            <div className={`mb-4 flex flex-col rounded-xl overflow-hidden border shadow-md flex-1 min-h-0 ${isDark ? 'border-gray-600/80 bg-gray-800/30' : 'border-gray-200 bg-gray-50/50'}`}>
+                                            <div className={`flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border shadow-md ${isDark ? 'border-gray-600/80 bg-gray-800/30' : 'border-gray-200 bg-gray-50/50'}`}>
                                                 <div className={`flex-shrink-0 px-3 py-2 border-b ${isDark ? 'border-gray-600/80 bg-gray-800/50' : 'border-gray-200 bg-gray-100/80'}`}>
                                                     <p className={`text-sm font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>Alex Chen</p>
                                                     <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>{role || 'Senior Software Engineer'}</p>
                                                     <p className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>{companyName || '—'}</p>
                                                 </div>
-                                                <div className="flex-1 min-h-0">
+                                                <div className="relative flex flex-1 min-h-[min(36vh,380px)] min-w-0 flex-col overflow-hidden">
                                                     {USE_LIVE_AVATAR_EMBED ? (
                                                         <InterviewLiveAvatarEmbed
                                                             key="liveavatar-embed-preintro"
                                                             embedId={LIVE_AVATAR_EMBED_ID}
                                                             embedUrl={LIVE_AVATAR_EMBED_URL}
-                                                            className="flex-1 min-h-0"
+                                                            className="min-h-0 flex-1"
                                                             compact
                                                         />
                                                     ) : USE_LIVE_AVATAR_SDK ? (
                                                         <InterviewLiveAvatar
                                                             key="liveavatar-sdk-session-preintro"
                                                             ref={liveAvatarRef}
-                                                            className="flex-1 min-h-0"
+                                                            className="min-h-0 flex-1"
                                                             onSpeakingChange={setIsAvatarSpeaking}
                                                             onReady={() => {
                                                                 liveAvatarHudReadyRef.current = true;
@@ -2083,35 +2045,37 @@ export default function InterviewSimulatorPage() {
                                                             }}
                                                         />
                                                     ) : (
-                                                        <InterviewAvatarVrm className="flex-1 min-h-0" isSpeaking={isAvatarSpeaking} />
+                                                        <InterviewAvatarVrm className="min-h-[min(32vh,300px)] flex-1 min-w-0 max-w-full overflow-hidden rounded-b-xl" isSpeaking={isAvatarSpeaking} />
                                                     )}
                                                 </div>
                                             </div>
 
-                                            <p className={`text-sm mt-4 mb-4 flex-shrink-0 ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>
+                                            <p className={`mt-3 flex-shrink-0 text-sm ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>
                                                 {t.interviewIntroHint}
                                             </p>
-                                            <button
-                                                type="button"
-                                                onClick={dismissPreInterviewIntro}
-                                                className="mt-auto w-full sm:w-auto px-8 py-3.5 rounded-xl font-semibold bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:from-emerald-600 hover:to-teal-600 shadow-lg shadow-emerald-500/25"
-                                            >
-                                                {t.interviewBeginInterview}
-                                            </button>
+                                            <div className="mt-12 flex w-full flex-shrink-0 flex-col sm:mt-auto sm:pt-5">
+                                                <button
+                                                    type="button"
+                                                    onClick={dismissPreInterviewIntro}
+                                                    className="w-full rounded-xl px-8 py-3.5 font-semibold bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-lg shadow-emerald-500/25 hover:from-emerald-600 hover:to-teal-600 sm:w-auto"
+                                                >
+                                                    {t.interviewBeginInterview}
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             ) : currentQuestionIndex < generatedQuestions.length ? (
                                 <div
                                     key={`q-${currentQuestionIndex}`}
-                                    className="grid grid-rows-[auto_minmax(0,1fr)_auto] flex-1 min-h-0 gap-2 overflow-hidden animate-interview-slide-next"
+                                    className="flex flex-col flex-1 min-h-0 h-full gap-2 overflow-hidden animate-interview-slide-next"
                                 >
-                                    <div className="flex flex-col gap-2 min-h-0 min-w-0 overflow-hidden">
+                                    <div className="flex flex-col gap-2 min-h-0 min-w-0 overflow-hidden flex-shrink-0">
                                         <div className={`flex-shrink-0 p-3 sm:p-4 rounded-xl ${isDark ? 'bg-gray-800/50 border border-gray-700/80' : 'bg-gray-50/80 border border-gray-200'} shadow-sm overflow-hidden`}>
                                             <div className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold mb-2 ${isDark ? 'bg-emerald-500/20 text-emerald-400' : 'bg-emerald-500/15 text-emerald-700'}`}>
                                                 {t.interviewQuestionOf} {currentQuestionIndex + 1} {t.interviewOf} {generatedQuestions.length}
                                             </div>
-                                            <div className={`text-base sm:text-lg font-bold leading-snug break-words space-y-2 max-h-[min(18rem,26vh)] overflow-y-auto pr-1 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                                            <div className={`text-base sm:text-lg font-bold leading-snug break-words space-y-2 max-h-[min(14rem,22vh)] sm:max-h-[min(16rem,24vh)] overflow-y-auto pr-1 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                                             {parseQuestionWithCodeBlocks(generatedQuestions[currentQuestionIndex]).map((seg, idx) =>
                                                 seg.type === 'text' ? (
                                                     <div key={idx} className="whitespace-pre-wrap">{seg.content}</div>
@@ -2144,35 +2108,32 @@ export default function InterviewSimulatorPage() {
                                             <div className={`flex-shrink-0 mt-2 p-3 rounded-xl border ${isDark ? 'bg-amber-500/10 border-amber-500/40' : 'bg-amber-50 border-amber-200'}`}>
                                                 <p className={`text-xs font-semibold uppercase tracking-wider mb-1 ${isDark ? 'text-amber-400' : 'text-amber-700'}`}>Follow-up</p>
                                                 <p className={`text-sm ${isDark ? 'text-gray-200' : 'text-gray-800'}`}>{pendingFollowUpQuestion}</p>
-                                                <p className={`mt-2 text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Answer briefly if you like, then click Continue to go to the next question.</p>
+                                                <p className={`mt-2 text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Answer briefly if you like, then tap <span className="font-semibold">Continue</span> in the You header.</p>
                                             </div>
                                         )}
                                     </div>
 
-                                    <div className="flex min-h-0 min-w-0 w-full h-full max-h-full flex-col overflow-hidden">
-                                        {/* Grid middle row: fills remaining height; minmax(0,1fr) allows shrink */}
-                                        <div className={`flex min-h-0 h-full max-h-full flex-1 flex-col rounded-2xl overflow-hidden border ${isDark ? 'border-gray-700/70 bg-black/40 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)]' : 'border-gray-300/90 bg-gray-950/[0.04] shadow-inner'}`}>
-                                        {/* Two camera slots side by side: User | Avatar */}
-                                        <div className="flex flex-1 min-h-0 min-w-0 gap-1.5 sm:gap-2 p-1.5 sm:p-2 items-stretch">
-                                            {/* User camera slot: interviewee card + video */}
-                                            <div className={`flex-1 min-w-0 min-h-0 flex flex-col rounded-xl overflow-hidden border shadow-lg ${isDark ? 'border-gray-600/60 bg-gray-900/80' : 'border-gray-200 bg-white/95'}`}>
-                                                {/* Interviewee header — camera aligned with “Role here” row */}
-                                                <div className={`flex-shrink-0 px-3 py-2 border-b ${isDark ? 'border-gray-600/80 bg-gray-900/90' : 'border-gray-200 bg-gray-100/90'}`}>
-                                                    <p className={`text-sm font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>Interviewee</p>
-                                                    <div className="mt-0.5 flex flex-wrap items-center justify-between gap-2">
-                                                        <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Role here</p>
+                                    <div className={`flex min-h-0 min-w-0 w-full flex-1 flex-col overflow-hidden rounded-2xl border min-h-[min(66vh,600px)] sm:min-h-[min(86h,720px)] ${isDark ? 'border-gray-700/70 bg-black/40 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)]' : 'border-gray-300/90 bg-gray-950/[0.04] shadow-inner'}`}>
+                                        {/* Two columns: header (persona + controls) → video (flex-1) → waveform */}
+                                        <div className="flex min-h-0 min-w-0 flex-1 gap-1.5 overflow-hidden p-0.5 sm:gap-2 sm:p-1">
+                                            {/* User — header with controls, video (flex-1), mic waveform */}
+                                            <div className={`flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-xl border shadow-lg ${isDark ? 'border-gray-600/60 bg-gray-900/80' : 'border-gray-200 bg-white/95'}`}>
+                                                <div className={`flex flex-shrink-0 flex-col border-b px-3 py-1.5 ${isDark ? 'border-gray-600/80 bg-gray-900/95' : 'border-gray-200 bg-gray-100/95'}`}>
+                                                    <p className={`text-[11px] font-semibold uppercase tracking-wide ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>You</p>
+                                                    {/* One control row below label; min-height ~ interviewer name + 2 detail lines */}
+                                                    <div className="mt-0.5 flex min-h-[3.25rem] flex-wrap content-center items-center gap-1.5 sm:min-h-[3.05rem]">
                                                         {!videoStream ? (
                                                             <button
                                                                 type="button"
                                                                 onClick={startVideoPreview}
                                                                 aria-label="Start camera"
                                                                 title="Start camera"
-                                                                className={`flex-shrink-0 inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-[11px] font-semibold transition-all ${isDark
-                                                                    ? 'bg-gray-600 text-gray-50 hover:bg-gray-500 border border-gray-500 ring-1 ring-white/15'
-                                                                    : 'bg-gray-200 text-gray-800 hover:bg-gray-300 border border-gray-300'
+                                                                className={`inline-flex flex-shrink-0 items-center gap-1.5 rounded-md px-2 py-1.5 text-[11px] font-semibold transition-all ${isDark
+                                                                    ? 'border border-gray-500 bg-gray-600 text-gray-50 ring-1 ring-white/15 hover:bg-gray-500'
+                                                                    : 'border border-gray-300 bg-gray-200 text-gray-800 hover:bg-gray-300'
                                                                 }`}
                                                             >
-                                                                <Video className="w-3.5 h-3.5 shrink-0" aria-hidden />
+                                                                <Video className="h-3.5 w-3.5 shrink-0" aria-hidden />
                                                                 <span>Camera</span>
                                                             </button>
                                                         ) : (
@@ -2181,28 +2142,102 @@ export default function InterviewSimulatorPage() {
                                                                 onClick={stopVideoPreview}
                                                                 aria-label="Stop camera"
                                                                 title="Stop camera"
-                                                                className={`flex-shrink-0 inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-[11px] font-semibold transition-all ${isDark
-                                                                    ? 'bg-red-500/25 text-red-300 hover:bg-red-500/35 border border-red-500/50 ring-1 ring-red-400/20'
-                                                                    : 'bg-red-100 text-red-600 hover:bg-red-200 border border-red-200'
+                                                                className={`inline-flex flex-shrink-0 items-center gap-1.5 rounded-md px-2 py-1.5 text-[11px] font-semibold transition-all ${isDark
+                                                                    ? 'border border-red-500/50 bg-red-500/25 text-red-300 ring-1 ring-red-400/20 hover:bg-red-500/35'
+                                                                    : 'border border-red-200 bg-red-100 text-red-600 hover:bg-red-200'
                                                                 }`}
                                                             >
-                                                                <Video className="w-3.5 h-3.5 shrink-0 opacity-80" aria-hidden />
+                                                                <Video className="h-3.5 w-3.5 shrink-0 opacity-80" aria-hidden />
                                                                 <span>Stop</span>
                                                             </button>
                                                         )}
+                                                        {pendingFollowUpQuestion ? (
+                                                            <button
+                                                                type="button"
+                                                                onClick={dismissFollowUpAndAdvance}
+                                                                disabled={isTailoringNextQuestion || isLoadingFollowUp}
+                                                                className={`inline-flex flex-shrink-0 items-center gap-1 rounded-md px-2 py-1.5 text-[11px] font-semibold transition-all ${isTailoringNextQuestion || isLoadingFollowUp
+                                                                    ? isDark ? 'cursor-not-allowed border border-gray-600 bg-gray-700 text-gray-500' : 'cursor-not-allowed border border-gray-300 bg-gray-200 text-gray-400'
+                                                                    : isDark
+                                                                        ? 'border border-emerald-500/50 bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30'
+                                                                        : 'border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+                                                                }`}
+                                                            >
+                                                                {isTailoringNextQuestion ? (
+                                                                    <>
+                                                                        <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin" aria-hidden />
+                                                                        <span>Prep…</span>
+                                                                    </>
+                                                                ) : (
+                                                                    <>
+                                                                        <ChevronRight className="h-3.5 w-3.5 shrink-0" aria-hidden />
+                                                                        <span>Continue</span>
+                                                                    </>
+                                                                )}
+                                                            </button>
+                                                        ) : null}
+                                                        {!pendingFollowUpQuestion && isRecording ? (
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => stopRecordingAndAdvance({ dominant: faceDominant, expressions: faceExpressions ? { ...faceExpressions } : {} })}
+                                                                className={`inline-flex flex-shrink-0 items-center gap-1.5 rounded-md px-2 py-1.5 text-[11px] font-semibold transition-all ${isDark
+                                                                    ? 'border border-red-500/50 bg-red-500/25 text-red-300 hover:bg-red-500/35'
+                                                                    : 'border border-red-200 bg-red-100 text-red-600 hover:bg-red-200'
+                                                                }`}
+                                                            >
+                                                                <span className="h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-red-500" />
+                                                                <span>Stop</span>
+                                                            </button>
+                                                        ) : !pendingFollowUpQuestion ? (
+                                                            <button
+                                                                type="button"
+                                                                onClick={startRecording}
+                                                                disabled={isTranscribing || isTailoringNextQuestion || isLoadingFollowUp}
+                                                                className={`inline-flex flex-shrink-0 items-center gap-1.5 rounded-md px-2 py-1.5 text-[11px] font-semibold transition-all ${isTranscribing || isTailoringNextQuestion || isLoadingFollowUp
+                                                                    ? isDark ? 'cursor-not-allowed border border-gray-600 bg-gray-700 text-gray-500' : 'cursor-not-allowed border border-gray-300 bg-gray-200 text-gray-400'
+                                                                    : isDark
+                                                                        ? 'border border-red-500/50 bg-red-500/20 text-red-300 hover:bg-red-500/30'
+                                                                        : 'border border-red-200 bg-red-100 text-red-600 hover:bg-red-200'
+                                                                }`}
+                                                            >
+                                                                {isTranscribing ? (
+                                                                    <>
+                                                                        <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin" aria-hidden />
+                                                                        <span>Next…</span>
+                                                                    </>
+                                                                ) : isTailoringNextQuestion ? (
+                                                                    <>
+                                                                        <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin" aria-hidden />
+                                                                        <span>Prep…</span>
+                                                                    </>
+                                                                ) : isLoadingFollowUp ? (
+                                                                    <>
+                                                                        <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin" aria-hidden />
+                                                                        <span>…</span>
+                                                                    </>
+                                                                ) : (
+                                                                    <>
+                                                                        <Mic className="h-3.5 w-3.5 shrink-0" aria-hidden />
+                                                                        <span>Record</span>
+                                                                    </>
+                                                                )}
+                                                            </button>
+                                                        ) : null}
                                                     </div>
                                                 </div>
-                                                <div className="w-full flex-1 min-h-0 flex flex-col">
+                                                <div className="relative flex min-h-0 min-w-0 flex-1 flex-col bg-black/25">
                                                     {!videoStream ? (
-                                                        <div className={`flex-1 flex flex-col items-center justify-center gap-2 min-h-0 ${isDark ? 'bg-gray-800/50 text-gray-500' : 'bg-gray-100/80 text-gray-500'}`}>
-                                                            <div className={`p-2 rounded-xl ${isDark ? 'bg-gray-700/50' : 'bg-gray-200/80'}`}>
-                                                                <Video className="w-8 h-8 opacity-60" />
+                                                        <div className={`flex min-h-0 flex-1 w-full items-stretch overflow-hidden p-1 sm:p-1.5 ${isDark ? 'bg-gray-900/40' : 'bg-gray-50/80'}`}>
+                                                            <div className={`relative flex min-h-0 flex-1 w-full flex-col items-center justify-center gap-2 overflow-hidden rounded-lg border ${isDark ? 'border-gray-700/60 bg-gray-800/50 text-gray-500' : 'border-gray-200 bg-gray-100/80 text-gray-500'}`}>
+                                                                <div className={`p-2 rounded-xl ${isDark ? 'bg-gray-700/50' : 'bg-gray-200/80'}`}>
+                                                                    <Video className="w-8 h-8 opacity-60" />
+                                                                </div>
+                                                                <span className="px-2 text-center text-xs">Your video will appear here.</span>
                                                             </div>
-                                                            <span className="text-xs text-center px-2">Your video will appear here.</span>
                                                         </div>
                                                     ) : (
-                                                        <>
-                                                            <div className="relative flex-1 min-h-0 w-full overflow-hidden bg-black">
+                                                        <div className="flex min-h-0 min-w-0 flex-1 overflow-hidden p-1 sm:p-1.5">
+                                                            <div className="relative min-h-0 min-w-0 flex-1 overflow-hidden rounded-lg bg-black">
                                                                 <video
                                                                     ref={videoPreviewRef}
                                                                     autoPlay
@@ -2210,172 +2245,67 @@ export default function InterviewSimulatorPage() {
                                                                     playsInline
                                                                     className="absolute inset-0 h-full w-full object-cover object-center"
                                                                 />
-                                                                <span className={`absolute bottom-2 left-2 text-xs font-medium px-2 py-1 rounded ${isDark ? 'bg-black/60 text-white' : 'bg-white/80 text-gray-800'}`}>
-                                                                    You
-                                                                </span>
                                                             </div>
-                                                            <div className={`flex flex-wrap items-center gap-2 px-2 py-1.5 flex-shrink-0 border-t ${isDark ? 'border-gray-600 bg-gray-800/60' : 'border-gray-200 bg-gray-100/80'}`}>
-                                                                {faceLoading && (
-                                                                    <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Loading face analysis...</p>
-                                                                )}
-                                                                {faceError && (
-                                                                    <p className="text-xs text-amber-500">{faceError}</p>
-                                                                )}
-                                                                {!faceLoading && !faceError && faceDominant && (
-                                                                    <p className={`text-sm font-medium ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>
-                                                                        Expression: <span className="capitalize">{faceDominant.replace(/_/g, ' ')}</span>
-                                                                        {faceSecondary && faceSecondary !== faceDominant && (
-                                                                            <span className="opacity-80">, also <span className="capitalize">{faceSecondary.replace(/_/g, ' ')}</span></span>
-                                                                        )}
-                                                                    </p>
-                                                                )}
-                                                                {faceExpressions && Object.keys(faceExpressions).length > 0 && (
-                                                                    <p className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-500'}`} title={Object.entries(faceExpressions).map(([k, v]) => `${k}: ${(v * 100).toFixed(0)}%`).join(', ')}>
-                                                                        {Object.entries(faceExpressions)
-                                                                            .filter(([, v]) => v > 0.1)
-                                                                            .sort((a, b) => b[1] - a[1])
-                                                                            .slice(0, 3)
-                                                                            .map(([k]) => k.replace(/_/g, ' '))
-                                                                            .join(', ')}
-                                                                    </p>
-                                                                )}
-                                                                {typeof faceGazeScore === 'number' && (
-                                                                    <p className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
-                                                                        Eye contact: {Math.round(faceGazeScore * 100)}%
-                                                                    </p>
-                                                                )}
-                                                            </div>
-                                                        </>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <div className={`flex flex-shrink-0 flex-col justify-end border-t px-2 py-0.5 ${isDark ? 'border-gray-700/70 bg-gray-950/65' : 'border-gray-200 bg-gray-100'}`}>
+                                                    {recordingStream ? (
+                                                        <UserWaveform stream={recordingStream} isDark={isDark} />
+                                                    ) : (
+                                                        <WaveformBars heights={Array(WAVEFORM_BAR_COUNT).fill(0.15)} isDark={isDark} />
                                                     )}
                                                 </div>
                                                 {videoError && !videoStream && (
-                                                    <p className="text-sm text-red-400 px-3 py-2">{videoError}</p>
+                                                    <p className="px-3 py-1 text-sm text-red-400">{videoError}</p>
                                                 )}
                                             </div>
-                                            {/* Avatar slot: interviewer persona card + VRM avatar */}
-                                            <div className={`flex-1 min-w-0 min-h-0 flex flex-col rounded-xl overflow-hidden border shadow-lg ${isDark ? 'border-gray-600/60 bg-gray-900/80' : 'border-gray-200 bg-white/95'}`}>
-                                                {/* Interviewer persona — stays above video (embed cannot overlap) */}
-                                                <div className={`relative z-10 flex-shrink-0 px-3 py-2 border-b ${isDark ? 'border-gray-600/80 bg-gray-900/95' : 'border-gray-200 bg-gray-100/95'}`}>
-                                                    <p className={`text-sm font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>Alex Chen</p>
-                                                    <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>{role || 'Senior Software Engineer'}</p>
-                                                    <p className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>{companyName || '—'}</p>
+                                            {/* Interviewer — persona header (like You), then video, then waveform */}
+                                            <div className={`flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-xl border shadow-lg ${isDark ? 'border-gray-600/60 bg-gray-900/80' : 'border-gray-200 bg-white/95'}`}>
+                                                <div className={`flex-shrink-0 border-b px-3 py-1.5 ${isDark ? 'border-gray-600/80 bg-gray-900/95' : 'border-gray-200 bg-gray-100/95'}`}>
+                                                    <p className={`text-[11px] font-semibold uppercase tracking-wide ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Interviewer</p>
+                                                    <p className={`mt-0.5 text-sm font-semibold leading-tight ${isDark ? 'text-white' : 'text-gray-900'}`}>Alex Chen</p>
+                                                    <p className={`text-[11px] leading-snug ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>{role || 'Senior Software Engineer'}</p>
+                                                    <p className={`text-[11px] leading-snug ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>{companyName || '—'}</p>
                                                 </div>
-                                                <div className="relative flex-1 min-h-0 min-w-0 flex flex-col overflow-hidden bg-black/30">
-                                                    {USE_LIVE_AVATAR_EMBED ? (
-                                                        <InterviewLiveAvatarEmbed
-                                                            key="liveavatar-embed"
-                                                            embedId={LIVE_AVATAR_EMBED_ID}
-                                                            embedUrl={LIVE_AVATAR_EMBED_URL}
-                                                            className="flex-1 min-h-0"
-                                                        />
-                                                    ) : USE_LIVE_AVATAR_SDK ? (
-                                                        <InterviewLiveAvatar
-                                                            key="liveavatar-sdk-session"
-                                                            ref={liveAvatarRef}
-                                                            className="flex-1 min-h-0"
-                                                            onSpeakingChange={setIsAvatarSpeaking}
-                                                            onReady={() => {
-                                                                liveAvatarHudReadyRef.current = true;
-                                                                setLiveAvatarSessionReady(true);
-                                                            }}
-                                                            onError={() => {
-                                                                liveAvatarHudReadyRef.current = false;
-                                                                setLiveAvatarSessionReady(false);
-                                                            }}
-                                                        />
-                                                    ) : (
-                                                        <InterviewAvatarVrm className="flex-1 min-h-0" isSpeaking={isAvatarSpeaking} />
-                                                    )}
+                                                <div className="relative flex min-h-0 min-w-0 flex-1 flex-col bg-black/25">
+                                                    <div className="flex min-h-0 min-w-0 flex-1 overflow-hidden p-1 sm:p-1.5">
+                                                        <div className="relative min-h-0 min-w-0 flex-1 overflow-hidden rounded-lg bg-black">
+                                                            {USE_LIVE_AVATAR_EMBED ? (
+                                                                <InterviewLiveAvatarEmbed
+                                                                    key="liveavatar-embed"
+                                                                    embedId={LIVE_AVATAR_EMBED_ID}
+                                                                    embedUrl={LIVE_AVATAR_EMBED_URL}
+                                                                    className="h-full min-h-0 min-w-0 w-full max-w-full flex-1 overflow-hidden"
+                                                                />
+                                                            ) : USE_LIVE_AVATAR_SDK ? (
+                                                                <InterviewLiveAvatar
+                                                                    key="liveavatar-sdk-session"
+                                                                    ref={liveAvatarRef}
+                                                                    className="h-full min-h-0 min-w-0 w-full max-w-full flex-1 overflow-hidden"
+                                                                    onSpeakingChange={setIsAvatarSpeaking}
+                                                                    onReady={() => {
+                                                                        liveAvatarHudReadyRef.current = true;
+                                                                        setLiveAvatarSessionReady(true);
+                                                                    }}
+                                                                    onError={() => {
+                                                                        liveAvatarHudReadyRef.current = false;
+                                                                        setLiveAvatarSessionReady(false);
+                                                                    }}
+                                                                />
+                                                            ) : (
+                                                                <InterviewAvatarVrm className="min-h-0 min-w-0 h-full w-full flex-1 overflow-hidden" isSpeaking={isAvatarSpeaking} />
+                                                            )}
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </div>
-                                        {/* Waveforms below cameras — slightly taller strip */}
-                                        <div className={`flex-shrink-0 flex gap-2 items-stretch px-2 py-2.5 min-h-[3rem] border-t ${isDark ? 'border-gray-700/60 bg-gray-950/50' : 'border-gray-200/90 bg-gray-100/80'}`}>
-                                            <div className="flex-1 min-w-0 flex flex-col rounded-lg overflow-hidden justify-center">
-                                                {recordingStream ? (
-                                                    <UserWaveform stream={recordingStream} isDark={isDark} />
-                                                ) : (
-                                                    <WaveformBars heights={Array(WAVEFORM_BAR_COUNT).fill(0.15)} isDark={isDark} />
-                                                )}
-                                            </div>
-                                            <div className="flex-1 min-w-0 flex flex-col rounded-lg overflow-hidden justify-center">
-                                                <AvatarWaveform isActive={isAvatarSpeaking} isDark={isDark} />
+                                                <div className={`flex flex-shrink-0 flex-col justify-end border-t px-2 py-0.5 ${isDark ? 'border-gray-700/70 bg-gray-950/65' : 'border-gray-200 bg-gray-100'}`}>
+                                                    <AvatarWaveform isActive={isAvatarSpeaking} isDark={isDark} />
+                                                </div>
                                             </div>
                                         </div>
                                         </div>
                                         {/* Transcript is captured in the background but not shown until the end summary */}
-                                    </div>
-
-                                    <div className={`flex items-stretch gap-2 sm:gap-3 pt-2 pb-2 sm:pb-3 flex-shrink-0 border-t ${isDark ? 'border-gray-700/60 bg-gray-900' : 'border-gray-200 bg-white'}`}>
-                                        <button
-                                            onClick={handlePrevious}
-                                            disabled={currentQuestionIndex === 0}
-                                            className={`flex-1 min-w-0 px-2 sm:px-4 py-3 rounded-xl font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-1.5 ${
-                                                currentQuestionIndex === 0
-                                                    ? isDark ? 'bg-gray-800/50 text-gray-500 cursor-not-allowed' : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                                    : isDark
-                                                        ? 'bg-gray-800 hover:bg-gray-700 border border-gray-700 text-white shadow-md'
-                                                        : 'bg-gray-100 hover:bg-gray-200 border border-gray-200 text-gray-900 shadow-md'
-                                            }`}
-                                        >
-                                            <ChevronLeft className="w-4 h-4 shrink-0" />
-                                            <span className="truncate">{t.interviewPrevious}</span>
-                                        </button>
-                                        {isRecording ? (
-                                            <button
-                                                type="button"
-                                                onClick={() => stopRecording({ dominant: faceDominant, expressions: faceExpressions ? { ...faceExpressions } : {} })}
-                                                className="flex-1 min-w-0 flex items-center justify-center gap-1.5 px-2 sm:px-3 py-3 rounded-xl font-semibold text-sm bg-red-500/20 text-red-400 hover:bg-red-500/30"
-                                            >
-                                                <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse shrink-0" />
-                                                {t.interviewStopRecording ?? 'Stop recording'}
-                                            </button>
-                                        ) : (
-                                            <button
-                                                type="button"
-                                                onClick={startRecording}
-                                                disabled={isTranscribing}
-                                                className={`flex-1 min-w-0 flex items-center justify-center gap-1.5 px-2 sm:px-3 py-3 rounded-xl text-sm font-semibold ${isTranscribing
-                                                    ? isDark ? 'bg-gray-700 text-gray-400 cursor-not-allowed' : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                                                    : isDark ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30' : 'bg-red-100 text-red-600 hover:bg-red-200'
-                                                }`}
-                                            >
-                                                {isTranscribing ? <Loader2 className="w-4 h-4 animate-spin shrink-0" /> : <Mic className="w-4 h-4 shrink-0" />}
-                                                {isTranscribing ? (t.interviewTranscribing ?? 'Transcribing...') : (t.interviewRecord ?? 'Start recording')}
-                                            </button>
-                                        )}
-                                        <button
-                                            type="button"
-                                            onClick={pendingFollowUpQuestion ? dismissFollowUpAndAdvance : handleNext}
-                                            disabled={isTailoringNextQuestion || isLoadingFollowUp}
-                                            className={`flex-1 min-w-0 px-2 sm:px-4 py-3 rounded-xl font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-1.5 shadow-lg ${isTailoringNextQuestion || isLoadingFollowUp
-                                                ? 'bg-emerald-500/70 text-white cursor-wait shadow-emerald-500/20'
-                                                : 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:from-emerald-600 hover:to-teal-600 shadow-emerald-500/25 hover:shadow-xl hover:shadow-emerald-500/30 hover:-translate-y-0.5'
-                                            }`}
-                                        >
-                                            {isTailoringNextQuestion ? (
-                                                <>
-                                                    <Loader2 className="w-4 h-4 shrink-0 animate-spin" />
-                                                    <span className="truncate">Preparing next question...</span>
-                                                </>
-                                            ) : isLoadingFollowUp ? (
-                                                <>
-                                                    <Loader2 className="w-4 h-4 shrink-0 animate-spin" />
-                                                    <span className="truncate">Checking for follow-up...</span>
-                                                </>
-                                            ) : pendingFollowUpQuestion ? (
-                                                <>
-                                                    <span className="truncate">Continue</span>
-                                                    <ChevronRight className="w-4 h-4 shrink-0" />
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <span className="truncate">{currentQuestionIndex === generatedQuestions.length - 1 ? t.interviewFinish : t.interviewNext}</span>
-                                                    <ChevronRight className="w-4 h-4 shrink-0" />
-                                                </>
-                                            )}
-                                        </button>
-                                    </div>
                                     </div>
                                 </div>
                             ) : (
@@ -2572,14 +2502,25 @@ export default function InterviewSimulatorPage() {
                                                         </div>
                                                     </div>
                                                     <div className="lg:col-span-7 min-w-0">
-                                                        <p className={`text-xs font-semibold mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>Areas of improvement</p>
+                                                        <p className={`text-xs font-semibold mb-1 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>Areas of improvement</p>
+                                                        {feedbackImprovementAgg.length > 0 ? (
+                                                            <p className={`text-[11px] leading-snug mb-2 ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
+                                                                Themes aggregated from your personalized feedback (per-question detail on the Personalized feedback tab).
+                                                            </p>
+                                                        ) : (
+                                                            <p className={`text-[11px] leading-snug mb-2 ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
+                                                                Based on your lowest radar dimensions — personalized feedback may add more once it finishes loading.
+                                                            </p>
+                                                        )}
                                                         <div className="space-y-2">
-                                                            {reportImprovementItems.map((it) => (
+                                                            {reportImprovementDisplayItems.map((it) => (
                                                                 <div key={it.key} className={`rounded-lg border px-2.5 py-2 ${isDark ? 'bg-gray-900/20 border-gray-700/60' : 'bg-white border-gray-200'}`}>
                                                                     <div className="flex items-start justify-between gap-2">
                                                                         <p className={`text-sm font-semibold leading-snug ${isDark ? 'text-white' : 'text-gray-900'}`}>{it.title}</p>
                                                                         <span className={`text-[11px] font-semibold px-1.5 py-0.5 rounded shrink-0 ${isDark ? 'bg-gray-800/60 text-gray-200' : 'bg-gray-100 text-gray-700'}`}>
-                                                                            {it.value}/100
+                                                                            {it.mentionCount != null && it.totalSlots != null
+                                                                                ? `${it.mentionCount}/${it.totalSlots} Qs`
+                                                                                : `${it.value}/100`}
                                                                         </span>
                                                                     </div>
                                                                     <p className={`text-xs mt-1 leading-snug ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>{it.hint}</p>
@@ -2788,13 +2729,26 @@ export default function InterviewSimulatorPage() {
                                         )}
                                         </div>
 
-                                        <div className={`flex-shrink-0 pt-4 mt-4 flex border-t ${isDark ? 'border-gray-700/80' : 'border-gray-200'}`}>
+                                        <div className={`flex-shrink-0 pt-4 mt-4 flex flex-row flex-wrap justify-center gap-2 border-t ${isDark ? 'border-gray-700/80' : 'border-gray-200'}`}>
                                             <button
-                                                onClick={() => setShowThankYouPopup(true)}
-                                                className={`w-full px-6 py-3.5 mt-4 rounded-xl font-semibold transition-all duration-200 ${
+                                                type="button"
+                                                onClick={handleDownloadInterviewPDF}
+                                                className={`inline-flex items-center justify-center gap-1.5 max-w-full px-3 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 ${
                                                     isDark
-                                                        ? 'bg-gray-800 hover:bg-gray-700 border border-gray-700 text-white shadow-md'
-                                                        : 'bg-gray-100 hover:bg-gray-200 border border-gray-200 text-gray-900 shadow-md'
+                                                        ? 'bg-emerald-600/90 hover:bg-emerald-500 text-white border border-emerald-500/50'
+                                                        : 'bg-emerald-600 hover:bg-emerald-500 text-white border border-emerald-500/50'
+                                                }`}
+                                            >
+                                                <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" aria-hidden />
+                                                <span className="text-left leading-snug">{t.interviewDownloadPlaceholder}</span>
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={closeModal}
+                                                className={`inline-flex items-center justify-center px-3 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 ${
+                                                    isDark
+                                                        ? 'bg-gray-800 hover:bg-gray-700 border border-gray-700 text-white'
+                                                        : 'bg-gray-100 hover:bg-gray-200 border border-gray-200 text-gray-900'
                                                 }`}
                                             >
                                                 {t.interviewClose}
@@ -2807,18 +2761,6 @@ export default function InterviewSimulatorPage() {
                             )}
                         </div>
                         </div>
-
-                        {/* Thank-you popup (after Close on summary) */}
-                        {showThankYouPopup && (
-                            <ThankYouOverlay
-                                companyName={companyName}
-                                evaluationOverall={evaluationOverall}
-                                getThankYouSummary={getThankYouSummary}
-                                isDark={isDark}
-                                t={t}
-                                onClose={closeModal}
-                            />
-                        )}
                     </div>
                 </div>
             )}

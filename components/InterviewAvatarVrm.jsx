@@ -415,8 +415,8 @@ export default function InterviewAvatarVrm({ className = '', modelUrl = DEFAULT_
     }
 
     return (
-        <div className={`relative w-full h-full min-h-[200px] ${className}`}>
-            <div ref={containerRef} className="absolute inset-0 w-full h-full" />
+        <div className={`relative w-full h-full min-h-[200px] min-w-0 overflow-hidden ${className}`}>
+            <div ref={containerRef} className="absolute inset-0 w-full h-full min-w-0 overflow-hidden" />
             {loading && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-gray-800/50 text-gray-400">
                     <div className="w-8 h-8 border-2 border-emerald-500/50 border-t-emerald-400 rounded-full animate-spin" />
