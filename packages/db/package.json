@@ -1,0 +1,42 @@
+{
+  "name": "@kimuntupro/db",
+  "version": "0.0.1",
+  "type": "module",
+  "private": true,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./firebase/websites.server": {
+      "types": "./dist/firebase/websites.server.d.ts",
+      "import": "./dist/firebase/websites.server.js"
+    },
+    "./firebase/assistantResults.server": {
+      "types": "./dist/firebase/assistantResults.server.d.ts",
+      "import": "./dist/firebase/assistantResults.server.js"
+    },
+    "./firebase/logos.server": {
+      "types": "./dist/firebase/logos.server.d.ts",
+      "import": "./dist/firebase/logos.server.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "type-check": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "firebase": "^10.14.1",
+    "firebase-admin": "^13.6.0",
+    "server-only": "^0.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.6.0",
+    "vitest": "^2.0.0"
+  }
+}
