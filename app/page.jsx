@@ -7,11 +7,13 @@ import {
     Mail, Lock, Chrome, BarChart, Shield, Sun, Moon, Rocket,
     Sparkles, Zap, Brain, Target, ArrowRight, CheckCircle2,
     Globe, Star, ChevronDown, Play, Award, Lightbulb,
-    Building2, GraduationCap, Gavel, LineChart, Bot, Layers
+    Building2, GraduationCap, Gavel, LineChart, Bot, Layers,
+    Check, RefreshCw, CreditCard, Crown
 } from 'lucide-react';
 import { auth, signInWithEmail, signUpWithEmail, signInWithGoogle, signOutUser, hasCompletedOnboarding } from '@/lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useTheme } from '@/components/providers/ThemeProvider';
+import { PLANS, PRO_FEATURES } from '@/lib/payments';
 import Footer from '@/components/Footer';
 import Image from 'next/image';
 
@@ -73,6 +75,8 @@ export default function LandingPage() {
     const [tracksRef, tracksInView] = useInView();
     const [ctaRef, ctaInView] = useInView();
     const [testimonialsRef, testimonialsInView] = useInView();
+    const [pricingRef, pricingInView] = useInView();
+    const [isYearly, setIsYearly] = useState(false);
 
     const authSectionRef = useRef(null);
 
@@ -80,11 +84,26 @@ export default function LandingPage() {
         const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
             setUser(currentUser);
             if (currentUser) {
-                const completedOnboarding = await hasCompletedOnboarding(currentUser.uid);
-                if (!completedOnboarding) {
+                // Check if this is a brand new signup (flag set by signUp functions)
+                const isNewUser = typeof window !== 'undefined' && sessionStorage.getItem('kimuntu_is_new_user') === 'true';
+                if (isNewUser) {
+                    // Clear the flag so it doesn't trigger again
+                    sessionStorage.removeItem('kimuntu_is_new_user');
                     router.push('/onboarding');
                 } else {
-                    router.push('/dashboard');
+                    // Existing user logging in — check onboarding status
+                    const completedOnboarding = await hasCompletedOnboarding(currentUser.uid);
+                    if (!completedOnboarding) {
+                        // Double-check: if localStorage says completed, trust it
+                        const cachedComplete = typeof window !== 'undefined' && localStorage.getItem(`onboarding_completed_${currentUser.uid}`) === 'true';
+                        if (cachedComplete) {
+                            router.push('/dashboard');
+                        } else {
+                            router.push('/onboarding');
+                        }
+                    } else {
+                        router.push('/dashboard');
+                    }
                 }
             }
             setLoading(false);
@@ -591,6 +610,146 @@ export default function LandingPage() {
                                     {item.logo}
                                 </div>
                                 <span className="text-base font-semibold tracking-wide">{item.name}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* ====== PRICING SECTION ====== */}
+            <section id="pricing" className="relative z-10 py-24 px-6">
+                <div className="max-w-5xl mx-auto">
+                    <div ref={pricingRef} className="text-center mb-16" style={{ opacity: pricingInView ? 1 : 0, transform: pricingInView ? 'translateY(0)' : 'translateY(30px)', transition: 'opacity 0.8s ease, transform 0.8s ease' }}>
+                        <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold tracking-wider uppercase mb-6 ${isDark ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}`}>
+                            <Zap className="w-3.5 h-3.5" />
+                            Simple Pricing
+                        </div>
+                        <h2 className={`text-4xl sm:text-5xl font-bold mb-4 ${isDark ? 'text-white' : 'text-black'}`}>
+                            One Plan.{' '}
+                            <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
+                                Everything Included.
+                            </span>
+                        </h2>
+                        <p className={`text-lg max-w-2xl mx-auto ${isDark ? 'text-white/50' : 'text-black/50'}`}>
+                            Get unlimited access to all AI-powered tools and professional tracks.
+                        </p>
+
+                        {/* Billing toggle */}
+                        <div className="flex items-center justify-center gap-4 mt-8">
+                            <span className={`text-sm font-medium ${!isYearly ? (isDark ? 'text-white' : 'text-black') : (isDark ? 'text-white/40' : 'text-black/40')}`}>Monthly</span>
+                            <button
+                                onClick={() => setIsYearly(!isYearly)}
+                                className={`relative w-14 h-7 rounded-full transition-all duration-300 ${isYearly ? 'bg-emerald-500' : isDark ? 'bg-white/10' : 'bg-black/10'}`}
+                            >
+                                <div className={`absolute top-0.5 w-6 h-6 rounded-full bg-white shadow-md transition-all duration-300 ${isYearly ? 'left-7.5 translate-x-0.5' : 'left-0.5'}`} style={{ left: isYearly ? '1.75rem' : '0.125rem' }} />
+                            </button>
+                            <span className={`text-sm font-medium ${isYearly ? (isDark ? 'text-white' : 'text-black') : (isDark ? 'text-white/40' : 'text-black/40')}`}>
+                                Yearly
+                                <span className="ml-1.5 text-xs text-emerald-400 font-semibold">Save $39</span>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                        {/* Free Plan */}
+                        <div
+                            className={`relative rounded-3xl p-8 overflow-hidden ${isDark ? 'bg-white/[0.03] border border-white/[0.08] backdrop-blur-2xl' : 'bg-white border border-black/5 shadow-xl'}`}
+                            style={{ opacity: pricingInView ? 1 : 0, transform: pricingInView ? 'translateY(0)' : 'translateY(30px)', transition: 'opacity 0.7s ease 0.1s, transform 0.7s ease 0.1s' }}
+                        >
+                            {isDark && <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />}
+                            <div className="relative z-10">
+                                <h3 className={`text-lg font-bold mb-1 ${isDark ? 'text-white' : 'text-black'}`}>Free</h3>
+                                <p className={`text-sm mb-6 ${isDark ? 'text-white/40' : 'text-black/40'}`}>Get started with basic features</p>
+
+                                <div className="flex items-baseline gap-1 mb-8">
+                                    <span className={`text-5xl font-bold ${isDark ? 'text-white' : 'text-black'}`}>$0</span>
+                                    <span className={`text-sm ${isDark ? 'text-white/40' : 'text-black/40'}`}>/forever</span>
+                                </div>
+
+                                <button
+                                    onClick={scrollToAuth}
+                                    className={`w-full py-3.5 rounded-xl font-semibold text-sm transition-all duration-300 hover:scale-[1.02] mb-8 ${isDark ? 'bg-white/5 text-white/70 hover:bg-white/10 border border-white/10' : 'bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200'}`}
+                                >
+                                    Get Started Free
+                                </button>
+
+                                <div className="space-y-3">
+                                    {['Limited AI-powered tools', 'Career track access', 'Basic document exports', '5 generations per day'].map((f, i) => (
+                                        <div key={i} className="flex items-center gap-3">
+                                            <div className={`w-5 h-5 rounded-full flex items-center justify-center ${isDark ? 'bg-white/5' : 'bg-gray-100'}`}>
+                                                <Check className={`w-3 h-3 ${isDark ? 'text-white/40' : 'text-black/40'}`} />
+                                            </div>
+                                            <span className={`text-sm ${isDark ? 'text-white/60' : 'text-black/60'}`}>{f}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Pro Plan */}
+                        <div
+                            className={`relative rounded-3xl p-8 overflow-hidden ${isDark ? 'bg-white/[0.03] border border-emerald-500/20 backdrop-blur-2xl' : 'bg-white border-2 border-emerald-500/30 shadow-xl shadow-emerald-500/5'}`}
+                            style={{ opacity: pricingInView ? 1 : 0, transform: pricingInView ? 'translateY(0)' : 'translateY(30px)', transition: 'opacity 0.7s ease 0.2s, transform 0.7s ease 0.2s' }}
+                        >
+                            {/* Glow border effect */}
+                            {isDark && <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-emerald-500/50 to-transparent" />}
+                            {isDark && <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-60 h-40 bg-emerald-500/10 rounded-full blur-[80px]" />}
+
+                            {/* Popular badge */}
+                            <div className="absolute top-6 right-6">
+                                <span className="px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-emerald-500 to-teal-500 text-white">
+                                    POPULAR
+                                </span>
+                            </div>
+
+                            <div className="relative z-10">
+                                <h3 className={`text-lg font-bold mb-1 ${isDark ? 'text-white' : 'text-black'}`}>Pro</h3>
+                                <p className={`text-sm mb-6 ${isDark ? 'text-white/40' : 'text-black/40'}`}>Unlimited access to everything</p>
+
+                                <div className="flex items-baseline gap-1 mb-2">
+                                    <span className={`text-5xl font-bold bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent`}>
+                                        ${isYearly ? PLANS.yearly.price : PLANS.monthly.price}
+                                    </span>
+                                    <span className={`text-sm ${isDark ? 'text-white/40' : 'text-black/40'}`}>
+                                        /{isYearly ? 'year' : 'month'}
+                                    </span>
+                                </div>
+                                {isYearly && (
+                                    <p className="text-sm text-emerald-400 font-medium mb-6">{PLANS.yearly.savings}</p>
+                                )}
+                                {!isYearly && <div className="mb-6" />}
+
+                                <button
+                                    onClick={scrollToAuth}
+                                    className="w-full py-3.5 rounded-xl font-semibold text-sm text-white bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 transition-all duration-300 hover:scale-[1.02] shadow-lg shadow-emerald-500/25 mb-8"
+                                >
+                                    Start Pro Trial
+                                </button>
+
+                                <div className="space-y-3">
+                                    {PRO_FEATURES.map((f, i) => (
+                                        <div key={i} className="flex items-center gap-3">
+                                            <div className="w-5 h-5 rounded-full flex items-center justify-center bg-emerald-500/15">
+                                                <Check className="w-3 h-3 text-emerald-400" />
+                                            </div>
+                                            <span className={`text-sm ${isDark ? 'text-white/80' : 'text-black/80'}`}>{f}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Trust badges */}
+                    <div className="flex flex-wrap items-center justify-center gap-6 mt-12" style={{ opacity: pricingInView ? 1 : 0, transition: 'opacity 0.8s ease 0.4s' }}>
+                        {[
+                            { icon: Shield, text: 'SSL Encrypted' },
+                            { icon: CreditCard, text: 'Secure Payments' },
+                            { icon: RefreshCw, text: 'Cancel Anytime' },
+                        ].map((badge, i) => (
+                            <div key={i} className={`flex items-center gap-2 text-xs font-medium ${isDark ? 'text-white/30' : 'text-black/30'}`}>
+                                <badge.icon className="w-4 h-4" />
+                                {badge.text}
                             </div>
                         ))}
                     </div>

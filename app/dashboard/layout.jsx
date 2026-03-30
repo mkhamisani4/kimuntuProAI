@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { LogOut, Briefcase, Users, Scale, Home, FileText, TrendingUp, HelpCircle, Sun, Moon, Rocket, Settings, CreditCard } from 'lucide-react';
+import { LogOut, Briefcase, Users, Scale, Home, FileText, TrendingUp, HelpCircle, Sun, Moon, Rocket, Settings, CreditCard, Crown } from 'lucide-react';
 import { auth, signOutUser } from '@/lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useTheme } from '@/components/providers/ThemeProvider';
@@ -25,7 +25,9 @@ export default function DashboardLayout({ children }) {
         '/dashboard/documents',
         '/dashboard/support',
         '/dashboard/settings',
-        '/dashboard/pricing'
+        '/dashboard/pricing',
+        '/dashboard/checkout',
+        '/dashboard/subscription'
     ];
     
     const shouldShowFooter = !hideFooterPages.includes(pathname);
@@ -60,7 +62,7 @@ export default function DashboardLayout({ children }) {
         { id: 'documents', label: t.documents, icon: FileText, href: '/dashboard/documents' },
         { id: 'support', label: t.support, icon: HelpCircle, href: '/dashboard/support' },
         { id: 'settings', label: t.settings, icon: Settings, href: '/dashboard/settings' },
-        { id: 'pricing', label: t.pricing, icon: CreditCard, href: '/dashboard/pricing' },
+        { id: 'subscription', label: 'Subscription', icon: Crown, href: '/dashboard/subscription' },
     ];
 
     if (loading) {
