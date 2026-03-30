@@ -12,13 +12,15 @@ const EnvSchema = z.object({
   // Database
   DATABASE_URL: z.string().url(),
 
-  // OpenAI
-  OPENAI_API_KEY: z.string().min(1),
-  OPENAI_ORG_ID: z.string().optional(),
+  // Anthropic (primary AI provider)
+  ANTHROPIC_API_KEY: z.string().min(1),
+
+  // OpenAI (embeddings only — Anthropic has no embeddings API)
+  OPENAI_EMBEDDINGS_API_KEY: z.string().optional(),
 
   // Models
-  MODEL_MINI: z.string().default('gpt-4o-mini'),
-  MODEL_ESCALATION: z.string().default('gpt-4o'),
+  MODEL_MINI: z.string().default('claude-haiku-4-5-20251001'),
+  MODEL_ESCALATION: z.string().default('claude-sonnet-4-5-20250929'),
   EMBEDDING_MODEL: z.string().default('text-embedding-3-small'),
 
   // Cost Controls

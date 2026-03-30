@@ -18,7 +18,7 @@ test.describe('Export Features', () => {
             { title: 'Source 1', url: 'https://example.com/1', snippet: 'Snippet 1' },
           ],
           meta: {
-            model: 'gpt-4o-mini',
+            model: 'claude-haiku-4-5-20251001',
             tokensIn: 150,
             costCents: 10,
             latencyMs: 2000,
@@ -287,7 +287,7 @@ test.describe('Export Features', () => {
           sections: {},
           sources: [],
           meta: {
-            model: 'gpt-4o-mini',
+            model: 'claude-haiku-4-5-20251001',
             tokensIn: 10,
             costCents: 1,
             latencyMs: 500,

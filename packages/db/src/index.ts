@@ -70,6 +70,51 @@ export {
   type LogoVersion,
 } from './firebase/logos.js';
 
+// Export Marketing Suite types
+export {
+  type MarketingCampaign,
+  type MarketingPost,
+  type MarketingKeyword,
+  type MarketingSettings,
+} from './firebase/marketing.js';
+
+// Export Marketing Campaign CRUD
+export {
+  createCampaign,
+  getCampaign,
+  listCampaigns,
+  updateCampaign,
+  deleteCampaign,
+} from './firebase/marketingCampaigns.js';
+
+// Export Marketing Post CRUD
+export {
+  createPost,
+  getPost,
+  listPosts,
+  updatePost,
+  deletePost,
+} from './firebase/marketingPosts.js';
+
+// Export Marketing Keyword functions
+export {
+  saveKeyword,
+  listKeywords,
+  deleteKeyword,
+} from './firebase/marketingKeywords.js';
+
+// Export Marketing Storage functions
+export {
+  uploadPostMedia,
+  deletePostMedia,
+} from './firebase/marketingStorage.js';
+
+// Export Marketing Settings functions
+export {
+  getMarketingSettings,
+  updateMarketingSettings,
+} from './firebase/marketingSettings.js';
+
 /**
  * Database configuration type
  */

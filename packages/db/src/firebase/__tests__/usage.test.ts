@@ -81,7 +81,7 @@ describe('Firestore Usage Functions', () => {
         tenantId: 'test-tenant',
         userId: 'user-123',
         assistant: 'market_analysis',
-        model: 'gpt-3.5-turbo',
+        model: 'claude-haiku-4-5-20251001',
         tokensIn: 50,
         tokensOut: 150,
         costCents: 0.2,

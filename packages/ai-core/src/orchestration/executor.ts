@@ -11,7 +11,7 @@ import type {
   BusinessTrackFinancialModel,
   FinancialInputs,
 } from '@kimuntupro/shared';
-import { OpenAIClient } from '../llm/client.js';
+import { AnthropicClient } from '../llm/client.js';
 import { DEFAULT_MODEL_MINI, DEFAULT_MODEL_ESCALATION } from '../llm/models.js';
 import {
   retrieveHybrid,
@@ -53,7 +53,7 @@ export interface ExecuteOptions {
   userId: string;
   onUsage?: (metrics: UsageMetric) => void;
   // Dependency injection for testing
-  client?: OpenAIClient;
+  client?: AnthropicClient;
   bm25Query?: BM25QueryFn;
   vectorQuery?: VectorQueryFn;
   embed?: EmbeddingFn;
@@ -146,7 +146,7 @@ async function prepareWebSearch(
       : request.input;
 
     // Use unified webSearch which delegates to configured provider (OpenAI or Tavily)
-    const client = new OpenAIClient();
+    const client = new AnthropicClient();
     const maxResults = Number(process.env.WEBSEARCH_MAX_RESULTS ?? Number(process.env.OPENAI_WEB_SEARCH_MAX_RESULTS ?? 8));
 
     const result = await webSearch(client, {
@@ -222,7 +222,7 @@ export async function execute(options: ExecuteOptions): Promise<AssistantRespons
   const { plan, request, onUsage } = options;
 
   // Create or use provided client
-  const client = options.client || new OpenAIClient();
+  const client = options.client || new AnthropicClient();
 
   // Determine model
   const modelId = plan.escalate_model ? DEFAULT_MODEL_ESCALATION : DEFAULT_MODEL_MINI;

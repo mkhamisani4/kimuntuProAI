@@ -12,7 +12,7 @@ test.describe('UI/UX Polish - Loading Skeletons', () => {
           sections: { 'Test Section': 'Test content' },
           sources: [],
           meta: {
-            model: 'gpt-4o-mini',
+            model: 'claude-haiku-4-5-20251001',
             tokensIn: 100,
             costCents: 5,
             latencyMs: 1500,
@@ -81,7 +81,7 @@ test.describe('UI/UX Polish - Toast Notifications', () => {
           sections: { 'Section': 'Content' },
           sources: [],
           meta: {
-            model: 'gpt-4o-mini',
+            model: 'claude-haiku-4-5-20251001',
             tokensIn: 100,
             costCents: 5,
             latencyMs: 1500,
@@ -110,7 +110,7 @@ test.describe('UI/UX Polish - Toast Notifications', () => {
           sections: { 'Section': 'Content to copy' },
           sources: [],
           meta: {
-            model: 'gpt-4o-mini',
+            model: 'claude-haiku-4-5-20251001',
             tokensIn: 100,
             costCents: 5,
             latencyMs: 1500,
@@ -254,7 +254,7 @@ test.describe('UI/UX Polish - Error Handling and Retry', () => {
             sections: { 'Section': 'Success content' },
             sources: [],
             meta: {
-              model: 'gpt-4o-mini',
+              model: 'claude-haiku-4-5-20251001',
               tokensIn: 100,
               costCents: 5,
               latencyMs: 1500,
@@ -326,7 +326,7 @@ test.describe('UI/UX Polish - Animations and Styling', () => {
           },
           sources: [],
           meta: {
-            model: 'gpt-4o-mini',
+            model: 'claude-haiku-4-5-20251001',
             tokensIn: 100,
             costCents: 5,
             latencyMs: 1500,
@@ -439,7 +439,7 @@ test.describe('UI/UX Polish - No Console Errors', () => {
           sections: { 'Test': 'Content' },
           sources: [],
           meta: {
-            model: 'gpt-4o-mini',
+            model: 'claude-haiku-4-5-20251001',
             tokensIn: 100,
             costCents: 5,
             latencyMs: 1500,

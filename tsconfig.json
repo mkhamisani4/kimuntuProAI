@@ -28,7 +28,8 @@
       ]
     },
     "strictNullChecks": false,
-    "noImplicitAny": false
+    "noImplicitAny": false,
+    "noUncheckedIndexedAccess": false
   },
   "include": [
     "next-env.d.ts",

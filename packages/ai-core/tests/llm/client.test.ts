@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { z } from 'zod';
-import { OpenAIClient, type ChatMessage } from '../../src/llm/client.js';
+import { AnthropicClient, type ChatMessage } from '../../src/llm/client.js';
 import { getCostCents } from '../../src/llm/costs.js';
 
 // Create mock function
@@ -20,19 +20,19 @@ vi.mock('openai', () => {
 });
 
 describe('OpenAI Client', () => {
-  let client: OpenAIClient;
+  let client: AnthropicClient;
 
   beforeEach(() => {
     // Set required env vars
-    process.env.OPENAI_API_KEY = 'test-key';
-    process.env.MODEL_MINI = 'gpt-4o-mini';
-    process.env.MODEL_ESCALATION = 'gpt-4o';
+    process.env.ANTHROPIC_API_KEY = 'test-key';
+    process.env.MODEL_MINI = 'claude-haiku-4-5-20251001';
+    process.env.MODEL_ESCALATION = 'claude-sonnet-4-5-20250929';
 
     // Reset mock
     mockCreate.mockReset();
 
     // Create client
-    client = new OpenAIClient({
+    client = new AnthropicClient({
       maxRetries: 2,
       timeoutMs: 5000,
     });
@@ -69,7 +69,7 @@ describe('OpenAI Client', () => {
       expect(response.text).toBe('Hello! How can I help?');
       expect(response.tokensIn).toBe(10);
       expect(response.tokensOut).toBe(20);
-      expect(response.model).toBe('gpt-4o-mini');
+      expect(response.model).toBe('claude-haiku-4-5-20251001');
       expect(response.costCents).toBeGreaterThanOrEqual(0); // Small token counts may round to 0
       expect(mockCreate).toHaveBeenCalledTimes(1);
     });
@@ -81,13 +81,13 @@ describe('OpenAI Client', () => {
       });
 
       await client.chat({
-        model: 'gpt-4o',
+        model: 'claude-sonnet-4-5-20250929',
         messages: [{ role: 'user', content: 'Test' }],
       });
 
       expect(mockCreate).toHaveBeenCalledWith(
         expect.objectContaining({
-          model: 'gpt-4o',
+          model: 'claude-sonnet-4-5-20250929',
         })
       );
     });
@@ -183,7 +183,7 @@ describe('OpenAI Client', () => {
 
     it('should call usage callback', async () => {
       const usageCallback = vi.fn();
-      const clientWithCallback = new OpenAIClient({
+      const clientWithCallback = new AnthropicClient({
         onUsage: usageCallback,
       });
 
@@ -304,7 +304,7 @@ describe('OpenAI Client', () => {
     it('should throw if model does not support structured outputs', async () => {
       await expect(
         client.chatStructured({
-          model: 'gpt-3.5-turbo',
+          model: 'claude-haiku-4-5-20251001',
           schema: testSchema,
           schemaName: 'TestResponse',
           messages: [{ role: 'user', content: 'Test' }],
@@ -486,7 +486,7 @@ describe('OpenAI Client', () => {
 
   describe('Circuit Breaker', () => {
     it('should open circuit after threshold failures', async () => {
-      const clientWithLowThreshold = new OpenAIClient({
+      const clientWithLowThreshold = new AnthropicClient({
         circuitBreakerThreshold: 2,
         maxRetries: 1,
       });
@@ -519,9 +519,9 @@ describe('OpenAI Client', () => {
 });
 
 describe('Cost Calculation', () => {
-  it('should calculate cost correctly for gpt-4o-mini', () => {
+  it('should calculate cost correctly for claude-haiku-4-5-20251001', () => {
     const cost = getCostCents({
-      model: 'gpt-4o-mini',
+      model: 'claude-haiku-4-5-20251001',
       tokensIn: 1000,
       tokensOut: 500,
     });
@@ -533,7 +533,7 @@ describe('Cost Calculation', () => {
 
   it('should calculate cost with cached inputs', () => {
     const cost = getCostCents({
-      model: 'gpt-4o-mini',
+      model: 'claude-haiku-4-5-20251001',
       tokensIn: 1000,
       tokensOut: 500,
       cachedInputTokens: 800,
@@ -547,7 +547,7 @@ describe('Cost Calculation', () => {
 
   it('should handle zero tokens', () => {
     const cost = getCostCents({
-      model: 'gpt-4o-mini',
+      model: 'claude-haiku-4-5-20251001',
       tokensIn: 0,
       tokensOut: 0,
     });
@@ -557,7 +557,7 @@ describe('Cost Calculation', () => {
 
   it('should round to 2 decimal places', () => {
     const cost = getCostCents({
-      model: 'gpt-4o-mini',
+      model: 'claude-haiku-4-5-20251001',
       tokensIn: 123,
       tokensOut: 456,
     });

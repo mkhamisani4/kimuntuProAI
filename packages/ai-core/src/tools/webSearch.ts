@@ -3,7 +3,7 @@
  * Delegates to either OpenAI or Tavily based on configuration
  */
 
-import type { OpenAIClient } from '../llm/client.js';
+import type { AnthropicClient } from '../llm/client.js';
 import {
   webSearchWithOpenAI,
   buildOpenAIWebSearchTools,
@@ -33,7 +33,7 @@ function getProvider(): 'openai' | 'tavily' {
  * @returns Search results
  */
 export async function webSearch(
-  client: OpenAIClient | null,
+  client: AnthropicClient | null,
   options: WebSearchOptions
 ): Promise<WebSearchResponse> {
   const provider = getProvider();
@@ -72,7 +72,7 @@ export function buildWebSearchTools() {
  * @param client - OpenAI client instance
  * @returns ToolSpec and handler
  */
-export function buildWebSearchToolSpec(client: OpenAIClient) {
+export function buildWebSearchToolSpec(client: AnthropicClient) {
   return buildOpenAIWebSearchToolSpec(client);
 }
 

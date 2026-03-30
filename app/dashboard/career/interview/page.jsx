@@ -6,7 +6,7 @@ import { ArrowLeft, Users, Loader2, Mic, Video, TrendingUp, AlertCircle, X, File
 import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, Radar, Tooltip } from 'recharts';
 import { useTheme } from '@/components/providers/ThemeProvider';
 import { useLanguage } from '@/components/providers/LanguageProvider';
-import { generateInterviewQuestions, extractResumeText } from '@/services/openaiService';
+import { generateInterviewQuestions, extractResumeText } from '@/services/aiService';
 import { evaluateInterviewResponses, getInterviewFeedback } from '@/services/responseAnalysisService';
 import { useFaceExpressionAnalysis } from '@/hooks/useFaceExpressionAnalysis';
 import { generatePDF } from '@/lib/pdf/generatePDF';
