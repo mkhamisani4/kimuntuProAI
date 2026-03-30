@@ -50,6 +50,26 @@ service cloud.firestore {
       allow read, write: if true; // Completely open for development
     }
 
+    // Email campaigns
+    match /email_campaigns/{campaignId} {
+      allow read, write: if true; // Development mode
+    }
+
+    // Email analytics events
+    match /email_analytics/{eventId} {
+      allow read, write: if true; // Development mode
+    }
+
+    // Email error logs
+    match /email_error_log/{errorId} {
+      allow read, write: if true; // Development mode
+    }
+
+    // Marketing settings
+    match /marketing_settings/{settingsId} {
+      allow read, write: if true; // Development mode
+    }
+
     // Default: deny all other access
     match /{document=**} {
       allow read, write: if false;
