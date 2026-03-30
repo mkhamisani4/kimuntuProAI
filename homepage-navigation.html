@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KimuntuPro AI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        /* Header */
+        .header {
+            background-color: #007bff;
+            color: white;
+            padding: 1rem 0;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-menu a {
+            color: white;
+            text-decoration: none;
+        }
+
+        .nav-menu a:hover {
+            text-decoration: underline;
+        }
+
+        /* Clickable highlight utility */
+        .clickable { position: relative; transition: box-shadow 0.2s ease, transform 0.05s ease; }
+        .clickable:focus { outline: 2px solid #80bfff; outline-offset: 2px; }
+        .clickable:hover { box-shadow: 0 0 0 3px rgba(0,123,255,0.15) inset; }
+        .clickable:active { transform: translateY(1px); }
+
+        /* Main Content */
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        /* Navigation Tabs */
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .tab {
+            padding: 1rem 2rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab.active {
+            border-bottom-color: #007bff;
+            color: #007bff;
+        }
+
+        /* Content Sections */
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .section-subtitle {
+            color: #666;
+            margin-bottom: 2rem;
+        }
+
+        /* Feature Lists */
+        .feature-list {
+            list-style: none;
+        }
+
+        .feature-list li {
+            margin: 1rem 0;
+            padding: 1rem;
+            border: 1px solid #ddd;
+            background-color: #f9f9f9;
+        }
+
+        .feature-list h3 {
+            margin-bottom: 0.5rem;
+        }
+
+        /* Footer */
+        .footer {
+            background-color: #333;
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            margin-top: 3rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="nav-container">
+            <a class="logo" href="/Users/tedinator1738/Desktop/CapStone Project/homepage-navigation.html">KimuntuPro AI</a>
+            <nav>
+                <ul class="nav-menu">
+                    <li><a class="clickable" href="/Users/tedinator1738/Desktop/CapStone Project/homepage-navigation.html#home">Home</a></li>
+                    <li><a class="clickable" href="/Users/tedinator1738/Desktop/CapStone Project/homepage-navigation.html#career">Career</a></li>
+                    <li><a class="clickable" href="/Users/tedinator1738/Desktop/CapStone Project/homepage-navigation.html#business">Business</a></li>
+                    <li><a class="clickable" href="/Users/tedinator1738/Desktop/CapStone Project/homepage-navigation.html#legal">Legal</a></li>
+                    <li><a class="clickable" href="/Users/tedinator1738/Desktop/CapStone Project/login-signup-mockup.html">Login</a></li>
+                    <li><a class="clickable" href="/Users/tedinator1738/Desktop/CapStone Project/clickable-ui-prototype.html">Prototype</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <h1 class="page-title">Welcome to KimuntuPro AI</h1>
+        
+        <!-- Navigation Tabs -->
+        <div class="tabs">
+            <button class="tab active clickable" onclick="showTab('career', event)">Career</button>
+            <button class="tab clickable" onclick="showTab('business', event)">Business</button>
+            <button class="tab clickable" onclick="showTab('legal', event)">Legal</button>
+        </div>
+
+        <!-- Career Section -->
+        <div class="content-section active" id="career-content">
+            <h2 class="section-title">Career Development</h2>
+            <p class="section-subtitle">AI-powered tools for your professional growth</p>
+            
+            <ul class="feature-list">
+                <li>
+                    <h3>AI CV Builder</h3>
+                    <p>Create professional resumes with AI optimization for ATS systems.</p>
+                </li>
+                <li>
+                    <h3>Job Matching</h3>
+                    <p>AI-driven job recommendations based on your skills and experience.</p>
+                </li>
+                <li>
+                    <h3>Interview Prep</h3>
+                    <p>Virtual mock interviews with AI feedback.</p>
+                </li>
+                <li>
+                    <h3>Career Guidance</h3>
+                    <p>Personalized career path suggestions based on industry trends.</p>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Business Section -->
+        <div class="content-section" id="business-content">
+            <h2 class="section-title">Business Development</h2>
+            <p class="section-subtitle">Comprehensive business tools from startup to growth</p>
+            
+            <ul class="feature-list">
+                <li>
+                    <h3>Business Plan Builder</h3>
+                    <p>Three-tiered business plans: Basic, Medium, and Professional.</p>
+                </li>
+                <li>
+                    <h3>Funding Finder</h3>
+                    <p>AI scans global funding databases to match your startup.</p>
+                </li>
+                <li>
+                    <h3>Website Builder</h3>
+                    <p>AI-powered domain and website creation with SEO optimization.</p>
+                </li>
+                <li>
+                    <h3>AI Marketing Suite</h3>
+                    <p>Generate ads, email campaigns, and social media content.</p>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Legal Section -->
+        <div class="content-section" id="legal-content">
+            <h2 class="section-title">Legal Assistance</h2>
+            <p class="section-subtitle">AI-powered legal support for Canada and the United States</p>
+            
+            <ul class="feature-list">
+                <li>
+                    <h3>Canada Legal Services</h3>
+                    <p>Family Law, Criminal Law, Business Law, Consumer Rights, Immigration & Refugee Law, Labor Law, Civil Litigation</p>
+                </li>
+                <li>
+                    <h3>US Legal Services</h3>
+                    <p>Family Law, Criminal Law, Business Law, Consumer Rights, Immigration & Refugee Law, Labor Law, Civil Litigation</p>
+                </li>
+                <li>
+                    <h3>Document Generation</h3>
+                    <p>AI-powered legal document drafting and contract analysis.</p>
+                </li>
+                <li>
+                    <h3>Case Analysis</h3>
+                    <p>AI-assisted legal research and case precedent analysis.</p>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2024 Kimuntu Power Inc. All rights reserved.</p>
+        <p>Contact: proai@kimuntupower.com</p>
+    </footer>
+
+    <script>
+        function showTab(tabName, event) {
+            // Hide all content sections
+            const sections = document.querySelectorAll('.content-section');
+            sections.forEach(section => section.classList.remove('active'));
+            
+            // Remove active class from all tabs
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Show selected content section
+            document.getElementById(tabName + '-content').classList.add('active');
+            
+            // Add active class to clicked tab
+            if (event && event.target) {
+                event.target.classList.add('active');
+            }
+        }
+
+        // Deep link support for tabs via hash
+        window.addEventListener('load', () => {
+            const hash = location.hash.replace('#','');
+            if (hash === 'career' || hash === 'business' || hash === 'legal') {
+                showTab(hash);
+            }
+        });
+    </script>
+</body>
+</html>
