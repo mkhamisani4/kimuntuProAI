@@ -40,6 +40,7 @@ export {
   limit,
   startAfter,
   endBefore,
+  increment,
   type DocumentData,
   type QueryDocumentSnapshot,
   type DocumentSnapshot,

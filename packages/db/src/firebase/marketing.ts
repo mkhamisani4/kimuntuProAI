@@ -48,5 +48,67 @@ export interface MarketingSettings {
   userId: string;
   ayrshareProfileKey: string | null;
   connectedPlatforms: string[];
+  mailchimpAccessToken: string | null;
+  mailchimpServer: string | null;
+  mailchimpListId: string | null;
+  updatedAt?: Date;
+}
+
+export interface EmailCampaign {
+  id?: string;
+  tenantId: string;
+  userId: string;
+  mailchimpCampaignId: string;
+  title: string;
+  subject: string;
+  previewText: string;
+  htmlContent: string;
+  listId: string;
+  segmentId?: string | null;
+  status: 'draft' | 'scheduled' | 'sent' | 'failed';
+  scheduledAt: Date | null;
+  sentAt: Date | null;
+  recipientCount: number;
+  stats: {
+    opens: number;
+    uniqueOpens: number;
+    clicks: number;
+    uniqueClicks: number;
+    bounces: number;
+    unsubscribes: number;
+  };
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface EmailAnalyticsEvent {
+  id?: string;
+  tenantId: string;
+  userId: string;
+  emailCampaignId: string;
+  mailchimpCampaignId: string;
+  eventType: 'open' | 'click' | 'bounce' | 'unsubscribe' | 'complaint';
+  email: string;
+  url?: string;
+  timestamp: Date;
+  raw?: Record<string, any>;
+  createdAt?: Date;
+}
+
+export interface EmailErrorLog {
+  id?: string;
+  tenantId: string;
+  userId: string;
+  emailCampaignId: string;
+  operation: 'create' | 'send' | 'schedule' | 'content_update' | 'batch_import';
+  errorCode: string;
+  errorMessage: string;
+  requestPayload?: Record<string, any>;
+  retryCount: number;
+  maxRetries: number;
+  status: 'pending_retry' | 'retrying' | 'resolved' | 'failed_permanent';
+  nextRetryAt: Date | null;
+  resolvedAt: Date | null;
+  createdAt?: Date;
   updatedAt?: Date;
 }

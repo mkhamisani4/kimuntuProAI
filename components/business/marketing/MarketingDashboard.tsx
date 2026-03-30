@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import Link from 'next/link';
 import {
     BarChart3,
     Search,
@@ -10,6 +11,7 @@ import {
     Hash,
     Link2,
     ExternalLink,
+    Mail,
 } from 'lucide-react';
 import SEOTools from './SEOTools';
 import ContentPlanner from './ContentPlanner';
@@ -240,6 +242,44 @@ function OverviewTab({ setActiveTab, posts, campaigns, keywords, settings, isLoa
 
     return (
         <div className="space-y-6">
+            {/* Connect Mailchimp Banner */}
+            {!settings?.mailchimpAccessToken && (
+                <div className="bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border border-yellow-500/30 rounded-xl p-4 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <Mail className="w-5 h-5 text-yellow-500" />
+                        <div>
+                            <h4 className="text-sm font-semibold text-gray-900 dark:text-white">Connect Mailchimp</h4>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">Set up email campaigns to reach your audience directly</p>
+                        </div>
+                    </div>
+                    <Link
+                        href="/dashboard/business/marketing/email"
+                        className="flex items-center gap-2 px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white text-sm font-medium rounded-lg transition-colors"
+                    >
+                        <ExternalLink className="w-4 h-4" />
+                        Set Up
+                    </Link>
+                </div>
+            )}
+
+            {/* Email Campaigns Card */}
+            <Link
+                href="/dashboard/business/marketing/email"
+                className="block bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow group"
+            >
+                <div className="flex items-center gap-3 mb-2">
+                    <div className="p-2 rounded-lg bg-yellow-50 dark:bg-yellow-900/20">
+                        <Mail className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
+                    </div>
+                    <h3 className="font-medium text-gray-900 dark:text-white group-hover:text-emerald-600 transition-colors">Email Campaigns</h3>
+                </div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                    {settings?.mailchimpAccessToken
+                        ? 'Create and send email campaigns with Mailchimp'
+                        : 'Connect Mailchimp to start sending email campaigns'}
+                </p>
+            </Link>
+
             {/* Connect Socials Banner */}
             {!settings?.ayrshareProfileKey && (
                 <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/30 rounded-xl p-4 flex items-center justify-between">

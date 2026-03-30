@@ -88,6 +88,9 @@ export async function updateMarketingSettings(
         userId,
         ayrshareProfileKey: null,
         connectedPlatforms: [],
+        mailchimpAccessToken: null,
+        mailchimpServer: null,
+        mailchimpListId: null,
         ...updates,
         updatedAt: Timestamp.now(),
       });
