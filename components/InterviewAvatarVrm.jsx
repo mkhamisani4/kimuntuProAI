@@ -9,14 +9,50 @@ const ROOM_BG_URLS = ['/avatar-bg.jpg', '/avatar-bg.png'];
 
 /**
  * Renders a 3D avatar (GLB/GLTF or VRM) in a Three.js scene.
- * Lazy-loads three and optionally @pixiv/three-vrm for VRM files.
- * Handles resize, dispose on unmount, and fallback when WebGL or load fails.
+ * Supports simple real-time interview animation:
+ * - speaking mouth movement (aa/ih/ou style)
+ * - periodic blinking
+ * - subtle head/neck idle motion
  */
-export default function InterviewAvatarVrm({ className = '', modelUrl = DEFAULT_MODEL_URL }) {
+export default function InterviewAvatarVrm({ className = '', modelUrl = DEFAULT_MODEL_URL, isSpeaking = false }) {
     const containerRef = useRef(null);
-    const sceneRef = useRef({ renderer: null, scene: null, camera: null, frameId: null, resize: null });
+    const sceneRef = useRef({
+        renderer: null,
+        scene: null,
+        camera: null,
+        frameId: null,
+        resize: null,
+        model: null,
+        vrm: null,
+        isVrm: false,
+        mouth: 0,
+        mouthTarget: 0,
+        viseme: 'aa',
+        nextVisemeAt: 0,
+        blink: 0,
+        blinkDir: 1,
+        nextBlinkAt: 0,
+        idleClock: 0,
+        headNode: null,
+        neckNode: null,
+        jawNode: null,
+        headBaseRot: null,
+        neckBaseRot: null,
+        jawBaseRot: null,
+        morphTargets: {
+            aa: [],
+            ih: [],
+            ou: [],
+            blink: []
+        }
+    });
+    const speakingRef = useRef(!!isSpeaking);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        speakingRef.current = !!isSpeaking;
+    }, [isSpeaking]);
 
     useEffect(() => {
         const container = containerRef.current;
@@ -132,7 +168,7 @@ export default function InterviewAvatarVrm({ className = '', modelUrl = DEFAULT_
                     loader.register((parser) => new VRMLoaderPlugin(parser));
                 }
 
-                function addModelToScene(model) {
+                function addModelToScene(model, vrm) {
                     if (!model || !mounted) return;
                     model.position.set(0, 0, 0);
                     model.rotation.set(0, 0, 0);
@@ -148,14 +184,117 @@ export default function InterviewAvatarVrm({ className = '', modelUrl = DEFAULT_
                     const faceY = sizeAfter.y * 0.12;
                     model.position.y -= faceY;
                     scene.add(model);
+                    refs.model = model;
+                    refs.vrm = vrm || null;
+                    refs.isVrm = !!vrm;
+
+                    // VRM bones for subtle idle head movement.
+                    if (vrm?.humanoid) {
+                        refs.headNode =
+                            vrm.humanoid.getRawBoneNode?.('head') ||
+                            vrm.humanoid.getNormalizedBoneNode?.('head') ||
+                            null;
+                        refs.neckNode =
+                            vrm.humanoid.getRawBoneNode?.('neck') ||
+                            vrm.humanoid.getNormalizedBoneNode?.('neck') ||
+                            null;
+                        refs.jawNode =
+                            vrm.humanoid.getRawBoneNode?.('jaw') ||
+                            vrm.humanoid.getNormalizedBoneNode?.('jaw') ||
+                            null;
+                        if (refs.headNode) refs.headBaseRot = refs.headNode.rotation.clone();
+                        if (refs.neckNode) refs.neckBaseRot = refs.neckNode.rotation.clone();
+                        if (refs.jawNode) refs.jawBaseRot = refs.jawNode.rotation.clone();
+                    }
+
+                    // GLB morph target fallback (when not VRM expression manager).
+                    const lower = (s) => String(s || '').toLowerCase();
+                    model.traverse((obj) => {
+                        if (!obj?.isMesh || !obj.morphTargetDictionary || !obj.morphTargetInfluences) return;
+                        const dict = obj.morphTargetDictionary;
+                        Object.keys(dict).forEach((k) => {
+                            const lk = lower(k);
+                            const index = dict[k];
+                            const push = (arr) => arr.push({ mesh: obj, index });
+                            if (/blink|eye.?close|close.?eye/.test(lk)) push(refs.morphTargets.blink);
+                            if (/aa|viseme_?aa|mouth_?open|jawopen/.test(lk)) push(refs.morphTargets.aa);
+                            if (/ih|ee|viseme_?ih|mouth_?smile/.test(lk)) push(refs.morphTargets.ih);
+                            if (/ou|oh|oo|viseme_?ou/.test(lk)) push(refs.morphTargets.ou);
+                        });
+
+                        // Bone-name fallback for non-VRM GLB rigs.
+                        if (obj?.isBone) {
+                            const n = lower(obj.name);
+                            if (!refs.headNode && /\bhead\b/.test(n)) {
+                                refs.headNode = obj;
+                                refs.headBaseRot = obj.rotation.clone();
+                            } else if (!refs.neckNode && /\bneck\b/.test(n)) {
+                                refs.neckNode = obj;
+                                refs.neckBaseRot = obj.rotation.clone();
+                            } else if (!refs.jawNode && /\bjaw\b|mandible|chin/.test(n)) {
+                                refs.jawNode = obj;
+                                refs.jawBaseRot = obj.rotation.clone();
+                            }
+                        }
+                    });
+                }
+
+                function clamp01(v) {
+                    return Math.max(0, Math.min(1, v));
+                }
+
+                function setVrmExpression(vrm, key, value) {
+                    if (!vrm) return;
+                    const v = clamp01(value);
+                    if (vrm.expressionManager?.setValue) {
+                        vrm.expressionManager.setValue(key, v);
+                        return;
+                    }
+                    // Backward compatibility with older three-vrm.
+                    if (vrm.blendShapeProxy?.setValue && vrm.blendShapeProxy?.BlendShapePresetName) {
+                        const presets = vrm.blendShapeProxy.BlendShapePresetName;
+                        const mapped = presets[String(key).toUpperCase()] || presets[key] || key;
+                        vrm.blendShapeProxy.setValue(mapped, v);
+                    }
+                }
+
+                function setMorphTargets(targets, value) {
+                    const v = clamp01(value);
+                    targets.forEach(({ mesh, index }) => {
+                        if (!mesh?.morphTargetInfluences || mesh.morphTargetInfluences[index] == null) return;
+                        mesh.morphTargetInfluences[index] = v;
+                    });
+                }
+
+                function applySpeakingViseme(viseme, amount) {
+                    const a = clamp01(amount);
+                    if (refs.vrm) {
+                        setVrmExpression(refs.vrm, 'aa', viseme === 'aa' ? a : 0);
+                        setVrmExpression(refs.vrm, 'ih', viseme === 'ih' ? a : 0);
+                        setVrmExpression(refs.vrm, 'ou', viseme === 'ou' ? a : 0);
+                    }
+                    setMorphTargets(refs.morphTargets.aa, viseme === 'aa' ? a : 0);
+                    setMorphTargets(refs.morphTargets.ih, viseme === 'ih' ? a : 0);
+                    setMorphTargets(refs.morphTargets.ou, viseme === 'ou' ? a : 0);
+                    // Bone fallback: jaw open/close for rigs without blendshapes.
+                    if (refs.jawNode && refs.jawBaseRot) {
+                        refs.jawNode.rotation.x = refs.jawBaseRot.x + a * 0.22;
+                    }
+                }
+
+                function applyBlink(amount) {
+                    const a = clamp01(amount);
+                    if (refs.vrm) setVrmExpression(refs.vrm, 'blink', a);
+                    setMorphTargets(refs.morphTargets.blink, a);
                 }
 
                 loader.load(
                     modelUrl,
                     (gltf) => {
                         if (!mounted) return;
-                        const model = isVrm ? gltf.userData.vrm?.scene : gltf.scene;
-                        addModelToScene(model);
+                        const vrm = isVrm ? gltf.userData.vrm : null;
+                        const model = vrm?.scene || gltf.scene;
+                        addModelToScene(model, vrm);
                         setLoading(false);
                     },
                     undefined,
@@ -170,6 +309,56 @@ export default function InterviewAvatarVrm({ className = '', modelUrl = DEFAULT_
                 function animate() {
                     if (!mounted) return;
                     refs.frameId = requestAnimationFrame(animate);
+                    const now = performance.now();
+                    refs.idleClock += 1 / 60;
+
+                    // Speaking mouth movement: pseudo-viseme cycling for real-time feel.
+                    if (speakingRef.current) {
+                        if (now >= refs.nextVisemeAt) {
+                            const pool = ['aa', 'ih', 'ou'];
+                            refs.viseme = pool[Math.floor(Math.random() * pool.length)];
+                            refs.mouthTarget = 0.42 + Math.random() * 0.36;
+                            refs.nextVisemeAt = now + 90 + Math.random() * 130;
+                        }
+                    } else {
+                        refs.mouthTarget = 0;
+                    }
+                    refs.mouth += (refs.mouthTarget - refs.mouth) * 0.22;
+                    applySpeakingViseme(refs.viseme, refs.mouth);
+
+                    // Blink loop.
+                    if (refs.nextBlinkAt === 0) refs.nextBlinkAt = now + 1200 + Math.random() * 2200;
+                    if (now >= refs.nextBlinkAt && refs.blinkDir > 0) refs.blinkDir = -1;
+                    refs.blink += refs.blinkDir * 0.13;
+                    if (refs.blink <= 0) {
+                        refs.blink = 0;
+                        refs.blinkDir = 1;
+                        refs.nextBlinkAt = now + 1200 + Math.random() * 2200;
+                    } else if (refs.blink >= 1) {
+                        refs.blink = 1;
+                        refs.blinkDir = 1;
+                    }
+                    applyBlink(refs.blink);
+
+                    // Subtle interview-style head/neck idle + tiny speaking nod.
+                    const t = refs.idleClock;
+                    const speakingNod = speakingRef.current ? Math.sin(t * 8.5) * 0.02 : 0;
+                    if (refs.headNode && refs.headBaseRot) {
+                        refs.headNode.rotation.x = refs.headBaseRot.x + Math.sin(t * 0.9) * 0.04 + speakingNod;
+                        refs.headNode.rotation.y = refs.headBaseRot.y + Math.sin(t * 0.55) * 0.05;
+                        refs.headNode.rotation.z = refs.headBaseRot.z + Math.sin(t * 0.8) * 0.02;
+                    }
+                    if (refs.neckNode && refs.neckBaseRot) {
+                        refs.neckNode.rotation.x = refs.neckBaseRot.x + Math.sin(t * 0.7) * 0.02;
+                        refs.neckNode.rotation.y = refs.neckBaseRot.y + Math.sin(t * 0.45) * 0.025;
+                    }
+                    // Last-resort fallback: move whole model very slightly if no head/neck detected.
+                    if (!refs.headNode && !refs.neckNode && refs.model) {
+                        refs.model.rotation.y = Math.sin(t * 0.45) * 0.03;
+                        refs.model.rotation.x = Math.sin(t * 0.8) * 0.01;
+                    }
+
+                    if (refs.vrm?.update) refs.vrm.update(1 / 60);
                     renderer.render(scene, camera);
                 }
                 animate();
@@ -226,8 +415,8 @@ export default function InterviewAvatarVrm({ className = '', modelUrl = DEFAULT_
     }
 
     return (
-        <div className={`relative w-full h-full min-h-[200px] ${className}`}>
-            <div ref={containerRef} className="absolute inset-0 w-full h-full" />
+        <div className={`relative w-full h-full min-h-[200px] min-w-0 overflow-hidden ${className}`}>
+            <div ref={containerRef} className="absolute inset-0 w-full h-full min-w-0 overflow-hidden" />
             {loading && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-gray-800/50 text-gray-400">
                     <div className="w-8 h-8 border-2 border-emerald-500/50 border-t-emerald-400 rounded-full animate-spin" />
