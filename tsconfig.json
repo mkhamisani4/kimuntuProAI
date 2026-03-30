@@ -40,6 +40,8 @@
   "exclude": [
     "node_modules",
     "legal_files",
+    "immigration-assistant",
+    "KimuntuPrototype.ts",
     "playwright.config.ts",
     "vitest.config.ts",
     "vitest.setup.ts",

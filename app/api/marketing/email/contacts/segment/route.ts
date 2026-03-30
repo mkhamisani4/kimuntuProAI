@@ -30,7 +30,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       );
     }
 
-    const settings = await getMarketingSettings(tenantId, userId);
+    const settings = await getMarketingSettings(tenantId, userId) as any;
     if (!settings?.mailchimpAccessToken || !settings?.mailchimpServer || !settings?.mailchimpListId) {
       return NextResponse.json(
         { error: 'not_connected', message: 'Mailchimp is not connected or no audience selected' },

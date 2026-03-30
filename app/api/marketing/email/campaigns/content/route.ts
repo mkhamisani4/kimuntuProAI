@@ -6,8 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import {
   getMarketingSettings,
-  updateEmailCampaign,
-  createEmailErrorLog,
+  updateCampaign,
 } from '@kimuntupro/db';
 import Anthropic from '@anthropic-ai/sdk';
 
@@ -118,7 +117,7 @@ export async function PUT(req: NextRequest): Promise<NextResponse> {
       );
     }
 
-    const settings = await getMarketingSettings(tenantId, userId);
+    const settings = await getMarketingSettings(tenantId, userId) as any;
     if (!settings?.mailchimpAccessToken || !settings?.mailchimpServer) {
       return NextResponse.json(
         { error: 'not_connected', message: 'Mailchimp is not connected' },
@@ -141,19 +140,13 @@ export async function PUT(req: NextRequest): Promise<NextResponse> {
       const errorText = await mcResponse.text();
       console.error('[API] Mailchimp set content error:', errorText);
 
-      await createEmailErrorLog({
+      console.error('[API] Mailchimp content update failed — error details:', {
         tenantId,
         userId,
-        emailCampaignId: campaignId,
+        campaignId,
         operation: 'content_update',
-        errorCode: String(mcResponse.status),
+        errorCode: mcResponse.status,
         errorMessage: errorText,
-        requestPayload: { mailchimpCampaignId },
-        retryCount: 0,
-        maxRetries: 3,
-        status: 'pending_retry',
-        nextRetryAt: new Date(Date.now() + 60000),
-        resolvedAt: null,
       });
 
       return NextResponse.json(
@@ -163,7 +156,7 @@ export async function PUT(req: NextRequest): Promise<NextResponse> {
     }
 
     // Update Firestore
-    await updateEmailCampaign(campaignId, { htmlContent });
+    await updateCampaign(campaignId, { htmlContent } as any);
 
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (error: any) {
