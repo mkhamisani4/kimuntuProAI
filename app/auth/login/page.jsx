@@ -16,7 +16,8 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (user && !loading) {
-      router.push('/');
+      // Login page always means existing user — go to dashboard directly
+      router.push('/dashboard');
     }
   }, [user, loading, router]);
 
