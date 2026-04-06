@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Mail, Phone, MapPin, Facebook, Twitter, Linkedin, Instagram, Youtube, FileText, Shield, Info, Heart } from 'lucide-react';
+import { Mail, Phone, MapPin, Facebook, Twitter, Linkedin, Instagram, Youtube, FileText, Shield, Info } from 'lucide-react';
 import { useTheme } from '@/components/providers/ThemeProvider';
 import { useLanguage } from '@/components/providers/LanguageProvider';
 
@@ -252,9 +252,12 @@ const Footer = () => {
                     </div>
 
                     {/* Copyright */}
-                    <div className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'} text-center md:text-right`}>
-                        <p className="flex items-center justify-center md:justify-end gap-1.5 mb-1">
-                            © {currentYear} Kimuntu AI. {t.footerMadeWith} <Heart className="w-4 h-4 text-red-500 fill-current animate-pulse" /> {t.footerForInnovation}
+                    <div className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'} text-center md:text-right`}>
+                        <p className="font-medium">
+                            © {currentYear} Kimuntu AI Inc. All rights reserved.
+                        </p>
+                        <p className="mt-0.5 text-xs opacity-70">
+                            Kimuntu AI is a registered trademark. Unauthorized use is prohibited.
                         </p>
                     </div>
                 </div>
