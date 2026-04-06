@@ -7,7 +7,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 
-const MODEL = 'gpt-4o-mini';
+const MODEL = 'gpt-5.4-mini';
 
 function buildFeedbackPrompt(
   question: string,
@@ -100,7 +100,7 @@ export async function POST(req: NextRequest) {
         body: JSON.stringify({
           model: MODEL,
           messages: [{ role: 'user', content: prompt }],
-          max_tokens: 400,
+          max_completion_tokens: 400,
           temperature: 0.5,
         }),
       });

@@ -28,7 +28,8 @@
       ]
     },
     "strictNullChecks": false,
-    "noImplicitAny": false
+    "noImplicitAny": false,
+    "noUncheckedIndexedAccess": false
   },
   "include": [
     "next-env.d.ts",
@@ -39,6 +40,8 @@
   "exclude": [
     "node_modules",
     "legal_files",
+    "immigration-assistant",
+    "KimuntuPrototype.ts",
     "playwright.config.ts",
     "vitest.config.ts",
     "vitest.setup.ts",

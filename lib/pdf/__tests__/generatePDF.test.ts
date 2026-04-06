@@ -47,7 +47,7 @@ describe('generatePDF', () => {
 
   const mockMetadata: PDFMetadata = {
     assistantType: 'streamlined_plan',
-    model: 'gpt-4o-mini',
+    model: 'claude-haiku-4-5-20251001',
     generatedAt: new Date('2025-01-15T10:00:00Z'),
   };
 
@@ -80,7 +80,7 @@ describe('generatePDF', () => {
 
     expect(allCallsString).toContain('KimuntuPro');
     expect(allCallsString).toContain('Streamlined Business Plan');
-    expect(allCallsString).toContain('gpt-4o-mini');
+    expect(allCallsString).toContain('claude-haiku-4-5-20251001');
   });
 
   it('should add all sections to PDF', () => {
@@ -155,7 +155,7 @@ describe('generatePDF', () => {
   it('should use current date if generatedAt is not provided', () => {
     const metadataWithoutDate: PDFMetadata = {
       assistantType: 'market_analysis',
-      model: 'gpt-4o-mini',
+      model: 'claude-haiku-4-5-20251001',
     };
 
     generatePDF(mockSections, metadataWithoutDate);
@@ -172,7 +172,7 @@ describe('generatePDF', () => {
   it('should format different assistant types correctly', () => {
     const execSummaryMetadata: PDFMetadata = {
       assistantType: 'exec_summary',
-      model: 'gpt-4o-mini',
+      model: 'claude-haiku-4-5-20251001',
     };
 
     generatePDF(mockSections, execSummaryMetadata);

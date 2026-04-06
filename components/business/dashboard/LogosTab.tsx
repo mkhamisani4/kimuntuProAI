@@ -334,11 +334,11 @@ export default function LogosTab({ tenantId, userId, limit = 6 }: LogosTabProps)
     <div className="space-y-4">
       {/* Count and prompt */}
       <div className="flex items-center justify-between">
-        <div className="text-sm text-gray-400">
+        <div className="text-sm text-gray-500">
           {logos.length} logo{logos.length !== 1 ? 's' : ''}
         </div>
         {hasNoPrimary && (
-          <div className="text-xs text-yellow-400 flex items-center gap-1">
+          <div className="text-xs text-orange-500 flex items-center gap-1 bg-orange-50 px-2 py-1 rounded-full border border-orange-200">
             <Star className="w-3 h-3" />
             Set a primary logo
           </div>
@@ -350,17 +350,17 @@ export default function LogosTab({ tenantId, userId, limit = 6 }: LogosTabProps)
         {logos.map((logo) => (
           <div
             key={logo.id}
-            className="p-4 bg-white/5 hover:bg-white/10 rounded-lg border border-gray-800 transition-all cursor-pointer group"
+            className="p-4 bg-white hover:bg-gray-50 rounded-xl border border-gray-200 transition-all cursor-pointer group shadow-sm hover:shadow-md"
             onClick={() => handleView(logo)}
           >
             <div className="flex items-start gap-4">
               {/* Logo Preview */}
-              <div className="relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden">
+              <div className="relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden border border-gray-200 shadow-sm bg-gray-50">
                 <LogoCanvas spec={logo.currentSpec} className="w-full h-full" />
 
                 {/* Primary Badge */}
                 {logo.isPrimary && (
-                  <div className="absolute top-1 right-1 w-3 h-3 bg-yellow-500 rounded-full border-2 border-gray-900" />
+                  <div className="absolute top-1 right-1 w-3 h-3 bg-yellow-500 rounded-full border-2 border-white shadow-sm" />
                 )}
               </div>
 
@@ -385,7 +385,7 @@ export default function LogosTab({ tenantId, userId, limit = 6 }: LogosTabProps)
                         if (e.key === 'Enter') handleSaveRename(logo.id!, e as any);
                         if (e.key === 'Escape') handleCancelRename(e as any);
                       }}
-                      className="flex-1 px-2 py-1 text-sm bg-gray-800 border border-purple-500 rounded text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      className="flex-1 px-2 py-1 text-sm bg-white border border-purple-500 rounded text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 shadow-sm"
                       placeholder="Logo name"
                       autoFocus
                       disabled={renamingId === logo.id}
@@ -393,35 +393,35 @@ export default function LogosTab({ tenantId, userId, limit = 6 }: LogosTabProps)
                     <button
                       onClick={(e) => handleSaveRename(logo.id!, e)}
                       disabled={renamingId === logo.id}
-                      className="px-2 py-1 bg-purple-600 text-white text-xs rounded hover:bg-purple-700 disabled:opacity-50"
+                      className="px-2 py-1 bg-purple-600 text-white text-xs rounded hover:bg-purple-700 disabled:opacity-50 shadow-sm"
                     >
                       {renamingId === logo.id ? 'Saving...' : 'Save'}
                     </button>
                     <button
                       onClick={handleCancelRename}
                       disabled={renamingId === logo.id}
-                      className="px-2 py-1 bg-gray-700 text-gray-300 text-xs rounded hover:bg-gray-600 disabled:opacity-50"
+                      className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded hover:bg-gray-200 disabled:opacity-50"
                     >
                       Cancel
                     </button>
                   </div>
                 ) : (
                   <div className="flex items-center gap-2 mb-1 group/name">
-                    <h3 className="text-base font-semibold text-white truncate" title={logo.name || logo.companyName}>
+                    <h3 className="text-base font-semibold text-gray-900 truncate" title={logo.name || logo.companyName}>
                       {logo.name || logo.companyName}
                     </h3>
                     <button
                       onClick={(e) => handleStartRename(logo, e)}
-                      className="opacity-0 group-hover/name:opacity-100 p-1 hover:bg-white/10 rounded transition-opacity"
+                      className="opacity-0 group-hover/name:opacity-100 p-1 hover:bg-gray-100 rounded transition-opacity"
                       title="Rename logo"
                     >
-                      <Pencil size={14} className="text-gray-400 hover:text-white" />
+                      <Pencil size={14} className="text-gray-400 hover:text-gray-600" />
                     </button>
                   </div>
                 )}
 
                 {/* Metadata */}
-                <div className="flex items-center gap-3 text-xs text-gray-500">
+                <div className="flex items-center gap-3 text-xs text-gray-400">
                   {logo.versions && logo.versions.length > 0 && (
                     <span className="flex items-center gap-1">
                       <Clock className="w-3 h-3" />
@@ -438,14 +438,14 @@ export default function LogosTab({ tenantId, userId, limit = 6 }: LogosTabProps)
               <div className="flex flex-col gap-2 flex-shrink-0">
                 <button
                   onClick={(e) => handleEdit(logo, e)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors shadow-sm"
                 >
                   <Pencil size={14} />
                   Edit
                 </button>
                 <button
                   onClick={(e) => handleExport(logo, e)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 border border-gray-700 text-gray-300 text-sm font-medium rounded-lg hover:bg-white/10 transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 text-gray-600 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors shadow-sm"
                 >
                   <Download size={14} />
                   Export
@@ -455,7 +455,7 @@ export default function LogosTab({ tenantId, userId, limit = 6 }: LogosTabProps)
                 {!logo.isPrimary && (
                   <button
                     onClick={(e) => handleSetPrimary(logo, e)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-yellow-600/20 border border-yellow-500/50 text-yellow-300 text-xs font-medium rounded-lg hover:bg-yellow-600/30 transition-colors"
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-yellow-50 border border-yellow-200 text-yellow-600 text-xs font-medium rounded-lg hover:bg-yellow-100 transition-colors"
                   >
                     <Star size={12} />
                     Primary
@@ -474,7 +474,7 @@ export default function LogosTab({ tenantId, userId, limit = 6 }: LogosTabProps)
                     </button>
                     <button
                       onClick={cancelDelete}
-                      className="px-3 py-1.5 bg-gray-700 text-gray-300 text-xs font-medium rounded-lg hover:bg-gray-600 transition-colors"
+                      className="px-3 py-1.5 bg-gray-100 text-gray-600 text-xs font-medium rounded-lg hover:bg-gray-200 transition-colors"
                     >
                       Cancel
                     </button>
@@ -482,7 +482,7 @@ export default function LogosTab({ tenantId, userId, limit = 6 }: LogosTabProps)
                 ) : (
                   <button
                     onClick={(e) => handleDelete(logo.id!, logo.companyName, e)}
-                    className="flex items-center justify-center gap-1.5 px-3 py-1.5 text-gray-400 hover:text-red-400 hover:bg-red-500/10 border border-gray-700 hover:border-red-500/30 text-sm font-medium rounded-lg transition-colors"
+                    className="flex items-center justify-center gap-1.5 px-3 py-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 border border-transparent hover:border-red-100 text-sm font-medium rounded-lg transition-colors"
                     title="Delete logo"
                   >
                     <Trash2 size={14} />
@@ -499,7 +499,7 @@ export default function LogosTab({ tenantId, userId, limit = 6 }: LogosTabProps)
         <div className="pt-2 text-center">
           <button
             onClick={() => router.push('/dashboard/business/logos')}
-            className="text-sm text-purple-400 hover:text-purple-300 font-medium"
+            className="text-sm text-purple-600 hover:text-purple-700 font-medium"
           >
             View All Logos →
           </button>

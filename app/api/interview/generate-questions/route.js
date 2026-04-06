@@ -8,6 +8,9 @@ import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
 import { buildInterviewQuestionsPrompt } from '@/lib/interviewQuestionsPrompt';
 
+/** Caps completion length so questions stay ~60–110 words each (2–3 sentences); bump if you see truncation before 8 questions. */
+const MAX_COMPLETION_TOKENS = 1000;
+
 export async function POST(req) {
   const apiKey = process.env.OPENAI_API_KEY || process.env.NEXT_PUBLIC_OPENAI_API_KEY;
   if (!apiKey) {
@@ -53,7 +56,9 @@ export async function POST(req) {
   });
 
   console.log('\n[Interview Questions] ========== REQUEST ==========');
-  console.log('[Interview Questions] model: gpt-4o-mini, temperature: 0.7, max_tokens: 1200');
+  console.log(`[Interview Questions] model: gpt-5.4-mini, temperature: 0.7, max_completion_tokens: ${MAX_COMPLETION_TOKENS}`);
+  console.log('[Interview Questions] resumeText included:', !!resumeText, resumeText ? `(${resumeText.length} chars)` : '(none – questions not tailored to candidate resume)');
+  console.log('[Interview Questions] skills included:', !!skills, skills ? `(${skills.length} chars)` : '(none)');
   console.log('[Interview Questions] systemContent length:', systemContent.length);
   console.log('[Interview Questions] userContent length:', userContent.length);
   console.log('[Interview Questions] --- systemContent ---\n', systemContent);
@@ -64,13 +69,13 @@ export async function POST(req) {
 
   try {
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
+      model: 'gpt-5.4-mini',
       messages: [
         { role: 'system', content: systemContent },
         { role: 'user', content: userContent },
       ],
       temperature: 0.7,
-      max_tokens: 1200,
+      max_completion_tokens: MAX_COMPLETION_TOKENS,
     });
 
     const questionsText = completion.choices[0]?.message?.content?.trim() ?? '';

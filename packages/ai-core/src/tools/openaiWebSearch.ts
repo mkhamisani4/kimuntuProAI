@@ -3,7 +3,7 @@
  * Wrapper around OpenAI's native web_search tool via Responses API
  */
 
-import type { OpenAIClient, ToolSpec, ToolHandler, ChatMessage } from '../llm/client.js';
+import type { AnthropicClient, ToolSpec, ToolHandler, ChatMessage } from '../llm/client.js';
 import { RateLimiter, TTLCache, buildCacheKey } from './rateLimitCache.js';
 
 /**
@@ -249,7 +249,7 @@ function extractSearchResults(content: string): WebSearchResult[] {
  * @returns Search results
  */
 export async function webSearchWithOpenAI(
-  client: OpenAIClient,
+  client: AnthropicClient,
   options: WebSearchOptions
 ): Promise<WebSearchResponse> {
   const config = loadConfig();
@@ -345,40 +345,35 @@ export async function webSearchWithOpenAI(
  * @param client - OpenAI client instance
  * @returns ToolSpec object
  */
-export function buildOpenAIWebSearchToolSpec(client: OpenAIClient): {
+export function buildOpenAIWebSearchToolSpec(client: AnthropicClient): {
   spec: ToolSpec;
   handler: ToolHandler;
 } {
   const spec: ToolSpec = {
-    type: 'function',
-    function: {
-      name: 'web_search',
-      description:
-        'Search the web for up-to-date information using OpenAI built-in web search. Returns an array of results with title, snippet, and URL.',
-      parameters: {
-        type: 'object',
-        properties: {
-          query: {
-            type: 'string',
-            description: 'The search query',
-          },
-          n: {
-            type: 'number',
-            description: 'Maximum number of results to return (1-10)',
-            minimum: 1,
-            maximum: 10,
-          },
-          tenantId: {
-            type: 'string',
-            description: 'Tenant identifier for rate limiting',
-          },
-          userId: {
-            type: 'string',
-            description: 'User identifier for tracking',
-          },
+    name: 'web_search',
+    description:
+      'Search the web for up-to-date information. Returns an array of results with title, snippet, and URL.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        query: {
+          type: 'string',
+          description: 'The search query',
         },
-        required: ['query', 'tenantId', 'userId'],
+        n: {
+          type: 'number',
+          description: 'Maximum number of results to return (1-10)',
+        },
+        tenantId: {
+          type: 'string',
+          description: 'Tenant identifier for rate limiting',
+        },
+        userId: {
+          type: 'string',
+          description: 'User identifier for tracking',
+        },
       },
+      required: ['query', 'tenantId', 'userId'],
     },
   };
 

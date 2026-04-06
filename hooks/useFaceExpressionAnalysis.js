@@ -223,7 +223,7 @@ export function useFaceExpressionAnalysis(videoRef, enabled, options = {}) {
   }, []);
 
   useEffect(() => {
-    if (!enabled || !videoRef?.current) {
+    if (!enabled) {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
         intervalRef.current = null;
@@ -239,8 +239,6 @@ export function useFaceExpressionAnalysis(videoRef, enabled, options = {}) {
       return;
     }
 
-    const video = videoRef.current;
-
     (async () => {
       setLoading(true);
       setError(null);
@@ -254,6 +252,7 @@ export function useFaceExpressionAnalysis(videoRef, enabled, options = {}) {
       setLoading(false);
 
       const runDetection = async () => {
+        const video = videoRef?.current;
         if (!mountedRef.current || !faceapi || !video || video.readyState < 2) return;
         try {
           const result = await faceapi

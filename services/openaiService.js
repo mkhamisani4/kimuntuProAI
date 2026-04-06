@@ -14,7 +14,7 @@ const getPdfjsLib = async () => {
       // pdfjs-dist exports everything on the module object
       pdfjsLib = pdfjsModule;
       
-      // Configure worker BEFORE any operations (must match pdfjs-dist version; copied in postinstall)
+      // Configure worker BEFORE any operations (use worker from public, copied by postinstall to match pdfjs-dist version)
       if (pdfjsLib && pdfjsLib.GlobalWorkerOptions) {
         pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
       }
@@ -48,10 +48,28 @@ const getOpenAI = () => {
 };
 
 /**
- * Extract text from a PDF file
+ * Extract text from a resume file.
+ * Currently supports:
+ * - Plain text (.txt)
+ * - PDF (.pdf)
+ *
+ * Other formats (e.g. .doc, .docx, .pages) are not supported yet; users
+ * should export their resume as PDF or plain text before uploading.
  */
 export const extractResumeText = async (file) => {
-  if (file.type === 'text/plain') {
+  const name = (file?.name || '').toLowerCase();
+  const type = file?.type || '';
+  const isText = type === 'text/plain' || name.endsWith('.txt');
+  const isPdf =
+    type === 'application/pdf' ||
+    name.endsWith('.pdf') ||
+    // Some browsers / systems use slightly different PDF MIME types
+    type === 'application/x-pdf' ||
+    type === 'application/acrobat' ||
+    type === 'applications/pdf' ||
+    type === 'application/octet-stream' && name.endsWith('.pdf');
+
+  if (isText) {
     // Handle text files
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -59,7 +77,7 @@ export const extractResumeText = async (file) => {
       reader.onerror = (e) => reject(new Error('Failed to read text file'));
       reader.readAsText(file);
     });
-  } else if (file.type === 'application/pdf') {
+  } else if (isPdf) {
     // Handle PDF files
     try {
       // Dynamically import pdfjs-dist only when processing PDFs
@@ -84,7 +102,7 @@ export const extractResumeText = async (file) => {
       throw new Error(`Failed to extract text from PDF: ${error.message}`);
     }
   } else {
-    throw new Error('Unsupported file type. Please upload a .txt or .pdf file.');
+    throw new Error('Unsupported resume file type. Please upload a .pdf or .txt version of your resume.');
   }
 };
 

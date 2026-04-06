@@ -95,3 +95,9 @@ ui-debug.log
 .dynamodb/
 .tern-port
 .vscode-test
+*.pem
+*.tsbuildinfo
+next-env.d.ts
+/out/
+/.pnp
+.pnp.*

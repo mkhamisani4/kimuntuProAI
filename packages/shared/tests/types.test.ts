@@ -101,7 +101,7 @@ describe('Types - Instantiation Tests', () => {
   describe('UsageMetric', () => {
     it('should create valid usage metric', () => {
       const metric: UsageMetric = {
-        model: 'gpt-4o-mini',
+        model: 'claude-haiku-4-5-20251001',
         tokensIn: 1500,
         tokensOut: 800,
         costCents: 25,
@@ -113,7 +113,7 @@ describe('Types - Instantiation Tests', () => {
         },
       };
 
-      expect(metric.model).toBe('gpt-4o-mini');
+      expect(metric.model).toBe('claude-haiku-4-5-20251001');
       expect(metric.costCents).toBe(25);
       expect(metric.toolInvocations.webSearch).toBe(2);
     });

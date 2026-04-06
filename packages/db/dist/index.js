@@ -20,6 +20,16 @@ export { uploadLogo, deleteLogo, } from './firebase/storage.js';
 export { createLogo, getLogo, updateLogo, listLogos, deleteLogo as deleteLogoDoc, getPrimaryLogo, 
 // Version history functions (Phase 3 Feature 4)
 saveLogoVersion, getLogoVersions, restoreLogoVersion, deleteLogoVersion, } from './firebase/logos.js';
+// Export Marketing Campaign CRUD
+export { createCampaign, getCampaign, listCampaigns, updateCampaign, deleteCampaign, } from './firebase/marketingCampaigns.js';
+// Export Marketing Post CRUD
+export { createPost, getPost, listPosts, updatePost, deletePost, } from './firebase/marketingPosts.js';
+// Export Marketing Keyword functions
+export { saveKeyword, listKeywords, deleteKeyword, } from './firebase/marketingKeywords.js';
+// Export Marketing Storage functions
+export { uploadPostMedia, deletePostMedia, } from './firebase/marketingStorage.js';
+// Export Marketing Settings functions
+export { getMarketingSettings, updateMarketingSettings, } from './firebase/marketingSettings.js';
 /**
  * Connect to Firebase (client initializes automatically)
  */

@@ -1,22 +1,24 @@
 /**
- * OpenAI Client Wrapper
+ * Anthropic Client Wrapper
  * Robust LLM client with retries, caching, structured outputs, and tool support
  */
 
-import OpenAI from 'openai';
-import type { ChatCompletionMessageParam, ChatCompletionTool } from 'openai/resources/chat/completions';
+import Anthropic from '@anthropic-ai/sdk';
 import { z } from 'zod';
 import { randomUUID } from 'crypto';
 import { getModelConfig, getModelFromEnv, DEFAULT_MODEL_MINI, DEFAULT_MODEL_ESCALATION, type ModelId } from './models.js';
 import { getCostCents } from './costs.js';
-import { asJsonSchema, parseStructured, extractJsonFromMarkdown } from './structured.js';
+import { buildStructuredPromptInstructions, parseStructured, extractJsonFromMarkdown } from './structured.js';
 import { emitUsage, buildUsageFromClientEvent } from '../usage/meter.js';
 import type { AssistantType } from '@kimuntupro/shared';
 
 /**
- * Chat message type
+ * Chat message type compatible with Anthropic Messages API
  */
-export type ChatMessage = ChatCompletionMessageParam;
+export interface ChatMessage {
+  role: 'user' | 'assistant' | 'system' | 'developer';
+  content: string | any[];
+}
 
 /**
  * Chat response with metrics
@@ -71,9 +73,13 @@ export interface ChatWithToolsResponse {
 }
 
 /**
- * Tool spec
+ * Anthropic tool spec format
  */
-export type ToolSpec = ChatCompletionTool;
+export interface ToolSpec {
+  name: string;
+  description: string;
+  input_schema: Record<string, any>;
+}
 
 /**
  * Tool handler function
@@ -123,9 +129,9 @@ interface CircuitBreakerState {
 }
 
 /**
- * OpenAI client configuration
+ * Anthropic client configuration
  */
-export interface OpenAIClientConfig {
+export interface AnthropicClientConfig {
   apiKey?: string;
   modelMini?: ModelId;
   modelEscalation?: ModelId;
@@ -140,28 +146,72 @@ export interface OpenAIClientConfig {
   circuitBreakerResetMs?: number;
 }
 
+/** @deprecated Use AnthropicClientConfig instead */
+export type OpenAIClientConfig = AnthropicClientConfig;
+
 /**
  * Default console logger
  */
 const defaultLogger: Logger = {
-  debug: () => {}, // Silent in production
+  debug: () => {},
   info: (msg, ...args) => console.log(msg, ...args),
   warn: (msg, ...args) => console.warn(msg, ...args),
   error: (msg, ...args) => console.error(msg, ...args),
 };
 
 /**
- * OpenAI Client wrapper with advanced features
+ * Extract system prompt from messages array.
+ * Anthropic requires system prompt as a separate parameter, not in messages.
  */
-export class OpenAIClient {
-  private client: OpenAI;
+function extractSystemPrompt(messages: ChatMessage[]): { system: string; filtered: ChatMessage[] } {
+  let system = '';
+  const filtered: ChatMessage[] = [];
+
+  for (const msg of messages) {
+    if (msg.role === 'system' || msg.role === 'developer') {
+      // Concatenate system/developer messages
+      const content = typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content);
+      system += (system ? '\n\n' : '') + content;
+    } else {
+      filtered.push(msg);
+    }
+  }
+
+  return { system, filtered };
+}
+
+/**
+ * Convert our ChatMessage array to Anthropic message format
+ */
+function toAnthropicMessages(messages: ChatMessage[]): Anthropic.MessageParam[] {
+  return messages.map((msg) => ({
+    role: msg.role as 'user' | 'assistant',
+    content: typeof msg.content === 'string' ? msg.content : msg.content,
+  }));
+}
+
+/**
+ * Extract text from Anthropic response content blocks
+ */
+function extractText(content: Anthropic.ContentBlock[]): string {
+  return content
+    .filter((block): block is Anthropic.TextBlock => block.type === 'text')
+    .map((block) => block.text)
+    .join('');
+}
+
+/**
+ * Anthropic Client wrapper with advanced features
+ */
+export class AnthropicClient {
+  private client: Anthropic;
   private modelMini: ModelId;
-  private modelEscalation: ModelId; // Available for future escalation logic
-  private maxTokensPlanner: number; // Available for planner-specific limits
+  private modelEscalation: ModelId;
+  private maxTokensPlanner: number;
   private maxTokensExecutor: number;
-  private enablePromptCaching: boolean; // Available for future caching implementation
+  private enablePromptCaching: boolean;
   private maxRetries: number;
-  private timeoutMs: number; // Configured in OpenAI client constructor
+  private timeoutMs: number;
   private logger: Logger;
   private onUsage?: UsageCallback;
   private circuitBreaker: CircuitBreakerState;
@@ -169,14 +219,13 @@ export class OpenAIClient {
   private circuitBreakerResetMs: number;
   private recentIdempotencyKeys: Set<string>;
 
-  constructor(config: OpenAIClientConfig = {}) {
-    // Read from environment with fallbacks
-    const apiKey = config.apiKey || process.env.OPENAI_API_KEY;
+  constructor(config: AnthropicClientConfig = {}) {
+    const apiKey = config.apiKey || process.env.ANTHROPIC_API_KEY;
     if (!apiKey) {
-      throw new Error('OPENAI_API_KEY is required');
+      throw new Error('ANTHROPIC_API_KEY is required');
     }
 
-    this.client = new OpenAI({
+    this.client = new Anthropic({
       apiKey,
       timeout: config.timeoutMs || Number(process.env.TIMEOUT_MS) || 120000,
     });
@@ -202,7 +251,7 @@ export class OpenAIClient {
       isOpen: false,
     };
 
-    // Idempotency key deduplication (short window)
+    // Idempotency key deduplication
     this.recentIdempotencyKeys = new Set();
   }
 
@@ -223,55 +272,53 @@ export class OpenAIClient {
     const model = opts.model || this.modelMini;
     const modelConfig = getModelConfig(model);
 
-    // Generate requestId if telemetry provided but no requestId
     const requestId = opts.telemetry?.requestId || (opts.telemetry ? randomUUID() : undefined);
 
-    // Check circuit breaker
     this.checkCircuitBreaker();
 
-    // Check idempotency
     if (opts.idempotencyKey && this.recentIdempotencyKeys.has(opts.idempotencyKey)) {
       throw new Error(`Duplicate request with idempotency key: ${opts.idempotencyKey}`);
     }
 
-    // Enforce token limits
     const maxTokens = Math.min(
       opts.maxOutputTokens || this.maxTokensExecutor,
       modelConfig.maxOutputTokens
     );
 
+    // Extract system prompt from messages
+    const { system, filtered } = extractSystemPrompt(opts.messages);
+    const anthropicMessages = toAnthropicMessages(filtered);
+
     try {
-      // Retry logic
       let lastError: Error | null = null;
       for (let attempt = 0; attempt < this.maxRetries; attempt++) {
         try {
-          const completion = await this.client.chat.completions.create({
+          const response = await this.client.messages.create({
             model,
-            messages: opts.messages,
             max_tokens: maxTokens,
             temperature: opts.temperature ?? modelConfig.defaultTemperature,
-            ...(opts.idempotencyKey && { idempotency_key: opts.idempotencyKey }),
+            ...(system ? { system } : {}),
+            messages: anthropicMessages,
           });
 
           const latencyMs = Date.now() - startTime;
-          const text = completion.choices[0]?.message?.content || '';
-          const tokensIn = completion.usage?.prompt_tokens || 0;
-          const tokensOut = completion.usage?.completion_tokens || 0;
-          const cachedInputApplied = false; // TODO: Detect from response headers when available
+          const text = extractText(response.content);
+          const tokensIn = response.usage.input_tokens;
+          const tokensOut = response.usage.output_tokens;
+          const cachedInputTokens = (response.usage as any).cache_read_input_tokens || 0;
+          const cachedInputApplied = cachedInputTokens > 0;
           const costCents = getCostCents({
             model,
             tokensIn,
             tokensOut,
-            cachedInputTokens: cachedInputApplied ? Math.floor(tokensIn * 0.8) : 0,
+            cachedInputTokens,
           });
 
-          // Record success
           this.recordSuccess();
           if (opts.idempotencyKey) {
             this.addIdempotencyKey(opts.idempotencyKey);
           }
 
-          // Callback for usage tracking
           if (this.onUsage) {
             await this.onUsage({
               model,
@@ -282,14 +329,13 @@ export class OpenAIClient {
             });
           }
 
-          // Emit usage to database (Step 11)
           if (opts.telemetry) {
             const metrics = buildUsageFromClientEvent({
               model,
               tokensIn,
               tokensOut,
               latencyMs,
-              cachedInputTokens: cachedInputApplied ? Math.floor(tokensIn * 0.8) : 0,
+              cachedInputTokens,
             });
 
             await emitUsage({
@@ -300,14 +346,13 @@ export class OpenAIClient {
               requestId,
               meta: opts.telemetry.meta,
             }).catch((err) => {
-              // Log error but don't fail the request
               this.logger.error('Failed to emit usage:', err);
             });
           }
 
           return {
             text,
-            raw: completion,
+            raw: response,
             tokensIn,
             tokensOut,
             model,
@@ -318,7 +363,6 @@ export class OpenAIClient {
         } catch (error: any) {
           lastError = error;
 
-          // Check if retryable
           if (this.isRetryableError(error) && attempt < this.maxRetries - 1) {
             const delayMs = this.getRetryDelayMs(attempt);
             this.logger.warn(
@@ -328,12 +372,10 @@ export class OpenAIClient {
             continue;
           }
 
-          // Not retryable or max retries reached
           break;
         }
       }
 
-      // All retries failed
       this.recordFailure();
       throw lastError || new Error('Chat completion failed');
     } catch (error) {
@@ -344,6 +386,7 @@ export class OpenAIClient {
 
   /**
    * Chat with structured output
+   * Uses prompt-based JSON schema instructions since Anthropic doesn't have native JSON mode
    */
   async chatStructured<T>(opts: {
     schema: z.ZodType<T>;
@@ -358,41 +401,42 @@ export class OpenAIClient {
     telemetry?: TelemetryMetadata;
   }): Promise<StructuredChatResponse<T>> {
     const model = opts.model || this.modelMini;
-    const modelConfig = getModelConfig(model);
-
-    if (!modelConfig.capabilities.supportsStructured) {
-      throw new Error(`Model ${model} does not support structured outputs`);
-    }
-
     const startTime = Date.now();
-    const responseFormat = asJsonSchema(opts.schema, opts.schemaName, opts.schemaDescription);
 
-    // Generate requestId if telemetry provided but no requestId
     const requestId = opts.telemetry?.requestId || (opts.telemetry ? randomUUID() : undefined);
 
-    // Check circuit breaker
     this.checkCircuitBreaker();
 
-    // Check idempotency
     if (opts.idempotencyKey && this.recentIdempotencyKeys.has(opts.idempotencyKey)) {
       throw new Error(`Duplicate request with idempotency key: ${opts.idempotencyKey}`);
     }
+
+    // Build structured prompt instructions and append to system prompt
+    const structuredInstructions = buildStructuredPromptInstructions(
+      opts.schema,
+      opts.schemaName,
+      opts.schemaDescription
+    );
+
+    // Extract system prompt and append structured instructions
+    const { system: originalSystem, filtered } = extractSystemPrompt(opts.messages);
+    const system = originalSystem + structuredInstructions;
+    const anthropicMessages = toAnthropicMessages(filtered);
 
     try {
       let lastError: Error | null = null;
       for (let attempt = 0; attempt < this.maxRetries; attempt++) {
         try {
-          const completion = await this.client.chat.completions.create({
+          const response = await this.client.messages.create({
             model,
-            messages: opts.messages,
             max_tokens: opts.maxOutputTokens || this.maxTokensExecutor,
-            temperature: opts.temperature ?? modelConfig.defaultTemperature,
-            ...responseFormat,
-            ...(opts.idempotencyKey && { idempotency_key: opts.idempotencyKey }),
+            temperature: opts.temperature ?? getModelConfig(model).defaultTemperature,
+            system,
+            messages: anthropicMessages,
           });
 
           const latencyMs = Date.now() - startTime;
-          const rawText = completion.choices[0]?.message?.content || '{}';
+          const rawText = extractText(response.content) || '{}';
 
           // Extract JSON from markdown if needed
           const jsonText = extractJsonFromMarkdown(rawText);
@@ -400,18 +444,17 @@ export class OpenAIClient {
           // Parse and validate
           const data = parseStructured<T>(jsonText, opts.schema);
 
-          const tokensIn = completion.usage?.prompt_tokens || 0;
-          const tokensOut = completion.usage?.completion_tokens || 0;
-          const cachedInputApplied = false;
-          const costCents = getCostCents({ model, tokensIn, tokensOut });
+          const tokensIn = response.usage.input_tokens;
+          const tokensOut = response.usage.output_tokens;
+          const cachedInputTokens = (response.usage as any).cache_read_input_tokens || 0;
+          const cachedInputApplied = cachedInputTokens > 0;
+          const costCents = getCostCents({ model, tokensIn, tokensOut, cachedInputTokens });
 
-          // Record success
           this.recordSuccess();
           if (opts.idempotencyKey) {
             this.addIdempotencyKey(opts.idempotencyKey);
           }
 
-          // Usage callback
           if (this.onUsage) {
             await this.onUsage({
               model,
@@ -422,14 +465,13 @@ export class OpenAIClient {
             });
           }
 
-          // Emit usage to database (Step 11)
           if (opts.telemetry) {
             const metrics = buildUsageFromClientEvent({
               model,
               tokensIn,
               tokensOut,
               latencyMs,
-              cachedInputTokens: cachedInputApplied ? Math.floor(tokensIn * 0.8) : 0,
+              cachedInputTokens,
             });
 
             await emitUsage({
@@ -446,7 +488,7 @@ export class OpenAIClient {
 
           return {
             data,
-            raw: completion,
+            raw: response,
             tokensIn,
             tokensOut,
             model,
@@ -492,50 +534,63 @@ export class OpenAIClient {
     const model = opts.model || this.modelMini;
     const modelConfig = getModelConfig(model);
 
-    if (!modelConfig.capabilities.supportsTools) {
-      throw new Error(`Model ${model} does not support tools`);
-    }
-
     const maxToolCalls = opts.maxToolCalls ?? 3;
     const toolInvocations: Record<string, number> = {};
     const toolCalls: ToolCallResult[] = [];
-    let messages = [...opts.messages];
+    const startTime = Date.now();
     let totalTokensIn = 0;
     let totalTokensOut = 0;
-    const startTime = Date.now();
 
-    // Generate requestId if telemetry provided but no requestId
     const requestId = opts.telemetry?.requestId || (opts.telemetry ? randomUUID() : undefined);
 
     this.checkCircuitBreaker();
 
+    // Extract system prompt
+    const { system, filtered } = extractSystemPrompt(opts.messages);
+    let messages: Anthropic.MessageParam[] = toAnthropicMessages(filtered);
+
+    // Convert tools to Anthropic format (if they're in OpenAI format, convert them)
+    const anthropicTools: Anthropic.Tool[] = (opts.tools || []).map((tool: any) => {
+      // Handle OpenAI format: { type: 'function', function: { name, description, parameters } }
+      if (tool.type === 'function' && tool.function) {
+        return {
+          name: tool.function.name,
+          description: tool.function.description || '',
+          input_schema: tool.function.parameters || { type: 'object', properties: {} },
+        };
+      }
+      // Already in Anthropic format: { name, description, input_schema }
+      return {
+        name: tool.name,
+        description: tool.description || '',
+        input_schema: tool.input_schema || { type: 'object', properties: {} },
+      };
+    });
+
     try {
       for (let iteration = 0; iteration < maxToolCalls; iteration++) {
-        const completion = await this.client.chat.completions.create({
+        const response = await this.client.messages.create({
           model,
-          messages,
-          tools: opts.tools,
           max_tokens: opts.maxOutputTokens || this.maxTokensExecutor,
           temperature: opts.temperature ?? modelConfig.defaultTemperature,
+          ...(system ? { system } : {}),
+          messages,
+          ...(anthropicTools.length > 0 ? { tools: anthropicTools } : {}),
         });
 
-        const tokensIn = completion.usage?.prompt_tokens || 0;
-        const tokensOut = completion.usage?.completion_tokens || 0;
+        const tokensIn = response.usage.input_tokens;
+        const tokensOut = response.usage.output_tokens;
         totalTokensIn += tokensIn;
         totalTokensOut += tokensOut;
 
-        const choice = completion.choices[0];
-        if (!choice) {
-          throw new Error('No completion choice returned');
-        }
+        // Check for tool_use blocks in response
+        const toolUseBlocks = response.content.filter(
+          (block): block is Anthropic.ToolUseBlock => block.type === 'tool_use'
+        );
+        const textContent = extractText(response.content);
 
-        // Add assistant message
-        messages.push(choice.message);
-
-        // Check for tool calls
-        const toolCallsInResponse = choice.message.tool_calls;
-        if (!toolCallsInResponse || toolCallsInResponse.length === 0) {
-          // No more tool calls, return final message
+        if (toolUseBlocks.length === 0 || response.stop_reason !== 'tool_use') {
+          // No tool calls, return final response
           const latencyMs = Date.now() - startTime;
           const costCents = getCostCents({ model, tokensIn: totalTokensIn, tokensOut: totalTokensOut });
 
@@ -552,7 +607,6 @@ export class OpenAIClient {
             });
           }
 
-          // Emit usage to database (Step 11)
           if (opts.telemetry) {
             const metrics = buildUsageFromClientEvent({
               model,
@@ -575,10 +629,10 @@ export class OpenAIClient {
           }
 
           return {
-            text: choice.message.content || '',
+            text: textContent,
             toolCalls,
             toolInvocations,
-            raw: completion,
+            raw: response,
             tokensIn: totalTokensIn,
             tokensOut: totalTokensOut,
             model,
@@ -587,45 +641,62 @@ export class OpenAIClient {
           };
         }
 
-        // Execute tool calls
-        for (const toolCall of toolCallsInResponse) {
-          const toolName = toolCall.function.name;
-          const handler = opts.toolHandlers[toolName];
+        // Add assistant message with tool_use blocks
+        messages.push({
+          role: 'assistant',
+          content: response.content,
+        });
+
+        // Execute tool calls and build tool_result blocks
+        const toolResultBlocks: Anthropic.ToolResultBlockParam[] = [];
+
+        for (const toolUse of toolUseBlocks) {
+          const handler = opts.toolHandlers[toolUse.name];
 
           if (!handler) {
-            this.logger.warn(`No handler for tool: ${toolName}`);
+            this.logger.warn(`No handler for tool: ${toolUse.name}`);
+            toolResultBlocks.push({
+              type: 'tool_result',
+              tool_use_id: toolUse.id,
+              content: JSON.stringify({ error: `No handler for tool: ${toolUse.name}` }),
+              is_error: true,
+            });
             continue;
           }
 
           try {
-            const args = JSON.parse(toolCall.function.arguments);
+            const args = toolUse.input as Record<string, any>;
             const result = await handler(args);
 
-            // Track invocations
-            toolInvocations[toolName] = (toolInvocations[toolName] || 0) + 1;
+            toolInvocations[toolUse.name] = (toolInvocations[toolUse.name] || 0) + 1;
 
-            // Record tool call
             toolCalls.push({
-              name: toolName,
+              name: toolUse.name,
               arguments: args,
               result,
             });
 
-            // Add tool result message
-            messages.push({
-              role: 'tool',
-              tool_call_id: toolCall.id,
+            toolResultBlocks.push({
+              type: 'tool_result',
+              tool_use_id: toolUse.id,
               content: JSON.stringify(result),
             });
           } catch (error) {
-            this.logger.error(`Tool execution failed: ${toolName}`, error);
-            messages.push({
-              role: 'tool',
-              tool_call_id: toolCall.id,
+            this.logger.error(`Tool execution failed: ${toolUse.name}`, error);
+            toolResultBlocks.push({
+              type: 'tool_result',
+              tool_use_id: toolUse.id,
               content: JSON.stringify({ error: 'Tool execution failed' }),
+              is_error: true,
             });
           }
         }
+
+        // Add tool results as user message
+        messages.push({
+          role: 'user',
+          content: toolResultBlocks,
+        });
       }
 
       // Max tool calls reached
@@ -661,7 +732,6 @@ export class OpenAIClient {
       if (timeSinceFailure < this.circuitBreakerResetMs) {
         throw new Error('Circuit breaker is open. Too many recent failures.');
       }
-      // Reset circuit breaker
       this.circuitBreaker.isOpen = false;
       this.circuitBreaker.failureCount = 0;
       this.logger.info('Circuit breaker reset');
@@ -694,15 +764,9 @@ export class OpenAIClient {
    * Check if error is retryable
    */
   private isRetryableError(error: any): boolean {
-    // Rate limit errors (429)
     if (error.status === 429) return true;
-
-    // Server errors (5xx)
     if (error.status >= 500 && error.status < 600) return true;
-
-    // Timeout errors
     if (error.code === 'ETIMEDOUT' || error.code === 'ECONNRESET') return true;
-
     return false;
   }
 
@@ -710,10 +774,9 @@ export class OpenAIClient {
    * Get retry delay with exponential backoff
    */
   private getRetryDelayMs(attempt: number): number {
-    const baseDelay = 1000; // 1 second
-    const maxDelay = 32000; // 32 seconds
+    const baseDelay = 1000;
+    const maxDelay = 32000;
     const delay = Math.min(baseDelay * Math.pow(2, attempt), maxDelay);
-    // Add jitter
     return delay + Math.random() * 1000;
   }
 
@@ -729,7 +792,6 @@ export class OpenAIClient {
    */
   private addIdempotencyKey(key: string): void {
     this.recentIdempotencyKeys.add(key);
-    // Clean up after 5 minutes
     setTimeout(() => {
       this.recentIdempotencyKeys.delete(key);
     }, 300000);
@@ -750,3 +812,6 @@ export class OpenAIClient {
     };
   }
 }
+
+/** @deprecated Use AnthropicClient instead */
+export const OpenAIClient = AnthropicClient;

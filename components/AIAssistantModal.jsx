@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Send, Loader, Sparkles, Brain, Lightbulb, Code, TrendingUp, Rocket } from 'lucide-react';
 import { useTheme } from '@/components/providers/ThemeProvider';
-import { callOpenAI } from '@/lib/services/openaiService';
+import { callOpenAI } from '@/lib/services/aiService';
 
 const AIAssistantModal = ({ isOpen, onClose, currentProject, onApplySuggestion }) => {
     const { isDark } = useTheme();
@@ -358,17 +358,17 @@ const AIAssistantModal = ({ isOpen, onClose, currentProject, onApplySuggestion }
                             <AlertCircle className={`w-12 h-12 mx-auto mb-4 ${isDark ? 'text-yellow-400' : 'text-yellow-600'
                                 }`} />
                             <h3 className={`text-lg font-semibold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                                OpenAI API Key Not Configured
+                                AI API Key Not Configured
                             </h3>
                             <p className={`mb-4 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                                To use AI features, please add your OpenAI API key to the <code className="px-2 py-1 rounded bg-black/20">.env</code> file:
+                                To use AI features, please add your Anthropic API key to the <code className="px-2 py-1 rounded bg-black/20">.env</code> file:
                             </p>
                             <code className={`block p-3 rounded-lg text-sm ${isDark ? 'bg-black/40' : 'bg-gray-100'
                                 }`}>
-                                VITE_OPENAI_API_KEY=your_api_key_here
+                                ANTHROPIC_API_KEY=your_api_key_here
                             </code>
                             <p className={`mt-4 text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                                Get your API key from: <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer" className="text-purple-500 hover:underline">platform.openai.com/api-keys</a>
+                                Get your API key from: <a href="https://console.anthropic.com/" target="_blank" rel="noopener noreferrer" className="text-purple-500 hover:underline">console.anthropic.com</a>
                             </p>
                         </div>
                     ) : (

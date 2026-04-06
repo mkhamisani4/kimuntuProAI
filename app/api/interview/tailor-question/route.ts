@@ -1,21 +1,21 @@
 /**
  * POST /api/interview/tailor-question
- * Tailors the next interview question: blend of (1) follow-up on a good Q1 answer and (2) staying true to job/role/company.
- * Body: { previousQuestion, previousAnswer, suggestedNextQuestion, jobDescription?, role?, companyName? }
+ * Tailors the next interview question: blend of (1) follow-up on a good Q1 answer and (2) staying true to job/role/company (plus optional resume context).
+ * Body: { previousQuestion, previousAnswer, suggestedNextQuestion, jobDescription?, role?, companyName?, resumeText? }
  * Returns: { tailoredQuestion: string }
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 
-const MODEL = 'gpt-4o-mini';
+const MODEL = 'gpt-5.4-mini';
 
 function buildTailorPrompt(
   previousQuestion: string,
   previousAnswer: string,
   suggestedNextQuestion: string,
-  jobContext: { jobDescription: string; role: string; companyName: string }
+  jobContext: { jobDescription: string; role: string; companyName: string; resumeText: string }
 ): string {
-  const { jobDescription, role, companyName } = jobContext;
+  const { jobDescription, role, companyName, resumeText } = jobContext;
   return `You are an expert interviewer. Your task is to choose the next question with two priorities in balance:
 
 1) **Only use the candidate's answer if it's a good answer.** Consider it "good" if it's substantive (specific experiences, projects, or motivations), relevant to the role, and on-topic. If the answer is empty, very vague, off-topic, or generic, do NOT follow up on it—use the suggested next question (optionally rephrased to tie to the role/company).
@@ -28,6 +28,9 @@ Company: ${companyName || '(not provided)'}
 
 Job description (excerpt):
 ${jobDescription ? jobDescription.slice(0, 1500) : '(not provided)'}
+
+Candidate resume (optional excerpt, may be empty):
+${resumeText ? resumeText.slice(0, 1200) : '(not provided)'}
 </JOB_CONTEXT>
 
 <PREVIOUS_QUESTION>
@@ -67,6 +70,7 @@ export async function POST(req: NextRequest) {
     jobDescription?: string;
     role?: string;
     companyName?: string;
+    resumeText?: string;
   };
   try {
     body = await req.json();
@@ -84,6 +88,7 @@ export async function POST(req: NextRequest) {
     jobDescription: String(body?.jobDescription ?? '').trim(),
     role: String(body?.role ?? '').trim(),
     companyName: String(body?.companyName ?? '').trim(),
+    resumeText: String(body?.resumeText ?? '').trim(),
   };
 
   if (!suggestedNextQuestion) {
@@ -105,7 +110,7 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify({
         model: MODEL,
         messages: [{ role: 'user', content: prompt }],
-        max_tokens: 200,
+        max_completion_tokens: 200,
         temperature: 0.5,
       }),
     });

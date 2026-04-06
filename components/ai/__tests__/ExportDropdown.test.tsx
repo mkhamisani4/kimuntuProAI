@@ -24,7 +24,7 @@ describe('ExportDropdown', () => {
 
   const mockMetadata: PDFMetadata = {
     assistantType: 'streamlined_plan',
-    model: 'gpt-4o-mini',
+    model: 'claude-haiku-4-5-20251001',
     generatedAt: new Date('2025-01-15T10:00:00Z'),
   };
 

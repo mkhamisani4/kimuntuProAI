@@ -58,11 +58,12 @@ public/assets/          # Static assets
 
 ## Environment Variables
 
-Make sure your `.env` file uses Next.js naming:
+Make sure your `.env` file has the required API keys:
 
 ```
-NEXT_PUBLIC_OPENAI_API_KEY=your_key_here
-# (Not VITE_OPENAI_API_KEY anymore)
+ANTHROPIC_API_KEY=your_anthropic_key_here
+# Optional: Only needed for RAG/embeddings features
+OPENAI_EMBEDDINGS_API_KEY=your_openai_key_here
 ```
 
 ## Removed Files

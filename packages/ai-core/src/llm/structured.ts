@@ -178,3 +178,49 @@ export function createJsonSchema(
     },
   };
 }
+
+/**
+ * Build prompt instructions for structured JSON output (for Anthropic Claude)
+ * Claude doesn't have a native JSON schema response format, so we instruct it
+ * via the system prompt to respond with JSON matching a given schema.
+ *
+ * @param zodSchema - Zod schema to convert
+ * @param name - Schema name for context
+ * @param description - Optional schema description
+ * @returns String to append to system prompt
+ */
+export function buildStructuredPromptInstructions<T extends z.ZodType>(
+  zodSchema: T,
+  name: string,
+  description?: string
+): string {
+  let jsonSchema: any = zodToJsonSchema(zodSchema, {
+    name,
+    $refStrategy: 'none',
+    target: 'jsonSchema7',
+    errorMessages: false,
+  });
+
+  // Extract from definitions if needed
+  if (jsonSchema.$ref && jsonSchema.definitions) {
+    const refName = jsonSchema.$ref.replace('#/definitions/', '');
+    jsonSchema = jsonSchema.definitions[refName];
+  }
+
+  const { $schema, definitions, ...schemaWithoutMeta } = jsonSchema;
+
+  const parts = [
+    `\n\nYou MUST respond with valid JSON matching the "${name}" schema below.`,
+  ];
+
+  if (description) {
+    parts.push(`Schema description: ${description}`);
+  }
+
+  parts.push(
+    'Do NOT wrap the JSON in markdown code blocks. Output ONLY the raw JSON object.',
+    `JSON Schema:\n${JSON.stringify(schemaWithoutMeta, null, 2)}`
+  );
+
+  return parts.join('\n');
+}

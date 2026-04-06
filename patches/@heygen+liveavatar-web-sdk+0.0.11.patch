@@ -1,0 +1,152 @@
+diff --git a/node_modules/@heygen/liveavatar-web-sdk/lib/index.cjs.js b/node_modules/@heygen/liveavatar-web-sdk/lib/index.cjs.js
+index 2667ff9..7d31c46 100644
+--- a/node_modules/@heygen/liveavatar-web-sdk/lib/index.cjs.js
++++ b/node_modules/@heygen/liveavatar-web-sdk/lib/index.cjs.js
+@@ -1108,19 +1108,22 @@ class LiveAvatarSession extends events.EventEmitter {
+         this.postStop(exports.SessionDisconnectReason.UNKNOWN_REASON);
+     }
+     sendCommandEvent(commandEvent) {
+-        // Use WebSocket if available, otherwise use LiveKit data channel
++        const payload = this._sessionInfo && this._sessionInfo.session_id
++            ? Object.assign({}, commandEvent, { session_id: this._sessionInfo.session_id })
++            : commandEvent;
++        let sentViaWs = false;
+         if (this._sessionEventSocket &&
+             this._sessionEventSocket.readyState === WebSocket.OPEN) {
+-            this.sendCommandEventToWebSocket(commandEvent);
++            sentViaWs = this.sendCommandEventToWebSocket(payload) === true;
+         }
+-        else if (this.room.state === "connected") {
+-            const data = new TextEncoder().encode(JSON.stringify(commandEvent));
++        if (!sentViaWs && this.room.state === "connected") {
++            const data = new TextEncoder().encode(JSON.stringify(payload));
+             this.room.localParticipant.publishData(data, {
+                 reliable: true,
+                 topic: LIVEKIT_COMMAND_CHANNEL_TOPIC,
+             });
+         }
+-        else {
++        else if (!sentViaWs) {
+             console.warn("No active connection to send command event");
+         }
+     }
+@@ -1140,7 +1143,7 @@ class LiveAvatarSession extends events.EventEmitter {
+         if (!this._sessionEventSocket ||
+             this._sessionEventSocket.readyState !== WebSocket.OPEN) {
+             console.warn("WebSocket not open to send command event");
+-            return;
++            return false;
+         }
+         const event_type = commandEvent.event_type;
+         const event_id = this.generateEventId();
+@@ -1159,28 +1162,27 @@ class LiveAvatarSession extends events.EventEmitter {
+                     type: "agent.speak_end",
+                     event_id: event_id,
+                 }));
+-                return;
++                return true;
+             case exports.CommandEventsEnum.AVATAR_INTERRUPT:
+                 this._sessionEventSocket.send(JSON.stringify({
+                     type: "agent.interrupt",
+                     event_id: event_id,
+                 }));
+-                return;
++                return true;
+             case exports.CommandEventsEnum.AVATAR_START_LISTENING:
+                 this._sessionEventSocket.send(JSON.stringify({
+                     type: "agent.start_listening",
+                     event_id: event_id,
+                 }));
+-                return;
++                return true;
+             case exports.CommandEventsEnum.AVATAR_STOP_LISTENING:
+                 this._sessionEventSocket.send(JSON.stringify({
+                     type: "agent.stop_listening",
+                     event_id: event_id,
+                 }));
+-                return;
++                return true;
+             default:
+-                console.warn("Unsupported command event type:", event_type);
+-                break;
++                return false;
+         }
+     }
+     assertConnected() {
+diff --git a/node_modules/@heygen/liveavatar-web-sdk/lib/index.esm.js b/node_modules/@heygen/liveavatar-web-sdk/lib/index.esm.js
+index edd3bfb..ccaa411 100644
+--- a/node_modules/@heygen/liveavatar-web-sdk/lib/index.esm.js
++++ b/node_modules/@heygen/liveavatar-web-sdk/lib/index.esm.js
+@@ -1106,19 +1106,23 @@ class LiveAvatarSession extends EventEmitter {
+         this.postStop(SessionDisconnectReason.UNKNOWN_REASON);
+     }
+     sendCommandEvent(commandEvent) {
+-        // Use WebSocket if available, otherwise use LiveKit data channel
++        // FULL mode requires session_id on agent-control payloads (docs.liveavatar.com full-mode-events).
++        const payload = this._sessionInfo && this._sessionInfo.session_id
++            ? Object.assign({}, commandEvent, { session_id: this._sessionInfo.session_id })
++            : commandEvent;
++        let sentViaWs = false;
+         if (this._sessionEventSocket &&
+             this._sessionEventSocket.readyState === WebSocket.OPEN) {
+-            this.sendCommandEventToWebSocket(commandEvent);
++            sentViaWs = this.sendCommandEventToWebSocket(payload) === true;
+         }
+-        else if (this.room.state === "connected") {
+-            const data = new TextEncoder().encode(JSON.stringify(commandEvent));
++        if (!sentViaWs && this.room.state === "connected") {
++            const data = new TextEncoder().encode(JSON.stringify(payload));
+             this.room.localParticipant.publishData(data, {
+                 reliable: true,
+                 topic: LIVEKIT_COMMAND_CHANNEL_TOPIC,
+             });
+         }
+-        else {
++        else if (!sentViaWs) {
+             console.warn("No active connection to send command event");
+         }
+     }
+@@ -1138,7 +1142,7 @@ class LiveAvatarSession extends EventEmitter {
+         if (!this._sessionEventSocket ||
+             this._sessionEventSocket.readyState !== WebSocket.OPEN) {
+             console.warn("WebSocket not open to send command event");
+-            return;
++            return false;
+         }
+         const event_type = commandEvent.event_type;
+         const event_id = this.generateEventId();
+@@ -1157,28 +1161,28 @@ class LiveAvatarSession extends EventEmitter {
+                     type: "agent.speak_end",
+                     event_id: event_id,
+                 }));
+-                return;
++                return true;
+             case CommandEventsEnum.AVATAR_INTERRUPT:
+                 this._sessionEventSocket.send(JSON.stringify({
+                     type: "agent.interrupt",
+                     event_id: event_id,
+                 }));
+-                return;
++                return true;
+             case CommandEventsEnum.AVATAR_START_LISTENING:
+                 this._sessionEventSocket.send(JSON.stringify({
+                     type: "agent.start_listening",
+                     event_id: event_id,
+                 }));
+-                return;
++                return true;
+             case CommandEventsEnum.AVATAR_STOP_LISTENING:
+                 this._sessionEventSocket.send(JSON.stringify({
+                     type: "agent.stop_listening",
+                     event_id: event_id,
+                 }));
+-                return;
++                return true;
+             default:
+-                console.warn("Unsupported command event type:", event_type);
+-                break;
++                // avatar.speak_text / speak_response use LiveKit agent-control (event_type + session_id).
++                return false;
+         }
+     }
+     assertConnected() {

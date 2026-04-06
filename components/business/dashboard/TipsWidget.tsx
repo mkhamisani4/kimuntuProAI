@@ -48,30 +48,30 @@ export default function TipsWidget() {
   const currentTip = tips[currentTipIndex];
 
   return (
-    <div className="bg-gray-800/80 rounded-lg border border-gray-700 p-6">
+    <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-100 p-6 shadow-sm">
       {/* Header */}
       <div className="flex items-center gap-2 mb-3">
-        <div className="p-2 bg-blue-500 rounded-lg">
+        <div className="p-2 bg-blue-600 rounded-lg">
           <Lightbulb size={20} className="text-white" />
         </div>
-        <h3 className="text-sm font-semibold text-blue-300 uppercase tracking-wide">
+        <h3 className="text-sm font-semibold text-blue-800 uppercase tracking-wide">
           Tip of the Day
         </h3>
       </div>
 
       {/* Tip Content */}
       <div className="space-y-3">
-        <h4 className="font-semibold text-white">
+        <h4 className="font-semibold text-gray-900">
           {currentTip.title}
         </h4>
-        <p className="text-sm text-gray-300 leading-relaxed">
+        <p className="text-sm text-gray-600 leading-relaxed">
           {currentTip.description}
         </p>
 
         {/* Action Button */}
         <a
           href={currentTip.actionUrl}
-          className="inline-flex items-center gap-1.5 text-sm text-blue-400 hover:text-blue-300 font-medium group"
+          className="inline-flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-700 font-medium group"
         >
           {currentTip.actionLabel}
           <ChevronRight size={16} className="transition-transform group-hover:translate-x-0.5" />
@@ -79,26 +79,25 @@ export default function TipsWidget() {
       </div>
 
       {/* Tip Indicator Dots */}
-      <div className="flex items-center justify-center gap-1.5 mt-4 pt-4 border-t border-blue-700/30">
+      <div className="flex items-center justify-center gap-1.5 mt-4 pt-4 border-t border-blue-200">
         {tips.map((_, index) => (
           <button
             key={index}
             onClick={() => setCurrentTipIndex(index)}
-            className={`w-2 h-2 rounded-full transition-all ${
-              index === currentTipIndex
-                ? 'bg-blue-400 w-6'
-                : 'bg-blue-700 hover:bg-blue-500'
-            }`}
+            className={`w-2 h-2 rounded-full transition-all ${index === currentTipIndex
+                ? 'bg-blue-600 w-6'
+                : 'bg-blue-200 hover:bg-blue-400'
+              }`}
             aria-label={`View tip ${index + 1}`}
           />
         ))}
       </div>
 
       {/* Resources Link */}
-      <div className="mt-4 pt-4 border-t border-blue-700/30">
+      <div className="mt-4 pt-4 border-t border-blue-200">
         <a
           href="/docs"
-          className="flex items-center justify-between text-sm text-blue-400 hover:text-blue-300 font-medium group"
+          className="flex items-center justify-between text-sm text-blue-600 hover:text-blue-700 font-medium group"
         >
           <span>Browse Documentation</span>
           <ExternalLink size={14} className="transition-transform group-hover:translate-x-0.5" />

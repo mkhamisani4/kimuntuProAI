@@ -30,7 +30,7 @@ vi.mock('../../src/llm/costs.js', () => ({
 describe('calcCostCents', () => {
   it('should calculate cost and round up to nearest cent', () => {
     const cost = calcCostCents({
-      model: 'gpt-4o-mini',
+      model: 'claude-haiku-4-5-20251001',
       tokensIn: 100,
       tokensOut: 50,
     });
@@ -41,7 +41,7 @@ describe('calcCostCents', () => {
 
   it('should handle zero tokens', () => {
     const cost = calcCostCents({
-      model: 'gpt-4o-mini',
+      model: 'claude-haiku-4-5-20251001',
       tokensIn: 0,
       tokensOut: 0,
     });
@@ -51,7 +51,7 @@ describe('calcCostCents', () => {
 
   it('should round up fractional cents conservatively', () => {
     const cost = calcCostCents({
-      model: 'gpt-4o-mini',
+      model: 'claude-haiku-4-5-20251001',
       tokensIn: 10,
       tokensOut: 5,
     });
@@ -62,7 +62,7 @@ describe('calcCostCents', () => {
 
   it('should include cached input tokens in calculation', () => {
     const cost = calcCostCents({
-      model: 'gpt-4o-mini',
+      model: 'claude-haiku-4-5-20251001',
       tokensIn: 100,
       tokensOut: 50,
       cachedInputTokens: 50,
@@ -76,14 +76,14 @@ describe('calcCostCents', () => {
 describe('buildUsageFromClientEvent', () => {
   it('should build usage metrics from client response', () => {
     const metrics = buildUsageFromClientEvent({
-      model: 'gpt-4o-mini',
+      model: 'claude-haiku-4-5-20251001',
       tokensIn: 100,
       tokensOut: 50,
       latencyMs: 500,
     });
 
     expect(metrics).toEqual({
-      model: 'gpt-4o-mini',
+      model: 'claude-haiku-4-5-20251001',
       tokensIn: 100,
       tokensOut: 50,
       costCents: 3, // Rounded up from 2.5
@@ -98,7 +98,7 @@ describe('buildUsageFromClientEvent', () => {
 
   it('should include cached input tokens', () => {
     const metrics = buildUsageFromClientEvent({
-      model: 'gpt-4o-mini',
+      model: 'claude-haiku-4-5-20251001',
       tokensIn: 100,
       tokensOut: 50,
       latencyMs: 500,
@@ -110,7 +110,7 @@ describe('buildUsageFromClientEvent', () => {
 
   it('should include tool invocations', () => {
     const metrics = buildUsageFromClientEvent({
-      model: 'gpt-4o-mini',
+      model: 'claude-haiku-4-5-20251001',
       tokensIn: 100,
       tokensOut: 50,
       latencyMs: 500,
@@ -130,7 +130,7 @@ describe('buildUsageFromClientEvent', () => {
 
   it('should default tool invocations to zero', () => {
     const metrics = buildUsageFromClientEvent({
-      model: 'gpt-4o-mini',
+      model: 'claude-haiku-4-5-20251001',
       tokensIn: 100,
       tokensOut: 50,
       latencyMs: 500,
@@ -159,7 +159,7 @@ describe('emitUsage', () => {
     const { recordUsage } = await import('@kimuntupro/db');
 
     const metrics: UsageMetric = {
-      model: 'gpt-4o-mini',
+      model: 'claude-haiku-4-5-20251001',
       tokensIn: 100,
       tokensOut: 50,
       costCents: 3,
@@ -183,7 +183,7 @@ describe('emitUsage', () => {
       tenantId: 'tenant1',
       userId: 'user1',
       assistant: 'streamlined_plan',
-      model: 'gpt-4o-mini',
+      model: 'claude-haiku-4-5-20251001',
       tokensIn: 100,
       tokensOut: 50,
       totalTokens: 150,
@@ -204,7 +204,7 @@ describe('emitUsage', () => {
     const { recordUsage } = await import('@kimuntupro/db');
 
     const metrics: UsageMetric = {
-      model: 'gpt-4o-mini',
+      model: 'claude-haiku-4-5-20251001',
       tokensIn: 100,
       tokensOut: 50,
       costCents: 3,
@@ -231,7 +231,7 @@ describe('emitUsage', () => {
     const { recordUsage } = await import('@kimuntupro/db');
 
     const metrics: UsageMetric = {
-      model: 'gpt-4o-mini',
+      model: 'claude-haiku-4-5-20251001',
       tokensIn: 100,
       tokensOut: 50,
       costCents: 3,
@@ -259,7 +259,7 @@ describe('emitUsage', () => {
     vi.mocked(recordUsage).mockRejectedValueOnce(new Error('DB error'));
 
     const metrics: UsageMetric = {
-      model: 'gpt-4o-mini',
+      model: 'claude-haiku-4-5-20251001',
       tokensIn: 100,
       tokensOut: 50,
       costCents: 3,
@@ -287,7 +287,7 @@ describe('emitUsage', () => {
     vi.mocked(recordUsage).mockRejectedValueOnce(new Error('DB error'));
 
     const metrics: UsageMetric = {
-      model: 'gpt-4o-mini',
+      model: 'claude-haiku-4-5-20251001',
       tokensIn: 100,
       tokensOut: 50,
       costCents: 3,
@@ -314,7 +314,7 @@ describe('emitUsage', () => {
     const onPersist = vi.fn();
 
     const metrics: UsageMetric = {
-      model: 'gpt-4o-mini',
+      model: 'claude-haiku-4-5-20251001',
       tokensIn: 100,
       tokensOut: 50,
       costCents: 3,
@@ -346,7 +346,7 @@ describe('emitUsage', () => {
     const onPersist = vi.fn();
 
     const metrics: UsageMetric = {
-      model: 'gpt-4o-mini',
+      model: 'claude-haiku-4-5-20251001',
       tokensIn: 100,
       tokensOut: 50,
       costCents: 3,
@@ -373,7 +373,7 @@ describe('emitUsage', () => {
 describe('estimateUsage', () => {
   it('should estimate tokens conservatively', () => {
     const estimate = estimateUsage({
-      model: 'gpt-4o-mini',
+      model: 'claude-haiku-4-5-20251001',
       inputLength: 100, // characters
       contextTokens: 1000,
       maxOutputTokens: 4000,
@@ -388,7 +388,7 @@ describe('estimateUsage', () => {
 
   it('should handle zero context', () => {
     const estimate = estimateUsage({
-      model: 'gpt-4o-mini',
+      model: 'claude-haiku-4-5-20251001',
       inputLength: 100,
       contextTokens: 0,
       maxOutputTokens: 1000,
@@ -402,7 +402,7 @@ describe('estimateUsage', () => {
 
   it('should round up input tokens', () => {
     const estimate = estimateUsage({
-      model: 'gpt-4o-mini',
+      model: 'claude-haiku-4-5-20251001',
       inputLength: 11, // 11 * 1.5 = 16.5, should round up to 17
       contextTokens: 0,
       maxOutputTokens: 100,
@@ -426,7 +426,7 @@ describe('calcTotalTokens', () => {
 describe('formatUsageMetrics', () => {
   it('should format metrics as readable string', () => {
     const metrics: UsageMetric = {
-      model: 'gpt-4o-mini',
+      model: 'claude-haiku-4-5-20251001',
       tokensIn: 100,
       tokensOut: 50,
       costCents: 3,
@@ -440,7 +440,7 @@ describe('formatUsageMetrics', () => {
 
     const formatted = formatUsageMetrics(metrics);
 
-    expect(formatted).toContain('gpt-4o-mini');
+    expect(formatted).toContain('claude-haiku-4-5-20251001');
     expect(formatted).toContain('150 tokens');
     expect(formatted).toContain('$0.0300');
     expect(formatted).toContain('500ms');
@@ -450,7 +450,7 @@ describe('formatUsageMetrics', () => {
 describe('aggregateUsageMetrics', () => {
   it('should aggregate multiple metrics', () => {
     const metrics1: UsageMetric = {
-      model: 'gpt-4o-mini',
+      model: 'claude-haiku-4-5-20251001',
       tokensIn: 100,
       tokensOut: 50,
       costCents: 3,
@@ -463,7 +463,7 @@ describe('aggregateUsageMetrics', () => {
     };
 
     const metrics2: UsageMetric = {
-      model: 'gpt-4o-mini',
+      model: 'claude-haiku-4-5-20251001',
       tokensIn: 200,
       tokensOut: 100,
       costCents: 6,
