@@ -515,12 +515,18 @@ html {
   animation: marquee 30s linear infinite;
 }
 
-.marquee-track {
+/* The wrapper containing two identical sets scrolls by 50% (= one full set width) for seamless loop */
+.marquee-wrapper {
   animation: marquee 40s linear infinite;
 }
 
-.marquee-track:hover {
+.marquee-wrapper:hover,
+.marquee-wrapper:has(.marquee-track:hover) {
   animation-play-state: paused;
+}
+
+.marquee-track {
+  /* Individual track — no animation; the parent wrapper animates */
 }
 
 /* ========================================
@@ -559,4 +565,197 @@ html {
   transform: scale(0);
   opacity: 0.3;
   transition: 0s;
+}
+
+/* ========================================
+   TRACK CARD HOVER - ZOOM TO FOREGROUND
+   ======================================== */
+.track-card {
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: center center;
+  position: relative;
+  z-index: 1;
+}
+
+.track-card:hover {
+  transform: scale(1.08) translateY(-12px);
+  z-index: 50;
+  box-shadow:
+    0 25px 60px rgba(0, 0, 0, 0.3),
+    0 0 40px rgba(16, 185, 129, 0.15);
+}
+
+.track-card .track-image {
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.track-card:hover .track-image {
+  transform: scale(1.15);
+  filter: brightness(1.1);
+}
+
+.track-card .track-title {
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.track-card:hover .track-title {
+  transform: scale(1.05);
+  letter-spacing: 0.02em;
+}
+
+.track-card .track-description {
+  transition: all 0.4s ease;
+}
+
+.track-card:hover .track-description {
+  opacity: 1;
+}
+
+.track-card .track-gradient-overlay {
+  transition: opacity 0.5s ease;
+  opacity: 0;
+}
+
+.track-card:hover .track-gradient-overlay {
+  opacity: 1;
+}
+
+.track-card .track-features {
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.track-card:hover .track-features {
+  transform: translateY(-4px);
+}
+
+/* ========================================
+   HERO ILLUSTRATION ANIMATIONS
+   ======================================== */
+@keyframes morphBlob {
+  0%, 100% {
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  }
+  25% {
+    border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
+  }
+  50% {
+    border-radius: 50% 60% 30% 60% / 30% 40% 70% 60%;
+  }
+  75% {
+    border-radius: 60% 40% 60% 30% / 70% 50% 40% 60%;
+  }
+}
+
+.animate-morph-blob {
+  animation: morphBlob 8s ease-in-out infinite;
+}
+
+@keyframes pulseRing {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse-ring {
+  animation: pulseRing 3s ease-in-out infinite;
+}
+
+/* ========================================
+   FEATURE CARD SPOTLIGHT
+   ======================================== */
+.feature-spotlight {
+  position: relative;
+  overflow: hidden;
+}
+
+.feature-spotlight::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.06) 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+}
+
+.feature-spotlight:hover::before {
+  opacity: 1;
+}
+
+/* ========================================
+   ANIMATED GRID BACKGROUND
+   ======================================== */
+@keyframes gridMove {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-50px);
+  }
+}
+
+.animate-grid-bg {
+  background-image:
+    linear-gradient(rgba(16, 185, 129, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(16, 185, 129, 0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  animation: gridMove 20s linear infinite;
+}
+
+/* ========================================
+   ICON FLOAT ON HOVER
+   ======================================== */
+@keyframes iconBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.hover-icon-bounce:hover .track-icon {
+  animation: iconBounce 0.6s ease-in-out;
+}
+
+/* ========================================
+   GRADIENT BORDER ANIMATION
+   ======================================== */
+@keyframes rotateBorder {
+  0% { --angle: 0deg; }
+  100% { --angle: 360deg; }
+}
+
+.gradient-border-animated {
+  position: relative;
+}
+
+.gradient-border-animated::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: conic-gradient(from var(--angle, 0deg), #10b981, #06b6d4, #8b5cf6, #f59e0b, #10b981);
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  animation: rotateBorder 4s linear infinite;
+}
+
+.gradient-border-animated:hover::before {
+  opacity: 1;
+}
+
+@property --angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
 }

@@ -57,9 +57,9 @@ const Footer = () => {
     ];
 
     const contactInfo = [
-        { icon: Mail, text: 'contact@kimuntupro.com', href: 'mailto:contact@kimuntupro.com' },
-        { icon: Phone, text: '+1 (555) 123-4567', href: 'tel:+15551234567' },
-        { icon: MapPin, text: 'San Francisco, CA 94102', href: '#location' },
+        { icon: Mail, text: 'contact@kimuntu.ai', href: 'mailto:contact@kimuntu.ai' },
+        { icon: Phone, text: '+1 (613) 290-3200', href: 'tel:+16132903200' },
+        { icon: MapPin, text: '1520 Beaverpond Dr. Unit B, Ottawa, ON K1B 3R9, Canada', href: '#location' },
     ];
 
     return (
@@ -254,7 +254,7 @@ const Footer = () => {
                     {/* Copyright */}
                     <div className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'} text-center md:text-right`}>
                         <p className="flex items-center justify-center md:justify-end gap-1.5 mb-1">
-                            © {currentYear} KimuntuPro AI. {t.footerMadeWith} <Heart className="w-4 h-4 text-red-500 fill-current animate-pulse" /> {t.footerForInnovation}
+                            © {currentYear} Kimuntu AI. {t.footerMadeWith} <Heart className="w-4 h-4 text-red-500 fill-current animate-pulse" /> {t.footerForInnovation}
                         </p>
                     </div>
                 </div>

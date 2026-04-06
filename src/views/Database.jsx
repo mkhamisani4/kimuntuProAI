@@ -664,7 +664,7 @@ const Database = () => {
                                 Put the Database to Work
                             </h3>
                             <p className="mb-5 max-w-2xl leading-relaxed">
-                                The populated database powers KimuntuPro's legal AI assistant, delivering precise,
+                                The populated database powers Kimuntu's legal AI assistant, delivering precise,
                                 citation-grounded answers across criminal law topics. Start a conversation or explore
                                 the research methodology behind the data.
                             </p>

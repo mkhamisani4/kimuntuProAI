@@ -63,7 +63,7 @@ const Team = () => {
                                     <Linkedin className="w-5 h-5" />
                                 </a>
                                 <a
-                                    href="mailto:contact@kimuntupro.com"
+                                    href="mailto:contact@kimuntu.ai"
                                     className={`p-2 rounded-lg transition-all ${isDark
                                         ? 'bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white'
                                         : 'bg-white/60 hover:bg-white text-gray-600 hover:text-gray-900'

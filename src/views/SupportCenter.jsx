@@ -133,6 +133,114 @@ const SupportCenter = () => {
         },
     ];
 
+    const businessFaqs = [
+        {
+            question: 'What types of business plans does Kimuntu AI generate?',
+            answer: 'Three tiers: Basic (executive summary, market overview, company description, 1-year projections); Medium (competitor analysis, detailed financial models, marketing strategy, 3-year projections); and Professional (investor-ready format, strategic marketing plan, AI website builder integration, SEO roadmap, full financial statements, and pitch deck). All levels support Canadian and US market contexts with relevant regulatory and funding references.'
+        },
+        {
+            question: 'What is ProLaunch TeamAI?',
+            answer: 'ProLaunch TeamAI is a virtual enterprise automation suite that simulates a complete executive team. AI agents function as CEO (strategic decisions), HR Manager (hiring workflows, offer letters, onboarding), CFO (cash flow modeling, financial alerts), Sales Director (AI cold outreach via Twilio, CRM management), and Administrative Officer (scheduling, document management, follow-ups). A solo founder can operate with the efficiency of a 20-person team.'
+        },
+        {
+            question: 'How does the Funding Opportunities Finder work?',
+            answer: 'The AI scans and indexes 10,000+ funding programs across the USA (SBA loans, SBIR grants, angel networks, VC databases) and Canada (BDC, IRAP, Futurpreneur, provincial programs, Investissement Quebec, federal grants). It matches your business profile, stage, sector, and geography to the best opportunities and auto-generates pitch decks and executive summaries tailored to each funder\'s requirements.'
+        },
+    ];
+
+    const legalFaqs = [
+        {
+            question: 'Does Kimuntu AI replace a lawyer?',
+            answer: 'No. Kimuntu AI is NOT a law firm and does NOT provide legal representation or formal legal advice. The Legal track provides AI-assisted information, document drafting, and preparation tools for educational and self-help purposes only. For formal legal proceedings, court representation, or binding legal advice, users must consult a licensed attorney or barrister in their jurisdiction. All Legal track outputs include this disclaimer prominently.'
+        },
+        {
+            question: 'What legal areas are covered for Canada?',
+            answer: 'Kimuntu AI covers the following areas under Canadian law: Family Law (divorce, custody, support), Criminal Law (informational research only), Business and Contract Law (contract drafting, business incorporation guidance), Consumer Rights, Immigration and Refugee Law (IRCC applications, study/work permits, PR pathways, refugee claims), Labour and Employment Law (wrongful dismissal, employment standards by province), and Civil Litigation (demand letters, small claims preparation). Coverage is available for all provinces and territories with Quebec-specific French-language outputs.'
+        },
+        {
+            question: 'What legal areas are covered for the USA?',
+            answer: 'US coverage includes: Family Law (divorce, custody), Criminal Law (informational only), Business Contracts and LLC/Corp formation, Consumer Rights, Immigration and Visa guidance (H-1B, OPT, green card, DACA, asylum), Workplace Rights and employment law, Civil Litigation preparation, and small claims court assistance across all 50 states and D.C.'
+        },
+        {
+            question: 'What is the Immigration Court Simulation?',
+            answer: 'The Immigration Court Simulation is an AI-powered practice environment where users can rehearse immigration hearings, asylum interviews, and IRCC/USCIS application reviews. AI agents simulate the roles of immigration judges, officers, and opposing counsel. Users receive detailed feedback on their responses, documentation completeness, and areas of vulnerability. This tool is available on the Legal Premium and Full Package plans.'
+        },
+    ];
+
+    const pricingFaqs = [
+        {
+            question: 'What are the available plans?',
+            answer: 'Free Tier ($0/month), Career Premium ($19.99/month), Business Premium ($29.99/month), Legal Premium ($29.99/month), Innovation Premium ($79.99/month), and Full Package — All 4 Tracks ($99/month or $950.40/year). Annual plans offer a 20% discount. Pay-Per-Use credits are available for Live Avatar sessions, on-demand documents, and legal consultations. B2B and Enterprise plans are available from $59/seat/month with custom onboarding.'
+        },
+        {
+            question: 'Is there a free trial?',
+            answer: 'Yes. All paid plans include a 14-day free trial with full feature access. No credit card is required to start the trial. At the end of the trial, you will be prompted to enter payment details to continue. If you do not subscribe, your account reverts to the Free Tier and your generated documents remain accessible for 30 days.'
+        },
+        {
+            question: 'How do refunds work?',
+            answer: 'Monthly subscribers may request a refund within 7 days of the most recent billing date, provided the account has not generated more than 3 premium documents in that billing cycle. Annual subscribers may request a pro-rated refund within 30 days of purchase. App store purchases are subject to the refund policies of Apple App Store and Google Play respectively. See the Refund and Cancellation Policy below for full details.'
+        },
+        {
+            question: 'How do I contact support?',
+            answer: 'Support is available via: In-platform live chat (all plans, business hours EST); email at support@kimuntu.ai (response within 48 hours for standard plans, 24 hours for Full Package, 12 hours for Enterprise); the Help Center with guides, video tutorials, and an AI onboarding assistant. Emergency security issues: security@kimuntu.ai.'
+        },
+    ];
+
+    const refundFaqs = [
+        {
+            question: 'How do I cancel my subscription?',
+            answer: "You may cancel your subscription at any time through Settings > Subscription > Cancel Plan, or by contacting support@kimuntu.ai. Cancellation takes effect at the end of the current billing period. You retain full access to your plan features until that date. After cancellation, your account reverts to the Free Tier. Your documents and data remain accessible and downloadable for 90 days before being subject to the standard retention schedule. Cancellation does not delete your account. To permanently delete your account and all associated data, follow the process in Settings > Privacy > Delete My Account."
+        },
+        {
+            question: 'What is the refund policy for monthly plans?',
+            answer: 'If you request a refund within 7 days of billing and have generated fewer than 3 premium documents, you will receive a full refund of the most recent charge. After 7 days or if more than 3 premium docs were generated, no refund is issued but access continues until the end of the billing period.'
+        },
+        {
+            question: 'What is the refund policy for annual plans?',
+            answer: 'If you request a refund within 30 days of initial purchase, you receive a pro-rated refund for unused months, minus a $15 CAD / $12 USD processing fee. After 30 days, no refund is issued but access continues until the end of the annual period.'
+        },
+        {
+            question: 'Are Pay-Per-Use credits refundable?',
+            answer: 'No. Pay-Per-Use credits are non-refundable. Credits remain valid for 24 months from the purchase date.'
+        },
+        {
+            question: 'How do App Store refunds work?',
+            answer: "App Store (Apple / Google Play) purchases are subject to the respective platform's refund policies. Kimuntu AI cannot process these refunds directly — you must submit refund requests through Apple or Google."
+        },
+        {
+            question: 'What if there is a technical failure or extended outage?',
+            answer: 'For technical failures or extended platform outages exceeding 4 hours, a service credit equivalent to the affected period is applied to your next billing cycle.'
+        },
+        {
+            question: 'How do I request a refund?',
+            answer: "Email support@kimuntu.ai with subject line: 'Refund Request — [Your Account Email]'. Include: your account email, subscription plan, purchase date, reason for refund request, and any supporting context. Kimuntu AI will acknowledge your request within 2 business days and provide a decision within 5 business days. Approved refunds are processed within 7-10 business days to your original payment method. Refund decisions are final. If you believe a decision was made in error, you may escalate with 'Refund Appeal' in the subject line."
+        },
+    ];
+
+    const renderFaqSection = (title, faqs) => (
+        <section className="mb-12">
+            <h3 className={`text-xl font-semibold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                {title}
+            </h3>
+            <div className="space-y-4">
+                {faqs.map((faq, index) => (
+                    <details
+                        key={index}
+                        className={`p-5 rounded-xl border ${isDark
+                                ? 'bg-white/5 border-white/10'
+                                : 'bg-white/60 border-gray-200'
+                            }`}
+                    >
+                        <summary className={`cursor-pointer font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                            {faq.question}
+                        </summary>
+                        <p className="mt-3">{faq.answer}</p>
+                    </details>
+                ))}
+            </div>
+        </section>
+    );
+
     const contactMethods = [
         {
             icon: Mail,
@@ -143,14 +251,14 @@ const SupportCenter = () => {
         {
             icon: MessageCircle,
             title: 'Live Chat',
-            description: 'Available Mon-Fri, 9 AM - 6 PM PST',
-            response: 'Instant response'
+            description: 'Available Mon-Fri, business hours EST',
+            response: 'All plans'
         },
         {
             icon: Phone,
-            title: 'Phone Support',
-            description: '+1 (555) 123-4567',
-            response: 'Mon-Fri, 9 AM - 6 PM PST'
+            title: 'Security Issues',
+            description: 'security@kimuntu.ai',
+            response: 'Emergency security reports'
         }
     ];
 
@@ -164,36 +272,18 @@ const SupportCenter = () => {
                     Find answers to common questions or get in touch with our support team.
                 </p>
 
-                <section className="mb-12">
+                <section className="mb-6">
                     <h3 className={`text-2xl font-semibold mb-6 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                         Frequently Asked Questions
                     </h3>
-                    <div className="space-y-8">
-                        {faqCategories.map((category, catIndex) => (
-                            <div key={catIndex}>
-                                <h4 className={`text-lg font-bold mb-3 pb-2 border-b ${isDark ? 'text-emerald-400 border-white/10' : 'text-emerald-700 border-gray-200'}`}>
-                                    {category.category}
-                                </h4>
-                                <div className="space-y-3">
-                                    {category.faqs.map((faq, index) => (
-                                        <details
-                                            key={index}
-                                            className={`p-5 rounded-xl border ${isDark
-                                                ? 'bg-white/5 border-white/10'
-                                                : 'bg-white/60 border-gray-200'
-                                            }`}
-                                        >
-                                            <summary className={`cursor-pointer font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                                                {faq.question}
-                                            </summary>
-                                            <p className="mt-3">{faq.answer}</p>
-                                        </details>
-                                    ))}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
                 </section>
+
+                {renderFaqSection('General Questions', generalFaqs)}
+                {renderFaqSection('Career Track', careerFaqs)}
+                {renderFaqSection('Business Track', businessFaqs)}
+                {renderFaqSection('Legal Track', legalFaqs)}
+                {renderFaqSection('Pricing & Billing', pricingFaqs)}
+                {renderFaqSection('Refund & Cancellation Policy', refundFaqs)}
 
                 <section className="mb-12">
                     <h3 className={`text-2xl font-semibold mb-6 ${isDark ? 'text-white' : 'text-gray-900'}`}>

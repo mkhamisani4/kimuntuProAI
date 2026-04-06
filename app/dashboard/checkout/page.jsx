@@ -14,8 +14,9 @@ export default function CheckoutPage() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const { isDark } = useTheme();
-    const planId = searchParams.get('plan') || 'monthly';
-    const plan = PLANS[planId] || PLANS.monthly;
+    const planId = searchParams.get('plan') || 'fullPackage';
+    const billingCycle = searchParams.get('billing') || 'monthly';
+    const plan = PLANS[planId] || PLANS.fullPackage;
 
     const [cardNumber, setCardNumber] = useState('');
     const [cardName, setCardName] = useState('');
@@ -91,14 +92,16 @@ export default function CheckoutPage() {
         setProcessing(true);
         await new Promise(resolve => setTimeout(resolve, 2500));
 
+        const selectedPrice = billingCycle === 'yearly' ? plan.yearlyPrice : plan.monthlyPrice;
+        const selectedInterval = billingCycle === 'yearly' ? 'year' : 'month';
         saveMockSubscription(user?.uid, {
             planId: plan.id,
             planName: plan.displayName,
-            price: plan.price,
-            interval: plan.interval,
+            price: selectedPrice,
+            interval: selectedInterval,
             status: 'active',
             startDate: new Date().toISOString(),
-            nextBillingDate: plan.interval === 'month'
+            nextBillingDate: selectedInterval === 'month'
                 ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
                 : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
             cardLast4: cardNumber.replace(/\s/g, '').slice(-4),
@@ -129,7 +132,7 @@ export default function CheckoutPage() {
                         Your Kimuntu Pro AI subscription is now active.
                     </p>
                     <p className={`text-sm mb-8 ${isDark ? 'text-white/40' : 'text-black/40'}`}>
-                        {plan.name} plan — ${plan.price}/{plan.interval}
+                        {plan.name} plan — ${billingCycle === 'yearly' ? plan.yearlyPrice : plan.monthlyPrice}/{billingCycle === 'yearly' ? 'year' : 'month'}
                     </p>
                     <button
                         onClick={() => router.push('/dashboard')}
@@ -303,7 +306,7 @@ export default function CheckoutPage() {
                                 ) : (
                                     <>
                                         <Lock className="w-4 h-4" />
-                                        Subscribe — ${plan.price}/{plan.interval}
+                                        Subscribe — ${(billingCycle === 'yearly' ? plan.yearlyPrice : plan.monthlyPrice)}/{(billingCycle === 'yearly' ? 'year' : 'month')}
                                     </>
                                 )}
                             </button>
@@ -362,7 +365,7 @@ export default function CheckoutPage() {
                         <div className="space-y-3 mb-6">
                             <div className="flex justify-between">
                                 <span className={`text-sm ${isDark ? 'text-white/50' : 'text-black/50'}`}>Subtotal</span>
-                                <span className={`text-sm font-medium ${isDark ? 'text-white' : 'text-gray-900'}`}>${plan.price}</span>
+                                <span className={`text-sm font-medium ${isDark ? 'text-white' : 'text-gray-900'}`}>${(billingCycle === 'yearly' ? plan.yearlyPrice : plan.monthlyPrice)}</span>
                             </div>
                             <div className="flex justify-between">
                                 <span className={`text-sm ${isDark ? 'text-white/50' : 'text-black/50'}`}>Tax</span>
@@ -371,7 +374,7 @@ export default function CheckoutPage() {
                             <div className={`pt-3 border-t flex justify-between ${isDark ? 'border-white/10' : 'border-gray-100'}`}>
                                 <span className={`font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>Total</span>
                                 <span className={`font-bold text-lg ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                                    ${plan.price}/{plan.interval === 'month' ? 'mo' : 'yr'}
+                                    ${(billingCycle === 'yearly' ? plan.yearlyPrice : plan.monthlyPrice)}/{billingCycle === 'yearly' ? 'yr' : 'mo'}
                                 </span>
                             </div>
                         </div>

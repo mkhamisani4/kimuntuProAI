@@ -28,12 +28,12 @@ export default function SubscriptionPage() {
                 .then(res => res.json())
                 .then(data => {
                     if (data.active) {
-                        const plan = PLANS[data.planId] || PLANS.monthly;
+                        const plan = PLANS[data.planId] || PLANS.fullPackage;
                         setSubscription({
                             planId: data.planId,
                             planName: plan.displayName,
-                            price: plan.price,
-                            interval: plan.interval,
+                            price: data.price || plan.monthlyPrice,
+                            interval: data.interval || 'month',
                             status: 'active',
                             startDate: data.subscribedAt || new Date().toISOString(),
                             nextBillingDate: data.currentPeriodEnd || '',
@@ -48,12 +48,12 @@ export default function SubscriptionPage() {
             const stored = getMockSubscription(user.uid);
             if (stored) {
                 // Enrich with plan data
-                const plan = PLANS[stored.planId] || PLANS.monthly;
+                const plan = PLANS[stored.planId] || PLANS.fullPackage;
                 setSubscription({
                     ...stored,
                     planName: plan.displayName,
-                    price: plan.price,
-                    interval: plan.interval,
+                    price: stored.price || plan.monthlyPrice,
+                    interval: stored.interval || 'month',
                 });
             }
             setLoading(false);
@@ -83,7 +83,7 @@ export default function SubscriptionPage() {
 
     const handleReactivate = async () => {
         if (USE_REAL_PAYMENTS) {
-            router.push(`/dashboard/checkout?plan=${subscription?.planId || 'monthly'}`);
+            router.push(`/dashboard/checkout?plan=${subscription?.planId || 'fullPackage'}`);
             return;
         }
         const updated = { ...subscription, status: 'active', cancelledAt: null };
@@ -152,9 +152,7 @@ export default function SubscriptionPage() {
     }
 
     const isActive = subscription.status === 'active';
-    const plan = PLANS[subscription.planId] || PLANS.monthly;
-    const otherPlanId = subscription.planId === 'monthly' ? 'yearly' : 'monthly';
-    const otherPlan = PLANS[otherPlanId];
+    const plan = PLANS[subscription.planId] || PLANS.fullPackage;
 
     const nextBilling = subscription.nextBillingDate
         ? new Date(subscription.nextBillingDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
@@ -237,9 +235,9 @@ export default function SubscriptionPage() {
                                 /{subscription.interval}
                             </span>
                         </div>
-                        {subscription.planId === 'yearly' && (
+                        {subscription.interval === 'year' && plan.savings && (
                             <p className="text-sm text-emerald-400 font-medium mt-1">
-                                {PLANS.yearly.savings}
+                                {plan.savings}
                             </p>
                         )}
                     </div>
@@ -268,7 +266,7 @@ export default function SubscriptionPage() {
                         {isActive ? (
                             <>
                                 <button
-                                    onClick={() => router.push(`/dashboard/checkout?plan=${otherPlanId}`)}
+                                    onClick={() => router.push('/dashboard/pricing')}
                                     className={`flex-1 py-3.5 rounded-xl font-medium text-sm transition-all duration-300 flex items-center justify-center gap-2 hover:scale-[1.02] ${
                                         isDark
                                             ? 'bg-white/5 text-white/70 hover:bg-white/10 border border-white/10'
@@ -276,7 +274,7 @@ export default function SubscriptionPage() {
                                     }`}
                                 >
                                     <RefreshCw className="w-4 h-4" />
-                                    Switch to {otherPlan.name}
+                                    Change Plan
                                 </button>
                                 <button
                                     onClick={() => setShowCancel(true)}

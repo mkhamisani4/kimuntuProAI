@@ -35,12 +35,12 @@ const About = () => {
         <PageWrapper title="About Us">
             <div className={isDark ? 'text-gray-300' : 'text-gray-700'}>
                 <h2 className={`text-3xl font-bold mb-6 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                    About KimuntuPro AI
+                    About Kimuntu AI
                 </h2>
 
                 <section className="mb-10">
                     <p className="text-lg mb-4">
-                        KimuntuPro AI is a revolutionary platform that empowers professionals with AI-driven solutions for career development, business growth, legal assistance, and innovative project management.
+                        Kimuntu AI is a revolutionary platform that empowers professionals with AI-driven solutions for career development, business growth, legal assistance, and innovative project management.
                     </p>
                     <p className="mb-4">
                         Founded with the vision of democratizing access to advanced AI capabilities, we're committed to helping individuals and businesses achieve their full potential through intelligent automation and insights.
@@ -124,7 +124,7 @@ const About = () => {
                         Have questions or want to learn more? Get in touch with us:
                     </p>
                     <p className={isDark ? 'text-emerald-400' : 'text-emerald-600'}>
-                        contact@kimuntupro.com
+                        contact@kimuntu.ai
                     </p>
                 </section>
             </div>

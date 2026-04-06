@@ -113,7 +113,7 @@ const API = () => {
                             }`}>
                             <code>
                                 curl -H "Authorization: Bearer YOUR_API_KEY" \<br />
-                                &nbsp;&nbsp;https://api.kimuntupro.com/v1/projects
+                                &nbsp;&nbsp;https://api.kimuntu.ai/v1/projects
                             </code>
                         </div>
 
@@ -168,7 +168,7 @@ const API = () => {
                         Our developer support team is here to help you integrate successfully.
                     </p>
                     <p className={`${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>
-                        api-support@kimuntupro.com
+                        support@kimuntu.ai
                     </p>
                 </div>
             </div>
