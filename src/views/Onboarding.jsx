@@ -111,7 +111,7 @@ const Onboarding = () => {
                     <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-3">
                             <Image src="/assets/LOGOS(9).svg" alt="Kimuntu" width={28} height={28} />
-                            <span className={`text-sm font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>KimuntuPro</span>
+                            <span className={`text-sm font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>Kimuntu</span>
                         </div>
                         <span className={`text-xs font-medium px-3 py-1 rounded-full ${
                             isDark ? 'bg-emerald-500/10 text-emerald-400' : 'bg-emerald-50 text-emerald-600'

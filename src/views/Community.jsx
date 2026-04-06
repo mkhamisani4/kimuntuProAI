@@ -46,7 +46,7 @@ const Community = () => {
                     Join Our Community
                 </h2>
                 <p className="text-lg mb-10">
-                    Connect with other professionals, share insights, and learn from the KimuntuPro AI community.
+                    Connect with other professionals, share insights, and learn from the Kimuntu AI community.
                 </p>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">

@@ -12,7 +12,7 @@ const Careers = () => {
         {
             title: 'Senior AI Engineer',
             department: 'Engineering',
-            location: 'Remote / San Francisco',
+            location: 'Remote / Ottawa, ON',
             type: 'Full-time',
             icon: Code,
             description: 'Build cutting-edge AI models and systems that power our platform.'
@@ -20,7 +20,7 @@ const Careers = () => {
         {
             title: 'Product Manager',
             department: 'Product',
-            location: 'Remote / San Francisco',
+            location: 'Remote / Ottawa, ON',
             type: 'Full-time',
             icon: TrendingUp,
             description: 'Shape the future of AI-powered professional tools.'
@@ -137,7 +137,7 @@ const Careers = () => {
                         We're always interested in hearing from talented individuals. Send us your resume and let us know what you're passionate about!
                     </p>
                     <p className={`${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>
-                        careers@kimuntupro.com
+                        careers@kimuntu.ai
                     </p>
                 </section>
             </div>

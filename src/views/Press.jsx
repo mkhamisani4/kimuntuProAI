@@ -18,7 +18,7 @@ const Press = () => {
         {
             icon: FileText,
             title: 'Company Fact Sheet',
-            description: 'Key information about KimuntuPro AI',
+            description: 'Key information about Kimuntu AI',
             action: 'Download'
         },
         {
@@ -32,7 +32,7 @@ const Press = () => {
     const coverage = [
         {
             outlet: 'TechCrunch',
-            title: 'KimuntuPro AI Raises $10M to Democratize AI Tools',
+            title: 'Kimuntu AI Raises $10M to Democratize AI Tools',
             date: 'October 2024'
         },
         {
@@ -100,13 +100,13 @@ const Press = () => {
                             : 'bg-white/60 border-gray-200'
                         }`}>
                         <p className="mb-4">
-                            <strong>About KimuntuPro AI:</strong> KimuntuPro AI is a leading AI-powered platform that empowers professionals with advanced tools for career development, business growth, legal assistance, and innovative project management.
+                            <strong>About Kimuntu AI:</strong> Kimuntu AI is a leading AI-powered platform that empowers professionals with advanced tools for career development, business growth, legal assistance, and innovative project management.
                         </p>
                         <p className="mb-4">
                             <strong>Founded:</strong> 2023
                         </p>
                         <p className="mb-4">
-                            <strong>Headquarters:</strong> San Francisco, CA
+                            <strong>Headquarters:</strong> Ottawa, ON, Canada
                         </p>
                         <p className="mb-4">
                             <strong>Employees:</strong> 50+
@@ -159,7 +159,7 @@ const Press = () => {
                         For press inquiries, interviews, or more information, please contact our PR team:
                     </p>
                     <p className={`font-semibold ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>
-                        press@kimuntupro.com
+                        press@kimuntu.ai
                     </p>
                 </section>
             </div>

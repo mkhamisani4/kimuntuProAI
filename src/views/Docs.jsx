@@ -12,7 +12,7 @@ const Docs = () => {
         {
             icon: Rocket,
             title: 'Getting Started',
-            description: 'Quick start guide to begin using KimuntuPro AI',
+            description: 'Quick start guide to begin using Kimuntu AI',
             topics: [
                 'Creating your account',
                 'Setting up your profile',
@@ -62,7 +62,7 @@ const Docs = () => {
                     Documentation
                 </h2>
                 <p className="text-lg mb-10">
-                    Comprehensive guides and tutorials to help you make the most of KimuntuPro AI.
+                    Comprehensive guides and tutorials to help you make the most of Kimuntu AI.
                 </p>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

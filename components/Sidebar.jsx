@@ -48,7 +48,7 @@ export default function Sidebar({ user, t }) {
           >
             <Image
               src="/kimuntu_logo_black.png"
-              alt="KimuntuPro AI Logo"
+              alt="Kimuntu AI Logo"
               width={144}
               height={144}
               className="w-full object-contain"

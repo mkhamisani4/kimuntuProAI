@@ -70,7 +70,7 @@ export default function DashboardLayout({ children }) {
             <div className={`min-h-screen flex items-center justify-center ${isDark ? 'bg-black' : 'bg-gray-50'}`}>
                 <div className="flex flex-col items-center gap-6">
                     <div className="relative">
-                        <Image src="/assets/LOGOS(9).svg" alt="KimuntuPro AI" width={64} height={64} className="animate-float" />
+                        <Image src="/assets/LOGOS(9).svg" alt="Kimuntu AI" width={64} height={64} className="animate-float" />
                         <div className="absolute inset-0 bg-emerald-500/20 rounded-full blur-2xl animate-pulse" />
                     </div>
                     <div className="flex items-center gap-3">
@@ -102,12 +102,12 @@ export default function DashboardLayout({ children }) {
                         >
                             <Image
                                 src="/assets/LOGOS(9).svg"
-                                alt="KimuntuPro AI"
+                                alt="Kimuntu AI"
                                 width={36}
                                 height={36}
                             />
                             <span className={`text-lg font-bold ${isDark ? 'text-white' : 'text-black'}`}>
-                                KimuntuPro
+                                Kimuntu
                             </span>
                         </Link>
                     </div>
