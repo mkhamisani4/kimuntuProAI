@@ -70,6 +70,21 @@ service cloud.firestore {
       allow read, write: if true; // Development mode
     }
 
+    // Marketing keywords
+    match /marketing_keywords/{keywordId} {
+      allow read, write: if true; // Development mode
+    }
+
+    // Marketing campaigns
+    match /marketing_campaigns/{campaignId} {
+      allow read, write: if true; // Development mode
+    }
+
+    // Marketing posts
+    match /marketing_posts/{postId} {
+      allow read, write: if true; // Development mode
+    }
+
     // Default: deny all other access
     match /{document=**} {
       allow read, write: if false;
