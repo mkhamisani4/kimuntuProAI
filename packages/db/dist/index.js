@@ -30,6 +30,12 @@ export { saveKeyword, listKeywords, deleteKeyword, } from './firebase/marketingK
 export { uploadPostMedia, deletePostMedia, } from './firebase/marketingStorage.js';
 // Export Marketing Settings functions
 export { getMarketingSettings, updateMarketingSettings, } from './firebase/marketingSettings.js';
+// Export Email Campaign CRUD
+export { createEmailCampaign, getEmailCampaign, listEmailCampaigns, getEmailCampaignByMailchimpId, updateEmailCampaign, deleteEmailCampaign, } from './firebase/emailCampaigns.js';
+// Export Email Analytics functions
+export { createEmailAnalyticsEvent, emailAnalyticsEventExists, listEmailAnalyticsEvents, countEmailAnalyticsEvents, } from './firebase/emailAnalytics.js';
+// Export Email Error Log functions
+export { createEmailErrorLog, listEmailErrorLogs, listPendingRetryErrors, updateEmailErrorLog, deleteEmailErrorLog, } from './firebase/emailErrorLog.js';
 /**
  * Connect to Firebase (client initializes automatically)
  */

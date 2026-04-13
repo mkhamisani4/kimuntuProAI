@@ -41,6 +41,12 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       );
     }
 
+    // Use localhost for post-OAuth redirects so the rest of the app
+    // (Firebase Auth, etc.) stays on the localhost origin.
+    // The redirect URI itself uses 127.0.0.1 to satisfy Mailchimp's requirement,
+    // but both resolve to the same dev server.
+    const baseUrl = 'http://localhost:3000';
+
     // Exchange code for access token
     const tokenResponse = await fetch('https://login.mailchimp.com/oauth2/token', {
       method: 'POST',
@@ -58,7 +64,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       const errorText = await tokenResponse.text();
       console.error('[API] Mailchimp token exchange failed:', errorText);
       return NextResponse.redirect(
-        new URL('/dashboard/business/marketing/email?error=token_exchange_failed', req.url)
+        new URL('/dashboard/business/marketing/email?error=token_exchange_failed', baseUrl)
       );
     }
 
@@ -73,7 +79,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     if (!metadataResponse.ok) {
       console.error('[API] Mailchimp metadata fetch failed');
       return NextResponse.redirect(
-        new URL('/dashboard/business/marketing/email?error=metadata_failed', req.url)
+        new URL('/dashboard/business/marketing/email?error=metadata_failed', baseUrl)
       );
     }
 
@@ -89,7 +95,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     console.log(`[API] Mailchimp OAuth complete for tenant ${tenantId}, server: ${server}`);
 
     return NextResponse.redirect(
-      new URL('/dashboard/business/marketing/email?connected=true', req.url)
+      new URL('/dashboard/business/marketing/email?connected=true', baseUrl)
     );
   } catch (error: any) {
     console.error('[API] Mailchimp OAuth callback error:', error);

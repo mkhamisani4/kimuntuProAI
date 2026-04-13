@@ -11,6 +11,7 @@ interface CampaignEditorProps {
   userId: string;
   settings: MarketingSettings;
   campaign: EmailCampaign | null;
+  initialHtml?: string | null;
   onSave: () => void;
   onCancel: () => void;
 }
@@ -20,13 +21,14 @@ export default function CampaignEditor({
   userId,
   settings,
   campaign,
+  initialHtml,
   onSave,
   onCancel,
 }: CampaignEditorProps) {
   const [title, setTitle] = useState(campaign?.title || '');
   const [subject, setSubject] = useState(campaign?.subject || '');
   const [previewText, setPreviewText] = useState(campaign?.previewText || '');
-  const [htmlContent, setHtmlContent] = useState(campaign?.htmlContent || '');
+  const [htmlContent, setHtmlContent] = useState(initialHtml || campaign?.htmlContent || '');
   const [isSaving, setIsSaving] = useState(false);
   const [isGeneratingSubjects, setIsGeneratingSubjects] = useState(false);
   const [subjectSuggestions, setSubjectSuggestions] = useState<string[]>([]);
