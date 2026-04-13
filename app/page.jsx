@@ -258,7 +258,7 @@ export default function LandingPage() {
             <div className={`min-h-screen flex items-center justify-center ${isDark ? 'bg-black' : 'bg-white'}`}>
                 <div className="flex flex-col items-center gap-4">
                     <div className="relative">
-                        <Image src="/assets/LOGOS(9).svg" alt="Kimuntu" width={80} height={80} className="animate-float" />
+                        <Image src="/assets/new_single_logo.png" alt="Kimuntu" width={96} height={96} className="animate-float" />
                         <div className="absolute inset-0 bg-emerald-500/20 rounded-full blur-2xl animate-pulse" />
                     </div>
                     <div className={`text-2xl font-semibold ${isDark ? 'text-white' : 'text-black'}`}>
@@ -299,11 +299,12 @@ export default function LandingPage() {
                 : 'bg-white/60 border-black/5'
             }`}>
                 <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-                    <div className="flex items-center gap-3">
-                        <Image src="/assets/LOGOS(9).svg" alt="Kimuntu Logo" width={40} height={40} />
-                        <span className={`text-xl font-bold ${isDark ? 'text-white' : 'text-black'}`}>
-                            Kimuntu
-                        </span>
+                    <div className="flex items-center">
+                        <img
+                            src={isDark ? '/assets/new_darkmode_logo.png' : '/assets/new_light_mode_logo.png'}
+                            alt="Kimuntu AI Logo"
+                            className="h-12 w-auto object-contain"
+                        />
                     </div>
                     <div className="flex items-center gap-4">
                         <button
@@ -355,7 +356,7 @@ export default function LandingPage() {
                     </h1>
 
                     {/* Subtitle */}
-                    <p className={`text-lg sm:text-xl max-w-2xl mx-auto mb-10 ${isDark ? 'text-white/60' : 'text-black/60'}`} style={{ opacity: heroInView ? 1 : 0, transform: heroInView ? 'translateY(0)' : 'translateY(30px)', transition: 'opacity 0.8s ease 0.2s, transform 0.8s ease 0.2s' }}>
+                    <p className={`text-lg sm:text-xl max-w-2xl mx-auto mb-10 ${isDark ? 'text-white/60' : 'text-black'}`} style={{ opacity: heroInView ? 1 : 0, transform: heroInView ? 'translateY(0)' : 'translateY(30px)', transition: 'opacity 0.8s ease 0.2s, transform 0.8s ease 0.2s' }}>
                         Career development, business growth, legal assistance, and innovation
                         — all powered by cutting-edge artificial intelligence in one platform.
                     </p>
@@ -398,10 +399,10 @@ export default function LandingPage() {
                                 : 'bg-white border border-black/5 shadow-sm hover:shadow-md'
                             }`}>
                                 <pill.icon className={`w-4 h-4 ${pill.color} group-hover:scale-110 transition-transform`} />
-                                <span className={`text-sm font-medium ${isDark ? 'text-white/80' : 'text-black/80'}`}>
+                                <span className={`text-sm font-medium ${isDark ? 'text-white/80' : 'text-black'}`}>
                                     {pill.label}
                                 </span>
-                                <span className={`text-xs font-semibold ${isDark ? 'text-white/40' : 'text-black/40'}`}>
+                                <span className={`text-xs font-semibold ${isDark ? 'text-white/40' : 'text-black'}`}>
                                     {pill.price}
                                 </span>
                             </div>
@@ -477,7 +478,7 @@ export default function LandingPage() {
                                 <div className={`text-3xl sm:text-4xl font-bold mb-1 ${isDark ? 'text-white' : 'text-black'}`}>
                                     <AnimatedCounter end={stat.value} suffix={stat.suffix} />
                                 </div>
-                                <div className={`text-sm ${isDark ? 'text-white/50' : 'text-black/50'}`}>{stat.label}</div>
+                                <div className={`text-sm ${isDark ? 'text-white/50' : 'text-black'}`}>{stat.label}</div>
                             </div>
                         ))}
                     </div>
@@ -494,7 +495,7 @@ export default function LandingPage() {
                                 Kimuntu
                             </span>
                         </h2>
-                        <p className={`text-lg max-w-2xl mx-auto ${isDark ? 'text-white/50' : 'text-black/50'}`} style={{ opacity: featuresInView ? 1 : 0, transform: featuresInView ? 'translateY(0)' : 'translateY(30px)', transition: 'opacity 0.8s ease 0.1s, transform 0.8s ease 0.1s' }}>
+                        <p className={`text-lg max-w-2xl mx-auto ${isDark ? 'text-white/50' : 'text-black'}`} style={{ opacity: featuresInView ? 1 : 0, transform: featuresInView ? 'translateY(0)' : 'translateY(30px)', transition: 'opacity 0.8s ease 0.1s, transform 0.8s ease 0.1s' }}>
                             A single platform that combines AI power with professional tools
                         </p>
                     </div>
@@ -518,7 +519,7 @@ export default function LandingPage() {
                                 <h3 className={`text-lg font-semibold mb-2 transition-colors duration-300 ${isDark ? 'text-white group-hover:text-emerald-300' : 'text-black group-hover:text-emerald-700'}`}>
                                     {feature.title}
                                 </h3>
-                                <p className={`text-sm leading-relaxed ${isDark ? 'text-white/50' : 'text-black/50'}`}>
+                                <p className={`text-sm leading-relaxed ${isDark ? 'text-white/50' : 'text-black'}`}>
                                     {feature.description}
                                 </p>
                             </div>
@@ -537,7 +538,7 @@ export default function LandingPage() {
                                 AI Tracks
                             </span>
                         </h2>
-                        <p className={`text-lg max-w-2xl mx-auto ${isDark ? 'text-white/50' : 'text-black/50'}`} style={{ opacity: tracksInView ? 1 : 0, transform: tracksInView ? 'translateY(0)' : 'translateY(30px)', transition: 'opacity 0.8s ease 0.1s, transform 0.8s ease 0.1s' }}>
+                        <p className={`text-lg max-w-2xl mx-auto ${isDark ? 'text-white/50' : 'text-black'}`} style={{ opacity: tracksInView ? 1 : 0, transform: tracksInView ? 'translateY(0)' : 'translateY(30px)', transition: 'opacity 0.8s ease 0.1s, transform 0.8s ease 0.1s' }}>
                             Specialized AI tools for every aspect of your professional journey
                         </p>
                     </div>
@@ -585,7 +586,7 @@ export default function LandingPage() {
                                                 </span>
                                             </div>
                                         </div>
-                                        <p className={`track-description text-sm mb-5 leading-relaxed ${isDark ? 'text-white/65' : 'text-gray-600'}`}>
+                                        <p className={`track-description text-sm mb-5 leading-relaxed ${isDark ? 'text-white/65' : 'text-black'}`}>
                                             {track.description}
                                         </p>
                                         <div className="track-features flex flex-wrap gap-2">
@@ -594,7 +595,7 @@ export default function LandingPage() {
                                                     key={j}
                                                     className={`text-xs px-3 py-1.5 rounded-lg font-medium transition-all duration-300 group-hover:scale-105 ${isDark
                                                         ? 'bg-white/8 text-white/75 border border-white/12 group-hover:bg-white/14 group-hover:border-white/25 group-hover:text-white'
-                                                        : 'bg-gray-100 text-gray-600 border border-gray-200 group-hover:bg-gray-200 group-hover:text-gray-900'
+                                                        : 'bg-gray-100 text-black border border-gray-200 group-hover:bg-gray-200 group-hover:text-gray-900'
                                                     }`}
                                                     style={{ transitionDelay: `${j * 50}ms` }}
                                                 >
@@ -631,7 +632,7 @@ export default function LandingPage() {
                                         BEST VALUE
                                     </span>
                                 </div>
-                                <p className={`text-sm ${isDark ? 'text-white/60' : 'text-black/60'}`}>
+                                <p className={`text-sm ${isDark ? 'text-white/60' : 'text-black'}`}>
                                     Get everything for <strong className={isDark ? 'text-white' : 'text-black'}>$99/month</strong> (save $60.96/month vs. buying separately) — includes 5 free Live Avatar sessions, priority AI processing, and dedicated account manager.
                                 </p>
                             </div>
@@ -673,12 +674,12 @@ export default function LandingPage() {
                                         <Star key={j} className="w-4 h-4 text-amber-400 fill-amber-400" />
                                     ))}
                                 </div>
-                                <p className={`text-sm mb-4 leading-relaxed ${isDark ? 'text-white/70' : 'text-black/70'}`}>
+                                <p className={`text-sm mb-4 leading-relaxed ${isDark ? 'text-white/70' : 'text-black'}`}>
                                     &ldquo;{t.text}&rdquo;
                                 </p>
                                 <div>
                                     <div className={`font-semibold text-sm ${isDark ? 'text-white' : 'text-black'}`}>{t.name}</div>
-                                    <div className={`text-xs ${isDark ? 'text-white/40' : 'text-black/40'}`}>{t.role}</div>
+                                    <div className={`text-xs ${isDark ? 'text-white/40' : 'text-black'}`}>{t.role}</div>
                                 </div>
                             </div>
                         ))}
@@ -689,7 +690,7 @@ export default function LandingPage() {
             {/* ====== MARQUEE TRUSTED BY ====== */}
             <section className="relative z-10 py-16 overflow-hidden">
                 <div className="text-center mb-10">
-                    <p className={`text-xs font-semibold tracking-[0.2em] uppercase ${isDark ? 'text-white/30' : 'text-black/30'}`}>
+                    <p className={`text-xs font-semibold tracking-[0.2em] uppercase ${isDark ? 'text-white/30' : 'text-black'}`}>
                         Powered by Industry Leaders
                     </p>
                 </div>
@@ -731,7 +732,7 @@ export default function LandingPage() {
                                         key={item.name}
                                         className={`flex items-center gap-3 px-6 py-3 rounded-2xl transition-all duration-500 cursor-default group/logo ${isDark
                                             ? 'text-white/20 hover:text-white/80 hover:bg-white/5 hover:shadow-[0_0_30px_rgba(16,185,129,0.15)]'
-                                            : 'text-black/15 hover:text-black/70 hover:bg-black/5 hover:shadow-[0_0_30px_rgba(16,185,129,0.1)]'
+                                            : 'text-black hover:text-black hover:bg-black/5 hover:shadow-[0_0_30px_rgba(16,185,129,0.1)]'
                                         }`}
                                     >
                                         <div className="transition-all duration-500 group-hover/logo:scale-110 group-hover/logo:drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]">
@@ -760,20 +761,20 @@ export default function LandingPage() {
                                 Every Need
                             </span>
                         </h2>
-                        <p className={`text-lg max-w-2xl mx-auto ${isDark ? 'text-white/50' : 'text-black/50'}`}>
+                        <p className={`text-lg max-w-2xl mx-auto ${isDark ? 'text-white/50' : 'text-black'}`}>
                             Start free, pick an individual track, or unlock everything with the Full Package.
                         </p>
 
                         {/* Billing toggle */}
                         <div className="flex items-center justify-center gap-4 mt-8">
-                            <span className={`text-sm font-medium ${!isYearly ? (isDark ? 'text-white' : 'text-black') : (isDark ? 'text-white/40' : 'text-black/40')}`}>Monthly</span>
+                            <span className={`text-sm font-medium ${!isYearly ? (isDark ? 'text-white' : 'text-black') : (isDark ? 'text-white/40' : 'text-black')}`}>Monthly</span>
                             <button
                                 onClick={() => setIsYearly(!isYearly)}
                                 className={`relative w-14 h-7 rounded-full transition-all duration-300 ${isYearly ? 'bg-emerald-500' : isDark ? 'bg-white/10' : 'bg-black/10'}`}
                             >
                                 <div className={`absolute top-0.5 w-6 h-6 rounded-full bg-white shadow-md transition-all duration-300`} style={{ left: isYearly ? '1.75rem' : '0.125rem' }} />
                             </button>
-                            <span className={`text-sm font-medium ${isYearly ? (isDark ? 'text-white' : 'text-black') : (isDark ? 'text-white/40' : 'text-black/40')}`}>
+                            <span className={`text-sm font-medium ${isYearly ? (isDark ? 'text-white' : 'text-black') : (isDark ? 'text-white/40' : 'text-black')}`}>
                                 Yearly
                                 <span className="ml-1.5 text-xs text-emerald-400 font-semibold">Save 20%</span>
                             </span>
@@ -789,16 +790,16 @@ export default function LandingPage() {
                             {isDark && <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />}
                             <div className="relative z-10">
                                 <h3 className={`text-lg font-bold mb-1 ${isDark ? 'text-white' : 'text-black'}`}>Free</h3>
-                                <p className={`text-sm mb-6 ${isDark ? 'text-white/40' : 'text-black/40'}`}>Explore and get started</p>
+                                <p className={`text-sm mb-6 ${isDark ? 'text-white/40' : 'text-black'}`}>Explore and get started</p>
 
                                 <div className="flex items-baseline gap-1 mb-8">
                                     <span className={`text-5xl font-bold ${isDark ? 'text-white' : 'text-black'}`}>$0</span>
-                                    <span className={`text-sm ${isDark ? 'text-white/40' : 'text-black/40'}`}>/forever</span>
+                                    <span className={`text-sm ${isDark ? 'text-white/40' : 'text-black'}`}>/forever</span>
                                 </div>
 
                                 <button
                                     onClick={scrollToAuth}
-                                    className={`w-full py-3.5 rounded-xl font-semibold text-sm transition-all duration-300 hover:scale-[1.02] mb-8 ${isDark ? 'bg-white/5 text-white/70 hover:bg-white/10 border border-white/10' : 'bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200'}`}
+                                    className={`w-full py-3.5 rounded-xl font-semibold text-sm transition-all duration-300 hover:scale-[1.02] mb-8 ${isDark ? 'bg-white/5 text-white/70 hover:bg-white/10 border border-white/10' : 'bg-gray-50 text-black hover:bg-gray-100 border border-gray-200'}`}
                                 >
                                     Get Started Free
                                 </button>
@@ -807,9 +808,9 @@ export default function LandingPage() {
                                     {['3 CV generations/month (watermarked)', '1 Business Plan preview', 'Legal Chatbot: 5 questions/month', '1 free Live Avatar session (10 min)', 'Community access & Resource Hub'].map((f, i) => (
                                         <div key={i} className="flex items-center gap-3">
                                             <div className={`w-5 h-5 rounded-full flex items-center justify-center ${isDark ? 'bg-white/5' : 'bg-gray-100'}`}>
-                                                <Check className={`w-3 h-3 ${isDark ? 'text-white/40' : 'text-black/40'}`} />
+                                                <Check className={`w-3 h-3 ${isDark ? 'text-white/40' : 'text-black'}`} />
                                             </div>
-                                            <span className={`text-sm ${isDark ? 'text-white/60' : 'text-black/60'}`}>{f}</span>
+                                            <span className={`text-sm ${isDark ? 'text-white/60' : 'text-black'}`}>{f}</span>
                                         </div>
                                     ))}
                                 </div>
@@ -824,12 +825,12 @@ export default function LandingPage() {
                             {isDark && <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />}
                             <div className="relative z-10">
                                 <h3 className={`text-lg font-bold mb-1 ${isDark ? 'text-white' : 'text-black'}`}>Individual Tracks</h3>
-                                <p className={`text-sm mb-6 ${isDark ? 'text-white/40' : 'text-black/40'}`}>Pick the track you need</p>
+                                <p className={`text-sm mb-6 ${isDark ? 'text-white/40' : 'text-black'}`}>Pick the track you need</p>
 
                                 <div className="flex items-baseline gap-1 mb-2">
                                     <span className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-black'}`}>From</span>
                                     <span className={`text-5xl font-bold ${isDark ? 'text-white' : 'text-black'}`}>{isYearly ? '$191.90' : '$19.99'}</span>
-                                    <span className={`text-sm ${isDark ? 'text-white/40' : 'text-black/40'}`}>/{isYearly ? 'yr' : 'mo'}</span>
+                                    <span className={`text-sm ${isDark ? 'text-white/40' : 'text-black'}`}>/{isYearly ? 'yr' : 'mo'}</span>
                                 </div>
                                 <div className="mb-8" />
 
@@ -852,9 +853,9 @@ export default function LandingPage() {
                                                 <div className={`w-5 h-5 rounded-full flex items-center justify-center bg-emerald-500/15`}>
                                                     <Check className="w-3 h-3 text-emerald-400" />
                                                 </div>
-                                                <span className={`text-sm ${isDark ? 'text-white/70' : 'text-black/70'}`}>{track.name}</span>
+                                                <span className={`text-sm ${isDark ? 'text-white/70' : 'text-black'}`}>{track.name}</span>
                                             </div>
-                                            <span className={`text-xs font-medium ${isDark ? 'text-white/40' : 'text-black/40'}`}>{track.price}</span>
+                                            <span className={`text-xs font-medium ${isDark ? 'text-white/40' : 'text-black'}`}>{track.price}</span>
                                         </div>
                                     ))}
                                 </div>
@@ -879,13 +880,13 @@ export default function LandingPage() {
 
                             <div className="relative z-10">
                                 <h3 className={`text-lg font-bold mb-1 ${isDark ? 'text-white' : 'text-black'}`}>Full Package</h3>
-                                <p className={`text-sm mb-6 ${isDark ? 'text-white/40' : 'text-black/40'}`}>All 4 tracks — maximum value</p>
+                                <p className={`text-sm mb-6 ${isDark ? 'text-white/40' : 'text-black'}`}>All 4 tracks — maximum value</p>
 
                                 <div className="flex items-baseline gap-1 mb-2">
                                     <span className={`text-5xl font-bold bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent`}>
                                         ${isYearly ? PLANS.fullPackage.yearlyPrice : PLANS.fullPackage.monthlyPrice}
                                     </span>
-                                    <span className={`text-sm ${isDark ? 'text-white/40' : 'text-black/40'}`}>
+                                    <span className={`text-sm ${isDark ? 'text-white/40' : 'text-black'}`}>
                                         /{isYearly ? 'year' : 'month'}
                                     </span>
                                 </div>
@@ -909,7 +910,7 @@ export default function LandingPage() {
                                             <div className="w-5 h-5 rounded-full flex items-center justify-center bg-emerald-500/15">
                                                 <Check className="w-3 h-3 text-emerald-400" />
                                             </div>
-                                            <span className={`text-sm ${isDark ? 'text-white/80' : 'text-black/80'}`}>{f}</span>
+                                            <span className={`text-sm ${isDark ? 'text-white/80' : 'text-black'}`}>{f}</span>
                                         </div>
                                     ))}
                                 </div>
@@ -924,7 +925,7 @@ export default function LandingPage() {
                             { icon: CreditCard, text: 'Secure Payments' },
                             { icon: RefreshCw, text: 'Cancel Anytime' },
                         ].map((badge, i) => (
-                            <div key={i} className={`flex items-center gap-2 text-xs font-medium ${isDark ? 'text-white/30' : 'text-black/30'}`}>
+                            <div key={i} className={`flex items-center gap-2 text-xs font-medium ${isDark ? 'text-white/30' : 'text-black'}`}>
                                 <badge.icon className="w-4 h-4" />
                                 {badge.text}
                             </div>
@@ -946,7 +947,7 @@ export default function LandingPage() {
                                     Your Workflow?
                                 </span>
                             </h2>
-                            <p className={`text-lg mb-8 ${isDark ? 'text-white/50' : 'text-black/50'}`}>
+                            <p className={`text-lg mb-8 ${isDark ? 'text-white/50' : 'text-black'}`}>
                                 Join thousands of professionals who use Kimuntu to accelerate their career, grow their business, and navigate legal complexities with AI.
                             </p>
 
@@ -959,7 +960,7 @@ export default function LandingPage() {
                                 ].map((item, i) => (
                                     <div key={i} className="flex items-center gap-3">
                                         <CheckCircle2 className={`w-5 h-5 shrink-0 ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`} />
-                                        <span className={`text-sm ${isDark ? 'text-white/70' : 'text-black/70'}`}>{item}</span>
+                                        <span className={`text-sm ${isDark ? 'text-white/70' : 'text-black'}`}>{item}</span>
                                     </div>
                                 ))}
                             </div>
@@ -979,21 +980,21 @@ export default function LandingPage() {
                                 <div className="relative z-10">
                                     <div className="text-center mb-8">
                                         <div className="relative inline-block mb-4">
-                                            <Image src="/assets/LOGOS(9).svg" alt="Logo" width={64} height={64} className="animate-float" />
+                                            <Image src="/assets/new_single_logo.png" alt="Logo" width={80} height={80} className="animate-float" />
                                         </div>
                                         <h2 className={`text-2xl font-bold mb-2 ${isDark ? 'text-white' : 'text-black'}`}>
                                             {isLogin ? 'Welcome Back' : 'Get Started'}
                                         </h2>
-                                        <p className={`text-sm ${isDark ? 'text-white/50' : 'text-black/50'}`}>
+                                        <p className={`text-sm ${isDark ? 'text-white/50' : 'text-black'}`}>
                                             {isLogin ? 'Sign in to continue your journey' : 'Create your account today'}
                                         </p>
                                     </div>
 
                                     <div className="space-y-4">
                                         <div>
-                                            <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-white/80' : 'text-black/80'}`}>Email</label>
+                                            <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-white/80' : 'text-black'}`}>Email</label>
                                             <div className="relative">
-                                                <Mail className={`absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 ${isDark ? 'text-white/30' : 'text-black/30'}`} />
+                                                <Mail className={`absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 ${isDark ? 'text-white/30' : 'text-black'}`} />
                                                 <input
                                                     type="email"
                                                     value={email}
@@ -1010,9 +1011,9 @@ export default function LandingPage() {
                                         </div>
 
                                         <div>
-                                            <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-white/80' : 'text-black/80'}`}>Password</label>
+                                            <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-white/80' : 'text-black'}`}>Password</label>
                                             <div className="relative">
-                                                <Lock className={`absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 ${isDark ? 'text-white/30' : 'text-black/30'}`} />
+                                                <Lock className={`absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 ${isDark ? 'text-white/30' : 'text-black'}`} />
                                                 <input
                                                     type="password"
                                                     value={password}
@@ -1058,7 +1059,7 @@ export default function LandingPage() {
                                             <div className={`w-full border-t ${isDark ? 'border-white/10' : 'border-black/10'}`} />
                                         </div>
                                         <div className="relative flex justify-center text-sm">
-                                            <span className={`px-3 ${isDark ? 'bg-black text-white/40' : 'bg-white text-black/40'}`}>or</span>
+                                            <span className={`px-3 ${isDark ? 'bg-black text-white/40' : 'bg-white text-black'}`}>or</span>
                                         </div>
                                     </div>
 
@@ -1074,7 +1075,7 @@ export default function LandingPage() {
                                         Continue with Google
                                     </button>
 
-                                    <p className={`text-center text-sm mt-6 ${isDark ? 'text-white/40' : 'text-black/40'}`}>
+                                    <p className={`text-center text-sm mt-6 ${isDark ? 'text-white/40' : 'text-black'}`}>
                                         {isLogin ? "Don't have an account? " : "Already have an account? "}
                                         <button
                                             onClick={() => {

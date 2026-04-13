@@ -70,7 +70,7 @@ export default function DashboardLayout({ children }) {
             <div className={`min-h-screen flex items-center justify-center ${isDark ? 'bg-black' : 'bg-gray-50'}`}>
                 <div className="flex flex-col items-center gap-6">
                     <div className="relative">
-                        <Image src="/assets/LOGOS(9).svg" alt="Kimuntu AI" width={64} height={64} className="animate-float" />
+                        <Image src="/assets/new_single_logo.png" alt="Kimuntu AI" width={80} height={80} className="animate-float" />
                         <div className="absolute inset-0 bg-emerald-500/20 rounded-full blur-2xl animate-pulse" />
                     </div>
                     <div className="flex items-center gap-3">
@@ -98,17 +98,13 @@ export default function DashboardLayout({ children }) {
                     <div className="p-6 flex-shrink-0">
                         <Link
                             href="/dashboard"
-                            className="flex items-center gap-3 mb-8 hover:opacity-80 transition-opacity cursor-pointer w-full"
+                            className="flex items-center mb-8 hover:opacity-80 transition-opacity cursor-pointer"
                         >
-                            <Image
-                                src="/assets/LOGOS(9).svg"
+                            <img
+                                src={isDark ? '/assets/new_darkmode_logo.png' : '/assets/new_light_mode_logo.png'}
                                 alt="Kimuntu AI"
-                                width={36}
-                                height={36}
+                                className="h-12 w-auto object-contain"
                             />
-                            <span className={`text-lg font-bold ${isDark ? 'text-white' : 'text-black'}`}>
-                                Kimuntu
-                            </span>
                         </Link>
                     </div>
 
@@ -126,7 +122,7 @@ export default function DashboardLayout({ children }) {
                                             : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                                         : isDark
                                             ? 'text-white/50 hover:bg-white/5 hover:text-white border border-transparent'
-                                            : 'text-black/50 hover:bg-black/5 hover:text-black border border-transparent'
+                                            : 'text-black hover:bg-black/5 hover:text-black border border-transparent'
                                     }`}
                                 >
                                     <item.icon className="w-[18px] h-[18px]" />
@@ -148,7 +144,7 @@ export default function DashboardLayout({ children }) {
                                 {(user?.displayName || user?.email || '?').charAt(0).toUpperCase()}
                             </div>
                             <div className="flex-1 min-w-0">
-                                <p className={`text-xs ${isDark ? 'text-white/40' : 'text-black/40'}`}>
+                                <p className={`text-xs ${isDark ? 'text-white/40' : 'text-black'}`}>
                                     {t.loggedInAs}
                                 </p>
                                 <p className={`text-sm font-medium truncate ${isDark ? 'text-white' : 'text-black'}`}>
@@ -160,7 +156,7 @@ export default function DashboardLayout({ children }) {
                             onClick={handleSignOut}
                             className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm transition-all ${isDark
                                 ? 'bg-white/5 text-white/60 hover:bg-white/10 hover:text-white border border-white/10'
-                                : 'bg-black/5 text-black/60 hover:bg-black/10 hover:text-black border border-black/5'
+                                : 'bg-black/5 text-black hover:bg-black/10 hover:text-black border border-black/5'
                             }`}
                         >
                             <LogOut className="w-4 h-4" />
