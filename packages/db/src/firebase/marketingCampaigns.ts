@@ -17,9 +17,9 @@ import {
   doc,
   updateDoc,
   deleteDoc,
-} from './client.js';
+} from './client';
 
-import type { MarketingCampaign } from './marketing.js';
+import type { MarketingCampaign } from './marketing';
 
 /**
  * Create a new marketing campaign

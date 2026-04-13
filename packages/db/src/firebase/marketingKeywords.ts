@@ -15,9 +15,9 @@ import {
   getDocs,
   doc,
   deleteDoc,
-} from './client.js';
+} from './client';
 
-import type { MarketingKeyword } from './marketing.js';
+import type { MarketingKeyword } from './marketing';
 
 /**
  * Save a keyword to tracking

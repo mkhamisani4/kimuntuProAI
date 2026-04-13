@@ -12,7 +12,7 @@ import {
   where,
   orderBy,
   getDocs,
-} from './client.js';
+} from './client';
 
 /**
  * Usage row for insertion

@@ -12,9 +12,9 @@ import {
   getDocs,
   doc,
   setDoc,
-} from './client.js';
+} from './client';
 
-import type { MarketingSettings } from './marketing.js';
+import type { MarketingSettings } from './marketing';
 
 /**
  * Get marketing settings for a tenant/user

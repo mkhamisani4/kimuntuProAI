@@ -13,9 +13,9 @@ import {
   orderBy,
   limit,
   getDocs,
-} from './client.js';
+} from './client';
 
-import type { EmailAnalyticsEvent } from './marketing.js';
+import type { EmailAnalyticsEvent } from './marketing';
 
 /**
  * Write an analytics event

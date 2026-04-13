@@ -15,7 +15,7 @@ import {
   getDocs,
   getDoc,
   doc,
-} from './client.js';
+} from './client';
 
 /**
  * Document metadata interface

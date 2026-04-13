@@ -16,9 +16,9 @@ import {
   doc,
   updateDoc,
   deleteDoc,
-} from './client.js';
+} from './client';
 
-import type { EmailErrorLog } from './marketing.js';
+import type { EmailErrorLog } from './marketing';
 
 /**
  * Create an error log entry

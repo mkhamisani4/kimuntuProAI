@@ -4,7 +4,7 @@
  */
 
 import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
-import { app } from './client.js';
+import { app } from './client';
 
 const storage = getStorage(app);
 

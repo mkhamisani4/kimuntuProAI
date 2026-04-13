@@ -16,7 +16,7 @@ import {
   getDoc,
   doc,
   deleteDoc,
-} from './client.js';
+} from './client';
 
 /**
  * Assistant result document

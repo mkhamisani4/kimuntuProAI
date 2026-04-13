@@ -17,7 +17,7 @@ import {
   doc,
   updateDoc,
   deleteDoc,
-} from './client.js';
+} from './client';
 
 /**
  * Logo version history entry

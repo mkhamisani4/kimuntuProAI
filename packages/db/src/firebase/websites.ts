@@ -17,7 +17,7 @@ import {
   doc,
   updateDoc,
   deleteDoc,
-} from './client.js';
+} from './client';
 
 /**
  * Website document (matches Firestore schema)

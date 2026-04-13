@@ -17,9 +17,9 @@ import {
   doc,
   updateDoc,
   deleteDoc,
-} from './client.js';
+} from './client';
 
-import type { EmailCampaign } from './marketing.js';
+import type { EmailCampaign } from './marketing';
 
 /**
  * Create a new email campaign
