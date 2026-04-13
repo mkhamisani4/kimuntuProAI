@@ -11,16 +11,16 @@
       "import": "./dist/index.js"
     },
     "./firebase/websites.server": {
-      "types": "./dist/firebase/websites.server.d.ts",
-      "import": "./dist/firebase/websites.server.js"
+      "types": "./src/firebase/websites.server.ts",
+      "import": "./src/firebase/websites.server.ts"
     },
     "./firebase/assistantResults.server": {
-      "types": "./dist/firebase/assistantResults.server.d.ts",
-      "import": "./dist/firebase/assistantResults.server.js"
+      "types": "./src/firebase/assistantResults.server.ts",
+      "import": "./src/firebase/assistantResults.server.ts"
     },
     "./firebase/logos.server": {
-      "types": "./dist/firebase/logos.server.d.ts",
-      "import": "./dist/firebase/logos.server.js"
+      "types": "./src/firebase/logos.server.ts",
+      "import": "./src/firebase/logos.server.ts"
     }
   },
   "scripts": {
