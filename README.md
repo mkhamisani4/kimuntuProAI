@@ -5,10 +5,10 @@ Kimuntu AI is an AI-powered platform built to help people turn ideas, goals, and
 ## Credits
 Mohammed Khamisani, Tyler Jarvis, Pranav Sagar, Theodore Zhang
 
-Mohammed Khamisani: Career Track and Legal AI
-Tyler Jarvis: Business Track and Migrations
-Pranav Sagar: Innovation Track, UI, and Database
-Theodore Zhang: Legal Track and Administration Functions
+- Mohammed Khamisani: Career Track and Legal AI
+- Tyler Jarvis: Business Track and Migrations
+- Pranav Sagar: Innovation Track, UI, and Database
+- Theodore Zhang: Legal Track and Administration Functions
 
 Project coordinated under the supervision of Kimuntu Power Inc. and Founder Yannick Nkayilu Salomon.
 
