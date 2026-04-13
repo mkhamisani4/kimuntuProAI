@@ -1,6 +1,9 @@
 /** @type {import('next').NextConfig} */
 const path = require('path');
 const nextConfig = {
+    // Load pdf-parse (and its bundled pdfjs-dist) via native Node.js require
+    // instead of being bundled by webpack — avoids Object.defineProperty crash.
+    serverExternalPackages: ['pdf-parse'],
     // Disable TypeScript errors during build (only show warnings)
     typescript: {
         ignoreBuildErrors: false, // Set to true to completely ignore TS errors

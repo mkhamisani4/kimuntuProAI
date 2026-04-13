@@ -1,16 +1,17 @@
 /**
  * POST /api/ai/career-assistant
  * Server-side AI endpoint for career track assistant features
- * Replaces client-side OpenAI calls from services/openaiService.js
+ * Uses OpenAI for career track assistant features
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import Anthropic from '@anthropic-ai/sdk';
+import OpenAI from 'openai';
 
 const ACTIONS = [
   'tailorResume',
   'generateCoverLetter',
   'chatJobAssistant',
+  'chatPersonalAssistant',
   'generateInterviewQuestions',
 ] as const;
 
@@ -28,24 +29,24 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       );
     }
 
-    const apiKey = process.env.ANTHROPIC_API_KEY;
+    const apiKey = process.env.OPENAI_API_KEY || process.env.NEXT_PUBLIC_OPENAI_API_KEY;
     if (!apiKey) {
       return NextResponse.json(
-        { error: 'Anthropic API key is not configured' },
+        { error: 'OpenAI API key is not configured' },
         { status: 503 }
       );
     }
 
-    const client = new Anthropic({ apiKey });
+    const client = new OpenAI({ apiKey });
 
     const { systemPrompt, userPrompt, maxTokens } = buildPrompt(action, params);
 
-    const response = await client.messages.create({
-      model: 'claude-haiku-4-5-20251001',
+    const response = await client.chat.completions.create({
+      model: 'gpt-4o',
       max_tokens: maxTokens,
       temperature: 0.7,
-      system: systemPrompt,
       messages: [
+        { role: 'system', content: systemPrompt },
         ...(params.conversationHistory || [])
           .filter((msg: any) => msg.role === 'user' || msg.role === 'assistant')
           .map((msg: any) => ({ role: msg.role, content: msg.content })),
@@ -53,7 +54,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       ],
     });
 
-    const content = response.content[0]?.type === 'text' ? response.content[0].text : '';
+    const content = response.choices[0]?.message?.content ?? '';
 
     return NextResponse.json({ success: true, content }, { status: 200 });
   } catch (error: any) {
@@ -90,6 +91,13 @@ function buildPrompt(action: Action, params: Record<string, any>): {
         systemPrompt: buildChatAssistantSystemPrompt(params),
         userPrompt: params.message,
         maxTokens: 1000,
+      };
+
+    case 'chatPersonalAssistant':
+      return {
+        systemPrompt: buildPersonalAssistantSystemPrompt(params),
+        userPrompt: params.message,
+        maxTokens: 1200,
       };
 
     case 'generateInterviewQuestions':
@@ -180,4 +188,43 @@ function buildInterviewPrompt(params: Record<string, any>): string {
   parts.push('\nGenerate 10-15 relevant interview questions with suggested answers. For technical interviews, include actual coding/system design questions. Return as a JSON array of objects with "question" and "suggestedAnswer" fields.');
 
   return parts.join('\n');
+}
+
+function buildPersonalAssistantSystemPrompt(params: Record<string, any>): string {
+  const uploadedDocs = Array.isArray(params.documents) ? params.documents : [];
+  const docSections = uploadedDocs
+    .map((doc: Record<string, any>, index: number) => {
+      const name = doc.name || `Document ${index + 1}`;
+      const text = typeof doc.text === 'string' ? doc.text.slice(0, 20000) : '';
+      return `Document ${index + 1}: ${name}\n---\n${text}`;
+    })
+    .filter(Boolean)
+    .join('\n\n');
+
+  let prompt = `You are ProLaunch Personal Assistant, an expert AI career companion.
+You help users think through resumes, cover letters, job applications, interview prep, career planning, networking, and professional writing.
+You may also review uploaded career documents and answer questions about them conversationally.
+
+Response rules:
+- Be warm, practical, and concise.
+- When the user asks about an uploaded document, ground your answer in that document.
+- If something is missing or unclear in the uploaded materials, say so plainly.
+- Prefer actionable suggestions and concrete rewrites over vague advice.
+- Your answers may be spoken aloud by an AI avatar, so avoid markdown-heavy formatting and keep the wording natural.
+- Do not claim to have reviewed documents that were not provided.`;
+
+  if (params.resumeText) {
+    prompt += `\n\nResume context:\n${String(params.resumeText).slice(0, 20000)}`;
+  }
+  if (params.coverLetterText) {
+    prompt += `\n\nCover letter context:\n${String(params.coverLetterText).slice(0, 20000)}`;
+  }
+  if (params.jobDescription) {
+    prompt += `\n\nJob description context:\n${String(params.jobDescription).slice(0, 20000)}`;
+  }
+  if (docSections) {
+    prompt += `\n\nUploaded documents:\n${docSections}`;
+  }
+
+  return prompt;
 }

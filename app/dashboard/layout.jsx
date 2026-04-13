@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { LogOut, Briefcase, Users, Scale, Home, FileText, TrendingUp, HelpCircle, Sun, Moon, Rocket, Settings, CreditCard, Crown } from 'lucide-react';
+import { LogOut, Briefcase, Users, Scale, Home, FileText, TrendingUp, HelpCircle, Sun, Moon, Rocket, Settings, CreditCard, Crown, ShieldCheck } from 'lucide-react';
 import { auth, signOutUser } from '@/lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useTheme } from '@/components/providers/ThemeProvider';
@@ -63,6 +63,7 @@ export default function DashboardLayout({ children }) {
         { id: 'support', label: t.support, icon: HelpCircle, href: '/dashboard/support' },
         { id: 'settings', label: t.settings, icon: Settings, href: '/dashboard/settings' },
         { id: 'subscription', label: 'Subscription', icon: Crown, href: '/dashboard/subscription' },
+        { id: 'admin', label: 'Admin', icon: ShieldCheck, href: '/admin' },
     ];
 
     if (loading) {

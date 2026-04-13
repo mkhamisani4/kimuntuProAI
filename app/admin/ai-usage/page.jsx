@@ -1,37 +1,20 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import {
   AreaChart, Area, BarChart, Bar,
   XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, Cell,
 } from 'recharts';
 import {
-  Cpu, TrendingUp, DollarSign, Hash,
-  Zap, RefreshCw, ChevronDown,
+  Cpu, TrendingUp, DollarSign, Hash, Zap, RefreshCw,
 } from 'lucide-react';
 import { useTheme } from '@/components/providers/ThemeProvider';
+import { db } from '@/lib/firebase';
+import { collection, getDocs, query, where, orderBy } from 'firebase/firestore';
+import { Timestamp } from 'firebase/firestore';
 
-/* ── Mock trend data (30 days) ─────────────────────────────── */
-const trendData = [
-  { day: 'Apr 1',  requests: 3200, costCents: 1840, tokens: 128000 },
-  { day: 'Apr 3',  requests: 4100, costCents: 2210, tokens: 164000 },
-  { day: 'Apr 5',  requests: 3800, costCents: 2050, tokens: 152000 },
-  { day: 'Apr 7',  requests: 5200, costCents: 2800, tokens: 208000 },
-  { day: 'Apr 9',  requests: 6100, costCents: 3290, tokens: 244000 },
-  { day: 'Apr 11', requests: 5700, costCents: 3080, tokens: 228000 },
-  { day: 'Apr 13', requests: 7300, costCents: 3940, tokens: 292000 },
-  { day: 'Apr 15', requests: 8200, costCents: 4430, tokens: 328000 },
-  { day: 'Apr 17', requests: 7600, costCents: 4110, tokens: 304000 },
-  { day: 'Apr 19', requests: 9100, costCents: 4910, tokens: 364000 },
-  { day: 'Apr 21', requests: 10400, costCents: 5620, tokens: 416000 },
-  { day: 'Apr 23', requests: 9800, costCents: 5290, tokens: 392000 },
-  { day: 'Apr 25', requests: 11200, costCents: 6050, tokens: 448000 },
-  { day: 'Apr 27', requests: 12600, costCents: 6810, tokens: 504000 },
-  { day: 'Apr 29', requests: 13100, costCents: 7080, tokens: 524000 },
-];
-
-const assistantColors = {
+const ASSISTANT_COLORS = {
   'AI Chatbot':         '#10b981',
   'CV Builder':         '#3b82f6',
   'Business Plans':     '#8b5cf6',
@@ -39,24 +22,9 @@ const assistantColors = {
   'Avatar Simulations': '#ef4444',
   'Other Tools':        '#6b7280',
 };
+const getColor = (name) => ASSISTANT_COLORS[name] ?? '#10b981';
 
-const fallbackAssistants = [
-  { assistant: 'AI Chatbot',         requests: 44200, costCents: 23870, tokens: 1768000 },
-  { assistant: 'CV Builder',         requests: 30500, costCents: 16470, tokens: 1220000 },
-  { assistant: 'Business Plans',     requests: 27400, costCents: 14800, tokens: 1096000 },
-  { assistant: 'Legal Assistant',    requests: 24300, costCents: 13120, tokens: 972000 },
-  { assistant: 'Avatar Simulations', requests: 19800, costCents: 10690, tokens: 792000 },
-  { assistant: 'Other Tools',        requests:  7600, costCents:  4110, tokens: 304000 },
-];
-
-const modelUsage = [
-  { model: 'gpt-4o',        tokens: 2480000, pct: 52 },
-  { model: 'gpt-4o-mini',   tokens: 1240000, pct: 26 },
-  { model: 'claude-3-5-sonnet', tokens: 760000, pct: 16 },
-  { model: 'gemini-1.5-pro', tokens: 284000, pct: 6  },
-];
-
-/* ── Custom tooltip ────────────────────────────────────────── */
+/* ── Custom tooltip ─────────────────────────────────────────── */
 function ChartTooltip({ active, payload, label, isDark }) {
   if (!active || !payload?.length) return null;
   return (
@@ -76,7 +44,7 @@ function ChartTooltip({ active, payload, label, isDark }) {
 }
 
 /* ── Stat card ─────────────────────────────────────────────── */
-function StatCard({ label, value, sub, icon: Icon, iconBg, iconColor, trend }) {
+function StatCard({ label, value, sub, icon: Icon, iconBg, iconColor }) {
   const { isDark } = useTheme();
   return (
     <div className={`rounded-2xl p-5 border ${isDark ? 'bg-white/[0.03] border-white/10' : 'bg-white border-black/5 shadow-sm'}`}>
@@ -87,48 +55,105 @@ function StatCard({ label, value, sub, icon: Icon, iconBg, iconColor, trend }) {
         <span className={`text-sm font-medium ${isDark ? 'text-white/50' : 'text-black/50'}`}>{label}</span>
       </div>
       <p className={`text-2xl font-bold tracking-tight ${isDark ? 'text-white' : 'text-black'}`}>{value}</p>
-      <div className="flex items-center gap-1.5 mt-1">
-        <span className="text-xs font-semibold text-emerald-500 flex items-center gap-0.5">
-          <TrendingUp className="w-3 h-3" />{trend}
-        </span>
-        <span className={`text-xs ${isDark ? 'text-white/30' : 'text-black/30'}`}>{sub}</span>
-      </div>
+      {sub && <p className={`text-xs mt-1 ${isDark ? 'text-white/30' : 'text-black/30'}`}>{sub}</p>}
+    </div>
+  );
+}
+
+/* ── Empty / loading states ─────────────────────────────────── */
+function Placeholder({ loading, text, height = 220, muted }) {
+  return (
+    <div className={`flex items-center justify-center text-sm ${muted}`} style={{ height }}>
+      {loading ? 'Loading…' : text}
     </div>
   );
 }
 
 export default function AIUsagePage() {
   const { isDark } = useTheme();
-  const [metrics, setMetrics]   = useState(null);
-  const [loading, setLoading]   = useState(true);
-  const [range,   setRange]     = useState('30d');
+  const [range,      setRange]      = useState('30d');
+  const [loading,    setLoading]    = useState(true);
+  const [totals,     setTotals]     = useState({ requests: 0, costCents: 0, tokensIn: 0, tokensOut: 0 });
+  const [assistants, setAssistants] = useState([]);
+  const [models,     setModels]     = useState([]);
+  const [trend,      setTrend]      = useState([]);
 
-  useEffect(() => {
-    fetch('/api/admin/metrics')
-      .then((r) => r.ok ? r.json() : null)
-      .then((d) => { setMetrics(d); setLoading(false); })
-      .catch(() => setLoading(false));
-  }, []);
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const since = new Date();
+      if (range === '7d')  since.setDate(since.getDate() - 7);
+      else if (range === '30d') since.setDate(since.getDate() - 30);
+      else since.setDate(since.getDate() - 90);
 
-  const totals      = metrics?.totals;
-  const totalReq    = totals?.requests  ?? 153800;
-  const totalCost   = totals?.costCents ?? 8307200;
-  const totalTokIn  = totals?.tokensIn  ?? 3240000;
-  const totalTokOut = totals?.tokensOut ?? 1524000;
+      const q = query(
+        collection(db, 'usage_logs'),
+        where('createdAt', '>=', Timestamp.fromDate(since)),
+        orderBy('createdAt', 'asc'),
+      );
+      const snap = await getDocs(q);
 
-  const assistants  = metrics?.byAssistant?.length
-    ? metrics.byAssistant
-    : fallbackAssistants;
+      let totalReqs = 0, totalCost = 0, totalTokIn = 0, totalTokOut = 0;
+      const byAssistant = {};
+      const byModel     = {};
+      const byDay       = {};
 
-  const card    = isDark ? 'bg-white/[0.03] border-white/10' : 'bg-white border-black/5 shadow-sm';
-  const text    = isDark ? 'text-white' : 'text-black';
-  const muted   = isDark ? 'text-white/50' : 'text-black/50';
-  const divider = isDark ? 'divide-white/5' : 'divide-black/5';
+      snap.docs.forEach((doc) => {
+        const d = doc.data();
+        totalReqs++;
+        totalCost    += d.costCents  || 0;
+        totalTokIn   += d.tokensIn   || 0;
+        totalTokOut  += d.tokensOut  || 0;
+
+        // By assistant
+        const asst = d.assistant || 'Other Tools';
+        if (!byAssistant[asst]) byAssistant[asst] = { requests: 0, costCents: 0, tokens: 0 };
+        byAssistant[asst].requests++;
+        byAssistant[asst].costCents += d.costCents || 0;
+        byAssistant[asst].tokens    += (d.tokensIn || 0) + (d.tokensOut || 0);
+
+        // By model
+        const model = d.model || 'unknown';
+        if (!byModel[model]) byModel[model] = { tokens: 0 };
+        byModel[model].tokens += (d.tokensIn || 0) + (d.tokensOut || 0);
+
+        // By day for trend
+        const date = d.createdAt?.toDate ? d.createdAt.toDate() : new Date(d.createdAt);
+        const dayKey = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        if (!byDay[dayKey]) byDay[dayKey] = { day: dayKey, requests: 0, costCents: 0 };
+        byDay[dayKey].requests++;
+        byDay[dayKey].costCents += d.costCents || 0;
+      });
+
+      setTotals({ requests: totalReqs, costCents: totalCost, tokensIn: totalTokIn, tokensOut: totalTokOut });
+
+      const totalTok = totalTokIn + totalTokOut || 1;
+      setAssistants(
+        Object.entries(byAssistant)
+          .map(([assistant, s]) => ({ assistant, ...s }))
+          .sort((a, b) => b.requests - a.requests),
+      );
+      setModels(
+        Object.entries(byModel)
+          .map(([model, s]) => ({ model, tokens: s.tokens, pct: Math.round((s.tokens / totalTok) * 100) }))
+          .sort((a, b) => b.tokens - a.tokens),
+      );
+      setTrend(Object.values(byDay));
+    } catch (err) {
+      console.error('[AI Usage] Firestore error:', err);
+    }
+    setLoading(false);
+  }, [range]);
+
+  useEffect(() => { fetchData(); }, [fetchData]);
+
+  const card     = isDark ? 'bg-white/[0.03] border-white/10' : 'bg-white border-black/5 shadow-sm';
+  const text     = isDark ? 'text-white' : 'text-black';
+  const muted    = isDark ? 'text-white/50' : 'text-black/50';
+  const divider  = isDark ? 'divide-white/5' : 'divide-black/5';
   const rowHover = isDark ? 'hover:bg-white/[0.02]' : 'hover:bg-black/[0.02]';
-  const thead   = isDark ? 'bg-white/[0.02]' : 'bg-gray-50';
-  const grid    = isDark ? 'stroke-[rgba(255,255,255,0.05)]' : 'stroke-[rgba(0,0,0,0.05)]';
-
-  const maxReq = Math.max(...assistants.map((a) => a.requests));
+  const thead    = isDark ? 'bg-white/[0.02]' : 'bg-gray-50';
+  const maxReq   = assistants.length ? Math.max(...assistants.map((a) => a.requests)) : 1;
 
   return (
     <div className="space-y-6">
@@ -138,10 +163,10 @@ export default function AIUsagePage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className={`text-2xl font-bold ${text}`}>AI Usage</h1>
-            <p className={`text-sm mt-0.5 ${muted}`}>Monitor AI request volume, token consumption, and cost breakdown.</p>
+            <p className={`text-sm mt-0.5 ${muted}`}>Live data from Firestore — request volume, token consumption, and cost breakdown.</p>
           </div>
           <div className="flex items-center gap-2">
-            {['7d','30d','90d'].map((r) => (
+            {['7d', '30d', '90d'].map((r) => (
               <button key={r} onClick={() => setRange(r)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
                   range === r
@@ -149,7 +174,7 @@ export default function AIUsagePage() {
                     : isDark ? 'bg-white/5 border-white/10 text-white/60 hover:bg-white/10' : 'bg-white border-black/10 text-black/60 hover:bg-black/5'
                 }`}>{r}</button>
             ))}
-            <button onClick={() => { setLoading(true); fetch('/api/admin/metrics').then(r=>r.ok?r.json():null).then(d=>{setMetrics(d);setLoading(false);}).catch(()=>setLoading(false)); }}
+            <button onClick={fetchData}
               className={`p-2 rounded-lg border ${isDark ? 'bg-white/5 border-white/10 text-white/60 hover:bg-white/10' : 'bg-white border-black/10 text-black/60 hover:bg-black/5'}`}>
               <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
             </button>
@@ -159,101 +184,108 @@ export default function AIUsagePage() {
 
       {/* ── Stat cards ──────────────────────────────────────── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard label="Total Requests"  value={totalReq.toLocaleString()}  trend="18.7%" sub="vs last period"   icon={Hash}       iconBg="bg-emerald-500/10" iconColor="text-emerald-500" />
-        <StatCard label="Total Cost"      value={`$${(totalCost/100).toLocaleString(undefined,{minimumFractionDigits:2})}`} trend="9.3%"  sub="vs last period"   icon={DollarSign} iconBg="bg-amber-500/10"   iconColor="text-amber-500" />
-        <StatCard label="Tokens In"       value={`${(totalTokIn/1000).toFixed(0)}K`}  trend="14.2%" sub="prompt tokens"    icon={Zap}        iconBg="bg-blue-500/10"    iconColor="text-blue-500" />
-        <StatCard label="Tokens Out"      value={`${(totalTokOut/1000).toFixed(0)}K`} trend="11.8%" sub="completion tokens" icon={Cpu}        iconBg="bg-purple-500/10"  iconColor="text-purple-500" />
+        <StatCard label="Total Requests" value={loading ? '—' : totals.requests.toLocaleString()}     sub={`last ${range}`}        icon={Hash}       iconBg="bg-emerald-500/10" iconColor="text-emerald-500" />
+        <StatCard label="Total Cost"     value={loading ? '—' : `$${(totals.costCents / 100).toLocaleString(undefined, { minimumFractionDigits: 2 })}`} sub={`last ${range}`} icon={DollarSign} iconBg="bg-amber-500/10"   iconColor="text-amber-500" />
+        <StatCard label="Tokens In"      value={loading ? '—' : `${(totals.tokensIn  / 1000).toFixed(1)}K`} sub="prompt tokens"       icon={Zap}        iconBg="bg-blue-500/10"    iconColor="text-blue-500" />
+        <StatCard label="Tokens Out"     value={loading ? '—' : `${(totals.tokensOut / 1000).toFixed(1)}K`} sub="completion tokens"   icon={Cpu}        iconBg="bg-purple-500/10"  iconColor="text-purple-500" />
       </div>
 
       {/* ── Charts row ──────────────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
 
-        {/* Request trend area chart */}
+        {/* Trend area chart */}
         <div className={`lg:col-span-8 rounded-2xl p-5 border ${card}`}>
           <div className="flex items-center justify-between mb-4">
             <div>
               <h2 className={`font-semibold ${text}`}>Request Volume Over Time</h2>
               <div className="flex items-center gap-4 mt-1">
-                {[['Requests','#10b981'],['Cost (¢)','#f59e0b']].map(([l,c]) => (
+                {[['Requests', '#10b981'], ['Cost (¢)', '#f59e0b']].map(([l, c]) => (
                   <span key={l} className={`flex items-center gap-1 text-xs ${muted}`}>
-                    <span className="w-2.5 h-2.5 rounded-full" style={{background:c}}/>
-                    {l}
+                    <span className="w-2.5 h-2.5 rounded-full" style={{ background: c }} />{l}
                   </span>
                 ))}
               </div>
             </div>
-            <button className={`flex items-center gap-1 text-xs px-2.5 py-1 rounded-lg border ${isDark ? 'border-white/10 text-white/50' : 'border-black/10 text-black/50'}`}>
-              Daily <ChevronDown className="w-3 h-3" />
-            </button>
           </div>
-          <ResponsiveContainer width="100%" height={220}>
-            <AreaChart data={trendData} margin={{top:4,right:4,left:-20,bottom:0}}>
-              <defs>
-                {[['ag','#10b981'],['ay','#f59e0b']].map(([id,c]) => (
-                  <linearGradient key={id} id={id} x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%"  stopColor={c} stopOpacity={0.2}/>
-                    <stop offset="95%" stopColor={c} stopOpacity={0}/>
-                  </linearGradient>
-                ))}
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke={isDark?'rgba(255,255,255,0.05)':'rgba(0,0,0,0.05)'}/>
-              <XAxis dataKey="day" tick={{fontSize:11,fill:isDark?'rgba(255,255,255,0.3)':'rgba(0,0,0,0.3)'}} axisLine={false} tickLine={false}/>
-              <YAxis tick={{fontSize:11,fill:isDark?'rgba(255,255,255,0.3)':'rgba(0,0,0,0.3)'}} axisLine={false} tickLine={false} tickFormatter={v=>v>=1000?`${v/1000}k`:v}/>
-              <Tooltip content={<ChartTooltip isDark={isDark}/>}/>
-              <Area type="monotone" dataKey="requests"  stroke="#10b981" strokeWidth={2} fill="url(#ag)" dot={false}/>
-              <Area type="monotone" dataKey="costCents" stroke="#f59e0b" strokeWidth={2} fill="url(#ay)" dot={false}/>
-            </AreaChart>
-          </ResponsiveContainer>
+          {(loading || trend.length === 0)
+            ? <Placeholder loading={loading} text="No usage data for this period." height={220} muted={muted} />
+            : (
+              <ResponsiveContainer width="100%" height={220}>
+                <AreaChart data={trend} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
+                  <defs>
+                    {[['ag', '#10b981'], ['ay', '#f59e0b']].map(([id, c]) => (
+                      <linearGradient key={id} id={id} x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%"  stopColor={c} stopOpacity={0.2} />
+                        <stop offset="95%" stopColor={c} stopOpacity={0} />
+                      </linearGradient>
+                    ))}
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke={isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)'} />
+                  <XAxis dataKey="day"     tick={{ fontSize: 11, fill: isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.3)' }} axisLine={false} tickLine={false} />
+                  <YAxis                   tick={{ fontSize: 11, fill: isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.3)' }} axisLine={false} tickLine={false} tickFormatter={(v) => v >= 1000 ? `${v / 1000}k` : v} />
+                  <Tooltip content={<ChartTooltip isDark={isDark} />} />
+                  <Area type="monotone" dataKey="requests"  stroke="#10b981" strokeWidth={2} fill="url(#ag)" dot={false} />
+                  <Area type="monotone" dataKey="costCents" stroke="#f59e0b" strokeWidth={2} fill="url(#ay)" dot={false} />
+                </AreaChart>
+              </ResponsiveContainer>
+            )}
         </div>
 
-        {/* Model usage */}
+        {/* Model distribution */}
         <div className={`lg:col-span-4 rounded-2xl p-5 border ${card}`}>
           <h2 className={`font-semibold mb-4 ${text}`}>Model Distribution</h2>
-          <div className="space-y-4">
-            {modelUsage.map((m) => (
-              <div key={m.model}>
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className={`text-xs font-medium font-mono ${text}`}>{m.model}</span>
-                  <span className={`text-xs ${muted}`}>{(m.tokens/1000).toFixed(0)}K tok · {m.pct}%</span>
-                </div>
-                <div className={`h-1.5 rounded-full ${isDark?'bg-white/10':'bg-black/5'}`}>
-                  <div className="h-1.5 rounded-full bg-emerald-500 transition-all" style={{width:`${m.pct}%`}}/>
-                </div>
+          {(loading || models.length === 0)
+            ? <Placeholder loading={loading} text="No model data." height={160} muted={muted} />
+            : (
+              <div className="space-y-4">
+                {models.map((m) => (
+                  <div key={m.model}>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className={`text-xs font-medium font-mono truncate max-w-[120px] ${text}`}>{m.model}</span>
+                      <span className={`text-xs ${muted}`}>{(m.tokens / 1000).toFixed(0)}K · {m.pct}%</span>
+                    </div>
+                    <div className={`h-1.5 rounded-full ${isDark ? 'bg-white/10' : 'bg-black/5'}`}>
+                      <div className="h-1.5 rounded-full bg-emerald-500 transition-all" style={{ width: `${m.pct}%` }} />
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-          <div className={`mt-6 pt-4 border-t ${isDark?'border-white/10':'border-black/5'}`}>
+            )}
+          <div className={`mt-6 pt-4 border-t ${isDark ? 'border-white/10' : 'border-black/5'}`}>
             <p className={`text-xs ${muted}`}>Total tokens processed</p>
-            <p className={`text-xl font-bold mt-1 ${text}`}>{((totalTokIn+totalTokOut)/1000000).toFixed(2)}M</p>
-            <p className="text-xs text-emerald-500 font-medium mt-0.5">↑ 13.4% vs last period</p>
+            <p className={`text-xl font-bold mt-1 ${text}`}>
+              {((totals.tokensIn + totals.tokensOut) / 1_000_000).toFixed(3)}M
+            </p>
           </div>
         </div>
       </div>
 
-      {/* ── By-assistant bar chart + table ──────────────────── */}
+      {/* ── By-assistant ────────────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
 
         {/* Bar chart */}
         <div className={`lg:col-span-5 rounded-2xl p-5 border ${card}`}>
           <h2 className={`font-semibold mb-4 ${text}`}>Requests by Assistant</h2>
-          <ResponsiveContainer width="100%" height={220}>
-            <BarChart data={assistants} layout="vertical" margin={{top:0,right:8,left:0,bottom:0}} barSize={10}>
-              <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke={isDark?'rgba(255,255,255,0.05)':'rgba(0,0,0,0.05)'}/>
-              <XAxis type="number" tick={{fontSize:10,fill:isDark?'rgba(255,255,255,0.3)':'rgba(0,0,0,0.3)'}} axisLine={false} tickLine={false} tickFormatter={v=>`${(v/1000).toFixed(0)}k`}/>
-              <YAxis type="category" dataKey="assistant" tick={{fontSize:10,fill:isDark?'rgba(255,255,255,0.5)':'rgba(0,0,0,0.5)'}} axisLine={false} tickLine={false} width={110}/>
-              <Tooltip content={<ChartTooltip isDark={isDark}/>}/>
-              <Bar dataKey="requests" radius={4}>
-                {assistants.map((a,i) => (
-                  <Cell key={i} fill={assistantColors[a.assistant] ?? '#10b981'}/>
-                ))}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
+          {(loading || assistants.length === 0)
+            ? <Placeholder loading={loading} text="No data." height={220} muted={muted} />
+            : (
+              <ResponsiveContainer width="100%" height={220}>
+                <BarChart data={assistants} layout="vertical" margin={{ top: 0, right: 8, left: 0, bottom: 0 }} barSize={10}>
+                  <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke={isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)'} />
+                  <XAxis type="number"   tick={{ fontSize: 10, fill: isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.3)' }} axisLine={false} tickLine={false} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
+                  <YAxis type="category" dataKey="assistant" tick={{ fontSize: 10, fill: isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.5)' }} axisLine={false} tickLine={false} width={110} />
+                  <Tooltip content={<ChartTooltip isDark={isDark} />} />
+                  <Bar dataKey="requests" radius={4}>
+                    {assistants.map((a, i) => <Cell key={i} fill={getColor(a.assistant)} />)}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            )}
         </div>
 
-        {/* Table */}
+        {/* Breakdown table */}
         <div className={`lg:col-span-7 rounded-2xl border overflow-hidden ${card}`}>
-          <div className={`px-5 py-4 border-b flex items-center justify-between ${isDark?'border-white/10':'border-black/5'}`}>
+          <div className={`px-5 py-4 border-b flex items-center justify-between ${isDark ? 'border-white/10' : 'border-black/5'}`}>
             <h2 className={`font-semibold ${text}`}>Detailed Breakdown</h2>
             <span className={`text-xs ${muted}`}>Last {range}</span>
           </div>
@@ -261,29 +293,33 @@ export default function AIUsagePage() {
             <table className={`w-full text-sm divide-y ${divider}`}>
               <thead className={thead}>
                 <tr>
-                  {['Assistant','Requests','Tokens','Cost','Avg Cost/Req'].map(h => (
+                  {['Assistant', 'Requests', 'Tokens', 'Cost', 'Avg/Req'].map((h) => (
                     <th key={h} className={`py-3 px-5 text-left text-xs font-semibold ${muted}`}>{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody className={`divide-y ${divider}`}>
-                {assistants.map((a,i) => {
+                {loading ? (
+                  <tr><td colSpan={5} className={`py-10 text-center text-sm ${muted}`}>Loading…</td></tr>
+                ) : assistants.length === 0 ? (
+                  <tr><td colSpan={5} className={`py-10 text-center text-sm ${muted}`}>No usage data for this period.</td></tr>
+                ) : assistants.map((a, i) => {
                   const avgCost = a.requests ? (a.costCents / a.requests / 100) : 0;
-                  const pct = Math.round((a.requests / maxReq) * 100);
+                  const pct     = Math.round((a.requests / maxReq) * 100);
                   return (
                     <tr key={i} className={`transition-colors ${rowHover}`}>
                       <td className="py-3 px-5">
                         <div className="flex items-center gap-2">
-                          <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{background: assistantColors[a.assistant]??'#10b981'}}/>
+                          <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: getColor(a.assistant) }} />
                           <span className={`text-xs font-medium ${text}`}>{a.assistant}</span>
                         </div>
-                        <div className={`mt-1.5 h-1 rounded-full ${isDark?'bg-white/10':'bg-black/5'}`}>
-                          <div className="h-1 rounded-full bg-emerald-500/60" style={{width:`${pct}%`}}/>
+                        <div className={`mt-1.5 h-1 rounded-full ${isDark ? 'bg-white/10' : 'bg-black/5'}`}>
+                          <div className="h-1 rounded-full bg-emerald-500/60" style={{ width: `${pct}%` }} />
                         </div>
                       </td>
                       <td className={`py-3 px-5 text-xs font-medium ${text}`}>{a.requests.toLocaleString()}</td>
-                      <td className={`py-3 px-5 text-xs ${muted}`}>{((a.tokens??0)/1000).toFixed(0)}K</td>
-                      <td className={`py-3 px-5 text-xs font-medium ${text}`}>${(a.costCents/100).toFixed(2)}</td>
+                      <td className={`py-3 px-5 text-xs ${muted}`}>{((a.tokens ?? 0) / 1000).toFixed(0)}K</td>
+                      <td className={`py-3 px-5 text-xs font-medium ${text}`}>${(a.costCents / 100).toFixed(2)}</td>
                       <td className={`py-3 px-5 text-xs ${muted}`}>${avgCost.toFixed(4)}</td>
                     </tr>
                   );

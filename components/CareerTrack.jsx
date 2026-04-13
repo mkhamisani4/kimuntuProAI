@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { FileText, Target, Users, Shield, X, Loader2, Download, Copy, Check, Mail, MessageCircle, Send } from 'lucide-react';
+import { FileText, Target, Users, Shield, X, Loader2, Download, Copy, Check, Mail, MessageCircle, Send, Bot } from 'lucide-react';
 import { tailorResume, extractResumeText, generateCoverLetter, chatJobAssistant } from '../services/aiService';
 import jsPDF from 'jspdf';
 import { Document, Packer, Paragraph, TextRun } from 'docx';
@@ -80,13 +80,21 @@ const CareerTrack = () => {
       ],
       coverLetterDesc: 'Create compelling, job-specific cover letters that highlight your relevant experience and skills. Our AI analyzes the job description and crafts a personalized letter that matches the employer\'s tone and incorporates key keywords.',
       jobChatbot: 'ProLaunch AI Assistant',
+      personalAssistant: 'Personal Assistant',
       jobChatbotItems: [
         'Ask questions about your resume',
         'Get cover letter feedback',
         'Analyze job descriptions',
         'Career guidance and advice'
       ],
+      personalAssistantItems: [
+        'Talk with an AI avatar career coach',
+        'Upload resumes, cover letters, and notes',
+        'Get document-aware feedback in chat',
+        'Practice applications and interview talking points'
+      ],
       jobChatbotDesc: 'Get instant answers to any job search or career-related questions. Upload your resume or cover letter for personalized feedback, ask about job descriptions, or get career advice.',
+      personalAssistantDesc: 'Open a dedicated AI career assistant with a live avatar. Drop in resumes, cover letters, or supporting notes and talk through revisions, applications, interviews, and strategy.',
       privacyFirst: 'Privacy First',
       privacyDesc: 'Your information is never shared. Backed by Firebase and AWS for maximum security.'
     },
@@ -126,13 +134,21 @@ const CareerTrack = () => {
       ],
       coverLetterDesc: 'Créez des lettres de motivation convaincantes et spécifiques à l\'emploi qui mettent en valeur votre expérience et vos compétences pertinentes. Notre IA analyse la description de poste et rédige une lettre personnalisée qui correspond au ton de l\'employeur et intègre les mots-clés essentiels.',
       jobChatbot: 'Assistant IA ProLaunch',
+      personalAssistant: 'Assistant personnel',
       jobChatbotItems: [
         'Posez des questions sur votre CV',
         'Obtenez des commentaires sur votre lettre de motivation',
         'Analysez les descriptions de poste',
         'Conseils de carrière et orientation'
       ],
+      personalAssistantItems: [
+        'Parlez avec un coach de carrière IA animé',
+        'Téléchargez CV, lettres et notes',
+        'Obtenez des retours contextualisés en discussion',
+        'Préparez candidatures et arguments d\'entrevue'
+      ],
       jobChatbotDesc: 'Obtenez des réponses instantanées à toutes vos questions sur la recherche d\'emploi ou la carrière. Téléchargez votre CV ou votre lettre de motivation pour des commentaires personnalisés, posez des questions sur les descriptions de poste ou obtenez des conseils de carrière.',
+      personalAssistantDesc: 'Ouvrez un assistant de carrière IA dédié avec avatar en direct. Déposez vos CV, lettres de motivation ou notes et discutez des révisions, candidatures, entrevues et de votre stratégie.',
       privacyFirst: 'Confidentialité avant tout',
       privacyDesc: 'Vos informations ne sont jamais partagées. Soutenu par Firebase et AWS pour une sécurité maximale.'
     }
@@ -1104,6 +1120,24 @@ const CareerTrack = () => {
       }
     },
     {
+      id: 'personalassistant',
+      title: t.personalAssistant,
+      icon: Bot,
+      items: t.personalAssistantItems,
+      description: t.personalAssistantDesc,
+      outline: {
+        title: 'General Outline',
+        formTitle: 'Personal Assistant',
+        inputs: [],
+        howItWorks: [
+          { label: 'Upload Documents', desc: 'Add resumes, cover letters, or notes for context' },
+          { label: 'Avatar Chat', desc: 'Speak with an AI career assistant in a natural conversation' },
+          { label: 'Ask for Rewrites', desc: 'Get edits, comparisons, and tailored recommendations' },
+          { label: 'Plan Next Steps', desc: 'Turn documents into action for applications and interviews' }
+        ]
+      }
+    },
+    {
       id: 'jobchatbot',
       title: t.jobChatbot,
       icon: MessageCircle,
@@ -1148,6 +1182,8 @@ const CareerTrack = () => {
                       router.push('/dashboard/career/interview');
                     } else if (feature.id === 'jobmatch') {
                       router.push('/dashboard/career/job-matching');
+                    } else if (feature.id === 'personalassistant') {
+                      router.push('/dashboard/career/personal-assistant');
                     } else {
                       showFeature(feature.id);
                     }

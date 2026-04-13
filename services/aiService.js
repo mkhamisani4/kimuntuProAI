@@ -9,7 +9,7 @@ const getPdfjsLib = async () => {
       const pdfjsModule = await import('pdfjs-dist/build/pdf.min.mjs');
       pdfjsLib = pdfjsModule;
       if (pdfjsLib && pdfjsLib.GlobalWorkerOptions) {
-        pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
+        pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
       }
       if (!pdfjsLib.getDocument) {
         throw new Error('PDF.js getDocument function not found');
@@ -41,18 +41,30 @@ const callCareerAI = async (action, params) => {
   return data.content;
 };
 
-/**
- * Extract text from a PDF file
- */
-export const extractResumeText = async (file) => {
-  if (file.type === 'text/plain') {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (e) => resolve(e.target.result);
-      reader.onerror = (e) => reject(new Error('Failed to read text file'));
-      reader.readAsText(file);
-    });
-  } else if (file.type === 'application/pdf') {
+const readPlainTextFile = async (file) => await file.text();
+
+const isPdfFile = (file) => {
+  const name = (file?.name || '').toLowerCase();
+  const type = file?.type || '';
+  return (
+    type === 'application/pdf' ||
+    type === 'application/x-pdf' ||
+    type === 'application/acrobat' ||
+    type === 'applications/pdf' ||
+    (type === 'application/octet-stream' && name.endsWith('.pdf')) ||
+    name.endsWith('.pdf')
+  );
+};
+
+export const extractCareerDocumentText = async (file) => {
+  const name = (file?.name || '').toLowerCase();
+  const type = file?.type || '';
+
+  if (type === 'text/plain' || type === 'text/markdown' || name.endsWith('.txt') || name.endsWith('.md')) {
+    return readPlainTextFile(file);
+  }
+
+  if (isPdfFile(file)) {
     try {
       const pdfjs = await getPdfjsLib();
       if (!pdfjs) {
@@ -74,9 +86,16 @@ export const extractResumeText = async (file) => {
     } catch (error) {
       throw new Error(`Failed to extract text from PDF: ${error.message}`);
     }
-  } else {
-    throw new Error('Unsupported file type. Please upload a .txt or .pdf file.');
   }
+
+  throw new Error('Unsupported file type. Please upload a .pdf, .txt, or .md file.');
+};
+
+/**
+ * Extract text from a PDF file
+ */
+export const extractResumeText = async (file) => {
+  return extractCareerDocumentText(file);
 };
 
 /**
@@ -163,6 +182,29 @@ export const chatJobAssistant = async ({
     });
   } catch (error) {
     console.error('Error with job assistant:', error);
+    throw new Error(`Failed to get response: ${error.message}`);
+  }
+};
+
+export const chatPersonalAssistant = async ({
+  message,
+  conversationHistory = [],
+  documents = [],
+  resumeText = '',
+  coverLetterText = '',
+  jobDescription = ''
+}) => {
+  try {
+    return await callCareerAI('chatPersonalAssistant', {
+      message,
+      conversationHistory,
+      documents,
+      resumeText,
+      coverLetterText,
+      jobDescription,
+    });
+  } catch (error) {
+    console.error('Error with personal assistant:', error);
     throw new Error(`Failed to get response: ${error.message}`);
   }
 };
