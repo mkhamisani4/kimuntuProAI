@@ -38,7 +38,7 @@ export default function DocumentsPage() {
                         <h1 className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
                             {t.myDocuments}
                         </h1>
-                        <p className={`text-sm ${isDark ? 'text-white/40' : 'text-black/40'}`}>
+                        <p className={`text-sm ${isDark ? 'text-white/40' : 'text-black'}`}>
                             All your generated documents in one place
                         </p>
                     </div>
@@ -54,7 +54,7 @@ export default function DocumentsPage() {
                 {isDark && <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-emerald-500/20 to-transparent" />}
                 <div className="relative z-10 flex items-center gap-4">
                     <div className="flex-1 relative">
-                        <Search className={`absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 ${isDark ? 'text-white/30' : 'text-black/30'}`} />
+                        <Search className={`absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 ${isDark ? 'text-white/30' : 'text-black'}`} />
                         <input
                             type="text"
                             value={searchQuery}
@@ -115,7 +115,7 @@ export default function DocumentsPage() {
                             <div className={`w-20 h-20 rounded-3xl flex items-center justify-center mx-auto ${
                                 isDark ? 'bg-white/[0.03] border border-white/[0.06]' : 'bg-gray-50 border border-gray-100'
                             }`}>
-                                <FolderOpen className={`w-10 h-10 ${isDark ? 'text-white/20' : 'text-black/20'}`} />
+                                <FolderOpen className={`w-10 h-10 ${isDark ? 'text-white/20' : 'text-black'}`} />
                             </div>
                             <div className="absolute inset-0 bg-emerald-500/10 rounded-3xl blur-2xl" />
                         </div>
@@ -123,7 +123,7 @@ export default function DocumentsPage() {
                         <h3 className={`text-xl font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                             No Documents Yet
                         </h3>
-                        <p className={`text-sm mb-8 max-w-sm mx-auto leading-relaxed ${isDark ? 'text-white/40' : 'text-black/40'}`}>
+                        <p className={`text-sm mb-8 max-w-sm mx-auto leading-relaxed ${isDark ? 'text-white/40' : 'text-black'}`}>
                             {t.documentsWillAppear}
                         </p>
 
@@ -148,7 +148,7 @@ export default function DocumentsPage() {
                                         <item.icon className={`w-5 h-5 ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`} />
                                     </div>
                                     <p className={`text-sm font-semibold mb-0.5 ${isDark ? 'text-white' : 'text-gray-900'}`}>{item.label}</p>
-                                    <p className={`text-xs ${isDark ? 'text-white/40' : 'text-black/40'}`}>{item.desc}</p>
+                                    <p className={`text-xs ${isDark ? 'text-white/40' : 'text-black'}`}>{item.desc}</p>
                                 </button>
                             ))}
                         </div>
@@ -171,7 +171,7 @@ export default function DocumentsPage() {
                             Recent Activity
                         </h3>
                     </div>
-                    <div className={`text-center py-8 ${isDark ? 'text-white/30' : 'text-black/30'}`}>
+                    <div className={`text-center py-8 ${isDark ? 'text-white/30' : 'text-black'}`}>
                         <p className="text-sm">Your recent document activity will appear here</p>
                     </div>
                 </div>
