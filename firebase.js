@@ -1,4 +1,4 @@
-import { initializeApp } from 'firebase/app';
+import { initializeApp, getApps } from 'firebase/app';
 import {
   getAuth,
   createUserWithEmailAndPassword,
@@ -18,8 +18,8 @@ const firebaseConfig = {
   appId: "1:856359721783:web:434f6c070af9077d5dd8b2",
   measurementId: "G-2C4CX7LGC3"
 };
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+// Initialize Firebase (singleton pattern)
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 

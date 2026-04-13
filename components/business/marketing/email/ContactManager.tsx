@@ -237,17 +237,22 @@ export default function ContactManager({ tenantId, userId, settings }: ContactMa
             <Sparkles className="w-4 h-4" />
             AI Segment
           </button>
-          <label className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-blue-600 border border-blue-200 dark:border-blue-800 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/10 transition-colors cursor-pointer">
-            <Upload className="w-4 h-4" />
-            Import CSV
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".csv"
-              onChange={handleCSVUpload}
-              className="hidden"
-            />
-          </label>
+          <div className="relative group">
+            <label className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-blue-600 border border-blue-200 dark:border-blue-800 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/10 transition-colors cursor-pointer">
+              <Upload className="w-4 h-4" />
+              Import CSV
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".csv"
+                onChange={handleCSVUpload}
+                className="hidden"
+              />
+            </label>
+            <div className="absolute top-full mt-1 right-0 w-64 bg-gray-900 text-white text-xs rounded-lg p-3 hidden group-hover:block z-10 shadow-lg">
+              CSV should have columns: <strong>email</strong> (required), <strong>first_name</strong>, <strong>last_name</strong>
+            </div>
+          </div>
           <button
             onClick={() => setShowAddForm(!showAddForm)}
             className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition-colors"

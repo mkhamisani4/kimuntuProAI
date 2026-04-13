@@ -9,11 +9,12 @@ interface MailchimpConnectProps {
   tenantId: string;
   userId: string;
   onConnected: () => void;
+  selectAudienceOnly?: boolean;
 }
 
-export default function MailchimpConnect({ tenantId, userId, onConnected }: MailchimpConnectProps) {
+export default function MailchimpConnect({ tenantId, userId, onConnected, selectAudienceOnly }: MailchimpConnectProps) {
   const [isConnecting, setIsConnecting] = useState(false);
-  const [showAudienceSelector, setShowAudienceSelector] = useState(false);
+  const [showAudienceSelector, setShowAudienceSelector] = useState(!!selectAudienceOnly);
   const [audiences, setAudiences] = useState<any[]>([]);
   const [loadingAudiences, setLoadingAudiences] = useState(false);
 
@@ -44,12 +45,8 @@ export default function MailchimpConnect({ tenantId, userId, onConnected }: Mail
   const loadAudiences = async () => {
     setLoadingAudiences(true);
     try {
-      const settings = await getMarketingSettings(tenantId, userId);
-      if (!settings?.mailchimpAccessToken || !settings?.mailchimpServer) return;
-
       const response = await fetch(
-        `https://${settings.mailchimpServer}.api.mailchimp.com/3.0/lists?count=100`,
-        { headers: { Authorization: `Bearer ${settings.mailchimpAccessToken}` } }
+        `/api/marketing/email/audiences?tenantId=${encodeURIComponent(tenantId)}&userId=${encodeURIComponent(userId)}`
       );
 
       if (response.ok) {
@@ -78,13 +75,17 @@ export default function MailchimpConnect({ tenantId, userId, onConnected }: Mail
   // If token exists but no list selected, show audience selector
   useEffect(() => {
     const checkSettings = async () => {
+      if (selectAudienceOnly) {
+        loadAudiences();
+        return;
+      }
       const settings = await getMarketingSettings(tenantId, userId);
       if (settings?.mailchimpAccessToken && !settings?.mailchimpListId) {
         loadAudiences();
       }
     };
     checkSettings();
-  }, [tenantId, userId]);
+  }, [tenantId, userId, selectAudienceOnly]);
 
   if (showAudienceSelector) {
     return (

@@ -1,11 +1,12 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Mail, Users, BarChart3, Send } from 'lucide-react';
+import { Mail, Users, BarChart3, Send, Layout } from 'lucide-react';
 import MailchimpConnect from './MailchimpConnect';
 import ContactManager from './ContactManager';
 import CampaignList from './CampaignList';
 import EmailAnalyticsDashboard from './EmailAnalyticsDashboard';
+import TemplateLibrary from './TemplateLibrary';
 import {
   getMarketingSettings,
   listEmailCampaigns,
@@ -24,19 +25,25 @@ export default function EmailDashboard({ userId, tenantId }: EmailDashboardProps
   const [settings, setSettings] = useState<MarketingSettings | null>(null);
   const [campaigns, setCampaigns] = useState<EmailCampaign[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [templateHtml, setTemplateHtml] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
     if (!userId || !tenantId) return;
     setIsLoading(true);
     try {
-      const [settingsData, campaignsData] = await Promise.all([
-        getMarketingSettings(tenantId, userId),
-        listEmailCampaigns(tenantId, userId),
-      ]);
+      const settingsData = await getMarketingSettings(tenantId, userId);
       setSettings(settingsData);
-      setCampaigns(campaignsData);
+
+      // Load campaigns independently — don't let a failure here block settings
+      try {
+        const campaignsData = await listEmailCampaigns(tenantId, userId);
+        setCampaigns(campaignsData);
+      } catch (error) {
+        console.error('[Email] Failed to load campaigns:', error);
+        setCampaigns([]);
+      }
     } catch (error) {
-      console.error('[Email] Failed to load data:', error);
+      console.error('[Email] Failed to load settings:', error);
     } finally {
       setIsLoading(false);
     }
@@ -74,10 +81,16 @@ export default function EmailDashboard({ userId, tenantId }: EmailDashboardProps
     return <MailchimpConnect tenantId={tenantId} userId={userId} onConnected={loadData} />;
   }
 
+  // Token exists but no audience selected — show audience selector
+  if (!settings?.mailchimpListId) {
+    return <MailchimpConnect tenantId={tenantId} userId={userId} onConnected={loadData} selectAudienceOnly />;
+  }
+
   const tabs = [
     { id: 'campaigns', label: 'Campaigns', icon: Send },
     { id: 'contacts', label: 'Contacts', icon: Users },
     { id: 'analytics', label: 'Analytics', icon: BarChart3 },
+    { id: 'templates', label: 'Templates', icon: Layout },
   ];
 
   return (
@@ -117,6 +130,8 @@ export default function EmailDashboard({ userId, tenantId }: EmailDashboardProps
             campaigns={campaigns}
             settings={settings!}
             onDataChange={loadData}
+            templateHtml={templateHtml}
+            onTemplateUsed={() => setTemplateHtml(null)}
           />
         </div>
         <div className={activeTab === 'contacts' ? 'block' : 'hidden'}>
@@ -131,6 +146,14 @@ export default function EmailDashboard({ userId, tenantId }: EmailDashboardProps
             tenantId={tenantId}
             userId={userId}
             campaigns={campaigns}
+          />
+        </div>
+        <div className={activeTab === 'templates' ? 'block' : 'hidden'}>
+          <TemplateLibrary
+            onSelectTemplate={(html) => {
+              setTemplateHtml(html);
+              setActiveTab('campaigns');
+            }}
           />
         </div>
       </div>

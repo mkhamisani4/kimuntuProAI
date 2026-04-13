@@ -12,6 +12,8 @@ import {
   Clock,
   CheckCircle,
   XCircle,
+  Copy,
+  Calendar,
 } from 'lucide-react';
 import CampaignEditor from './CampaignEditor';
 import CampaignPreview from './CampaignPreview';
@@ -30,6 +32,8 @@ interface CampaignListProps {
   campaigns: EmailCampaign[];
   settings: MarketingSettings;
   onDataChange: () => void;
+  templateHtml?: string | null;
+  onTemplateUsed?: () => void;
 }
 
 export default function CampaignList({
@@ -38,16 +42,55 @@ export default function CampaignList({
   campaigns,
   settings,
   onDataChange,
+  templateHtml,
+  onTemplateUsed,
 }: CampaignListProps) {
   const [showEditor, setShowEditor] = useState(false);
   const [editingCampaign, setEditingCampaign] = useState<EmailCampaign | null>(null);
   const [previewCampaign, setPreviewCampaign] = useState<EmailCampaign | null>(null);
   const [errorLogs, setErrorLogs] = useState<EmailErrorLog[]>([]);
   const [showErrors, setShowErrors] = useState(false);
+  const [initialHtml, setInitialHtml] = useState<string | null>(null);
+  const [showScheduleModal, setShowScheduleModal] = useState<EmailCampaign | null>(null);
+  const [scheduleDate, setScheduleDate] = useState('');
+  const [scheduleTime, setScheduleTime] = useState('');
+
+  // If a template was selected, open editor with it
+  React.useEffect(() => {
+    if (templateHtml) {
+      setEditingCampaign(null);
+      setInitialHtml(templateHtml);
+      setShowEditor(true);
+      onTemplateUsed?.();
+    }
+  }, [templateHtml]);
 
   const handleCreate = () => {
     setEditingCampaign(null);
+    setInitialHtml(null);
     setShowEditor(true);
+  };
+
+  const handleDuplicate = (campaign: EmailCampaign) => {
+    const duplicated = {
+      ...campaign,
+      id: undefined,
+      mailchimpCampaignId: undefined,
+      title: `${campaign.title} (Copy)`,
+      status: 'draft',
+    } as any;
+    setEditingCampaign(duplicated);
+    setInitialHtml(campaign.htmlContent || null);
+    setShowEditor(true);
+  };
+
+  const handleScheduleConfirm = () => {
+    if (!showScheduleModal || !scheduleDate || !scheduleTime) return;
+    const scheduleAt = new Date(`${scheduleDate}T${scheduleTime}`).toISOString();
+    handleSend(showScheduleModal, scheduleAt);
+    setShowScheduleModal(null);
+    setScheduleDate('');
+    setScheduleTime('');
   };
 
   const handleEdit = (campaign: EmailCampaign) => {
@@ -215,11 +258,16 @@ export default function CampaignList({
         userId={userId}
         settings={settings}
         campaign={editingCampaign}
+        initialHtml={initialHtml}
         onSave={() => {
           setShowEditor(false);
+          setInitialHtml(null);
           onDataChange();
         }}
-        onCancel={() => setShowEditor(false)}
+        onCancel={() => {
+          setShowEditor(false);
+          setInitialHtml(null);
+        }}
       />
     );
   }
@@ -303,6 +351,13 @@ export default function CampaignList({
                       <Eye className="w-4 h-4" />
                     </button>
                   )}
+                  <button
+                    onClick={() => handleDuplicate(campaign)}
+                    className="p-2 text-gray-400 hover:text-purple-500 transition-colors"
+                    title="Duplicate"
+                  >
+                    <Copy className="w-4 h-4" />
+                  </button>
                   {campaign.status === 'draft' && (
                     <>
                       <button
@@ -318,6 +373,13 @@ export default function CampaignList({
                         title="Send now"
                       >
                         <Send className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => setShowScheduleModal(campaign)}
+                        className="p-2 text-gray-400 hover:text-indigo-500 transition-colors"
+                        title="Schedule"
+                      >
+                        <Calendar className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => handleDelete(campaign)}
@@ -385,6 +447,52 @@ export default function CampaignList({
                 ))}
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Schedule Modal */}
+      {showScheduleModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-900 rounded-xl p-6 max-w-sm w-full mx-4 shadow-2xl">
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Schedule Campaign</h3>
+            <p className="text-sm text-gray-500 mb-4">Choose when to send &quot;{showScheduleModal.title}&quot;</p>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date</label>
+                <input
+                  type="date"
+                  value={scheduleDate}
+                  onChange={(e) => setScheduleDate(e.target.value)}
+                  min={new Date().toISOString().split('T')[0]}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Time</label>
+                <input
+                  type="time"
+                  value={scheduleTime}
+                  onChange={(e) => setScheduleTime(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm"
+                />
+              </div>
+            </div>
+            <div className="flex justify-end gap-3 mt-6">
+              <button
+                onClick={() => { setShowScheduleModal(null); setScheduleDate(''); setScheduleTime(''); }}
+                className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 dark:text-gray-400"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleScheduleConfirm}
+                disabled={!scheduleDate || !scheduleTime}
+                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg disabled:opacity-50"
+              >
+                Schedule Send
+              </button>
+            </div>
           </div>
         </div>
       )}
