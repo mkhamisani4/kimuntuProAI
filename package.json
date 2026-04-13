@@ -6,12 +6,11 @@
     "packages/*"
   ],
   "scripts": {
-    "postinstall": "patch-package && node scripts/copy-pdf-worker.js",
+    "postinstall": "node -e \"var fs=require('fs'),path=require('path');var src=path.join(process.cwd(),'node_modules','pdfjs-dist','build','pdf.worker.min.mjs');var dest=path.join(process.cwd(),'public','pdf.worker.min.mjs');if(fs.existsSync(src)){fs.copyFileSync(src,dest);console.log('Copied pdf.worker.min.mjs to public/');}\"",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "postinstall": "node -e \"var fs=require('fs'),path=require('path');var src=path.join(process.cwd(),'node_modules','pdfjs-dist','build','pdf.worker.min.mjs');var dest=path.join(process.cwd(),'public','pdf.worker.min.mjs');if(fs.existsSync(src)){fs.copyFileSync(src,dest);console.log('Copied pdf.worker.min.mjs to public/');}\""
+    "lint": "next lint"
   },
   "dependencies": {
     "@emotion/is-prop-valid": "^1.4.0",
@@ -26,7 +25,7 @@
     "@radix-ui/react-select": "^2.2.6",
     "@radix-ui/react-tabs": "^1.1.13",
     "@radix-ui/react-tooltip": "^1.2.8",
-"date-fns": "^4.1.0",
+    "date-fns": "^4.1.0",
     "docx": "^9.5.1",
     "encoding": "^0.1.13",
     "face-api.js": "^0.22.2",
