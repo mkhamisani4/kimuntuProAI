@@ -1,6 +1,6 @@
-# KimuntuPro AI
+# Kimuntu AI
 
-KimuntuPro AI is an AI-powered platform built to help people turn ideas, goals, and life admin into clear next steps. Instead of offering just one tool, it brings together support for career growth, business building, legal guidance, innovation, and everyday AI assistance in one place.
+Kimuntu AI is an AI-powered platform built to help people turn ideas, goals, and life admin into clear next steps. Instead of offering just one tool, it brings together support for career growth, business building, legal guidance, innovation, and everyday AI assistance in one place.
 
 ## Credits
 Mohammed Khamisani, Tyler Jarvis, Pranav Sagar, Theodore Zhang
@@ -31,7 +31,7 @@ The platform gives users a guided workspace where they can:
 
 ## Who It’s For
 
-KimuntuPro AI is for:
+Kimuntu AI is for:
 
 - job seekers and career changers
 - founders, freelancers, and small business owners
