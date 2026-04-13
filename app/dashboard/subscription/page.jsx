@@ -96,7 +96,7 @@ export default function SubscriptionPage() {
             <div className="min-h-[70vh] flex items-center justify-center">
                 <div className="flex flex-col items-center gap-4">
                     <div className="relative">
-                        <Image src="/assets/LOGOS(9).svg" alt="Kimuntu" width={48} height={48} className="animate-float" />
+                        <Image src="/assets/new_single_logo.png" alt="Kimuntu" width={56} height={56} className="animate-float" />
                         <div className="absolute inset-0 bg-emerald-500/20 rounded-full blur-2xl animate-pulse" />
                     </div>
                     <div className="flex items-center gap-2">
@@ -129,13 +129,13 @@ export default function SubscriptionPage() {
 
                     <div className="relative z-10">
                         <div className="relative inline-block mb-6">
-                            <Image src="/assets/LOGOS(9).svg" alt="Kimuntu Pro AI" width={64} height={64} className="animate-float" />
+                            <Image src="/assets/new_single_logo.png" alt="Kimuntu AI" width={80} height={80} className="animate-float" />
                             <div className="absolute inset-0 bg-emerald-500/20 rounded-full blur-2xl" />
                         </div>
                         <h2 className={`text-2xl font-bold mb-3 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                             No Active Subscription
                         </h2>
-                        <p className={`mb-8 text-sm leading-relaxed ${isDark ? 'text-white/50' : 'text-black/50'}`}>
+                        <p className={`mb-8 text-sm leading-relaxed ${isDark ? 'text-white/50' : 'text-black'}`}>
                             Upgrade to Kimuntu Pro AI to unlock all features and unlimited access to all professional tracks.
                         </p>
                         <button
@@ -170,14 +170,14 @@ export default function SubscriptionPage() {
             {/* Header */}
             <div className="flex items-center gap-4 mb-8 relative z-10">
                 <div className="relative">
-                    <Image src="/assets/LOGOS(9).svg" alt="Kimuntu Pro AI" width={40} height={40} />
+                    <Image src="/assets/new_single_logo.png" alt="Kimuntu AI" width={48} height={48} />
                     <div className="absolute inset-0 bg-emerald-500/20 rounded-full blur-xl" />
                 </div>
                 <div>
                     <h1 className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
                         Subscription
                     </h1>
-                    <p className={`text-sm ${isDark ? 'text-white/40' : 'text-black/40'}`}>
+                    <p className={`text-sm ${isDark ? 'text-white/40' : 'text-black'}`}>
                         Manage your Kimuntu Pro AI plan
                     </p>
                 </div>
@@ -211,7 +211,7 @@ export default function SubscriptionPage() {
                                 <h2 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
                                     {subscription.planName}
                                 </h2>
-                                <p className={`text-sm ${isDark ? 'text-white/40' : 'text-black/40'}`}>
+                                <p className={`text-sm ${isDark ? 'text-white/40' : 'text-black'}`}>
                                     Member since {startDate}
                                 </p>
                             </div>
@@ -231,7 +231,7 @@ export default function SubscriptionPage() {
                             <span className={`text-4xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
                                 ${subscription.price}
                             </span>
-                            <span className={`text-lg ${isDark ? 'text-white/40' : 'text-black/40'}`}>
+                            <span className={`text-lg ${isDark ? 'text-white/40' : 'text-black'}`}>
                                 /{subscription.interval}
                             </span>
                         </div>
@@ -245,15 +245,15 @@ export default function SubscriptionPage() {
                     {/* Details grid */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
                         <div className={`rounded-2xl p-4 ${isDark ? 'bg-white/[0.03] border border-white/5' : 'bg-gray-50/80 border border-gray-100'}`}>
-                            <p className={`text-xs font-medium mb-1 uppercase tracking-wider ${isDark ? 'text-white/30' : 'text-black/30'}`}>Next Billing</p>
+                            <p className={`text-xs font-medium mb-1 uppercase tracking-wider ${isDark ? 'text-white/30' : 'text-black'}`}>Next Billing</p>
                             <p className={`text-sm font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
                                 {isActive ? nextBilling : 'N/A'}
                             </p>
                         </div>
                         <div className={`rounded-2xl p-4 ${isDark ? 'bg-white/[0.03] border border-white/5' : 'bg-gray-50/80 border border-gray-100'}`}>
-                            <p className={`text-xs font-medium mb-1 uppercase tracking-wider ${isDark ? 'text-white/30' : 'text-black/30'}`}>Payment Method</p>
+                            <p className={`text-xs font-medium mb-1 uppercase tracking-wider ${isDark ? 'text-white/30' : 'text-black'}`}>Payment Method</p>
                             <div className="flex items-center gap-2">
-                                <CreditCard className={`w-4 h-4 ${isDark ? 'text-white/50' : 'text-black/50'}`} />
+                                <CreditCard className={`w-4 h-4 ${isDark ? 'text-white/50' : 'text-black'}`} />
                                 <p className={`text-sm font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
                                     •••• {subscription.cardLast4}
                                 </p>
@@ -327,13 +327,13 @@ export default function SubscriptionPage() {
                                     <Check className={`w-3 h-3 ${
                                         isActive
                                             ? 'text-emerald-400'
-                                            : isDark ? 'text-white/30' : 'text-black/30'
+                                            : isDark ? 'text-white/30' : 'text-black'
                                     }`} />
                                 </div>
                                 <span className={`text-sm ${
                                     isActive
-                                        ? isDark ? 'text-white/80' : 'text-black/80'
-                                        : isDark ? 'text-white/30 line-through' : 'text-black/30 line-through'
+                                        ? isDark ? 'text-white/80' : 'text-black'
+                                        : isDark ? 'text-white/30 line-through' : 'text-black line-through'
                                 }`}>
                                     {feature}
                                 </span>
@@ -365,7 +365,7 @@ export default function SubscriptionPage() {
                                     <p className={`text-sm font-medium ${isDark ? 'text-white' : 'text-gray-900'}`}>
                                         {subscription.planName}
                                     </p>
-                                    <p className={`text-xs ${isDark ? 'text-white/40' : 'text-black/40'}`}>
+                                    <p className={`text-xs ${isDark ? 'text-white/40' : 'text-black'}`}>
                                         {startDate}
                                     </p>
                                 </div>
@@ -401,7 +401,7 @@ export default function SubscriptionPage() {
                             <h3 className={`text-xl font-bold text-center mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                                 Cancel Subscription?
                             </h3>
-                            <p className={`text-center text-sm mb-6 leading-relaxed ${isDark ? 'text-white/50' : 'text-black/50'}`}>
+                            <p className={`text-center text-sm mb-6 leading-relaxed ${isDark ? 'text-white/50' : 'text-black'}`}>
                                 You will lose access to all Pro features at the end of your current billing period.
                             </p>
                             <div className="flex gap-3">
