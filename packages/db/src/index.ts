@@ -4,7 +4,7 @@
  */
 
 // Export Firebase client and utilities
-export * from './firebase/client.js';
+export * from './firebase/client';
 
 // Export usage tracking functions (Firestore)
 export {
@@ -13,7 +13,7 @@ export {
   sumTokensByTenant,
   getUsageMetrics,
   type UsageRow,
-} from './firebase/usage.js';
+} from './firebase/usage';
 
 // Export assistant results persistence
 export {
@@ -24,7 +24,7 @@ export {
   generateTitle,
   generateSummary,
   type AssistantResult,
-} from './firebase/assistantResults.js';
+} from './firebase/assistantResults';
 
 // Export document metadata (RAG)
 export {
@@ -32,7 +32,7 @@ export {
   listRecentDocuments,
   getDocumentMeta,
   type DocumentMeta,
-} from './firebase/documents.js';
+} from './firebase/documents';
 
 // Export website persistence functions (client-side)
 export {
@@ -42,7 +42,7 @@ export {
   listWebsites,
   deleteWebsite,
   type Website,
-} from './firebase/websites.js';
+} from './firebase/websites';
 
 // Note: Server-side admin functions are NOT exported here to prevent client-side bundling
 // Import directly from '@kimuntupro/db/firebase/websites.server' in API routes only
@@ -51,7 +51,7 @@ export {
 export {
   uploadLogo,
   deleteLogo,
-} from './firebase/storage.js';
+} from './firebase/storage';
 
 // Export Logo persistence functions (client-side)
 export {
@@ -68,7 +68,7 @@ export {
   deleteLogoVersion,
   type Logo,
   type LogoVersion,
-} from './firebase/logos.js';
+} from './firebase/logos';
 
 // Export Marketing Suite types
 export {
@@ -79,7 +79,7 @@ export {
   type EmailCampaign,
   type EmailAnalyticsEvent,
   type EmailErrorLog,
-} from './firebase/marketing.js';
+} from './firebase/marketing';
 
 // Export Marketing Campaign CRUD
 export {
@@ -88,7 +88,7 @@ export {
   listCampaigns,
   updateCampaign,
   deleteCampaign,
-} from './firebase/marketingCampaigns.js';
+} from './firebase/marketingCampaigns';
 
 // Export Marketing Post CRUD
 export {
@@ -97,26 +97,26 @@ export {
   listPosts,
   updatePost,
   deletePost,
-} from './firebase/marketingPosts.js';
+} from './firebase/marketingPosts';
 
 // Export Marketing Keyword functions
 export {
   saveKeyword,
   listKeywords,
   deleteKeyword,
-} from './firebase/marketingKeywords.js';
+} from './firebase/marketingKeywords';
 
 // Export Marketing Storage functions
 export {
   uploadPostMedia,
   deletePostMedia,
-} from './firebase/marketingStorage.js';
+} from './firebase/marketingStorage';
 
 // Export Marketing Settings functions
 export {
   getMarketingSettings,
   updateMarketingSettings,
-} from './firebase/marketingSettings.js';
+} from './firebase/marketingSettings';
 
 // Export Email Campaign CRUD
 export {
@@ -126,7 +126,7 @@ export {
   getEmailCampaignByMailchimpId,
   updateEmailCampaign,
   deleteEmailCampaign,
-} from './firebase/emailCampaigns.js';
+} from './firebase/emailCampaigns';
 
 // Export Email Analytics functions
 export {
@@ -134,7 +134,7 @@ export {
   emailAnalyticsEventExists,
   listEmailAnalyticsEvents,
   countEmailAnalyticsEvents,
-} from './firebase/emailAnalytics.js';
+} from './firebase/emailAnalytics';
 
 // Export Email Error Log functions
 export {
@@ -143,7 +143,7 @@ export {
   listPendingRetryErrors,
   updateEmailErrorLog,
   deleteEmailErrorLog,
-} from './firebase/emailErrorLog.js';
+} from './firebase/emailErrorLog';
 
 /**
  * Database configuration type
