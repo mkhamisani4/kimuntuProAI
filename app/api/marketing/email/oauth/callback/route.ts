@@ -6,6 +6,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { updateMarketingSettings } from '@kimuntupro/db';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
     const { searchParams } = new URL(req.url);

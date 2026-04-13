@@ -6,6 +6,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { listWebsites } from '@kimuntupro/db';
 
+export const dynamic = 'force-dynamic';
+
 /**
  * GET handler - List websites for tenant/user
  */

@@ -133,6 +133,9 @@ const SupportCenter = () => {
         },
     ];
 
+    const generalFaqs = faqCategories.find((section) => section.category === 'General Questions')?.faqs || [];
+    const careerFaqs = faqCategories.find((section) => section.category === 'Personal & Career Track')?.faqs || [];
+
     const businessFaqs = [
         {
             question: 'What types of business plans does Kimuntu AI generate?',

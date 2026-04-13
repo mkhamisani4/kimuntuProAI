@@ -7,6 +7,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getRecentResults, listWebsites, listLogos, getUsageMetrics } from '@kimuntupro/db';
 
+export const dynamic = 'force-dynamic';
+
 /**
  * GET handler - Get user statistics
  */

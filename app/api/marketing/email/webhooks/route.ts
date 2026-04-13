@@ -14,6 +14,12 @@ import {
   increment,
 } from '@kimuntupro/db';
 
+type WebhookCampaign = {
+  id: string;
+  tenantId: string;
+  userId: string;
+};
+
 /**
  * GET — Mailchimp validation ping
  */
@@ -74,7 +80,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     }
 
     // Look up our campaign
-    const campaign = await getEmailCampaignByMailchimpId(mailchimpCampaignId);
+    const campaign = (await getEmailCampaignByMailchimpId(mailchimpCampaignId)) as unknown as WebhookCampaign | null;
     if (!campaign || !campaign.id) {
       console.warn(`[Webhook] Unknown Mailchimp campaign: ${mailchimpCampaignId}`);
       return NextResponse.json({ status: 'unknown_campaign' }, { status: 200 });
