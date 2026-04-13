@@ -133,6 +133,36 @@ const SupportCenter = () => {
         },
     ];
 
+    const generalFaqs = [
+        {
+            question: 'What is Kimuntu AI?',
+            answer: 'Kimuntu AI is a professional AI-powered platform offering four specialized tracks: Career, Business, Legal, and Innovation. Each track provides AI-driven tools, document generation, and expert guidance tailored to your professional needs.'
+        },
+        {
+            question: 'How do I get started?',
+            answer: 'Sign up for a free account, complete the onboarding flow to select your tracks, and start using AI tools immediately. Upgrade to a paid plan for premium features like Live Avatar sessions, advanced document generation, and more.'
+        },
+        {
+            question: 'Is my data secure?',
+            answer: 'Yes. Kimuntu AI uses enterprise-grade encryption, SOC 2 compliance standards, and GDPR-compliant data handling. Your documents and personal information are never shared with third parties.'
+        },
+    ];
+
+    const careerFaqs = [
+        {
+            question: 'What career tools are available?',
+            answer: 'AI-powered CV/resume builder, cover letter generator, interview preparation with Live Avatar simulation, job matching engine, LinkedIn profile optimization, and salary negotiation coaching.'
+        },
+        {
+            question: 'How does the AI Interview Prep work?',
+            answer: 'The AI simulates real interview scenarios using a Live Avatar. It asks industry-specific questions, evaluates your responses in real-time, and provides detailed feedback on content, delivery, and body language.'
+        },
+        {
+            question: 'Can Kimuntu AI help me find jobs?',
+            answer: 'Yes. The Job Matching engine scans thousands of job listings, matches them to your profile, skills, and preferences, and provides tailored application strategies for each opportunity.'
+        },
+    ];
+
     const businessFaqs = [
         {
             question: 'What types of business plans does Kimuntu AI generate?',
