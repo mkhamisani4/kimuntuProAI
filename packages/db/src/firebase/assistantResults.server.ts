@@ -5,8 +5,8 @@
  */
 
 import 'server-only';
-import { adminDb, isAdminAvailable } from './admin.js';
-import type { AssistantResult } from './assistantResults.js';
+import { adminDb, isAdminAvailable } from './admin';
+import type { AssistantResult } from './assistantResults';
 import { Timestamp } from 'firebase-admin/firestore';
 
 // Fallback to client SDK when admin is not available (development mode)
@@ -15,7 +15,7 @@ import {
   getRecentResults as getRecentResultsClient,
   getAssistantResult as getAssistantResultClient,
   deleteAssistantResult as deleteAssistantResultClient,
-} from './assistantResults.js';
+} from './assistantResults';
 
 /**
  * Save assistant result (server-side with admin privileges)

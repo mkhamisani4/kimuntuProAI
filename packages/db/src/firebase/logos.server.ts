@@ -4,8 +4,8 @@
  */
 
 import 'server-only';
-import { adminDb, isAdminAvailable } from './admin.js';
-import type { Logo } from './logos.js';
+import { adminDb, isAdminAvailable } from './admin';
+import type { Logo } from './logos';
 import { Timestamp } from 'firebase-admin/firestore';
 
 // Fallback to client SDK when admin is not available (development mode)
@@ -15,7 +15,7 @@ import {
   getLogo as getLogoClient,
   deleteLogo as deleteLogoClient,
   unsetPrimaryLogoForUser as unsetPrimaryLogoForUserClient,
-} from './logos.js';
+} from './logos';
 
 /**
  * Create logo (server-side with admin SDK)

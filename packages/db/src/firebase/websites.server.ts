@@ -5,8 +5,8 @@
  */
 
 import 'server-only';
-import { adminDb, isAdminAvailable } from './admin.js';
-import type { Website } from './websites.js';
+import { adminDb, isAdminAvailable } from './admin';
+import type { Website } from './websites';
 import { Timestamp } from 'firebase-admin/firestore';
 
 // Fallback to client SDK when admin is not available (development mode)
@@ -16,7 +16,7 @@ import {
   getWebsite as getWebsiteClient,
   listWebsites as listWebsitesClient,
   deleteWebsite as deleteWebsiteClient
-} from './websites.js';
+} from './websites';
 
 /**
  * Create new website (server-side with admin privileges)
