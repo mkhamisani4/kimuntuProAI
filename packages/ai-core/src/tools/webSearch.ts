@@ -3,7 +3,7 @@
  * Delegates to either OpenAI or Tavily based on configuration
  */
 
-import type { AnthropicClient } from '../llm/client.js';
+import type { AnthropicClient } from '../llm/client';
 import {
   webSearchWithOpenAI,
   buildOpenAIWebSearchTools,
@@ -12,12 +12,12 @@ import {
   type WebSearchOptions,
   type WebSearchResponse,
   type WebSearchResult,
-} from './openaiWebSearch.js';
+} from './openaiWebSearch';
 import {
   webSearchWithTavily,
   buildTavilyWebSearchTools,
   resetTavilyState,
-} from './tavilySearch.js';
+} from './tavilySearch';
 
 /**
  * Get configured web search provider

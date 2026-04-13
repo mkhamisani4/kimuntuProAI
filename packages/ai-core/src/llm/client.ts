@@ -6,10 +6,10 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { z } from 'zod';
 import { randomUUID } from 'crypto';
-import { getModelConfig, getModelFromEnv, DEFAULT_MODEL_MINI, DEFAULT_MODEL_ESCALATION, type ModelId } from './models.js';
-import { getCostCents } from './costs.js';
-import { buildStructuredPromptInstructions, parseStructured, extractJsonFromMarkdown } from './structured.js';
-import { emitUsage, buildUsageFromClientEvent } from '../usage/meter.js';
+import { getModelConfig, getModelFromEnv, DEFAULT_MODEL_MINI, DEFAULT_MODEL_ESCALATION, type ModelId } from './models';
+import { getCostCents } from './costs';
+import { buildStructuredPromptInstructions, parseStructured, extractJsonFromMarkdown } from './structured';
+import { emitUsage, buildUsageFromClientEvent } from '../usage/meter';
 import type { AssistantType } from '@kimuntupro/shared';
 
 /**

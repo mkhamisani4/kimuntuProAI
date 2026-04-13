@@ -3,9 +3,9 @@
  * Combines BM25 (Postgres FTS) and pgvector for optimal recall
  */
 
-import type { SearchResult } from './rerank.js';
-import { rerankPipeline, type RRFConfig } from './rerank.js';
-import { packContext, type PackedContext, type RetrievedChunk } from './context.js';
+import type { SearchResult } from './rerank';
+import { rerankPipeline, type RRFConfig } from './rerank';
+import { packContext, type PackedContext, type RetrievedChunk } from './context';
 
 /**
  * Hybrid retrieval options

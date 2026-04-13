@@ -12,21 +12,21 @@ export {
   type WebSearchOptions,
   type WebSearchResponse,
   type WebSearchResult,
-} from './webSearch.js';
+} from './webSearch';
 
 export {
   webSearchWithOpenAI,
   buildOpenAIWebSearchTools,
   buildOpenAIWebSearchToolSpec,
   resetWebSearchState,
-} from './openaiWebSearch.js';
+} from './openaiWebSearch';
 
 export {
   RateLimiter,
   TTLCache,
   normalizeQuery,
   buildCacheKey,
-} from './rateLimitCache.js';
+} from './rateLimitCache';
 
 // Finance Tools
 export {
@@ -37,10 +37,10 @@ export {
   calcPaybackMonths,
   buildFinancialModel,
   validateFinancialInputs,
-} from './finance.js';
+} from './finance';
 
 export {
   buildFinanceToolSpec,
   buildFinanceTools,
   getFinanceToolHandler,
-} from './financeTool.js';
+} from './financeTool';

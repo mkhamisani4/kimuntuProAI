@@ -5,7 +5,7 @@
  */
 
 import { TavilyClient } from 'tavily';
-import { RateLimiter, TTLCache, buildCacheKey } from './rateLimitCache.js';
+import { RateLimiter, TTLCache, buildCacheKey } from './rateLimitCache';
 
 /**
  * Web search result

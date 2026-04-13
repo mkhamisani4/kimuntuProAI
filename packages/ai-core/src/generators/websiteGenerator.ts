@@ -3,7 +3,7 @@
  * Uses Claude Sonnet 4.5 to generate complete HTML websites
  */
 
-import { ClaudeClient, type ClaudeResponse } from '../llm/claudeClient.js';
+import { ClaudeClient, type ClaudeResponse } from '../llm/claudeClient';
 import type { WizardInput, SiteSpec } from '@kimuntupro/shared';
 
 /**

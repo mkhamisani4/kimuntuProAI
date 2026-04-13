@@ -4,7 +4,7 @@
  * Anthropic Claude models
  */
 
-import type { ModelId } from './models.js';
+import type { ModelId } from './models';
 
 /**
  * Pricing information per model

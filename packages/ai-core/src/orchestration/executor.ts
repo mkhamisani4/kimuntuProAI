@@ -11,37 +11,37 @@ import type {
   BusinessTrackFinancialModel,
   FinancialInputs,
 } from '@kimuntupro/shared';
-import { AnthropicClient } from '../llm/client.js';
-import { DEFAULT_MODEL_MINI, DEFAULT_MODEL_ESCALATION } from '../llm/models.js';
+import { AnthropicClient } from '../llm/client';
+import { DEFAULT_MODEL_MINI, DEFAULT_MODEL_ESCALATION } from '../llm/models';
 import {
   retrieveHybrid,
   type HybridRetrievalResult,
   type BM25QueryFn,
   type VectorQueryFn,
   type EmbeddingFn,
-} from '../retrieval/hybrid.js';
+} from '../retrieval/hybrid';
 import {
   webSearch,
   buildWebSearchTools,
   type WebSearchResult,
-} from '../tools/webSearch.js';
-import { webSearchWithTavily } from '../tools/tavilySearch.js';
+} from '../tools/webSearch';
+import { webSearchWithTavily } from '../tools/tavilySearch';
 import {
   buildFinancialModel,
   validateFinancialInputs,
-} from '../tools/finance.js';
+} from '../tools/finance';
 import {
   buildFinanceTools,
   getFinanceToolHandler,
-} from '../tools/financeTool.js';
+} from '../tools/financeTool';
 import {
   buildExecutorMessages,
   parseExecutorResponse,
   validateSections,
   type ExecutorContext,
-} from './answerFormatter.js';
-import { validateOutput } from '../policy/validator.js';
-import { preflightQuotaGuard } from './middleware.js';
+} from './answerFormatter';
+import { validateOutput } from '../policy/validator';
+import { preflightQuotaGuard } from './middleware';
 
 /**
  * Executor options

@@ -5,8 +5,8 @@
  */
 
 import type { AssistantRequest, AssistantResponse } from '@kimuntupro/shared';
-import { planWithQuotaCheck } from '../orchestration/planner.js';
-import { execute } from '../orchestration/executor.js';
+import { planWithQuotaCheck } from '../orchestration/planner';
+import { execute } from '../orchestration/executor';
 
 /**
  * Run Executive Summary assistant

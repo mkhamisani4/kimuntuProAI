@@ -4,9 +4,9 @@
  */
 
 import type { PlannerOutput } from '@kimuntupro/shared';
-import { assertQuotasOk } from '../usage/quota.js';
-import { estimateUsage } from '../usage/meter.js';
-import { DEFAULT_MODEL_MINI, DEFAULT_MODEL_ESCALATION } from '../llm/models.js';
+import { assertQuotasOk } from '../usage/quota';
+import { estimateUsage } from '../usage/meter';
+import { DEFAULT_MODEL_MINI, DEFAULT_MODEL_ESCALATION } from '../llm/models';
 
 /**
  * Preflight quota guard

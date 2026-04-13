@@ -12,7 +12,7 @@ export {
   type RetrievedChunk,
   type PackedContext,
   type Citation,
-} from './context.js';
+} from './context';
 
 // Reranking and fusion
 export {
@@ -26,7 +26,7 @@ export {
   type SearchResult,
   type RRFConfig,
   DEFAULT_RRF_CONFIG,
-} from './rerank.js';
+} from './rerank';
 
 // Hybrid retrieval orchestration
 export {
@@ -38,4 +38,4 @@ export {
   type BM25QueryFn,
   type VectorQueryFn,
   type EmbeddingFn,
-} from './hybrid.js';
+} from './hybrid';

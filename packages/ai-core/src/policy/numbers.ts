@@ -4,7 +4,7 @@
  */
 
 import type { AssistantType } from '@kimuntupro/shared';
-import type { ValidationIssue } from './citations.js';
+import type { ValidationIssue } from './citations';
 
 /**
  * Extracted number with context

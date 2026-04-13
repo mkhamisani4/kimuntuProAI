@@ -4,7 +4,7 @@
  */
 
 import type { AssistantSource } from '@kimuntupro/shared';
-import type { ValidationIssue } from './citations.js';
+import type { ValidationIssue } from './citations';
 
 /**
  * Red flag patterns for prompt injection

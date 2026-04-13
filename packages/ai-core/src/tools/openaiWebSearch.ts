@@ -3,8 +3,8 @@
  * Wrapper around OpenAI's native web_search tool via Responses API
  */
 
-import type { AnthropicClient, ToolSpec, ToolHandler, ChatMessage } from '../llm/client.js';
-import { RateLimiter, TTLCache, buildCacheKey } from './rateLimitCache.js';
+import type { AnthropicClient, ToolSpec, ToolHandler, ChatMessage } from '../llm/client';
+import { RateLimiter, TTLCache, buildCacheKey } from './rateLimitCache';
 
 /**
  * Web search result

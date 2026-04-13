@@ -3,9 +3,9 @@
  * Provides ToolSpec and handler for deterministic financial calculations
  */
 
-import type { ToolSpec, ToolHandler } from '../llm/client.js';
+import type { ToolSpec, ToolHandler } from '../llm/client';
 import type { BusinessTrackFinancialModel } from '@kimuntupro/shared';
-import { buildFinancialModel, validateFinancialInputs } from './finance.js';
+import { buildFinancialModel, validateFinancialInputs } from './finance';
 
 /**
  * Build finance calculation ToolSpec for use with chatWithTools()

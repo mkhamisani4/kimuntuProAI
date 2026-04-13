@@ -4,7 +4,7 @@
  */
 
 import type { AssistantType, UsageMetric, ToolInvocations } from '@kimuntupro/shared';
-import { getCostCents } from '../llm/costs.js';
+import { getCostCents } from '../llm/costs';
 import { recordUsage, type UsageRow } from '@kimuntupro/db';
 
 /**

@@ -3,7 +3,7 @@
  * Implements Reciprocal Rank Fusion (RRF) for combining BM25 and vector results
  */
 
-import type { RetrievedChunk } from './context.js';
+import type { RetrievedChunk } from './context';
 
 /**
  * Search result from a single retrieval method

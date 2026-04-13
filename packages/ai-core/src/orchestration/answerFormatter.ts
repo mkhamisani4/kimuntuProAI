@@ -8,9 +8,9 @@ import type {
   AssistantSource,
   PlannerOutput,
 } from '@kimuntupro/shared';
-import type { RetrievedChunk, PackedContext } from '../retrieval/context.js';
-import type { WebSearchResult } from '../tools/openaiWebSearch.js';
-import type { ChatMessage } from '../llm/client.js';
+import type { RetrievedChunk, PackedContext } from '../retrieval/context';
+import type { WebSearchResult } from '../tools/openaiWebSearch';
+import type { ChatMessage } from '../llm/client';
 import type { BusinessTrackFinancialModel } from '@kimuntupro/shared';
 
 /**

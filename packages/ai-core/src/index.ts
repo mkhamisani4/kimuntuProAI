@@ -18,26 +18,26 @@ export {
   type Logger,
   type AnthropicClientConfig,
   type OpenAIClientConfig,
-} from './llm/client.js';
+} from './llm/client';
 
 export {
   ClaudeClient,
   type ClaudeResponse,
   type ClaudeClientConfig,
-} from './llm/claudeClient.js';
+} from './llm/claudeClient';
 
 export {
   generateWebsite,
   editWebsite,
   type WebsiteGenerationResult,
-} from './generators/websiteGenerator.js';
+} from './generators/websiteGenerator';
 
 export {
   generateLogoBrief,
   generateLogoConcepts,
   refineLogo,
   generateLogoVariations,
-} from './generators/logoGenerator.js';
+} from './generators/logoGenerator';
 
 export {
   type ModelId,
@@ -49,7 +49,7 @@ export {
   getModelConfig,
   modelSupports,
   getModelFromEnv,
-} from './llm/models.js';
+} from './llm/models';
 
 export {
   getCostCents,
@@ -58,14 +58,14 @@ export {
   exceedsMaxCost,
   getModelPricing,
   type ModelPricing,
-} from './llm/costs.js';
+} from './llm/costs';
 
 export {
   asJsonSchema,
   parseStructured,
   extractJsonFromMarkdown,
   buildStructuredPromptInstructions,
-} from './llm/structured.js';
+} from './llm/structured';
 
 // Export tools
 export {
@@ -95,14 +95,14 @@ export {
   buildFinanceToolSpec,
   buildFinanceTools,
   getFinanceToolHandler,
-} from './tools/index.js';
+} from './tools';
 
 // Export orchestration
 export {
   plan,
   deriveHeuristics,
   validatePlannerInput,
-} from './orchestration/planner.js';
+} from './orchestration/planner';
 
 export {
   getPlannerSystemPrompt,
@@ -110,7 +110,7 @@ export {
   buildPlannerUserMessage,
   PLANNER_SYSTEM_V1,
   PLANNER_DEVELOPER_V1,
-} from './orchestration/prompts.js';
+} from './orchestration/prompts';
 
 // Export executor
 export {
@@ -118,7 +118,7 @@ export {
   validateExecuteOptions,
   type ExecuteOptions,
   type ExecuteResult,
-} from './orchestration/executor.js';
+} from './orchestration/executor';
 
 export {
   buildExecutorSystemPrompt,
@@ -134,7 +134,7 @@ export {
   validateSections,
   type ExecutorContext,
   type ParsedExecutorResponse,
-} from './orchestration/answerFormatter.js';
+} from './orchestration/answerFormatter';
 
 // Export policy validation
 export {
@@ -144,7 +144,7 @@ export {
   validateFinancialMetrics,
   type PolicyValidationResult,
   type PolicyIssue,
-} from './policy/validator.js';
+} from './policy/validator';
 
 // Export retrieval system
 export {
@@ -176,4 +176,4 @@ export {
   type BM25QueryFn,
   type VectorQueryFn,
   type EmbeddingFn,
-} from './retrieval/index.js';
+} from './retrieval';

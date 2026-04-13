@@ -4,15 +4,15 @@
  */
 
 import type { AssistantResponse, AssistantSource, AssistantType } from '@kimuntupro/shared';
-import type { ExecutorContext } from '../orchestration/answerFormatter.js';
+import type { ExecutorContext } from '../orchestration/answerFormatter';
 import {
   validateCitations as validateCitationsInternal,
   findSection,
   type ValidationIssue,
-} from './citations.js';
-import { validateNumbers } from './numbers.js';
-import { validateSourcesForInjection, stripInjection } from './injection.js';
-import { buildDisclaimer } from './disclaimers.js';
+} from './citations';
+import { validateNumbers } from './numbers';
+import { validateSourcesForInjection, stripInjection } from './injection';
+import { buildDisclaimer } from './disclaimers';
 
 /**
  * Policy validation result

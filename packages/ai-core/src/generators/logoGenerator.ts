@@ -4,7 +4,7 @@
  * DECISIONS: System fonts only, simple paths, fixed 500x500 canvas
  */
 
-import { ClaudeClient } from '../llm/claudeClient.js';
+import { ClaudeClient } from '../llm/claudeClient';
 import type { LogoDesignBrief, LogoSpec, LogoShape, LogoText } from '@kimuntupro/shared';
 
 /**

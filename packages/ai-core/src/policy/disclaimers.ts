@@ -4,7 +4,7 @@
  */
 
 import type { AssistantType, AssistantSource } from '@kimuntupro/shared';
-import type { ValidationIssue } from './citations.js';
+import type { ValidationIssue } from './citations';
 
 /**
  * Build disclaimer for assistant response

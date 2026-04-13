@@ -2,7 +2,7 @@
  * LLM Module Exports
  */
 
-export * from './models.js';
-export * from './costs.js';
-export * from './structured.js';
-export * from './client.js';
+export * from './models';
+export * from './costs';
+export * from './structured';
+export * from './client';

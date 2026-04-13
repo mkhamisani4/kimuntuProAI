@@ -5,9 +5,9 @@
 
 import type { PlannerInput, PlannerOutput } from '@kimuntupro/shared';
 import { PlannerOutputSchema, PlannerInputSchema } from '@kimuntupro/shared';
-import { AnthropicClient } from '../llm/client.js';
-import { getPlannerSystemPrompt, getPlannerDeveloperPrompt, buildPlannerUserMessage } from './prompts.js';
-import { preflightPlannerCheck } from './middleware.js';
+import { AnthropicClient } from '../llm/client';
+import { getPlannerSystemPrompt, getPlannerDeveloperPrompt, buildPlannerUserMessage } from './prompts';
+import { preflightPlannerCheck } from './middleware';
 
 /**
  * Heuristics for initial plan derivation
