@@ -3,8 +3,8 @@
  * Core RAG functionality for document retrieval
  */
 
-export * from './types.js';
-export * from './chunker.js';
-export * from './embeddings.js';
-export * from './retriever.js';
-export { WeaviateClient } from './vector/weaviate.js';
+export * from './types';
+export * from './chunker';
+export * from './embeddings';
+export * from './retriever';
+export { WeaviateClient } from './vector/weaviate';

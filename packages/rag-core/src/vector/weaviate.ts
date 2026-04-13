@@ -4,7 +4,7 @@
  */
 
 import weaviate, { WeaviateClient as WeaviateSDK, ApiKey } from 'weaviate-ts-client';
-import type { VectorClient, RetrievalItem } from '../types.js';
+import type { VectorClient, RetrievalItem } from '../types';
 
 const COLLECTION_NAME = 'KimuntuDocs';
 

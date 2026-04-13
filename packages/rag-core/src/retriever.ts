@@ -3,9 +3,9 @@
  * Query vector DB and return relevant chunks
  */
 
-import { WeaviateClient } from './vector/weaviate.js';
-import { generateQueryEmbedding } from './embeddings.js';
-import type { RetrievalItem } from './types.js';
+import { WeaviateClient } from './vector/weaviate';
+import { generateQueryEmbedding } from './embeddings';
+import type { RetrievalItem } from './types';
 
 let vectorClient: WeaviateClient | null = null;
 

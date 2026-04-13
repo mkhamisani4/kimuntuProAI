@@ -3,7 +3,7 @@
  * Character-based splitting with overlap
  */
 
-import type { ChunkResult } from './types.js';
+import type { ChunkResult } from './types';
 
 export interface ChunkOptions {
   chunkSize: number;
