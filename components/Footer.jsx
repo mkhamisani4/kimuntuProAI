@@ -46,9 +46,9 @@ const Footer = () => {
     };
 
     const socialLinks = [
-        { icon: Facebook, href: 'https://facebook.com/kimuntupro', label: 'Facebook' },
-        { icon: Linkedin, href: 'https://linkedin.com/company/kimuntupro', label: 'LinkedIn' },
-        { icon: Instagram, href: 'https://instagram.com/kimuntupro', label: 'Instagram' },
+        { icon: Facebook, href: 'https://www.facebook.com/kimuntuai', label: 'Facebook' },
+        { icon: Linkedin, href: 'https://www.linkedin.com/company/kimuntuai', label: 'LinkedIn' },
+        { icon: Instagram, href: 'https://www.instagram.com/kimuntu.ai', label: 'Instagram' },
         { icon: Youtube, href: 'https://youtube.com/@kimuntupro', label: 'YouTube' },
     ];
 

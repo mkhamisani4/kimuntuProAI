@@ -3,7 +3,7 @@
 import React from 'react';
 import PageWrapper from '@/components/PageWrapper';
 import { useTheme } from '@/components/providers/ThemeProvider';
-import { Target, Lightbulb, Users, Sparkles } from 'lucide-react';
+import { Target, Lightbulb, Users, Sparkles, Brain, Rocket, Scale } from 'lucide-react';
 
 const About = () => {
     const { isDark } = useTheme();
@@ -28,6 +28,57 @@ const About = () => {
             icon: Sparkles,
             title: 'Accessibility',
             description: 'Making professional AI tools available to everyone.'
+        }
+    ];
+
+    const leadershipTeam = [
+        {
+            icon: Brain,
+            title: 'Chief Executive Officer (CEO) / Founder',
+            name: 'Yannick Nkayilu Salomon',
+            role: 'The visionary leader of Kimuntu AI.',
+            responsibilities: [
+                'Defines the global vision and strategy',
+                'Leads growth across Career, Business, Legal, and Innovation',
+                'Builds partnerships with institutions, investors, and strategic stakeholders'
+            ],
+            impact: 'Builds trust, leadership, and direction for the platform.'
+        },
+        {
+            icon: Sparkles,
+            title: 'Chief Technology Officer (CTO) / Head of AI',
+            name: '',
+            role: 'Leads all technology and AI development.',
+            responsibilities: [
+                'Oversees AI systems, matching engines, and platform architecture',
+                'Ensures scalability, performance, and technical innovation',
+                'Integrates advanced experiences like avatars, voice, and simulations'
+            ],
+            impact: 'Shows the platform is technically strong and future-ready.'
+        },
+        {
+            icon: Scale,
+            title: 'Chief Legal & Compliance Officer (CLO)',
+            name: '',
+            role: 'Ensures all legal services and data practices are compliant.',
+            responsibilities: [
+                'Oversees legal intelligence and compliance standards',
+                'Validates legal content, safeguards, and disclaimers',
+                'Supports partnerships with licensed lawyers and legal advisors'
+            ],
+            impact: 'Critical for trust, safety, and legal credibility.'
+        },
+        {
+            icon: Rocket,
+            title: 'Chief Product Officer (CPO) / Head of Product & User Experience',
+            name: '',
+            role: 'Leads the design, functionality, and overall user experience of Kimuntu AI.',
+            responsibilities: [
+                'Shapes product strategy across all platform tracks',
+                'Keeps the platform intuitive, scalable, and user-friendly',
+                'Translates user needs into features and product improvements'
+            ],
+            impact: 'Ensures the platform is powerful, attractive, and easy to use.'
         }
     ];
 
@@ -63,6 +114,60 @@ const About = () => {
                     <p className="text-lg mb-4">
                         A world where advanced AI assistance is accessible to everyone, enabling professionals to focus on what matters most: creativity, strategy, and human connection.
                     </p>
+                </section>
+
+                <section className="mb-10">
+                    <h3 className={`text-2xl font-semibold mb-6 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                        Our Team
+                    </h3>
+                    <div className={`p-6 rounded-2xl border mb-6 ${isDark ? 'bg-white/5 border-white/10' : 'bg-white/70 border-gray-200'}`}>
+                        <h4 className={`text-xl font-semibold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                            KimuntuPro Launch AI: Powered Platform for Career, Business, and Legal Assistance
+                        </h4>
+                        <p className={isDark ? 'text-white/70' : 'text-gray-700'}>
+                            A concise leadership structure guiding vision, AI innovation, compliance, and product experience across the platform.
+                        </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {leadershipTeam.map((leader, index) => (
+                            <div
+                                key={index}
+                                className={`p-6 rounded-2xl border ${isDark ? 'bg-white/5 border-white/10' : 'bg-white/70 border-gray-200'}`}
+                            >
+                                <div className="flex items-start gap-4 mb-4">
+                                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${isDark ? 'bg-emerald-500/15' : 'bg-emerald-100'}`}>
+                                        <leader.icon className={`w-6 h-6 ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`} />
+                                    </div>
+                                    <div>
+                                        <h4 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                                            {leader.title}
+                                        </h4>
+                                        {leader.name && (
+                                            <p className={`text-sm font-medium mt-1 ${isDark ? 'text-emerald-300' : 'text-emerald-700'}`}>
+                                                {leader.name}
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <p className="mb-4">{leader.role}</p>
+
+                                <ul className="space-y-2 mb-4">
+                                    {leader.responsibilities.map((item, itemIndex) => (
+                                        <li key={itemIndex} className="flex items-start gap-3">
+                                            <span className={`mt-1.5 w-2 h-2 rounded-full ${isDark ? 'bg-emerald-400' : 'bg-emerald-600'}`}></span>
+                                            <span>{item}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+
+                                <p className={isDark ? 'text-white/70' : 'text-gray-700'}>
+                                    <strong>Why it matters:</strong> {leader.impact}
+                                </p>
+                            </div>
+                        ))}
+                    </div>
                 </section>
 
                 <section className="mb-10">
@@ -114,33 +219,6 @@ const About = () => {
                             <span><strong>Innovative Track:</strong> AI-powered ideation, rapid prototyping, and project management</span>
                         </li>
                     </ul>
-                </section>
-
-                <section className="mb-10">
-                    <h3 className={`text-2xl font-semibold mb-6 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                        Our Team
-                    </h3>
-                    <p className="mb-6">
-                        Kimuntu AI was built by a team of 4 dedicated developers — 2 focused on the frontend experience and 2 driving the backend infrastructure. More details about our team coming soon.
-                    </p>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className={`p-6 rounded-xl border ${isDark ? 'bg-white/5 border-white/10' : 'bg-white/60 border-gray-200'}`}>
-                            <h4 className={`text-lg font-semibold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                                Frontend Team
-                            </h4>
-                            <p className={isDark ? 'text-white/60' : 'text-gray-600'}>
-                                2 developers — UI/UX, React, and client-side architecture.
-                            </p>
-                        </div>
-                        <div className={`p-6 rounded-xl border ${isDark ? 'bg-white/5 border-white/10' : 'bg-white/60 border-gray-200'}`}>
-                            <h4 className={`text-lg font-semibold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                                Backend Team
-                            </h4>
-                            <p className={isDark ? 'text-white/60' : 'text-gray-600'}>
-                                2 developers — APIs, databases, and server-side logic.
-                            </p>
-                        </div>
-                    </div>
                 </section>
 
                 <section className="mb-8">
