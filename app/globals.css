@@ -35,6 +35,21 @@ html {
     color: #ffffff !important;
     opacity: 1 !important;
   }
+
+  /* Business dashboard uses a light canvas in both themes, so keep supporting text dark there */
+  .dark .business-dashboard-content [class*="text-gray-"] {
+    color: #111827 !important;
+  }
+
+  .dark .business-dashboard-content [class*="text-white/"] {
+    color: #111827 !important;
+    opacity: 1 !important;
+  }
+
+  .dark .business-dashboard-content [class*="text-black/"] {
+    color: #111827 !important;
+    opacity: 1 !important;
+  }
 }
 
 /* Glassmorphism utilities */

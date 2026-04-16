@@ -26,7 +26,7 @@ export default function BusinessDashboard({
       <DashboardHero userName={userName} tenantId={tenantId} userId={userId} />
 
       {/* Main Dashboard Content - 3 Column Layout */}
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="business-dashboard-content max-w-7xl mx-auto px-6 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Left Column: Tools Panel (30% - 4 cols) */}
           <div className="lg:col-span-4">
