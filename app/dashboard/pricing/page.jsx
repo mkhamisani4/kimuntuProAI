@@ -163,7 +163,7 @@ export default function PricingPage() {
                     <h1 className={`text-4xl md:text-5xl font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                         Choose Your Track
                     </h1>
-                    <p className={`text-lg max-w-2xl mx-auto ${isDark ? 'text-white/50' : 'text-black/50'}`}>
+                    <p className={`text-lg max-w-2xl mx-auto ${isDark ? 'text-white/50' : 'text-black'}`}>
                         Pick individual tracks or get everything with the Full Package.
                         All plans include a 20% discount on yearly billing.
                     </p>
@@ -173,7 +173,7 @@ export default function PricingPage() {
                 <div className={`flex items-center justify-center gap-4 mb-12 ${mounted ? 'animate-fadeInUp' : 'opacity-0'}`}
                     style={{ animationDelay: '100ms' }}
                 >
-                    <span className={`text-sm font-medium ${!isYearly ? (isDark ? 'text-white' : 'text-gray-900') : (isDark ? 'text-white/40' : 'text-black/40')}`}>
+                    <span className={`text-sm font-medium ${!isYearly ? (isDark ? 'text-white' : 'text-gray-900') : (isDark ? 'text-white/40' : 'text-black')}`}>
                         Monthly
                     </span>
                     <button
@@ -188,7 +188,7 @@ export default function PricingPage() {
                             isYearly ? 'left-9' : 'left-1'
                         }`} />
                     </button>
-                    <span className={`text-sm font-medium ${isYearly ? (isDark ? 'text-white' : 'text-gray-900') : (isDark ? 'text-white/40' : 'text-black/40')}`}>
+                    <span className={`text-sm font-medium ${isYearly ? (isDark ? 'text-white' : 'text-gray-900') : (isDark ? 'text-white/40' : 'text-black')}`}>
                         Yearly
                     </span>
                     {isYearly && (
@@ -209,7 +209,7 @@ export default function PricingPage() {
                         }}
                     >
                         <Crown className="w-4 h-4 text-emerald-400" />
-                        <span className={`text-sm ${isDark ? 'text-white/70' : 'text-black/70'}`}>
+                        <span className={`text-sm ${isDark ? 'text-white/70' : 'text-black'}`}>
                             Full Package saves you <strong className="text-emerald-400">$60.96/month</strong> vs. buying all tracks separately
                         </span>
                     </div>
@@ -308,7 +308,7 @@ export default function PricingPage() {
                                             <h3 className={`text-lg font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
                                                 {card.plan.name}
                                             </h3>
-                                            <p className={`text-xs ${isDark ? 'text-white/40' : 'text-black/40'}`}>
+                                            <p className={`text-xs ${isDark ? 'text-white/40' : 'text-black'}`}>
                                                 {card.subtitle}
                                             </p>
                                         </div>
@@ -323,7 +323,7 @@ export default function PricingPage() {
                                         }`}>
                                             {getPrice(card.plan)}
                                         </span>
-                                        <span className={`text-sm ${isDark ? 'text-white/30' : 'text-black/30'}`}>
+                                        <span className={`text-sm ${isDark ? 'text-white/30' : 'text-black'}`}>
                                             {getInterval(card.plan)}
                                         </span>
                                     </div>
@@ -374,10 +374,10 @@ export default function PricingPage() {
                                                     <Check className={`w-3 h-3 ${
                                                         isBestSeller || !isFree
                                                             ? isDark ? 'text-emerald-400' : 'text-emerald-600'
-                                                            : isDark ? 'text-white/30' : 'text-black/30'
+                                                            : isDark ? 'text-white/30' : 'text-black'
                                                     }`} />
                                                 </div>
-                                                <span className={`text-xs leading-relaxed ${isDark ? 'text-white/60' : 'text-black/60'}`}>
+                                                <span className={`text-xs leading-relaxed ${isDark ? 'text-white/60' : 'text-black'}`}>
                                                     {feature}
                                                 </span>
                                             </li>
@@ -398,7 +398,7 @@ export default function PricingPage() {
                                                 {card.plan.exclusiveFeatures.map((feature) => (
                                                     <li key={feature} className="flex items-start gap-2.5">
                                                         <Star className={`w-3 h-3 flex-shrink-0 mt-0.5 ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`} />
-                                                        <span className={`text-xs leading-relaxed ${isDark ? 'text-white/60' : 'text-black/60'}`}>
+                                                        <span className={`text-xs leading-relaxed ${isDark ? 'text-white/60' : 'text-black'}`}>
                                                             {feature}
                                                         </span>
                                                     </li>
@@ -417,7 +417,7 @@ export default function PricingPage() {
                     <h2 className={`text-2xl font-bold text-center mb-3 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                         Pay-Per-Use Credits
                     </h2>
-                    <p className={`text-center mb-10 max-w-2xl mx-auto ${isDark ? 'text-white/40' : 'text-black/40'}`}>
+                    <p className={`text-center mb-10 max-w-2xl mx-auto ${isDark ? 'text-white/40' : 'text-black'}`}>
                         Buy credit bundles for on-demand premium actions like Live Avatar sessions,
                         professional business plans, and patent drafting.
                     </p>
@@ -451,7 +451,7 @@ export default function PricingPage() {
                                 <h3 className={`text-sm font-bold mb-1 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                                     {bundle.name}
                                 </h3>
-                                <p className={`text-xs mb-3 ${isDark ? 'text-white/40' : 'text-black/40'}`}>
+                                <p className={`text-xs mb-3 ${isDark ? 'text-white/40' : 'text-black'}`}>
                                     {bundle.credits} credits
                                 </p>
                                 <div className="flex items-baseline gap-1 mb-1">
@@ -459,7 +459,7 @@ export default function PricingPage() {
                                         ${bundle.price}
                                     </span>
                                 </div>
-                                <p className={`text-xs mb-4 ${isDark ? 'text-white/40' : 'text-black/40'}`}>
+                                <p className={`text-xs mb-4 ${isDark ? 'text-white/40' : 'text-black'}`}>
                                     ${bundle.perCredit.toFixed(2)} / credit
                                     {bundle.savings && (
                                         <span className="ml-2 text-emerald-400 font-semibold">{bundle.savings}</span>
@@ -496,7 +496,7 @@ export default function PricingPage() {
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             {CREDIT_ACTIONS.map((item) => (
                                 <div key={item.action} className="flex items-center justify-between gap-3">
-                                    <span className={`text-xs ${isDark ? 'text-white/60' : 'text-black/60'}`}>
+                                    <span className={`text-xs ${isDark ? 'text-white/60' : 'text-black'}`}>
                                         {item.action}
                                     </span>
                                     <span className={`text-xs font-bold flex-shrink-0 px-2 py-1 rounded-lg ${
@@ -539,11 +539,11 @@ export default function PricingPage() {
                                             ? isDark ? 'bg-emerald-500/20 rotate-45' : 'bg-emerald-50 rotate-45'
                                             : isDark ? 'bg-white/5' : 'bg-gray-50'
                                     }`}>
-                                        <span className={`text-sm ${isDark ? 'text-white/60' : 'text-black/60'}`}>+</span>
+                                        <span className={`text-sm ${isDark ? 'text-white/60' : 'text-black'}`}>+</span>
                                     </div>
                                 </button>
                                 {openFaq === i && (
-                                    <div className={`px-5 pb-5 text-sm animate-fadeIn ${isDark ? 'text-white/50' : 'text-black/50'}`}>
+                                    <div className={`px-5 pb-5 text-sm animate-fadeIn ${isDark ? 'text-white/50' : 'text-black'}`}>
                                         {faq.a}
                                     </div>
                                 )}
@@ -570,10 +570,10 @@ export default function PricingPage() {
                     <h2 className={`text-2xl font-bold mb-3 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                         Ready to supercharge your workflow?
                     </h2>
-                    <p className={`mb-2 max-w-lg mx-auto ${isDark ? 'text-white/50' : 'text-black/50'}`}>
+                    <p className={`mb-2 max-w-lg mx-auto ${isDark ? 'text-white/50' : 'text-black'}`}>
                         Join thousands of professionals using Kimuntu AI to build, create, and grow faster.
                     </p>
-                    <p className={`text-sm mb-6 ${isDark ? 'text-white/40' : 'text-black/40'}`}>
+                    <p className={`text-sm mb-6 ${isDark ? 'text-white/40' : 'text-black'}`}>
                         Questions? Contact <a href="mailto:support@kimuntu.ai" className="text-emerald-400 hover:text-emerald-300 underline">support@kimuntu.ai</a>
                     </p>
                     <div className="flex items-center justify-center gap-4 flex-wrap">
@@ -586,12 +586,12 @@ export default function PricingPage() {
                         </button>
                         <div className="flex items-center gap-4">
                             <div className="flex items-center gap-1.5">
-                                <Lock className={`w-3.5 h-3.5 ${isDark ? 'text-white/30' : 'text-black/30'}`} />
-                                <span className={`text-xs ${isDark ? 'text-white/30' : 'text-black/30'}`}>Secure checkout</span>
+                                <Lock className={`w-3.5 h-3.5 ${isDark ? 'text-white/30' : 'text-black'}`} />
+                                <span className={`text-xs ${isDark ? 'text-white/30' : 'text-black'}`}>Secure checkout</span>
                             </div>
                             <div className="flex items-center gap-1.5">
-                                <Shield className={`w-3.5 h-3.5 ${isDark ? 'text-white/30' : 'text-black/30'}`} />
-                                <span className={`text-xs ${isDark ? 'text-white/30' : 'text-black/30'}`}>Cancel anytime</span>
+                                <Shield className={`w-3.5 h-3.5 ${isDark ? 'text-white/30' : 'text-black'}`} />
+                                <span className={`text-xs ${isDark ? 'text-white/30' : 'text-black'}`}>Cancel anytime</span>
                             </div>
                         </div>
                     </div>

@@ -110,7 +110,7 @@ const Onboarding = () => {
                 <div className={`p-6 border-b ${isDark ? 'border-emerald-500/10' : 'border-emerald-100'}`}>
                     <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-3">
-                            <Image src="/assets/LOGOS(9).svg" alt="Kimuntu" width={28} height={28} />
+                            <Image src="/assets/new_single_logo.png" alt="Kimuntu" width={36} height={36} />
                             <span className={`text-sm font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>Kimuntu</span>
                         </div>
                         <span className={`text-xs font-medium px-3 py-1 rounded-full ${
@@ -137,7 +137,7 @@ const Onboarding = () => {
                                 <div className="text-center space-y-4">
                                     <div className="flex justify-center">
                                         <div className="relative">
-                                            <Image src="/assets/LOGOS(9).svg" alt="Kimuntu" width={64} height={64} className="animate-float" />
+                                            <Image src="/assets/new_single_logo.png" alt="Kimuntu" width={80} height={80} className="animate-float" />
                                             <div className="absolute inset-0 bg-emerald-500/20 rounded-full blur-2xl animate-pulse" />
                                         </div>
                                     </div>
@@ -278,7 +278,7 @@ const Onboarding = () => {
                                 <div className="text-center space-y-4">
                                     <div className="flex justify-center">
                                         <div className="relative">
-                                            <Image src="/assets/LOGOS(9).svg" alt="Kimuntu" width={56} height={56} className="animate-float" />
+                                            <Image src="/assets/new_single_logo.png" alt="Kimuntu" width={72} height={72} className="animate-float" />
                                             <div className="absolute inset-0 bg-emerald-500/20 rounded-full blur-2xl animate-pulse" />
                                         </div>
                                     </div>

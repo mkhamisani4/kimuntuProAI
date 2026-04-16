@@ -520,13 +520,10 @@ export default function WebDemo() {
               )}
             </button>
             <div a className="flex justify-center mb-8">
-              <Image
-                src="/kimuntu_logo_black.png"
-                alt="Kimuntu ProLaunch AI logo"
-                width={320}
-                height={320}
-                priority
-                className="w-64 h-auto drop-shadow-[0_10px_40px_rgba(16,185,129,0.35)]"
+              <img
+                src="/assets/new_light_mode_logo.png"
+                alt="Kimuntu AI logo"
+                className="h-20 w-auto drop-shadow-[0_10px_40px_rgba(16,185,129,0.35)]"
               />
             </div>
             <h1 className="text-5xl font-bold mb-4">

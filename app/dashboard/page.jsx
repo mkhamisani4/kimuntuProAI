@@ -45,7 +45,7 @@ export default function DashboardPage() {
                         >
                             <div className="flex items-start justify-between mb-4">
                                 <div>
-                                    <p className={`text-sm mb-2 ${isDark ? 'text-white/50' : 'text-black/50'}`}>
+                                    <p className={`text-sm mb-2 ${isDark ? 'text-white/50' : 'text-black'}`}>
                                         {stat.label}
                                     </p>
                                     <p className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-black'}`}>
@@ -79,7 +79,7 @@ export default function DashboardPage() {
                             <h3 className={`font-semibold mb-2 ${isDark ? 'text-white' : 'text-black'}`}>
                                 {action.title}
                             </h3>
-                            <p className={`text-sm mb-4 ${isDark ? 'text-white/50' : 'text-black/50'}`}>
+                            <p className={`text-sm mb-4 ${isDark ? 'text-white/50' : 'text-black'}`}>
                                 {action.desc}
                             </p>
                             <div className={`flex items-center text-sm font-medium ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>

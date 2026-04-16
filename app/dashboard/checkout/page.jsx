@@ -128,10 +128,10 @@ export default function CheckoutPage() {
                     <h1 className={`text-3xl font-bold mb-3 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                         Welcome to Pro!
                     </h1>
-                    <p className={`text-lg mb-2 ${isDark ? 'text-white/60' : 'text-black/60'}`}>
+                    <p className={`text-lg mb-2 ${isDark ? 'text-white/60' : 'text-black'}`}>
                         Your Kimuntu Pro AI subscription is now active.
                     </p>
-                    <p className={`text-sm mb-8 ${isDark ? 'text-white/40' : 'text-black/40'}`}>
+                    <p className={`text-sm mb-8 ${isDark ? 'text-white/40' : 'text-black'}`}>
                         {plan.name} plan — ${billingCycle === 'yearly' ? plan.yearlyPrice : plan.monthlyPrice}/{billingCycle === 'yearly' ? 'year' : 'month'}
                     </p>
                     <button
@@ -143,7 +143,7 @@ export default function CheckoutPage() {
                     <button
                         onClick={() => router.push('/dashboard/subscription')}
                         className={`w-full mt-3 py-3 rounded-2xl font-medium transition-all ${
-                            isDark ? 'text-white/50 hover:text-white/80' : 'text-black/50 hover:text-black/80'
+                            isDark ? 'text-white/50 hover:text-white/80' : 'text-black hover:text-black'
                         }`}
                     >
                         Manage Subscription
@@ -165,7 +165,7 @@ export default function CheckoutPage() {
             <button
                 onClick={() => router.push('/dashboard/pricing')}
                 className={`flex items-center gap-2 mb-8 text-sm font-medium transition-all ${
-                    isDark ? 'text-white/50 hover:text-white' : 'text-black/50 hover:text-black'
+                    isDark ? 'text-white/50 hover:text-white' : 'text-black hover:text-black'
                 }`}
             >
                 <ArrowLeft className="w-4 h-4" />
@@ -189,7 +189,7 @@ export default function CheckoutPage() {
                                 <h1 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
                                     Payment Details
                                 </h1>
-                                <p className={`text-sm ${isDark ? 'text-white/40' : 'text-black/40'}`}>
+                                <p className={`text-sm ${isDark ? 'text-white/40' : 'text-black'}`}>
                                     {USE_REAL_PAYMENTS ? 'Secure checkout powered by Stripe' : 'Secure checkout powered by Stripe'}
                                 </p>
                             </div>
@@ -315,16 +315,16 @@ export default function CheckoutPage() {
                         {/* Security badges */}
                         <div className={`flex items-center justify-center gap-6 mt-6 pt-6 border-t ${isDark ? 'border-white/10' : 'border-gray-100'}`}>
                             <div className="flex items-center gap-1.5">
-                                <Lock className={`w-3.5 h-3.5 ${isDark ? 'text-white/30' : 'text-black/30'}`} />
-                                <span className={`text-xs ${isDark ? 'text-white/30' : 'text-black/30'}`}>SSL Encrypted</span>
+                                <Lock className={`w-3.5 h-3.5 ${isDark ? 'text-white/30' : 'text-black'}`} />
+                                <span className={`text-xs ${isDark ? 'text-white/30' : 'text-black'}`}>SSL Encrypted</span>
                             </div>
                             <div className="flex items-center gap-1.5">
-                                <Shield className={`w-3.5 h-3.5 ${isDark ? 'text-white/30' : 'text-black/30'}`} />
-                                <span className={`text-xs ${isDark ? 'text-white/30' : 'text-black/30'}`}>PCI Compliant</span>
+                                <Shield className={`w-3.5 h-3.5 ${isDark ? 'text-white/30' : 'text-black'}`} />
+                                <span className={`text-xs ${isDark ? 'text-white/30' : 'text-black'}`}>PCI Compliant</span>
                             </div>
                             <div className="flex items-center gap-1.5">
-                                <Check className={`w-3.5 h-3.5 ${isDark ? 'text-white/30' : 'text-black/30'}`} />
-                                <span className={`text-xs ${isDark ? 'text-white/30' : 'text-black/30'}`}>30-day guarantee</span>
+                                <Check className={`w-3.5 h-3.5 ${isDark ? 'text-white/30' : 'text-black'}`} />
+                                <span className={`text-xs ${isDark ? 'text-white/30' : 'text-black'}`}>30-day guarantee</span>
                             </div>
                         </div>
                     </div>
@@ -351,7 +351,7 @@ export default function CheckoutPage() {
                                     Kimuntu Pro AI
                                 </span>
                             </div>
-                            <p className={`text-sm ${isDark ? 'text-white/50' : 'text-black/50'}`}>
+                            <p className={`text-sm ${isDark ? 'text-white/50' : 'text-black'}`}>
                                 {plan.name} subscription
                             </p>
                             {plan.savings && (
@@ -364,11 +364,11 @@ export default function CheckoutPage() {
                         {/* Price breakdown */}
                         <div className="space-y-3 mb-6">
                             <div className="flex justify-between">
-                                <span className={`text-sm ${isDark ? 'text-white/50' : 'text-black/50'}`}>Subtotal</span>
+                                <span className={`text-sm ${isDark ? 'text-white/50' : 'text-black'}`}>Subtotal</span>
                                 <span className={`text-sm font-medium ${isDark ? 'text-white' : 'text-gray-900'}`}>${(billingCycle === 'yearly' ? plan.yearlyPrice : plan.monthlyPrice)}</span>
                             </div>
                             <div className="flex justify-between">
-                                <span className={`text-sm ${isDark ? 'text-white/50' : 'text-black/50'}`}>Tax</span>
+                                <span className={`text-sm ${isDark ? 'text-white/50' : 'text-black'}`}>Tax</span>
                                 <span className={`text-sm font-medium ${isDark ? 'text-white' : 'text-gray-900'}`}>$0.00</span>
                             </div>
                             <div className={`pt-3 border-t flex justify-between ${isDark ? 'border-white/10' : 'border-gray-100'}`}>
@@ -388,7 +388,7 @@ export default function CheckoutPage() {
                                 {PRO_FEATURES.map((feature) => (
                                     <li key={feature} className="flex items-center gap-2.5">
                                         <Check className={`w-4 h-4 flex-shrink-0 ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`} />
-                                        <span className={`text-sm ${isDark ? 'text-white/60' : 'text-black/60'}`}>{feature}</span>
+                                        <span className={`text-sm ${isDark ? 'text-white/60' : 'text-black'}`}>{feature}</span>
                                     </li>
                                 ))}
                             </ul>
@@ -400,7 +400,7 @@ export default function CheckoutPage() {
                             className={`w-full mt-6 py-2.5 rounded-xl text-sm font-medium transition-all ${
                                 isDark
                                     ? 'bg-white/5 text-white/50 hover:text-white/80 border border-white/10'
-                                    : 'bg-gray-50 text-black/50 hover:text-black/80 border border-gray-100'
+                                    : 'bg-gray-50 text-black hover:text-black border border-gray-100'
                             }`}
                         >
                             Switch to {planId === 'monthly' ? 'yearly (save $39.89)' : 'monthly'} billing

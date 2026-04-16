@@ -2,7 +2,6 @@
 
 import React from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { Mail, Phone, MapPin, Facebook, Twitter, Linkedin, Instagram, Youtube, FileText, Shield, Info } from 'lucide-react';
 import { useTheme } from '@/components/providers/ThemeProvider';
 import { useLanguage } from '@/components/providers/LanguageProvider';
@@ -73,16 +72,14 @@ const Footer = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8 mb-12">
                     {/* Company Info */}
                     <div className="lg:col-span-2">
-                        <div className={`inline-flex items-center gap-3 mb-6 p-3 rounded-2xl ${isDark
-                            ? 'bg-white/5 border border-white/10'
-                            : 'bg-black/5 border border-black/10'
-                            }`}>
-                            <Image src="/assets/LOGOS(9).svg" alt="Kimuntu Logo" width={48} height={48} />
-                            <span className={`text-xl font-bold ${isDark ? 'text-white' : 'text-black'}`}>
-                                Kimuntu
-                            </span>
+                        <div className="mb-6">
+                            <img
+                                src={isDark ? '/assets/new_darkmode_logo.png' : '/assets/new_light_mode_logo.png'}
+                                alt="Kimuntu AI Logo"
+                                className="h-14 w-auto object-contain"
+                            />
                         </div>
-                        <p className={`text-sm mb-6 ${isDark ? 'text-white/70' : 'text-black/70'} leading-relaxed`}>
+                        <p className={`text-sm mb-6 ${isDark ? 'text-white/70' : 'text-black'} leading-relaxed`}>
                             {t.footerTagline}
                         </p>
 
@@ -94,7 +91,7 @@ const Footer = () => {
                                     href={item.href}
                                     className={`flex items-center gap-3 text-sm transition-all group ${isDark
                                         ? 'text-white/70 hover:text-white'
-                                        : 'text-black/70 hover:text-black'
+                                        : 'text-black hover:text-black'
                                         }`}
                                 >
                                     <div className={`p-2 rounded-lg transition-all ${isDark
@@ -121,7 +118,7 @@ const Footer = () => {
                                         href={link.href}
                                         className={`text-sm transition-all hover:translate-x-1 inline-block ${isDark
                                             ? 'text-white/70 hover:text-white'
-                                            : 'text-black/70 hover:text-black'
+                                            : 'text-black hover:text-black'
                                             }`}
                                     >
                                         {link.name}
@@ -143,7 +140,7 @@ const Footer = () => {
                                         href={link.href}
                                         className={`text-sm transition-all hover:translate-x-1 inline-block ${isDark
                                             ? 'text-white/70 hover:text-white'
-                                            : 'text-black/70 hover:text-black'
+                                            : 'text-black hover:text-black'
                                             }`}
                                     >
                                         {link.name}
@@ -165,7 +162,7 @@ const Footer = () => {
                                         href={link.href}
                                         className={`text-sm transition-all hover:translate-x-1 inline-block ${isDark
                                             ? 'text-white/70 hover:text-white'
-                                            : 'text-black/70 hover:text-black'
+                                            : 'text-black hover:text-black'
                                             }`}
                                     >
                                         {link.name}
@@ -187,7 +184,7 @@ const Footer = () => {
                                         href={link.href}
                                         className={`text-sm transition-all hover:translate-x-1 inline-block ${isDark
                                             ? 'text-white/70 hover:text-white'
-                                            : 'text-black/70 hover:text-black'
+                                            : 'text-black hover:text-black'
                                             }`}
                                     >
                                         {link.name}
@@ -210,7 +207,7 @@ const Footer = () => {
                                 {t.footerStayUpdated}
                             </h3>
                         </div>
-                        <p className={`text-sm mb-6 ${isDark ? 'text-white/70' : 'text-black/70'}`}>
+                        <p className={`text-sm mb-6 ${isDark ? 'text-white/70' : 'text-black'}`}>
                             {t.footerNewsletter}
                         </p>
                         <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
@@ -252,7 +249,7 @@ const Footer = () => {
                     </div>
 
                     {/* Copyright */}
-                    <div className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'} text-center md:text-right`}>
+                    <div className={`text-sm ${isDark ? 'text-gray-400' : 'text-black'} text-center md:text-right`}>
                         <p className="font-medium">
                             © {currentYear} Kimuntu AI Inc. All rights reserved.
                         </p>
@@ -269,7 +266,7 @@ const Footer = () => {
                         : 'bg-black/5 border border-black/10'
                         }`}>
                         <Shield className={`w-5 h-5 ${isDark ? 'text-green-400' : 'text-green-600'}`} />
-                        <span className={`text-xs font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                        <span className={`text-xs font-medium ${isDark ? 'text-gray-300' : 'text-black'}`}>
                             {t.footerSSL}
                         </span>
                     </div>
@@ -278,7 +275,7 @@ const Footer = () => {
                         : 'bg-black/5 border border-black/10'
                         }`}>
                         <FileText className={`w-5 h-5 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
-                        <span className={`text-xs font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                        <span className={`text-xs font-medium ${isDark ? 'text-gray-300' : 'text-black'}`}>
                             {t.footerGDPRCompliant}
                         </span>
                     </div>
@@ -287,7 +284,7 @@ const Footer = () => {
                         : 'bg-black/5 border border-black/10'
                         }`}>
                         <Info className={`w-5 h-5 ${isDark ? 'text-purple-400' : 'text-purple-600'}`} />
-                        <span className={`text-xs font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                        <span className={`text-xs font-medium ${isDark ? 'text-gray-300' : 'text-black'}`}>
                             {t.footerSOC2}
                         </span>
                     </div>

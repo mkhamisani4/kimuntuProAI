@@ -77,7 +77,7 @@ export default function SettingsPage() {
         : 'bg-white border border-black/5 shadow-sm'
     }`;
 
-    const labelClass = `block text-sm font-medium mb-2 ${isDark ? 'text-white/70' : 'text-black/70'}`;
+    const labelClass = `block text-sm font-medium mb-2 ${isDark ? 'text-white/70' : 'text-black'}`;
 
     return (
         <div className="max-w-3xl">
@@ -134,10 +134,10 @@ export default function SettingsPage() {
                             <p className={`font-semibold text-lg ${isDark ? 'text-white' : 'text-black'}`}>
                                 {displayName || 'Your Name'}
                             </p>
-                            <p className={`text-sm ${isDark ? 'text-white/40' : 'text-black/40'}`}>
+                            <p className={`text-sm ${isDark ? 'text-white/40' : 'text-black'}`}>
                                 {user?.email}
                             </p>
-                            <p className={`text-xs mt-1 ${isDark ? 'text-white/30' : 'text-black/30'}`}>
+                            <p className={`text-xs mt-1 ${isDark ? 'text-white/30' : 'text-black'}`}>
                                 Click the camera icon to change your photo
                             </p>
                         </div>
@@ -259,10 +259,10 @@ export default function SettingsPage() {
                     <div className="space-y-5">
                         <div className="flex items-center justify-between">
                             <div>
-                                <label className={`block text-sm font-medium ${isDark ? 'text-white/80' : 'text-black/80'}`}>
+                                <label className={`block text-sm font-medium ${isDark ? 'text-white/80' : 'text-black'}`}>
                                     {t.theme}
                                 </label>
-                                <p className={`text-xs mt-1 ${isDark ? 'text-white/40' : 'text-black/40'}`}>
+                                <p className={`text-xs mt-1 ${isDark ? 'text-white/40' : 'text-black'}`}>
                                     {t.themeDesc}
                                 </p>
                             </div>
@@ -283,10 +283,10 @@ export default function SettingsPage() {
                         <div className={`border-t ${isDark ? 'border-white/10' : 'border-black/5'}`} />
                         <div className="flex items-center justify-between">
                             <div>
-                                <label className={`block text-sm font-medium ${isDark ? 'text-white/80' : 'text-black/80'}`}>
+                                <label className={`block text-sm font-medium ${isDark ? 'text-white/80' : 'text-black'}`}>
                                     {t.language}
                                 </label>
-                                <p className={`text-xs mt-1 ${isDark ? 'text-white/40' : 'text-black/40'}`}>
+                                <p className={`text-xs mt-1 ${isDark ? 'text-white/40' : 'text-black'}`}>
                                     {t.languageDesc}
                                 </p>
                             </div>
@@ -297,7 +297,7 @@ export default function SettingsPage() {
                                         ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-lg shadow-emerald-500/20'
                                         : isDark
                                             ? 'bg-white/5 text-white/40 hover:bg-white/10 border border-white/10'
-                                            : 'bg-black/5 text-black/40 hover:bg-black/10 border border-black/5'
+                                            : 'bg-black/5 text-black hover:bg-black/10 border border-black/5'
                                     }`}
                                 >
                                     English
@@ -308,7 +308,7 @@ export default function SettingsPage() {
                                         ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-lg shadow-emerald-500/20'
                                         : isDark
                                             ? 'bg-white/5 text-white/40 hover:bg-white/10 border border-white/10'
-                                            : 'bg-black/5 text-black/40 hover:bg-black/10 border border-black/5'
+                                            : 'bg-black/5 text-black hover:bg-black/10 border border-black/5'
                                     }`}
                                 >
                                     Français
@@ -330,13 +330,13 @@ export default function SettingsPage() {
                         <div className={`p-4 rounded-xl ${isDark ? 'bg-white/[0.03] border border-white/10' : 'bg-black/[0.02] border border-black/5'}`}>
                             <div className="flex items-center gap-3 mb-2">
                                 <div className={`w-2 h-2 rounded-full ${isDark ? 'bg-emerald-400' : 'bg-emerald-500'}`} />
-                                <span className={`text-sm font-medium ${isDark ? 'text-white/80' : 'text-black/80'}`}>Account secured</span>
+                                <span className={`text-sm font-medium ${isDark ? 'text-white/80' : 'text-black'}`}>Account secured</span>
                             </div>
-                            <p className={`text-xs ml-5 ${isDark ? 'text-white/40' : 'text-black/40'}`}>
+                            <p className={`text-xs ml-5 ${isDark ? 'text-white/40' : 'text-black'}`}>
                                 Your data is encrypted and stored securely with Firebase Auth
                             </p>
                         </div>
-                        <p className={`text-sm ${isDark ? 'text-white/40' : 'text-black/40'}`}>
+                        <p className={`text-sm ${isDark ? 'text-white/40' : 'text-black'}`}>
                             {t.deleteAccountDesc}
                         </p>
                         <button

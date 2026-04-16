@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import Image from 'next/image';
 import { LogOut, Home, Briefcase, TrendingUp, Scale, FileText, HelpCircle } from 'lucide-react';
 import { signOutUser } from '@/lib/firebase';
 
@@ -46,12 +45,10 @@ export default function Sidebar({ user, t }) {
             className="mb-8 cursor-pointer hover:opacity-80 transition-opacity w-full flex items-center justify-center bg-transparent border-none p-0"
             type="button"
           >
-            <Image
-              src="/kimuntu_logo_black.png"
+            <img
+              src="/assets/new_darkmode_logo.png"
               alt="Kimuntu AI Logo"
-              width={144}
-              height={144}
-              className="w-full object-contain"
+              className="h-12 w-auto object-contain"
             />
           </button>
           <nav className="space-y-1">
