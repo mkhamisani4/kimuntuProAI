@@ -68,7 +68,6 @@ export default function LandingPage() {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [authLoading, setAuthLoading] = useState(false);
-    const [activeFeature, setActiveFeature] = useState(0);
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
     const [heroRef, heroInView] = useInView();
@@ -112,13 +111,6 @@ export default function LandingPage() {
         });
         return () => unsubscribe();
     }, [router]);
-
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setActiveFeature((prev) => (prev + 1) % 4);
-        }, 4000);
-        return () => clearInterval(interval);
-    }, []);
 
     useEffect(() => {
         const handleMouse = (e) => {
@@ -254,6 +246,22 @@ export default function LandingPage() {
         { name: 'James K.', role: t.landing_t2Role, text: t.landing_t2Text, rating: 5 },
         { name: 'Amara D.', role: t.landing_t3Role, text: t.landing_t3Text, rating: 5 },
     ];
+
+    const heroSlides = language === 'fr'
+        ? [
+            { src: '/assets/frenchdashboard.png', label: 'Aperçu du tableau de bord' },
+            { src: '/assets/frenchcareer.png', label: 'Piste de carrière' },
+            { src: '/assets/frenchbusiness.png', label: 'Piste d\'entreprise' },
+            { src: '/assets/frenchlegal.png', label: 'Piste juridique' },
+            { src: '/assets/frenchinnovation.png', label: 'Piste innovante' },
+        ]
+        : [
+            { src: '/assets/englishdashboard.png', label: 'Dashboard Overview' },
+            { src: '/assets/englishcareer.png', label: 'Career Track' },
+            { src: '/assets/englishbusiness.png', label: 'Business Track' },
+            { src: '/assets/englishlegal.png', label: 'Legal Track' },
+            { src: '/assets/englishinnovation.png', label: 'Innovative Track' },
+        ];
 
     if (loading) {
         return (
@@ -428,49 +436,52 @@ export default function LandingPage() {
                         ))}
                     </div>
 
-                    {/* Hero Visual - Animated SVG Illustration */}
-                    <div className="mt-16 max-w-3xl mx-auto" style={{ opacity: heroInView ? 1 : 0, transform: heroInView ? 'translateY(0)' : 'translateY(40px)', transition: 'opacity 1s ease 0.5s, transform 1s ease 0.5s' }}>
-                        <div className={`relative rounded-3xl overflow-hidden p-8 ${isDark ? 'bg-white/[0.03] border border-white/10' : 'bg-white/60 border border-black/5 shadow-xl'}`}>
+                    {/* Hero Visual - Dashboard Slider */}
+                    <div className="mt-16 max-w-6xl mx-auto" style={{ opacity: heroInView ? 1 : 0, transform: heroInView ? 'translateY(0)' : 'translateY(40px)', transition: 'opacity 1s ease 0.5s, transform 1s ease 0.5s' }}>
+                        <div className={`relative rounded-3xl overflow-hidden p-4 sm:p-5 ${isDark ? 'bg-white/[0.03] border border-white/10' : 'bg-white/60 border border-black/5 shadow-xl'}`}>
                             <div className="absolute inset-0 animate-grid-bg opacity-50" />
-                            <div className="relative z-10 flex items-center justify-center gap-8">
-                                {/* Dashboard Preview SVG */}
-                                <svg viewBox="0 0 600 300" className="w-full" fill="none">
-                                    {/* Window frame */}
-                                    <rect x="20" y="10" width="560" height="280" rx="12" className={isDark ? 'fill-white/[0.03] stroke-white/10' : 'fill-white stroke-black/10'} strokeWidth="1" />
-                                    {/* Title bar */}
-                                    <rect x="20" y="10" width="560" height="35" rx="12" className={isDark ? 'fill-white/[0.05]' : 'fill-gray-50'} />
-                                    <rect x="20" y="33" width="560" height="12" className={isDark ? 'fill-white/[0.05]' : 'fill-gray-50'} />
-                                    <circle cx="42" cy="27" r="5" className="fill-red-400/60" />
-                                    <circle cx="58" cy="27" r="5" className="fill-yellow-400/60" />
-                                    <circle cx="74" cy="27" r="5" className="fill-green-400/60" />
-                                    {/* Sidebar */}
-                                    <rect x="20" y="45" width="120" height="245" className={isDark ? 'fill-white/[0.02]' : 'fill-gray-50/50'} />
-                                    <line x1="140" y1="45" x2="140" y2="290" className={isDark ? 'stroke-white/5' : 'stroke-black/5'} strokeWidth="1" />
-                                    {/* Sidebar items */}
-                                    {[60, 85, 110, 135, 160].map((y, idx) => (
-                                        <g key={idx}>
-                                            <rect x="35" y={y} width="16" height="16" rx="4" className={idx === 0 ? 'fill-emerald-500/30' : isDark ? 'fill-white/5' : 'fill-gray-200/50'} />
-                                            <rect x="58" y={y + 3} width={50 + (idx % 3) * 10} height="10" rx="3" className={isDark ? 'fill-white/10' : 'fill-gray-200'} />
-                                        </g>
-                                    ))}
-                                    {/* Main content - stats cards */}
-                                    {[{x: 160, color: 'fill-blue-500/20', border: 'stroke-blue-500/30'}, {x: 280, color: 'fill-emerald-500/20', border: 'stroke-emerald-500/30'}, {x: 400, color: 'fill-violet-500/20', border: 'stroke-violet-500/30'}].map((card, idx) => (
-                                        <g key={idx}>
-                                            <rect x={card.x} y="60" width="105" height="65" rx="8" className={`${card.color} ${card.border}`} strokeWidth="1" />
-                                            <rect x={card.x + 12} y="72" width="40" height="8" rx="3" className={isDark ? 'fill-white/20' : 'fill-gray-400/40'} />
-                                            <rect x={card.x + 12} y="88" width="60" height="18" rx="4" className={isDark ? 'fill-white/15' : 'fill-gray-300/40'} />
-                                        </g>
-                                    ))}
-                                    {/* Chart area */}
-                                    <rect x="160" y="140" width="345" height="140" rx="8" className={isDark ? 'fill-white/[0.02] stroke-white/5' : 'fill-white stroke-gray-100'} strokeWidth="1" />
-                                    {/* Chart line */}
-                                    <path d="M180 250 L220 230 L260 240 L300 210 L340 220 L380 190 L420 180 L460 160" className="stroke-emerald-500/60" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                                    <path d="M180 250 L220 230 L260 240 L300 210 L340 220 L380 190 L420 180 L460 160 L460 260 L180 260Z" className="fill-emerald-500/5" />
-                                    {/* Chart dots */}
-                                    {[{x:180,y:250},{x:220,y:230},{x:260,y:240},{x:300,y:210},{x:340,y:220},{x:380,y:190},{x:420,y:180},{x:460,y:160}].map((dot, idx) => (
-                                        <circle key={idx} cx={dot.x} cy={dot.y} r="4" className="fill-emerald-500/80" />
-                                    ))}
-                                </svg>
+                            <div className="relative z-10">
+                                <div className="overflow-hidden rounded-2xl group/hero-slider">
+                                    <div className={`absolute left-4 top-4 z-20 rounded-full px-3 py-1.5 text-xs font-semibold backdrop-blur-md ${isDark ? 'bg-black/45 text-white border border-white/10' : 'bg-white/85 text-black border border-black/10 shadow-sm'}`}>
+                                        {language === 'fr' ? 'Apercus de la plateforme' : 'Platform previews'}
+                                    </div>
+
+                                    <div className={`absolute left-0 top-0 bottom-0 w-12 sm:w-16 z-10 bg-gradient-to-r ${isDark ? 'from-black/90' : 'from-white/90'} to-transparent`} />
+                                    <div className={`absolute right-0 top-0 bottom-0 w-12 sm:w-16 z-10 bg-gradient-to-l ${isDark ? 'from-black/90' : 'from-white/90'} to-transparent`} />
+
+                                    <div className="marquee-wrapper flex group-hover/hero-slider:[animation-play-state:paused]" style={{ width: 'max-content' }}>
+                                        {[0, 1].map((copy) => (
+                                            <div
+                                                key={copy}
+                                                className="marquee-track flex items-center gap-5 whitespace-nowrap px-2 group-hover/hero-slider:[animation-play-state:paused]"
+                                                aria-hidden={copy === 1 ? 'true' : undefined}
+                                            >
+                                                {heroSlides.map((slide) => (
+                                                    <div
+                                                        key={`${copy}-${slide.src}`}
+                                                        className={`w-[340px] sm:w-[520px] lg:w-[680px] shrink-0 rounded-2xl overflow-hidden border ${isDark ? 'border-white/10 bg-black/30' : 'border-black/10 bg-white/80 shadow-sm'}`}
+                                                    >
+                                                        <div className={`relative aspect-[16/10] w-full overflow-hidden ${isDark ? 'bg-black/70' : 'bg-gray-100'}`}>
+                                                            <Image
+                                                                src={slide.src}
+                                                                alt={slide.label}
+                                                                fill
+                                                                className="object-contain object-center"
+                                                                sizes="(max-width: 640px) 340px, (max-width: 1024px) 520px, 680px"
+                                                                priority={copy === 0}
+                                                            />
+                                                            <div className={`absolute inset-0 ${isDark ? 'bg-gradient-to-t from-black/30 via-transparent to-black/10' : 'bg-gradient-to-t from-black/12 via-transparent to-white/5'}`} />
+                                                        </div>
+                                                        <div className={`flex items-center justify-between gap-3 px-4 py-3 ${isDark ? 'bg-black/45 text-white' : 'bg-white/90 text-black'}`}>
+                                                            <span className="text-sm font-semibold">{slide.label}</span>
+                                                            <span className={`h-2.5 w-2.5 rounded-full ${isDark ? 'bg-emerald-400' : 'bg-emerald-500'}`} />
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
                             </div>
                             {/* Floating accent elements */}
                             <div className={`absolute -top-4 -right-4 w-24 h-24 rounded-full blur-2xl ${isDark ? 'bg-emerald-500/10' : 'bg-emerald-400/10'} animate-pulse-ring`} />
