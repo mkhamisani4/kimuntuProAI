@@ -7,8 +7,8 @@ export default function ProLaunchSection() {
   const [selectedName, setSelectedName] = useState('teamai');
 
   return (
-    <section className="bg-white/5 backdrop-blur border border-gray-800 rounded-2xl p-8 mb-8 border-l-4 border-teal-500" role="region" aria-label="ProLaunch Virtual Company">
-      <h2 className="text-2xl lg:text-3xl font-bold text-teal-400 mb-2">ProLaunch Virtual Company</h2>
+    <section className="bg-white/5 backdrop-blur border border-gray-800 rounded-2xl p-8 mb-8 border-l-4 border-teal-500" role="region" aria-label="Kimuntu AI Virtual Company">
+      <h2 className="text-2xl lg:text-3xl font-bold text-teal-400 mb-2">Kimuntu AI Virtual Company</h2>
       <p className="text-gray-400 mb-6">Run CEO, HR, Finance, Sales, Admin & Support with AI.</p>
 
       <ul className="list-none mb-6 grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -44,7 +44,7 @@ export default function ProLaunchSection() {
               className="w-4 h-4 text-emerald-500 focus:ring-emerald-500"
             />
             <label htmlFor="orgai" className="cursor-pointer font-medium text-gray-300">
-              ProLaunch OrgAI
+              Kimuntu OrgAI
             </label>
           </div>
           <div className="flex items-center gap-2">
@@ -58,7 +58,7 @@ export default function ProLaunchSection() {
               className="w-4 h-4 text-emerald-500 focus:ring-emerald-500"
             />
             <label htmlFor="teamai" className="cursor-pointer font-medium text-gray-300">
-              ProLaunch TeamAI
+              Kimuntu TeamAI
             </label>
           </div>
           <div className="flex items-center gap-2">
@@ -72,7 +72,7 @@ export default function ProLaunchSection() {
               className="w-4 h-4 text-emerald-500 focus:ring-emerald-500"
             />
             <label htmlFor="smartoffice" className="cursor-pointer font-medium text-gray-300">
-              ProLaunch SmartOffice
+              Kimuntu SmartOffice
             </label>
           </div>
         </div>

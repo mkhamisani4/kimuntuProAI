@@ -8,6 +8,7 @@
 
 import Link from 'next/link';
 import Toast from './Toast';
+import { useLanguage } from '@/components/providers/LanguageProvider';
 
 interface AssistantLayoutProps {
   title: string;
@@ -24,6 +25,8 @@ export default function AssistantLayout({
   backHref = '/dashboard/business',
   children
 }: AssistantLayoutProps) {
+  const { t } = useLanguage();
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black p-8">
       {/* Toast Notifications */}
@@ -35,7 +38,7 @@ export default function AssistantLayout({
           <ol className="flex items-center space-x-2">
             <li>
               <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">
-                Dashboard
+                {t.biz_dashboard}
               </Link>
             </li>
             <li>
@@ -43,7 +46,7 @@ export default function AssistantLayout({
             </li>
             <li>
               <Link href={backHref} className="hover:text-emerald-400 transition-colors">
-                Business Track
+                {t.biz_businessTrack}
               </Link>
             </li>
             <li>
@@ -71,7 +74,7 @@ export default function AssistantLayout({
             <Link
               href={backHref}
               className="px-4 py-2 text-gray-400 hover:text-white transition-colors flex items-center gap-2"
-              aria-label="Back to Business Track"
+              aria-label={`${t.biz_back} ${t.biz_businessTrack}`}
             >
               <svg
                 className="w-5 h-5"
@@ -86,7 +89,7 @@ export default function AssistantLayout({
                   d="M10 19l-7-7m0 0l7-7m-7 7h18"
                 />
               </svg>
-              Back
+              {t.biz_back}
             </Link>
           </div>
         </div>

@@ -6,6 +6,7 @@ import { listWebsites, type Website } from '@kimuntupro/db';
 import { Globe, Eye, Edit, Download, RefreshCw, Copy, Trash2 } from 'lucide-react';
 import StatusBadge, { StatusType } from './shared/StatusBadge';
 import EmptyState from './shared/EmptyState';
+import { useLanguage } from '@/components/providers/LanguageProvider';
 
 interface WebsitesTabProps {
   tenantId: string;
@@ -14,6 +15,7 @@ interface WebsitesTabProps {
 }
 
 export default function WebsitesTab({ tenantId, userId, limit = 8 }: WebsitesTabProps) {
+  const { t } = useLanguage();
   const [websites, setWebsites] = useState<Website[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -168,9 +170,9 @@ export default function WebsitesTab({ tenantId, userId, limit = 8 }: WebsitesTab
     return (
       <EmptyState
         icon={Globe}
-        title="No Websites Yet"
-        description="Create your first AI-powered website in minutes. Our builder generates professional, responsive websites tailored to your business."
-        actionLabel="Build Your Website"
+        title={t.biz_noWebsitesTitle}
+        description={t.biz_noWebsitesDesc}
+        actionLabel={t.biz_buildYourWebsite}
         actionRoute="/dashboard/business/websites/new"
       />
     );
@@ -180,7 +182,7 @@ export default function WebsitesTab({ tenantId, userId, limit = 8 }: WebsitesTab
     <div className="space-y-4">
       {/* Count */}
       <div className="text-sm text-gray-500">
-        {websites.length} website{websites.length !== 1 ? 's' : ''}
+        {websites.length} {websites.length !== 1 ? t.biz_websites : t.biz_website}
       </div>
 
       {/* Websites List */}
@@ -280,27 +282,27 @@ export default function WebsitesTab({ tenantId, userId, limit = 8 }: WebsitesTab
                       className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500 text-white text-sm font-medium rounded-lg hover:bg-emerald-600 transition-colors shadow-sm"
                     >
                       <Eye size={14} />
-                      View
+                      {t.biz_view}
                     </button>
                     <button
                       onClick={(e) => handleEdit(website, e)}
                       className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 text-gray-600 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors shadow-sm"
                     >
                       <Edit size={14} />
-                      Edit
+                      {t.biz_edit}
                     </button>
                     <button
                       onClick={(e) => handleDownload(website, e)}
                       className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 text-gray-600 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors shadow-sm"
                     >
                       <Download size={14} />
-                      Export
+                      {t.biz_export}
                     </button>
                   </>
                 )}
                 {website.status === 'generating' && (
                   <div className="text-xs text-gray-500 px-3 py-1.5 bg-gray-50 rounded-lg">
-                    Processing...
+                    {t.biz_processing}
                   </div>
                 )}
                 {website.status === 'failed' && (
@@ -309,7 +311,7 @@ export default function WebsitesTab({ tenantId, userId, limit = 8 }: WebsitesTab
                     className="flex items-center gap-1.5 px-3 py-1.5 bg-red-500 text-white text-sm font-medium rounded-lg hover:bg-red-600 transition-colors shadow-sm"
                   >
                     <RefreshCw size={14} />
-                    Retry
+                    {t.biz_retry}
                   </button>
                 )}
 
@@ -321,13 +323,13 @@ export default function WebsitesTab({ tenantId, userId, limit = 8 }: WebsitesTab
                       disabled={deletingId === website.id}
                       className="px-3 py-1.5 bg-red-500 text-white text-xs font-medium rounded-lg hover:bg-red-600 transition-colors disabled:opacity-50"
                     >
-                      {deletingId === website.id ? 'Deleting...' : 'Confirm'}
+                      {deletingId === website.id ? t.biz_deleting : t.biz_confirm}
                     </button>
                     <button
                       onClick={cancelDelete}
                       className="px-3 py-1.5 bg-gray-100 text-gray-600 text-xs font-medium rounded-lg hover:bg-gray-200 transition-colors"
                     >
-                      Cancel
+                      {t.biz_cancel}
                     </button>
                   </div>
                 ) : (
@@ -349,7 +351,7 @@ export default function WebsitesTab({ tenantId, userId, limit = 8 }: WebsitesTab
                 className="flex items-center gap-1.5 text-xs text-emerald-600 hover:text-emerald-700 font-medium"
               >
                 <Copy size={12} />
-                Create Similar Website
+                {t.biz_createSimilarWebsite}
               </button>
             </div>
           </div>
@@ -363,7 +365,7 @@ export default function WebsitesTab({ tenantId, userId, limit = 8 }: WebsitesTab
             onClick={() => router.push('/dashboard/business/websites')}
             className="text-sm text-emerald-600 hover:text-emerald-700 font-medium"
           >
-            View All Websites →
+            {t.biz_viewAllWebsites_link}
           </button>
         </div>
       )}

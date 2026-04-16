@@ -4,6 +4,7 @@ import DashboardHero from './DashboardHero';
 import ToolsPanel from './ToolsPanel';
 import RecentWorkPanel from './RecentWorkPanel';
 import ActivitySidebar from './ActivitySidebar';
+import { useLanguage } from '@/components/providers/LanguageProvider';
 
 interface BusinessDashboardProps {
   userName?: string;
@@ -18,6 +19,7 @@ export default function BusinessDashboard({
   userId,
   loading = false
 }: BusinessDashboardProps) {
+  const { t } = useLanguage();
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section - Full Width */}
@@ -33,7 +35,7 @@ export default function BusinessDashboard({
 
           {/* Center Column: Recent Work (45% - 5 cols) */}
           <div className="lg:col-span-5 space-y-6">
-            <h2 className="text-xl font-bold text-gray-900">Your Work</h2>
+            <h2 className="text-xl font-bold text-gray-900">{t.biz_yourWork}</h2>
 
             {/* Phase 2: Enhanced tabbed interface with filters and actions */}
             {!loading && (
@@ -53,7 +55,7 @@ export default function BusinessDashboard({
 
           {/* Right Column: Activity Sidebar (25% - 3 cols) */}
           <div className="lg:col-span-3">
-            <h2 className="text-xl font-bold text-gray-900 mb-6">Overview</h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-6">{t.biz_overview}</h2>
 
             {/* Phase 3: Activity sidebar with stats, actions, and tips */}
             {!loading && (

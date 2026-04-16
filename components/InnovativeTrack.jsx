@@ -166,20 +166,20 @@ const InnovativeTrack = ({ user }) => {
   ];
 
   const categories = [
-    { value: 'ai-ml', label: 'AI & Machine Learning', icon: Brain },
-    { value: 'blockchain', label: 'Blockchain & Web3', icon: Database },
-    { value: 'iot', label: 'IoT & Hardware', icon: Zap },
-    { value: 'saas', label: 'SaaS & Cloud', icon: Cloud },
-    { value: 'fintech', label: 'FinTech', icon: TrendingUp },
-    { value: 'other', label: 'Other', icon: Sparkles },
+    { value: 'ai-ml', label: t.innovative_catAIML, icon: Brain },
+    { value: 'blockchain', label: t.innovative_catBlockchain, icon: Database },
+    { value: 'iot', label: t.innovative_catIoT, icon: Zap },
+    { value: 'saas', label: t.innovative_catSaaS, icon: Cloud },
+    { value: 'fintech', label: t.innovative_catFintech, icon: TrendingUp },
+    { value: 'other', label: t.innovative_catOther, icon: Sparkles },
   ];
 
   const statusOptions = [
-    { value: 'ideation', label: 'Ideation', color: 'bg-amber-500/20 text-amber-400 border border-amber-500/30' },
-    { value: 'planning', label: 'Planning', color: 'bg-blue-500/20 text-blue-400 border border-blue-500/30' },
-    { value: 'development', label: 'Development', color: 'bg-violet-500/20 text-violet-400 border border-violet-500/30' },
-    { value: 'testing', label: 'Testing', color: 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30' },
-    { value: 'launch', label: 'Launch', color: 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' },
+    { value: 'ideation', label: t.innovative_statusIdeation, color: 'bg-amber-500/20 text-amber-400 border border-amber-500/30' },
+    { value: 'planning', label: t.innovative_statusPlanning, color: 'bg-blue-500/20 text-blue-400 border border-blue-500/30' },
+    { value: 'development', label: t.innovative_statusDevelopment, color: 'bg-violet-500/20 text-violet-400 border border-violet-500/30' },
+    { value: 'testing', label: t.innovative_statusTesting, color: 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30' },
+    { value: 'launch', label: t.innovative_statusLaunch, color: 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' },
   ];
 
   const renderOverview = () => (
@@ -944,4 +944,3 @@ const InnovativeTrack = ({ user }) => {
 };
 
 export default InnovativeTrack;
-

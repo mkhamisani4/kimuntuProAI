@@ -3,14 +3,15 @@
 import React from 'react';
 import { Mail, MessageCircle, Phone } from 'lucide-react';
 import { useTheme } from '@/components/providers/ThemeProvider';
+import { useLanguage } from '@/components/providers/LanguageProvider';
 
-const faqCategories = [
+const faqCategoriesEn = [
     {
         category: 'General Questions',
         faqs: [
             {
-                question: 'What is Kimuntu AI / ProLaunch?',
-                answer: 'Kimuntu AI is a next-generation AI ecosystem by Kimuntu Power Inc. ProLaunch reflects its core mission: to professionally launch users toward success in career, business, legal navigation, and innovation goals — using advanced AI tools, simulations, and intelligent avatars.'
+                question: 'What is Kimuntu AI?',
+                answer: 'Kimuntu AI is a next-generation AI ecosystem by Kimuntu Power Inc. It helps launch users toward success in career, business, legal navigation, and innovation goals using advanced AI tools, simulations, and intelligent avatars.'
             },
             {
                 question: 'Who is Kimuntu AI designed for?',
@@ -59,7 +60,7 @@ const faqCategories = [
                 answer: 'Three levels: Basic (executive summary, market overview), Medium (competitor analysis, financial projections), and Professional (strategic marketing, investor-ready financial models, AI website builder, and SEO integration).'
             },
             {
-                question: 'What is ProLaunch TeamAI?',
+                question: 'What is Kimuntu TeamAI?',
                 answer: 'A virtual enterprise automation suite that simulates a full company — CEO, HR, Finance, Sales, and Administration AI agents. It allows a solo founder to operate like a 20-person team, with AI cold calling, automated emails, CRM integration, and daily executive reports.'
             },
             {
@@ -129,37 +130,79 @@ const faqCategories = [
     },
 ];
 
-const contactMethods = [
+const faqCategoriesFr = [
     {
-        icon: Mail,
-        title: 'Email Support',
-        description: 'support@kimuntu.ai',
-        response: 'Response within 24 hours'
+        category: 'Questions générales',
+        faqs: [
+            { question: 'Qu’est-ce que Kimuntu AI ?', answer: 'Kimuntu AI est un écosystème IA de nouvelle génération créé par Kimuntu Power Inc. Il aide les utilisateurs à progresser vers la réussite en carrière, affaires, navigation juridique et innovation grâce à des outils IA avancés, des simulations et des avatars intelligents.' },
+            { question: 'À qui s’adresse Kimuntu AI ?', answer: 'Aux chercheurs d’emploi, professionnels, entrepreneurs, startups, PME, étudiants, nouveaux arrivants, utilisateurs de soutien juridique autonome au Canada et aux États-Unis, ainsi qu’aux gouvernements, ONG et établissements d’enseignement.' },
+            { question: 'Qu’est-ce qui rend Kimuntu AI unique ?', answer: 'Contrairement aux plateformes à usage unique, Kimuntu AI réunit quatre pistes d’intelligence : (1) Personnel/Carrière, (2) Affaires, (3) Juridique pour le Canada et les États-Unis, et (4) Intelligence future et innovation, le tout dans un même écosystème.' },
+            { question: 'La plateforme est-elle sécurisée et conforme ?', answer: 'Oui. Kimuntu AI respecte le RGPD, le CCPA et la PIPEDA. Toutes les données sont chiffrées AES-256 en transit et au repos, anonymisées lorsque cela s’applique et entièrement contrôlées par l’utilisateur. Nous ne vendons jamais de données personnelles.' },
+            { question: 'Quelles langues sont prises en charge ?', answer: 'L’anglais, le français et l’espagnol sont pleinement pris en charge. L’assistant multilingue de traduction et de voix IA couvre plus de 50 langues pour la traduction de documents et la communication en temps réel.' },
+        ]
     },
     {
-        icon: MessageCircle,
-        title: 'Live Chat',
-        description: 'Available Mon–Fri, 9 AM – 6 PM EST',
-        response: 'Instant response'
+        category: 'Piste personnelle et carrière',
+        faqs: [
+            { question: 'Que fait le générateur de CV IA ?', answer: 'Il génère des CV professionnels optimisés ATS et des lettres de motivation adaptés à des secteurs et rôles précis, avec prise en charge multilingue et améliorations en temps réel.' },
+            { question: 'Comment fonctionne le coach d’entretien IA ?', answer: 'Il simule des entretiens réalistes avec des avatars IA, analyse le ton et le style de communication, puis fournit des rapports détaillés avec des commentaires exploitables. Les utilisateurs peuvent refaire des sessions pour suivre leurs progrès.' },
+            { question: 'Qu’est-ce que l’AI Career Accelerator ?', answer: 'C’est un moteur complet de progression de carrière qui évalue les compétences via des évaluations IA adaptatives, identifie les lacunes, recommande des cours ciblés, construit des feuilles de route personnalisées et suit les progrès en temps réel.' },
+            { question: 'Qu’est-ce que le LevelUp Skills Hub ?', answer: 'Le moteur de montée en compétences intégré offrant des parcours d’apprentissage personnalisés, des expériences de micro-apprentissage gamifiées, des badges numériques et des certifications connectés aux grandes plateformes éducatives mondiales.' },
+        ]
     },
     {
-        icon: Phone,
-        title: 'Phone Support',
-        description: 'contact@kimuntu.ai',
-        response: 'Mon–Fri, 9 AM – 6 PM EST'
+        category: 'Piste d’intelligence d’affaires',
+        faqs: [
+            { question: 'Quels types de plans d’affaires sont disponibles ?', answer: 'Trois niveaux : Basique, Intermédiaire et Professionnel, incluant selon le niveau un résumé exécutif, une vue du marché, une analyse des concurrents, des projections financières, un constructeur de site Web IA et une intégration SEO.' },
+            { question: 'Qu’est-ce que Kimuntu TeamAI ?', answer: 'Une suite d’automatisation d’entreprise virtuelle qui simule une entreprise complète avec des agents IA CEO, RH, Finance, Ventes et Administration. Elle permet à un fondateur solo d’opérer comme une équipe de 20 personnes.' },
+            { question: 'Comment fonctionne Funding Finder ?', answer: 'L’IA analyse des bases de données mondiales de financement, programmes de subventions et annuaires de VC, puis associe les entreprises aux opportunités les plus pertinentes. Elle peut aussi générer automatiquement des pitch decks et présentations investisseurs.' },
+            { question: 'Un constructeur de site Web est-il inclus ?', answer: 'Oui. Le constructeur de site Web IA propose des modèles glisser-déposer, l’intégration de domaines, l’hébergement cloud, le commerce électronique et l’optimisation SEO pilotée par IA.' },
+        ]
+    },
+    {
+        category: 'Piste d’intelligence juridique',
+        faqs: [
+            { question: 'Quels domaines juridiques sont couverts au Canada ?', answer: 'Le droit de la famille, le droit pénal, le droit des affaires et des contrats, les droits des consommateurs, l’immigration et le statut de réfugié, le droit du travail et le contentieux civil, avec rédaction de documents par IA et analyse de dossiers.' },
+            { question: 'Quels domaines juridiques sont couverts aux États-Unis ?', answer: 'La même couverture complète : famille, recherche en droit pénal, contrats commerciaux, droits des consommateurs, immigration et visas, droits au travail et outils de prévision et médiation en contentieux civil.' },
+            { question: 'Kimuntu AI remplace-t-il un avocat ?', answer: 'Non. Kimuntu AI fournit des conseils assistés par IA et de la rédaction de documents à des fins d’information et de préparation uniquement. Ce n’est pas un cabinet d’avocats.' },
+            { question: 'Que sont les avatars d’avocats virtuels et les simulations de tribunal ?', answer: 'Les avatars d’avocats virtuels sont des agents IA interactifs qui simulent des consultations juridiques. La simulation de tribunal d’immigration aide les utilisateurs à se préparer aux audiences ou procédures d’immigration.' },
+        ]
+    },
+    {
+        category: 'Piste d’intelligence future et d’innovation',
+        faqs: [
+            { question: 'Qu’est-ce que la piste Future Intelligence ?', answer: 'Une suite tournée vers l’avenir d’outils IA pour l’innovation, la durabilité et l’avancement humain : planification durable, recherche de brevets, éducation personnalisée, simulation de ville intelligente et gouvernance éthique de l’IA.' },
+            { question: 'Qu’est-ce que le Sustainable Innovation Assistant ?', answer: 'Des outils IA pour l’analyse d’empreinte carbone, la génération de stratégie ESG, la durabilité de la chaîne d’approvisionnement et l’identification de financements pour les projets verts et startups climat.' },
+            { question: 'Qui bénéficie de la piste Innovation ?', answer: 'Les gouvernements, ONG, chercheurs, innovateurs, éducateurs et entrepreneurs qui construisent des solutions durables et prêtes pour l’avenir.' },
+        ]
+    },
+    {
+        category: 'Tarification et assistance',
+        faqs: [
+            { question: 'Quels niveaux de tarification sont proposés ?', answer: 'Niveau gratuit, Career Premium, Business Premium, Legal Premium, ainsi que des licences entreprise/institutionnelles avec tarification sur mesure.' },
+            { question: 'L’accès mobile est-il disponible ?', answer: 'Oui, via navigateur Web, Android et iOS, avec synchronisation cloud complète sur tous les appareils.' },
+            { question: 'Comment contacter le support ?', answer: 'Via la page Support intégrée, par e-mail à support@kimuntu.ai, ou via le centre d’aide avec guides, tutoriels vidéo et assistant d’onboarding IA.' },
+        ]
     },
 ];
 
 export default function SupportPage() {
     const { isDark } = useTheme();
+    const { t, language } = useLanguage();
+    const faqCategories = language === 'fr' ? faqCategoriesFr : faqCategoriesEn;
+    const contactMethods = [
+        { icon: Mail, title: t.support_emailTitle, description: t.support_emailDesc, response: t.support_emailResponse },
+        { icon: MessageCircle, title: t.support_chatTitle, description: t.support_chatDesc, response: t.support_chatResponse },
+        { icon: Phone, title: t.support_phoneTitle, description: t.support_phoneDesc, response: t.support_phoneResponse },
+    ];
 
     return (
         <div>
             <h2 className={`text-3xl font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                Support Center
+                {t.support_title}
             </h2>
             <p className={`mb-8 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                Find answers to common questions or get in touch with our team.
+                {t.support_subtitle}
             </p>
 
             {/* Contact Cards */}
@@ -184,7 +227,7 @@ export default function SupportPage() {
 
             {/* FAQ */}
             <h3 className={`text-2xl font-semibold mb-6 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                Frequently Asked Questions
+                {t.support_faqTitle}
             </h3>
             <div className="space-y-8">
                 {faqCategories.map((cat, catIndex) => (

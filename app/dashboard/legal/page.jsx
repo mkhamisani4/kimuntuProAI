@@ -19,7 +19,7 @@ import {
     ChevronRight
 } from 'lucide-react';
 import { useAIAvatar, AIAvatar } from '@/components/AIAvatarCustomizer';
-import { LEGAL_ASSISTANTS, LEGAL_SERVICES } from '@/lib/legalAgents';
+import { getLegalServices, getLegalAssistants } from '@/lib/legalAgents';
 
 const SERVICE_ICONS = {
     Globe,
@@ -186,7 +186,7 @@ export default function LegalTrackPage() {
                             </div>
                             <div>
                                 <p className={`text-xs font-semibold uppercase tracking-[0.18em] mb-1 ${isDark ? 'text-indigo-300/70' : 'text-indigo-100/80'}`}>
-                                    AI Legal Platform
+                                    {t.legal_aiPlatform}
                                 </p>
                                 <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight"
                                     style={{ fontFamily: 'var(--font-dm-serif, Georgia, serif)' }}>
@@ -203,16 +203,16 @@ export default function LegalTrackPage() {
                             : 'bg-white/20 backdrop-blur-sm border border-white/30 text-white'
                         }`}>
                             <Sparkles className="w-3.5 h-3.5" />
-                            AI-Powered
+                            {t.legal_aiPowered}
                         </div>
                     </div>
 
                     {/* Stats row */}
                     <div className="flex flex-wrap gap-3 mt-8">
                         {[
-                            { label: 'Legal Areas', value: '8' },
-                            { label: 'Active Assistants', value: '8' },
-                            { label: 'Jurisdictions', value: 'US & CA' }
+                            { label: t.legal_legalAreas, value: '8' },
+                            { label: t.legal_activeAssistants, value: '8' },
+                            { label: t.legal_jurisdictions, value: 'US & CA' }
                         ].map((stat) => (
                             <div key={stat.label} className={`flex items-center gap-3 px-4 py-2.5 rounded-xl ${isDark
                                 ? 'bg-white/6 backdrop-blur-sm border border-white/10'
@@ -232,14 +232,14 @@ export default function LegalTrackPage() {
                 {/* Section label */}
                 <div className="mb-6 flex items-center gap-3">
                     <span className={`text-[11px] font-bold uppercase tracking-[0.16em] ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
-                        Legal Services
+                        {t.legal_legalServices}
                     </span>
                     <div className={`h-px flex-1 ${isDark ? 'bg-gray-800/80' : 'bg-gray-200'}`} />
                 </div>
 
                 {/* Service Cards */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {LEGAL_SERVICES.map((service) => {
+                    {getLegalServices(t).map((service) => {
                         const colors = colorClasses[service.color] || colorClasses.indigo;
                         const Icon = SERVICE_ICONS[service.icon] || Scale;
 
@@ -275,7 +275,7 @@ export default function LegalTrackPage() {
                                 </p>
 
                                 <div className="flex items-center gap-1">
-                                    <span className={`text-xs font-semibold ${colors.text}`}>Open Assistant</span>
+                                    <span className={`text-xs font-semibold ${colors.text}`}>{t.legal_openAssistant}</span>
                                     <ArrowRight className={`w-3 h-3 ${colors.icon} transition-transform duration-300 group-hover:translate-x-1`} />
                                 </div>
                             </button>
@@ -288,13 +288,13 @@ export default function LegalTrackPage() {
                     <div className="mb-6 flex items-center gap-3">
                         <Bot className={`w-4 h-4 ${isDark ? 'text-gray-500' : 'text-gray-400'}`} />
                         <span className={`text-[11px] font-bold uppercase tracking-[0.16em] ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
-                            AI Law Assistants
+                            {t.legal_aiAssistants}
                         </span>
                         <div className={`h-px flex-1 ${isDark ? 'bg-gray-800/80' : 'bg-gray-200'}`} />
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 xl:grid-cols-3">
-                        {LEGAL_ASSISTANTS.map((assistant) => {
+                        {getLegalAssistants(t).map((assistant) => {
                             const borderColor = ASSISTANT_BORDER_CLASSES[assistant.borderColor] || ASSISTANT_BORDER_CLASSES.slate;
 
                             return (
@@ -326,7 +326,7 @@ export default function LegalTrackPage() {
                                                     onClick={() => router.push(assistant.path)}
                                                     className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-white text-sm transition-all duration-200 shadow-lg hover:-translate-y-0.5 active:translate-y-0 ${assistant.buttonBg} ${assistant.buttonShadow}`}
                                                 >
-                                                    Try Assistant
+                                                    {t.legal_tryAssistant}
                                                     <ChevronRight className="w-3.5 h-3.5" />
                                                 </button>
                                             </div>
@@ -347,11 +347,10 @@ export default function LegalTrackPage() {
                         <Shield className={`w-4 h-4 mt-0.5 flex-shrink-0 ${isDark ? 'text-indigo-400' : 'text-indigo-500'}`} />
                         <div>
                             <h4 className={`text-sm font-semibold mb-1 ${isDark ? 'text-indigo-300' : 'text-indigo-800'}`}>
-                                Legal Disclaimer
+                                {t.legal_disclaimer}
                             </h4>
                             <p className={`text-xs leading-relaxed ${isDark ? 'text-indigo-300/60' : 'text-indigo-700/70'}`}>
-                                All legal tools provide general information only and do not constitute legal advice.
-                                For specific legal matters, please consult with a licensed attorney in the relevant jurisdiction.
+                                {t.legal_disclaimerText}
                             </p>
                         </div>
                     </div>

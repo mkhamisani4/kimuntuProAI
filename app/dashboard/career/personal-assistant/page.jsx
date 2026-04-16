@@ -104,7 +104,7 @@ export default function CareerPersonalAssistantPage() {
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      content: 'Hello, I am your ProLaunch Personal Assistant. Upload your career documents and ask your first question to begin.',
+      content: 'Hello, I am your Kimuntu AI Personal Assistant. Upload your career documents and ask your first question to begin.',
     },
   ]);
   const [sending, setSending] = useState(false);

@@ -116,6 +116,33 @@ const About = () => {
                     </ul>
                 </section>
 
+                <section className="mb-10">
+                    <h3 className={`text-2xl font-semibold mb-6 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                        Our Team
+                    </h3>
+                    <p className="mb-6">
+                        Kimuntu AI was built by a team of 4 dedicated developers — 2 focused on the frontend experience and 2 driving the backend infrastructure. More details about our team coming soon.
+                    </p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className={`p-6 rounded-xl border ${isDark ? 'bg-white/5 border-white/10' : 'bg-white/60 border-gray-200'}`}>
+                            <h4 className={`text-lg font-semibold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                                Frontend Team
+                            </h4>
+                            <p className={isDark ? 'text-white/60' : 'text-gray-600'}>
+                                2 developers — UI/UX, React, and client-side architecture.
+                            </p>
+                        </div>
+                        <div className={`p-6 rounded-xl border ${isDark ? 'bg-white/5 border-white/10' : 'bg-white/60 border-gray-200'}`}>
+                            <h4 className={`text-lg font-semibold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                                Backend Team
+                            </h4>
+                            <p className={isDark ? 'text-white/60' : 'text-gray-600'}>
+                                2 developers — APIs, databases, and server-side logic.
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
                 <section className="mb-8">
                     <h3 className={`text-2xl font-semibold mb-6 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                         Contact Us

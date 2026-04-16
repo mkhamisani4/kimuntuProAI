@@ -10,6 +10,7 @@ import { useState, useEffect } from 'react';
 import { Check, ChevronDown, ChevronRight } from 'lucide-react';
 import { auth } from '@/lib/firebase';
 import { toast } from '@/components/ai/Toast';
+import { useLanguage } from '@/components/providers/LanguageProvider';
 import type { AssistantResult } from './page';
 
 interface TaskFormProps {
@@ -22,6 +23,7 @@ interface TaskFormProps {
 type AssistantType = 'streamlined_plan' | 'exec_summary' | 'market_analysis' | 'financial_overview';
 
 export default function TaskForm({ onResult, onError, assistant: assistantProp, onLoadingChange }: TaskFormProps) {
+  const { t } = useLanguage();
   const [assistant, setAssistant] = useState<AssistantType>(assistantProp || 'streamlined_plan');
   const [input, setInput] = useState('');
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -55,27 +57,27 @@ export default function TaskForm({ onResult, onError, assistant: assistantProp, 
   const tasks = [
     {
       value: 'streamlined_plan' as const,
-      label: 'Streamlined Plan (#108)',
-      description: 'Lean one-page business plan',
-      placeholder: 'Example: Draft a lean one-page plan for a meal-prep SaaS targeting students at ASU.',
+      label: t.biz_taskStreamlinedLabel,
+      description: t.biz_taskStreamlinedDesc,
+      placeholder: t.biz_taskStreamlinedPlaceholder,
     },
     {
       value: 'exec_summary' as const,
-      label: 'Executive Summary + Financials (#109)',
-      description: 'Financial overview with projections',
-      placeholder: 'Example: Financial overview for $99/mo SaaS, 20% COGS, 4% churn, +25 subs/mo, $10k S&M, 12 months.',
+      label: t.biz_taskExecLabel,
+      description: t.biz_taskExecDesc,
+      placeholder: t.biz_taskExecPlaceholder,
     },
     {
       value: 'market_analysis' as const,
-      label: 'Market Analysis (#110)',
-      description: 'Market research with web data',
-      placeholder: 'Example: Analyze the AI coding assistant market; top competitors, pricing bands, and GTM angles.',
+      label: t.biz_taskMarketLabel,
+      description: t.biz_taskMarketDesc,
+      placeholder: t.biz_taskMarketPlaceholder,
     },
     {
       value: 'financial_overview' as const,
-      label: 'Financial Overview',
-      description: '12-month financial projections',
-      placeholder: 'Example: Generate 12-month financial projections for a B2B SaaS with $199/mo pricing and $50k initial funding.',
+      label: t.biz_taskFinancialLabel,
+      description: t.biz_taskFinancialDesc,
+      placeholder: t.biz_taskFinancialPlaceholder,
     },
   ];
 
@@ -86,18 +88,18 @@ export default function TaskForm({ onResult, onError, assistant: assistantProp, 
 
     // Validation
     if (!input.trim()) {
-      toast.error('Please enter a prompt before generating');
+      toast.error(t.biz_enterPromptBeforeGenerating);
       return;
     }
 
     if (input.length > MAX_INPUT_LENGTH) {
-      toast.error(`Prompt is too long. Maximum ${MAX_INPUT_LENGTH} characters`);
+      toast.error(`${t.biz_promptTooLong} ${MAX_INPUT_LENGTH} ${t.biz_characters}`);
       return;
     }
 
     if (!currentUserId) {
-      toast.error('Please sign in to use the AI assistant');
-      onError({ type: 'auth', message: 'Please sign in to use the AI assistant' });
+      toast.error(t.biz_signInToUseAssistant);
+      onError({ type: 'auth', message: t.biz_signInToUseAssistant });
       return;
     }
 
@@ -105,7 +107,7 @@ export default function TaskForm({ onResult, onError, assistant: assistantProp, 
     onLoadingChange?.(true);
 
     // Show loading toast
-    const toastId = toast.loading('Generating your response...');
+    const toastId = toast.loading(t.biz_generatingResponse);
 
     try {
       // Build request body
@@ -144,35 +146,35 @@ export default function TaskForm({ onResult, onError, assistant: assistantProp, 
         if (response.status === 429) {
           onError({
             type: 'quota',
-            message: data.message || 'Quota exceeded',
+            message: data.message || t.biz_quotaExceeded,
             resetsAt: data.resetsAt,
           });
         } else if (response.status === 401 || response.status === 403) {
           onError({
             type: 'auth',
-            message: data.message || 'Authentication required',
+            message: data.message || t.biz_authRequired,
           });
         } else {
           onError({
             type: 'server',
-            message: data.message || 'Failed to generate response',
+            message: data.message || t.biz_failedGenerateResponse,
           });
         }
         return;
       }
 
       // Success
-      toast.success('Response generated successfully', { id: toastId });
+      toast.success(t.biz_responseGenerated, { id: toastId });
       onResult({
         sections: data.sections,
         sources: data.sources || [],
         meta: data.meta,
       });
     } catch (error: any) {
-      toast.error('Failed to generate response', { id: toastId });
+      toast.error(t.biz_failedGenerateResponse, { id: toastId });
       onError({
         type: 'server',
-        message: error.message || 'Network error',
+        message: error.message || t.biz_networkError,
       });
     } finally {
       setIsLoading(false);
@@ -188,7 +190,7 @@ export default function TaskForm({ onResult, onError, assistant: assistantProp, 
           /* Show dropdown only on generic AI assistant page */
           <div className="mb-6">
             <label className="block text-sm font-medium text-gray-200 mb-2">
-              Select Task
+              {t.biz_selectTask}
             </label>
             <select
               value={assistant}
@@ -218,7 +220,7 @@ export default function TaskForm({ onResult, onError, assistant: assistantProp, 
         {/* Input Textarea */}
         <div className="mb-6">
           <label className="block text-sm font-medium text-gray-200 mb-2">
-            Prompt
+            {t.biz_prompt}
           </label>
           <div className="relative">
             <textarea
@@ -233,7 +235,7 @@ export default function TaskForm({ onResult, onError, assistant: assistantProp, 
                   : 'border-gray-600 bg-white/10 text-gray-100 focus:ring-emerald-500'
               }`}
               disabled={isLoading}
-              aria-label="Prompt input"
+              aria-label={t.biz_prompt}
             />
             {/* Character Counter */}
             <div
@@ -260,7 +262,7 @@ export default function TaskForm({ onResult, onError, assistant: assistantProp, 
               className="text-sm text-emerald-400 hover:text-emerald-300 font-medium flex items-center gap-2"
             >
               {showAdvanced ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
-              Advanced Options (Financial Inputs)
+              {t.biz_advancedOptions}
             </button>
 
             {showAdvanced && (
@@ -268,7 +270,7 @@ export default function TaskForm({ onResult, onError, assistant: assistantProp, 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-medium text-gray-300 mb-1">
-                      ARPU ($/month)
+                      {t.biz_arpu}
                     </label>
                     <input
                       type="number"
@@ -280,7 +282,7 @@ export default function TaskForm({ onResult, onError, assistant: assistantProp, 
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-gray-300 mb-1">
-                      COGS (%)
+                      {t.biz_cogs}
                     </label>
                     <input
                       type="number"
@@ -292,7 +294,7 @@ export default function TaskForm({ onResult, onError, assistant: assistantProp, 
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-gray-300 mb-1">
-                      Churn Rate (%)
+                      {t.biz_churnRate}
                     </label>
                     <input
                       type="number"
@@ -304,7 +306,7 @@ export default function TaskForm({ onResult, onError, assistant: assistantProp, 
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-gray-300 mb-1">
-                      New Customers/Month
+                      {t.biz_newCustomers}
                     </label>
                     <input
                       type="number"
@@ -316,7 +318,7 @@ export default function TaskForm({ onResult, onError, assistant: assistantProp, 
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-gray-300 mb-1">
-                      S&M Spend ($/month)
+                      {t.biz_smSpend}
                     </label>
                     <input
                       type="number"
@@ -328,7 +330,7 @@ export default function TaskForm({ onResult, onError, assistant: assistantProp, 
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-gray-300 mb-1">
-                      Projection Months
+                      {t.biz_projectionMonths}
                     </label>
                     <input
                       type="number"
@@ -353,7 +355,7 @@ export default function TaskForm({ onResult, onError, assistant: assistantProp, 
               ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
               : 'bg-emerald-600 text-white hover:bg-emerald-700'
           }`}
-          aria-label="Run Assistant"
+          aria-label={t.biz_runAssistant}
         >
           {isLoading ? (
             <span className="flex items-center justify-center">
@@ -377,10 +379,10 @@ export default function TaskForm({ onResult, onError, assistant: assistantProp, 
                   d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                 />
               </svg>
-              Generating...
+              {t.biz_generating}
             </span>
           ) : (
-            'Run Assistant'
+            t.biz_runAssistant
           )}
         </button>
       </form>

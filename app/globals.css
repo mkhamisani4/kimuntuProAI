@@ -20,6 +20,23 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Sponsor requirement: muted/supporting copy should render white in dark mode */
+@layer utilities {
+  .dark [class*="text-gray-"] {
+    color: #ffffff !important;
+  }
+
+  .dark [class*="text-white/"] {
+    color: #ffffff !important;
+    opacity: 1 !important;
+  }
+
+  .dark [class*="text-black/"] {
+    color: #ffffff !important;
+    opacity: 1 !important;
+  }
+}
+
 /* Glassmorphism utilities */
 @layer utilities {
   .glass {

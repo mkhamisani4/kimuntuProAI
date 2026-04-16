@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useTheme } from '@/components/providers/ThemeProvider';
+import { useLanguage } from '@/components/providers/LanguageProvider';
 import { auth } from '@/lib/firebase';
 import { PLANS, PRO_FEATURES, USE_REAL_PAYMENTS, saveMockSubscription } from '@/lib/payments';
 import {
@@ -14,6 +15,7 @@ export default function CheckoutPage() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const { isDark } = useTheme();
+    const { t } = useLanguage();
     const planId = searchParams.get('plan') || 'fullPackage';
     const billingCycle = searchParams.get('billing') || 'monthly';
     const plan = PLANS[planId] || PLANS.fullPackage;
@@ -46,11 +48,11 @@ export default function CheckoutPage() {
 
     const validate = () => {
         const errs = {};
-        if (cardNumber.replace(/\s/g, '').length < 16) errs.cardNumber = 'Enter a valid card number';
-        if (!cardName.trim()) errs.cardName = 'Name is required';
-        if (expiry.length < 5) errs.expiry = 'Enter a valid expiry date';
-        if (cvc.length < 3) errs.cvc = 'Enter a valid CVC';
-        if (zip.length < 4) errs.zip = 'Enter a valid ZIP/postal code';
+        if (cardNumber.replace(/\s/g, '').length < 16) errs.cardNumber = t.checkout_errCardNumber;
+        if (!cardName.trim()) errs.cardName = t.checkout_errNameRequired;
+        if (expiry.length < 5) errs.expiry = t.checkout_errExpiry;
+        if (cvc.length < 3) errs.cvc = t.checkout_errCvc;
+        if (zip.length < 4) errs.zip = t.checkout_errZip;
         setErrors(errs);
         return Object.keys(errs).length === 0;
     };
@@ -77,10 +79,10 @@ export default function CheckoutPage() {
                     window.location.href = data.url;
                     return;
                 } else {
-                    setErrors({ cardNumber: data.error || 'Payment setup failed. Please try again.' });
+                    setErrors({ cardNumber: data.error || t.checkout_errSetup });
                 }
             } catch {
-                setErrors({ cardNumber: 'Connection error. Please try again.' });
+                setErrors({ cardNumber: t.checkout_errConnection });
             } finally {
                 setProcessing(false);
             }
@@ -126,10 +128,10 @@ export default function CheckoutPage() {
                         <Check className="w-10 h-10 text-emerald-500" />
                     </div>
                     <h1 className={`text-3xl font-bold mb-3 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                        Welcome to Pro!
+                        {t.checkout_welcomePro}
                     </h1>
                     <p className={`text-lg mb-2 ${isDark ? 'text-white/60' : 'text-black'}`}>
-                        Your Kimuntu Pro AI subscription is now active.
+                        {t.checkout_subscriptionActive}
                     </p>
                     <p className={`text-sm mb-8 ${isDark ? 'text-white/40' : 'text-black'}`}>
                         {plan.name} plan — ${billingCycle === 'yearly' ? plan.yearlyPrice : plan.monthlyPrice}/{billingCycle === 'yearly' ? 'year' : 'month'}
@@ -138,7 +140,7 @@ export default function CheckoutPage() {
                         onClick={() => router.push('/dashboard')}
                         className="w-full py-4 rounded-2xl font-semibold text-white bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 transition-all hover:scale-[1.02] shadow-lg shadow-emerald-500/25"
                     >
-                        Go to Dashboard
+                        {t.checkout_goToDashboard}
                     </button>
                     <button
                         onClick={() => router.push('/dashboard/subscription')}
@@ -146,7 +148,7 @@ export default function CheckoutPage() {
                             isDark ? 'text-white/50 hover:text-white/80' : 'text-black hover:text-black'
                         }`}
                     >
-                        Manage Subscription
+                        {t.checkout_manageSubscription}
                     </button>
                 </div>
             </div>
@@ -169,7 +171,7 @@ export default function CheckoutPage() {
                 }`}
             >
                 <ArrowLeft className="w-4 h-4" />
-                Back to pricing
+                {t.checkout_backToPricing}
             </button>
 
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
@@ -187,10 +189,10 @@ export default function CheckoutPage() {
                             </div>
                             <div>
                                 <h1 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                                    Payment Details
+                                    {t.checkout_paymentDetails}
                                 </h1>
                                 <p className={`text-sm ${isDark ? 'text-white/40' : 'text-black'}`}>
-                                    {USE_REAL_PAYMENTS ? 'Secure checkout powered by Stripe' : 'Secure checkout powered by Stripe'}
+                                    {t.checkout_secureStripe}
                                 </p>
                             </div>
                         </div>
@@ -199,7 +201,7 @@ export default function CheckoutPage() {
                             {/* Email (read-only) */}
                             <div>
                                 <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-white/70' : 'text-gray-700'}`}>
-                                    Email
+                                    {t.checkout_email}
                                 </label>
                                 <input
                                     type="email"
@@ -212,7 +214,7 @@ export default function CheckoutPage() {
                             {/* Card Number */}
                             <div>
                                 <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-white/70' : 'text-gray-700'}`}>
-                                    Card number
+                                    {t.checkout_cardNumber}
                                 </label>
                                 <div className="relative">
                                     <input
@@ -237,7 +239,7 @@ export default function CheckoutPage() {
                             {/* Name on card */}
                             <div>
                                 <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-white/70' : 'text-gray-700'}`}>
-                                    Name on card
+                                    {t.checkout_nameOnCard}
                                 </label>
                                 <input
                                     type="text"
@@ -253,7 +255,7 @@ export default function CheckoutPage() {
                             <div className="grid grid-cols-3 gap-4">
                                 <div>
                                     <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-white/70' : 'text-gray-700'}`}>
-                                        Expiry
+                                        {t.checkout_expiry}
                                     </label>
                                     <input
                                         type="text"
@@ -279,7 +281,7 @@ export default function CheckoutPage() {
                                 </div>
                                 <div>
                                     <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-white/70' : 'text-gray-700'}`}>
-                                        ZIP Code
+                                        {t.checkout_zipCode}
                                     </label>
                                     <input
                                         type="text"
@@ -301,7 +303,7 @@ export default function CheckoutPage() {
                                 {processing ? (
                                     <>
                                         <Loader2 className="w-5 h-5 animate-spin" />
-                                        Processing payment...
+                                        {t.checkout_processPayment}
                                     </>
                                 ) : (
                                     <>
@@ -316,7 +318,7 @@ export default function CheckoutPage() {
                         <div className={`flex items-center justify-center gap-6 mt-6 pt-6 border-t ${isDark ? 'border-white/10' : 'border-gray-100'}`}>
                             <div className="flex items-center gap-1.5">
                                 <Lock className={`w-3.5 h-3.5 ${isDark ? 'text-white/30' : 'text-black'}`} />
-                                <span className={`text-xs ${isDark ? 'text-white/30' : 'text-black'}`}>SSL Encrypted</span>
+                                <span className={`text-xs ${isDark ? 'text-white/30' : 'text-black'}`}>{t.checkout_sslEncrypted}</span>
                             </div>
                             <div className="flex items-center gap-1.5">
                                 <Shield className={`w-3.5 h-3.5 ${isDark ? 'text-white/30' : 'text-black'}`} />
@@ -348,7 +350,7 @@ export default function CheckoutPage() {
                             <div className="flex items-center gap-3 mb-3">
                                 <Sparkles className={`w-5 h-5 ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`} />
                                 <span className={`font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                                    Kimuntu Pro AI
+                                    Kimuntu AI
                                 </span>
                             </div>
                             <p className={`text-sm ${isDark ? 'text-white/50' : 'text-black'}`}>

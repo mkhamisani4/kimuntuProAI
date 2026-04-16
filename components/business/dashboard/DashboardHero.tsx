@@ -4,6 +4,8 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Globe, TrendingUp } from 'lucide-react';
 import { getPrimaryLogo, type Logo } from '@kimuntupro/db';
+import { useLanguage } from '@/components/providers/LanguageProvider';
+import { useTheme } from '@/components/providers/ThemeProvider';
 
 interface DashboardHeroProps {
   userName?: string;
@@ -13,6 +15,8 @@ interface DashboardHeroProps {
 
 export default function DashboardHero({ userName, tenantId, userId }: DashboardHeroProps) {
   const router = useRouter();
+  const { t } = useLanguage();
+  const { isDark } = useTheme();
   const [primaryLogo, setPrimaryLogo] = useState<Logo | null>(null);
   const [logoDataURL, setLogoDataURL] = useState<string | null>(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
@@ -98,7 +102,13 @@ export default function DashboardHero({ userName, tenantId, userId }: DashboardH
   });
 
   return (
-    <div className="w-full bg-gradient-to-r from-emerald-900 via-emerald-800 to-teal-900 border-b border-gray-800">
+    <div
+      className={`w-full border-b ${
+        isDark
+          ? 'bg-gradient-to-r from-emerald-900 via-emerald-800 to-teal-900 border-gray-800'
+          : 'bg-gradient-to-r from-emerald-700 via-emerald-600 to-teal-700 border-emerald-700/60'
+      }`}
+    >
       <div className="max-w-7xl mx-auto px-6 py-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         {/* Left Side: Logo + Greeting */}
         <div className="flex-1 flex items-center gap-4">
@@ -118,12 +128,12 @@ export default function DashboardHero({ userName, tenantId, userId }: DashboardH
           {/* Greeting */}
           <div>
             <h1 className="text-3xl font-bold mb-1 text-white">
-              {userName ? `Welcome back, ${userName}` : 'Welcome to Business Track'}
+              {userName ? `${t.biz_welcomeBack} ${userName}` : t.biz_welcomeTo}
             </h1>
-            <p className="text-emerald-300 text-lg mb-1">
-              Your AI-Powered Business Command Center
+            <p className={`text-lg mb-1 ${isDark ? 'text-emerald-300' : 'text-emerald-50'}`}>
+              {t.biz_commandCenter}
             </p>
-            <p className="text-gray-400 text-sm">
+            <p className={`text-sm ${isDark ? 'text-emerald-100/75' : 'text-white/90'}`}>
               {today}
             </p>
           </div>
@@ -136,14 +146,14 @@ export default function DashboardHero({ userName, tenantId, userId }: DashboardH
             className="flex items-center gap-2 px-6 py-3 bg-emerald-500 text-white font-semibold rounded-lg hover:bg-emerald-600 transition-colors shadow-lg"
           >
             <TrendingUp size={20} />
-            Generate Business Plan
+            {t.biz_generatePlan}
           </button>
           <button
             onClick={() => router.push('/dashboard/business/websites/new')}
             className="flex items-center gap-2 px-6 py-3 bg-purple-500 text-white font-semibold rounded-lg hover:bg-purple-600 transition-colors shadow-lg"
           >
             <Globe size={20} />
-            Build AI Website
+            {t.biz_buildWebsite}
           </button>
         </div>
       </div>

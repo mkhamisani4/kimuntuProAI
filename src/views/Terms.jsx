@@ -20,7 +20,7 @@ const Terms = () => {
                         Binding Agreement
                     </p>
                     <p className="mt-2">
-                        These Terms of Service ('Terms') constitute a legally binding agreement between you ('User') and Kimuntu Power Inc. ('Kimuntu AI,' 'we,' 'us'). By accessing or using any part of the Kimuntu AI ProLaunch Platform, you agree to be bound by these Terms. If you do not agree, you must immediately cease using the Platform.
+                        These Terms of Service ('Terms') constitute a legally binding agreement between you ('User') and Kimuntu Power Inc. ('Kimuntu AI,' 'we,' 'us'). By accessing or using any part of the Kimuntu AI Platform, you agree to be bound by these Terms. If you do not agree, you must immediately cease using the Platform.
                     </p>
                 </div>
 
@@ -42,7 +42,7 @@ const Terms = () => {
                         Article 2 — Description of Services
                     </h3>
                     <p className="mb-4">
-                        Kimuntu AI provides AI-powered tools across four tracks: (1) Career Track — CV building, interview coaching, job matching, career planning; (2) Business Track — business plan generation, virtual team automation (ProLaunch TeamAI), funding discovery, website building; (3) Legal Track — document drafting, immigration tools, legal simulations, lawyer matching; (4) Innovation Track — patent research, ESG tools, policy simulation, AI learning hub. Services are delivered via web platform and mobile applications. Specific features vary by subscription plan.
+                        Kimuntu AI provides AI-powered tools across four tracks: (1) Career Track — CV building, interview coaching, job matching, career planning; (2) Business Track — business plan generation, virtual team automation (Kimuntu TeamAI), funding discovery, website building; (3) Legal Track — document drafting, immigration tools, legal simulations, lawyer matching; (4) Innovation Track — patent research, ESG tools, policy simulation, AI learning hub. Services are delivered via web platform and mobile applications. Specific features vary by subscription plan.
                     </p>
                 </section>
 
@@ -126,7 +126,7 @@ const Terms = () => {
                         <li>You retain full ownership of all documents, content, and materials you create, upload, or generate using the Platform ('User Content').</li>
                         <li>By using the Platform, you grant Kimuntu AI a limited, non-exclusive, royalty-free license to store, process, and display your User Content solely as necessary to provide the Services to you.</li>
                         <li>You also grant Kimuntu AI a limited license to use anonymized, aggregated versions of User Content to improve AI model performance. This license applies only to data that has been fully de-identified and cannot be traced back to you.</li>
-                        <li>Kimuntu AI, ProLaunch, and all associated logos and platform names are trademarks of Kimuntu Power Inc. Unauthorized use is strictly prohibited.</li>
+                        <li>Kimuntu AI and all associated logos and platform names are trademarks of Kimuntu Power Inc. Unauthorized use is strictly prohibited.</li>
                     </ul>
                 </section>
 

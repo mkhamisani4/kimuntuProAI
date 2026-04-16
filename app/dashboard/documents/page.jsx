@@ -39,7 +39,7 @@ export default function DocumentsPage() {
                             {t.myDocuments}
                         </h1>
                         <p className={`text-sm ${isDark ? 'text-white/40' : 'text-black'}`}>
-                            All your generated documents in one place
+                            {t.doc_allDocumentsPlace}
                         </p>
                     </div>
                 </div>
@@ -59,7 +59,7 @@ export default function DocumentsPage() {
                             type="text"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder="Search documents..."
+                            placeholder={t.doc_searchPlaceholder}
                             className={`w-full pl-10 pr-4 py-2.5 rounded-xl text-sm transition-all focus:outline-none focus:ring-2 ${
                                 isDark
                                     ? 'bg-white/5 border border-white/10 text-white placeholder-white/30 focus:bg-white/10 focus:border-emerald-500/50 focus:ring-emerald-500/20'
@@ -77,11 +77,11 @@ export default function DocumentsPage() {
             {/* Document Type Filters */}
             <div className="flex items-center gap-2 mb-6 relative z-10 overflow-x-auto pb-1">
                 {[
-                    { label: 'All', icon: FolderOpen, active: true },
-                    { label: 'PDFs', icon: FileText, active: false },
-                    { label: 'Spreadsheets', icon: FileSpreadsheet, active: false },
-                    { label: 'Presentations', icon: Presentation, active: false },
-                    { label: 'Other', icon: File, active: false },
+                    { label: t.doc_filterAll, icon: FolderOpen, active: true },
+                    { label: t.doc_filterPdfs, icon: FileText, active: false },
+                    { label: t.doc_filterSheets, icon: FileSpreadsheet, active: false },
+                    { label: t.doc_filterPresentations, icon: Presentation, active: false },
+                    { label: t.doc_filterOther, icon: File, active: false },
                 ].map((filter, i) => (
                     <button
                         key={i}
@@ -121,7 +121,7 @@ export default function DocumentsPage() {
                         </div>
 
                         <h3 className={`text-xl font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                            No Documents Yet
+                            {t.doc_noDocumentsTitle}
                         </h3>
                         <p className={`text-sm mb-8 max-w-sm mx-auto leading-relaxed ${isDark ? 'text-white/40' : 'text-black'}`}>
                             {t.documentsWillAppear}
@@ -130,9 +130,9 @@ export default function DocumentsPage() {
                         {/* Quick start cards */}
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto">
                             {[
-                                { icon: FileText, label: 'Business Plan', desc: 'Generate a complete plan', gradient: 'from-emerald-500 to-teal-500' },
-                                { icon: File, label: 'Resume / CV', desc: 'Build your professional CV', gradient: 'from-blue-500 to-cyan-500' },
-                                { icon: FileSpreadsheet, label: 'Legal Document', desc: 'Draft contracts & more', gradient: 'from-violet-500 to-purple-500' },
+                                { icon: FileText, label: t.doc_quickBusinessPlan, desc: t.doc_quickBusinessPlanDesc, gradient: 'from-emerald-500 to-teal-500' },
+                                { icon: File, label: t.doc_quickResume, desc: t.doc_quickResumeDesc, gradient: 'from-blue-500 to-cyan-500' },
+                                { icon: FileSpreadsheet, label: t.doc_quickLegal, desc: t.doc_quickLegalDesc, gradient: 'from-violet-500 to-purple-500' },
                             ].map((item, i) => (
                                 <button
                                     key={i}
@@ -168,11 +168,11 @@ export default function DocumentsPage() {
                     <div className="flex items-center gap-3 mb-5">
                         <Clock className={`w-5 h-5 ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`} />
                         <h3 className={`text-lg font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                            Recent Activity
+                            {t.doc_recentActivity}
                         </h3>
                     </div>
                     <div className={`text-center py-8 ${isDark ? 'text-white/30' : 'text-black'}`}>
-                        <p className="text-sm">Your recent document activity will appear here</p>
+                        <p className="text-sm">{t.doc_recentActivityDesc}</p>
                     </div>
                 </div>
             </div>

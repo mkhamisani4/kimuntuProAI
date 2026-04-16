@@ -212,7 +212,7 @@ const GDPR = () => {
                         Data Processing Agreement (DPA)
                     </h3>
                     <p className="mb-4">
-                        This section governs the processing of Personal Information by Kimuntu Power Inc. ('Processor') on behalf of enterprise, institutional, and business clients ('Controller') in connection with the Kimuntu AI ProLaunch Platform. This DPA supplements the Terms of Service and is required for compliance with GDPR Article 28, PIPEDA accountability provisions, and CCPA service provider requirements.
+                        This section governs the processing of Personal Information by Kimuntu Power Inc. ('Processor') on behalf of enterprise, institutional, and business clients ('Controller') in connection with the Kimuntu AI Platform. This DPA supplements the Terms of Service and is required for compliance with GDPR Article 28, PIPEDA accountability provisions, and CCPA service provider requirements.
                     </p>
                 </section>
 
@@ -274,7 +274,7 @@ const GDPR = () => {
                                 <tr><td className="p-3">Brevo (Sendinblue)</td><td className="p-3">Transactional and marketing email delivery</td></tr>
                                 <tr><td className="p-3">Google Analytics 4</td><td className="p-3">Anonymized platform usage analytics</td></tr>
                                 <tr><td className="p-3">Auth0 (Okta)</td><td className="p-3">Authentication and identity management</td></tr>
-                                <tr><td className="p-3">Twilio Inc.</td><td className="p-3">AI voice and SMS communication (ProLaunch TeamAI feature)</td></tr>
+                                <tr><td className="p-3">Twilio Inc.</td><td className="p-3">AI voice and SMS communication (Kimuntu TeamAI feature)</td></tr>
                             </tbody>
                         </table>
                     </div>

@@ -93,9 +93,7 @@ export default function SettingsPage() {
                 <div className={cardClass}>
                     <div className="flex items-center gap-3 mb-6">
                         <User className={`w-5 h-5 ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`} />
-                        <h3 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                            Profile
-                        </h3>
+                        <h3 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>{t.settings_profile}</h3>
                     </div>
 
                     {/* Avatar */}
@@ -132,13 +130,13 @@ export default function SettingsPage() {
                         </div>
                         <div>
                             <p className={`font-semibold text-lg ${isDark ? 'text-white' : 'text-black'}`}>
-                                {displayName || 'Your Name'}
+                                {displayName || t.settings_yourName}
                             </p>
                             <p className={`text-sm ${isDark ? 'text-white/40' : 'text-black'}`}>
                                 {user?.email}
                             </p>
                             <p className={`text-xs mt-1 ${isDark ? 'text-white/30' : 'text-black'}`}>
-                                Click the camera icon to change your photo
+                                {t.settings_clickCamera}
                             </p>
                         </div>
                     </div>
@@ -146,12 +144,12 @@ export default function SettingsPage() {
                     {/* Profile Fields */}
                     <div className="grid sm:grid-cols-2 gap-4">
                         <div>
-                            <label className={labelClass}>Display Name</label>
+                            <label className={labelClass}>{t.settings_displayName}</label>
                             <input
                                 type="text"
                                 value={displayName}
                                 onChange={(e) => setDisplayName(e.target.value)}
-                                placeholder="Your full name"
+                                placeholder={t.settings_fullNamePlaceholder}
                                 className={inputClass}
                             />
                         </div>
@@ -165,27 +163,27 @@ export default function SettingsPage() {
                             />
                         </div>
                         <div>
-                            <label className={labelClass}>Job Title</label>
+                            <label className={labelClass}>{t.settings_jobTitle}</label>
                             <input
                                 type="text"
                                 value={jobTitle}
                                 onChange={(e) => setJobTitle(e.target.value)}
-                                placeholder="e.g. Software Engineer"
+                                placeholder={t.settings_jobTitlePlaceholder}
                                 className={inputClass}
                             />
                         </div>
                         <div>
-                            <label className={labelClass}>Company</label>
+                            <label className={labelClass}>{t.settings_company}</label>
                             <input
                                 type="text"
                                 value={company}
                                 onChange={(e) => setCompany(e.target.value)}
-                                placeholder="e.g. Acme Inc."
+                                placeholder={t.settings_companyPlaceholder}
                                 className={inputClass}
                             />
                         </div>
                         <div>
-                            <label className={labelClass}>Phone</label>
+                            <label className={labelClass}>{t.settings_phone}</label>
                             <input
                                 type="tel"
                                 value={phone}
@@ -195,23 +193,23 @@ export default function SettingsPage() {
                             />
                         </div>
                         <div>
-                            <label className={labelClass}>Location</label>
+                            <label className={labelClass}>{t.settings_location}</label>
                             <input
                                 type="text"
                                 value={location}
                                 onChange={(e) => setLocation(e.target.value)}
-                                placeholder="City, Country"
+                                placeholder={t.settings_locationPlaceholder}
                                 className={inputClass}
                             />
                         </div>
                     </div>
 
                     <div className="mt-4">
-                        <label className={labelClass}>Bio</label>
+                        <label className={labelClass}>{t.settings_bio}</label>
                         <textarea
                             value={bio}
                             onChange={(e) => setBio(e.target.value)}
-                            placeholder="Tell us a bit about yourself..."
+                            placeholder={t.settings_bioPlaceholder}
                             rows={3}
                             className={`${inputClass} resize-none`}
                         />
@@ -230,19 +228,19 @@ export default function SettingsPage() {
                             {saving ? (
                                 <>
                                     <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                    Saving...
+                                    {t.settings_saving}
                                 </>
                             ) : (
                                 <>
                                     <Save className="w-4 h-4" />
-                                    Save Changes
+                                    {t.settings_saveChanges}
                                 </>
                             )}
                         </button>
                         {saved && (
                             <div className="flex items-center gap-2 text-emerald-400 animate-fadeIn">
                                 <CheckCircle2 className="w-4 h-4" />
-                                <span className="text-sm font-medium">Profile updated!</span>
+                                <span className="text-sm font-medium">{t.settings_profileUpdated}</span>
                             </div>
                         )}
                     </div>

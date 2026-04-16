@@ -2,15 +2,13 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Mail, Phone, MapPin, Facebook, Twitter, Linkedin, Instagram, Youtube, FileText, Shield, Info } from 'lucide-react';
+import { Mail, Phone, MapPin, Facebook, Linkedin, Instagram, Youtube, FileText, Shield, Info } from 'lucide-react';
 import { useTheme } from '@/components/providers/ThemeProvider';
 import { useLanguage } from '@/components/providers/LanguageProvider';
 
 const Footer = () => {
     const { isDark } = useTheme();
     const { t } = useLanguage();
-
-    const currentYear = new Date().getFullYear();
 
     const footerLinks = {
         product: [
@@ -48,11 +46,10 @@ const Footer = () => {
     };
 
     const socialLinks = [
-        { icon: Facebook, href: 'https://facebook.com/kimuntupro', label: 'Facebook', color: 'hover:text-blue-500' },
-        { icon: Twitter, href: 'https://twitter.com/kimuntupro', label: 'Twitter', color: 'hover:text-blue-400' },
-        { icon: Linkedin, href: 'https://linkedin.com/company/kimuntupro', label: 'LinkedIn', color: 'hover:text-blue-600' },
-        { icon: Instagram, href: 'https://instagram.com/kimuntupro', label: 'Instagram', color: 'hover:text-pink-500' },
-        { icon: Youtube, href: 'https://youtube.com/@kimuntupro', label: 'YouTube', color: 'hover:text-red-500' },
+        { icon: Facebook, href: 'https://facebook.com/kimuntupro', label: 'Facebook' },
+        { icon: Linkedin, href: 'https://linkedin.com/company/kimuntupro', label: 'LinkedIn' },
+        { icon: Instagram, href: 'https://instagram.com/kimuntupro', label: 'Instagram' },
+        { icon: Youtube, href: 'https://youtube.com/@kimuntupro', label: 'YouTube' },
     ];
 
     const contactInfo = [
@@ -196,30 +193,24 @@ const Footer = () => {
                 </div>
 
                 {/* Newsletter Section */}
-                <div className={`relative overflow-hidden border rounded-3xl py-10 px-8 mb-10 ${isDark
-                    ? 'border-white/10 bg-white/5'
-                    : 'border-black/10 bg-black/5'
-                    }`}>
+                <div className="relative overflow-hidden border border-emerald-500/30 rounded-3xl py-10 px-8 mb-10 bg-emerald-500">
                     <div className="relative z-10 max-w-2xl mx-auto text-center">
                         <div className="flex items-center justify-center gap-2 mb-3">
-                            <Mail className={`w-6 h-6 ${isDark ? 'text-white' : 'text-black'}`} />
-                            <h3 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-black'}`}>
+                            <Mail className="w-6 h-6 text-white" />
+                            <h3 className="text-2xl font-bold text-white">
                                 {t.footerStayUpdated}
                             </h3>
                         </div>
-                        <p className={`text-sm mb-6 ${isDark ? 'text-white/70' : 'text-black'}`}>
+                        <p className="text-sm mb-6 text-white/80">
                             {t.footerNewsletter}
                         </p>
                         <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
                             <input
                                 type="email"
                                 placeholder={t.footerEnterEmail}
-                                className={`flex-1 px-5 py-3 rounded-xl text-sm transition-all ${isDark
-                                    ? 'bg-white/10 border border-white/20 text-white placeholder-white/40 focus:bg-white/20 focus:border-white/40'
-                                    : 'bg-white border border-black/20 text-black placeholder-black/40 focus:bg-white focus:border-black/40'
-                                    } focus:outline-none focus:ring-2 focus:ring-white/20 shadow-lg`}
+                                className="flex-1 px-5 py-3 rounded-xl text-sm transition-all bg-white/20 border border-white/30 text-white placeholder-white/60 focus:bg-white/30 focus:border-white/50 focus:outline-none focus:ring-2 focus:ring-white/30 shadow-lg"
                             />
-                            <button className={`px-8 py-3 text-sm font-semibold rounded-xl transition-all shadow-lg hover:shadow-xl hover:scale-105 transform ${isDark ? 'bg-white text-black hover:bg-white/90' : 'bg-black text-white hover:bg-black/90'}`}>
+                            <button className="px-8 py-3 text-sm font-semibold rounded-xl transition-all shadow-lg hover:shadow-xl hover:scale-105 transform bg-white text-emerald-600 hover:bg-white/90">
                                 {t.footerSubscribe}
                             </button>
                         </div>
@@ -239,8 +230,8 @@ const Footer = () => {
                                 rel="noopener noreferrer"
                                 aria-label={social.label}
                                 className={`p-3 rounded-xl transition-all transform hover:scale-110 ${isDark
-                                    ? 'bg-white/5 hover:bg-white/10 border border-white/10 text-white'
-                                    : 'bg-black/5 hover:bg-black/10 border border-black/10 text-black'
+                                    ? 'bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 text-emerald-400 hover:text-emerald-300'
+                                    : 'bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-600 hover:text-emerald-700'
                                     } shadow-lg hover:shadow-xl`}
                             >
                                 <social.icon className="w-5 h-5" />
@@ -249,12 +240,12 @@ const Footer = () => {
                     </div>
 
                     {/* Copyright */}
-                    <div className={`text-sm ${isDark ? 'text-gray-400' : 'text-black'} text-center md:text-right`}>
-                        <p className="font-medium">
-                            © {currentYear} Kimuntu AI Inc. All rights reserved.
+                    <div className={`text-sm ${isDark ? 'text-white' : 'text-black'} text-center md:text-right`}>
+                        <p className={`font-medium ${isDark ? 'text-white' : 'text-black'}`}>
+                            © 2026 Kimuntu AI. All rights reserved.
                         </p>
-                        <p className="mt-0.5 text-xs opacity-70">
-                            Kimuntu AI is a registered trademark. Unauthorized use is prohibited.
+                        <p className={`mt-0.5 text-xs ${isDark ? 'text-white' : 'text-black'}`}>
+                            Powered by Kimuntu Power Inc.
                         </p>
                     </div>
                 </div>

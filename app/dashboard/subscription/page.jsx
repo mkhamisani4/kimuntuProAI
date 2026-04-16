@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTheme } from '@/components/providers/ThemeProvider';
+import { useLanguage } from '@/components/providers/LanguageProvider';
 import { auth } from '@/lib/firebase';
 import { USE_REAL_PAYMENTS, PLANS, PRO_FEATURES, getMockSubscription, saveMockSubscription } from '@/lib/payments';
 import {
@@ -14,6 +15,7 @@ import Image from 'next/image';
 export default function SubscriptionPage() {
     const router = useRouter();
     const { isDark } = useTheme();
+    const { t, language } = useLanguage();
     const user = auth.currentUser;
     const [subscription, setSubscription] = useState(null);
     const [showCancel, setShowCancel] = useState(false);
@@ -133,17 +135,17 @@ export default function SubscriptionPage() {
                             <div className="absolute inset-0 bg-emerald-500/20 rounded-full blur-2xl" />
                         </div>
                         <h2 className={`text-2xl font-bold mb-3 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                            No Active Subscription
+                            {t.sub_noSubscription}
                         </h2>
                         <p className={`mb-8 text-sm leading-relaxed ${isDark ? 'text-white/50' : 'text-black'}`}>
-                            Upgrade to Kimuntu Pro AI to unlock all features and unlimited access to all professional tracks.
+                            {t.sub_upgradeDesc}
                         </p>
                         <button
                             onClick={() => router.push('/dashboard/pricing')}
                             className="w-full py-4 rounded-2xl font-semibold text-white bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 transition-all duration-300 hover:scale-[1.02] shadow-lg shadow-emerald-500/25 flex items-center justify-center gap-2"
                         >
                             <Zap className="w-5 h-5" />
-                            View Plans
+                            {t.sub_viewPlans}
                         </button>
                     </div>
                 </div>
@@ -155,9 +157,9 @@ export default function SubscriptionPage() {
     const plan = PLANS[subscription.planId] || PLANS.fullPackage;
 
     const nextBilling = subscription.nextBillingDate
-        ? new Date(subscription.nextBillingDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+        ? new Date(subscription.nextBillingDate).toLocaleDateString(language === 'fr' ? 'fr-CA' : 'en-US', { month: 'long', day: 'numeric', year: 'numeric' })
         : 'N/A';
-    const startDate = new Date(subscription.startDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    const startDate = new Date(subscription.startDate).toLocaleDateString(language === 'fr' ? 'fr-CA' : 'en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 
     return (
         <div className="max-w-4xl mx-auto py-4 relative">
@@ -175,10 +177,10 @@ export default function SubscriptionPage() {
                 </div>
                 <div>
                     <h1 className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                        Subscription
+                        {t.sub_title}
                     </h1>
                     <p className={`text-sm ${isDark ? 'text-white/40' : 'text-black'}`}>
-                        Manage your Kimuntu Pro AI plan
+                        {t.sub_subtitle}
                     </p>
                 </div>
             </div>
@@ -212,7 +214,7 @@ export default function SubscriptionPage() {
                                     {subscription.planName}
                                 </h2>
                                 <p className={`text-sm ${isDark ? 'text-white/40' : 'text-black'}`}>
-                                    Member since {startDate}
+                                    {t.sub_memberSince} {startDate}
                                 </p>
                             </div>
                         </div>
@@ -245,13 +247,13 @@ export default function SubscriptionPage() {
                     {/* Details grid */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
                         <div className={`rounded-2xl p-4 ${isDark ? 'bg-white/[0.03] border border-white/5' : 'bg-gray-50/80 border border-gray-100'}`}>
-                            <p className={`text-xs font-medium mb-1 uppercase tracking-wider ${isDark ? 'text-white/30' : 'text-black'}`}>Next Billing</p>
+                            <p className={`text-xs font-medium mb-1 uppercase tracking-wider ${isDark ? 'text-white/30' : 'text-black'}`}>{t.sub_nextBilling}</p>
                             <p className={`text-sm font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
                                 {isActive ? nextBilling : 'N/A'}
                             </p>
                         </div>
                         <div className={`rounded-2xl p-4 ${isDark ? 'bg-white/[0.03] border border-white/5' : 'bg-gray-50/80 border border-gray-100'}`}>
-                            <p className={`text-xs font-medium mb-1 uppercase tracking-wider ${isDark ? 'text-white/30' : 'text-black'}`}>Payment Method</p>
+                            <p className={`text-xs font-medium mb-1 uppercase tracking-wider ${isDark ? 'text-white/30' : 'text-black'}`}>{t.sub_paymentMethod}</p>
                             <div className="flex items-center gap-2">
                                 <CreditCard className={`w-4 h-4 ${isDark ? 'text-white/50' : 'text-black'}`} />
                                 <p className={`text-sm font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
@@ -274,7 +276,7 @@ export default function SubscriptionPage() {
                                     }`}
                                 >
                                     <RefreshCw className="w-4 h-4" />
-                                    Change Plan
+                                    {t.sub_changePlan}
                                 </button>
                                 <button
                                     onClick={() => setShowCancel(true)}
@@ -285,7 +287,7 @@ export default function SubscriptionPage() {
                                     }`}
                                 >
                                     <X className="w-4 h-4" />
-                                    Cancel Subscription
+                                    {t.sub_cancelSubscription}
                                 </button>
                             </>
                         ) : (
@@ -294,7 +296,7 @@ export default function SubscriptionPage() {
                                 className="flex-1 py-3.5 rounded-xl font-semibold text-white bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 transition-all duration-300 hover:scale-[1.02] shadow-lg shadow-emerald-500/25 flex items-center justify-center gap-2"
                             >
                                 <RefreshCw className="w-4 h-4" />
-                                Reactivate Subscription
+                                {t.sub_reactivate}
                             </button>
                         )}
                     </div>
@@ -313,7 +315,7 @@ export default function SubscriptionPage() {
                     <div className="flex items-center gap-3 mb-6">
                         <Shield className={`w-5 h-5 ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`} />
                         <h3 className={`text-lg font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                            Your Pro Features
+                            {t.sub_proFeatures}
                         </h3>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -353,7 +355,7 @@ export default function SubscriptionPage() {
 
                 <div className="relative z-10">
                     <h3 className={`text-lg font-bold mb-5 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                        Billing History
+                        {t.sub_billingHistory}
                     </h3>
                     <div className="space-y-3">
                         <div className={`flex items-center justify-between p-4 rounded-xl ${
@@ -374,7 +376,7 @@ export default function SubscriptionPage() {
                                 <p className={`text-sm font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
                                     ${subscription.price}
                                 </p>
-                                <p className="text-xs text-emerald-400 font-medium">Paid</p>
+                                <p className="text-xs text-emerald-400 font-medium">{t.sub_paid}</p>
                             </div>
                         </div>
                     </div>
@@ -399,10 +401,10 @@ export default function SubscriptionPage() {
                                 <AlertTriangle className="w-7 h-7 text-red-500" />
                             </div>
                             <h3 className={`text-xl font-bold text-center mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                                Cancel Subscription?
+                                {t.sub_cancelModal}
                             </h3>
                             <p className={`text-center text-sm mb-6 leading-relaxed ${isDark ? 'text-white/50' : 'text-black'}`}>
-                                You will lose access to all Pro features at the end of your current billing period.
+                                {t.sub_cancelWarning}
                             </p>
                             <div className="flex gap-3">
                                 <button
@@ -413,14 +415,14 @@ export default function SubscriptionPage() {
                                             : 'bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200'
                                     }`}
                                 >
-                                    Keep Subscription
+                                    {t.sub_keepSubscription}
                                 </button>
                                 <button
                                     onClick={handleCancel}
                                     disabled={cancelling}
                                     className="flex-1 py-3 rounded-xl font-medium text-sm bg-red-500 text-white hover:bg-red-600 disabled:opacity-50 transition-all duration-300"
                                 >
-                                    {cancelling ? 'Cancelling...' : 'Yes, Cancel'}
+                                    {cancelling ? t.sub_cancelling : t.sub_yesCancel}
                                 </button>
                             </div>
                         </div>

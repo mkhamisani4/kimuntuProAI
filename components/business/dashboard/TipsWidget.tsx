@@ -2,42 +2,52 @@
 
 import { useState, useEffect } from 'react';
 import { Lightbulb, ExternalLink, ChevronRight } from 'lucide-react';
+import { useLanguage } from '@/components/providers/LanguageProvider';
 
-const tips = [
-  {
-    title: 'Attach Business Plans to Websites',
-    description: 'Generate more accurate websites by attaching a business plan. The AI will use your plan\'s details to create tailored content.',
-    actionLabel: 'Learn More',
-    actionUrl: '/docs/website-builder#attaching-plans'
-  },
-  {
-    title: 'Use Market Analysis for Better Plans',
-    description: 'Include market research when generating business plans to get data-driven insights and competitive analysis.',
-    actionLabel: 'Try Market Analysis',
-    actionUrl: '/dashboard/business/market-analysis'
-  },
-  {
-    title: 'Export Your Websites',
-    description: 'Download your generated websites as HTML files. You can host them anywhere or edit them further with your favorite tools.',
-    actionLabel: 'View Websites',
-    actionUrl: '/dashboard/business/websites'
-  },
-  {
-    title: 'Regenerate for Better Results',
-    description: 'Not satisfied with the output? Try regenerating with slightly different inputs or more specific details for improved results.',
-    actionLabel: 'Tips for Better Prompts',
-    actionUrl: '/docs/tips#better-prompts'
-  },
-  {
-    title: 'Save Your Favorite Results',
-    description: 'Keep track of your best AI-generated content. You can revisit and edit any previous result from your dashboard.',
-    actionLabel: 'View All Results',
-    actionUrl: '/dashboard/business/ai-assistant'
-  }
+const tipUrls = [
+  '/docs/website-builder#attaching-plans',
+  '/dashboard/business/market-analysis',
+  '/dashboard/business/websites',
+  '/docs/tips#better-prompts',
+  '/dashboard/business/ai-assistant',
 ];
 
 export default function TipsWidget() {
+  const { t } = useLanguage();
   const [currentTipIndex, setCurrentTipIndex] = useState(0);
+
+  const tips = [
+    {
+      title: t.biz_tip1Title,
+      description: t.biz_tip1Desc,
+      actionLabel: t.biz_tip1Action,
+      actionUrl: tipUrls[0],
+    },
+    {
+      title: t.biz_tip2Title,
+      description: t.biz_tip2Desc,
+      actionLabel: t.biz_tip2Action,
+      actionUrl: tipUrls[1],
+    },
+    {
+      title: t.biz_tip3Title,
+      description: t.biz_tip3Desc,
+      actionLabel: t.biz_tip3Action,
+      actionUrl: tipUrls[2],
+    },
+    {
+      title: t.biz_tip4Title,
+      description: t.biz_tip4Desc,
+      actionLabel: t.biz_tip4Action,
+      actionUrl: tipUrls[3],
+    },
+    {
+      title: t.biz_tip5Title,
+      description: t.biz_tip5Desc,
+      actionLabel: t.biz_tip5Action,
+      actionUrl: tipUrls[4],
+    },
+  ];
 
   // Rotate tips every 24 hours based on day of year
   useEffect(() => {
@@ -55,7 +65,7 @@ export default function TipsWidget() {
           <Lightbulb size={20} className="text-white" />
         </div>
         <h3 className="text-sm font-semibold text-blue-800 uppercase tracking-wide">
-          Tip of the Day
+          {t.biz_tipOfTheDay}
         </h3>
       </div>
 
@@ -99,7 +109,7 @@ export default function TipsWidget() {
           href="/docs"
           className="flex items-center justify-between text-sm text-blue-600 hover:text-blue-700 font-medium group"
         >
-          <span>Browse Documentation</span>
+          <span>{t.biz_browseDocumentation}</span>
           <ExternalLink size={14} className="transition-transform group-hover:translate-x-0.5" />
         </a>
       </div>

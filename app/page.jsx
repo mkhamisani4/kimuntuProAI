@@ -13,6 +13,7 @@ import {
 import { auth, signInWithEmail, signUpWithEmail, signInWithGoogle, signOutUser, hasCompletedOnboarding } from '@/lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useTheme } from '@/components/providers/ThemeProvider';
+import { useLanguage } from '@/components/providers/LanguageProvider';
 import { PLANS, PRO_FEATURES } from '@/lib/payments';
 import Footer from '@/components/Footer';
 import Image from 'next/image';
@@ -59,6 +60,7 @@ function AnimatedCounter({ end, duration = 2000, suffix = '' }) {
 export default function LandingPage() {
     const router = useRouter();
     const { isDark, toggleTheme } = useTheme();
+    const { language, setLanguage, t } = useLanguage();
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [isLogin, setIsLogin] = useState(true);
@@ -128,7 +130,7 @@ export default function LandingPage() {
 
     const handleEmailAuth = async () => {
         if (!email || !password) {
-            setError('Please fill in all fields');
+            setError(t.landing_errFillFields);
             return;
         }
         setError('');
@@ -145,19 +147,19 @@ export default function LandingPage() {
             const errorCode = err.code;
             let friendlyMessage = '';
             if (errorCode === 'auth/invalid-credential') {
-                friendlyMessage = "Doesn't look like you have an account with us. Please sign up or check your credentials.";
+                friendlyMessage = t.landing_errInvalidCred;
             } else if (errorCode === 'auth/email-already-in-use') {
-                friendlyMessage = "This email is already registered. Please sign in instead or use a different email.";
+                friendlyMessage = t.landing_errEmailInUse;
             } else if (errorCode === 'auth/weak-password') {
-                friendlyMessage = "Password should be at least 6 characters long.";
+                friendlyMessage = t.landing_errWeakPassword;
             } else if (errorCode === 'auth/invalid-email') {
-                friendlyMessage = "Please enter a valid email address.";
+                friendlyMessage = t.landing_errInvalidEmail;
             } else if (errorCode === 'auth/user-not-found') {
-                friendlyMessage = "No account found with this email. Please sign up first.";
+                friendlyMessage = t.landing_errUserNotFound;
             } else if (errorCode === 'auth/wrong-password') {
-                friendlyMessage = "Incorrect password. Please try again.";
+                friendlyMessage = t.landing_errWrongPassword;
             } else {
-                friendlyMessage = err.message || 'Authentication failed. Please try again.';
+                friendlyMessage = err.message || t.landing_errGeneric;
             }
             setError(friendlyMessage);
         } finally {
@@ -171,7 +173,7 @@ export default function LandingPage() {
         try {
             await signInWithGoogle();
         } catch (err) {
-            setError('Google sign-in failed. Please try again.');
+            setError(t.landing_errGoogle);
         } finally {
             setAuthLoading(false);
         }
@@ -190,10 +192,10 @@ export default function LandingPage() {
     const tracks = [
         {
             icon: GraduationCap,
-            title: 'Career Development',
+            title: t.landing_trackCareerTitle,
             price: '$19.99/mo',
-            description: 'AI-powered resume building, smart job matching with 50,000+ live postings, and realistic Live Avatar interview coaching.',
-            features: ['ATS-Optimized Resume Builder', 'AI Job Matching Engine', 'Live Avatar Interview Coach', 'Career Accelerator'],
+            description: t.landing_trackCareerDesc,
+            features: [t.landing_trackCareerF1, t.landing_trackCareerF2, t.landing_trackCareerF3, t.landing_trackCareerF4],
             gradient: 'from-blue-500 to-cyan-500',
             iconBg: 'bg-blue-500/10 border-blue-500/20',
             iconColor: 'text-blue-400',
@@ -202,10 +204,10 @@ export default function LandingPage() {
         },
         {
             icon: Building2,
-            title: 'Business Growth',
+            title: t.landing_trackBizTitle,
             price: '$29.99/mo',
-            description: 'Complete business planning, AI website builder, ProLaunch TeamAI virtual team, and funding opportunities finder.',
-            features: ['Business Plan Generator', 'AI Website Builder', 'ProLaunch TeamAI', 'Funding Finder'],
+            description: t.landing_trackBizDesc,
+            features: [t.landing_trackBizF1, t.landing_trackBizF2, t.landing_trackBizF3, t.landing_trackBizF4],
             gradient: 'from-emerald-500 to-teal-500',
             iconBg: 'bg-emerald-500/10 border-emerald-500/20',
             iconColor: 'text-emerald-400',
@@ -214,10 +216,10 @@ export default function LandingPage() {
         },
         {
             icon: Gavel,
-            title: 'Legal Support',
+            title: t.landing_trackLegalTitle,
             price: '$29.99/mo',
-            description: 'AI document drafting, immigration tools, contract review, court simulation, and lawyer matching for US & Canada.',
-            features: ['50+ Legal Templates', 'Immigration Court Sim', 'Contract Review', 'AI Lawyer Matching'],
+            description: t.landing_trackLegalDesc,
+            features: [t.landing_trackLegalF1, t.landing_trackLegalF2, t.landing_trackLegalF3, t.landing_trackLegalF4],
             gradient: 'from-violet-500 to-purple-500',
             iconBg: 'bg-violet-500/10 border-violet-500/20',
             iconColor: 'text-violet-400',
@@ -226,10 +228,10 @@ export default function LandingPage() {
         },
         {
             icon: Lightbulb,
-            title: 'Innovation Hub',
+            title: t.landing_trackInnovTitle,
             price: '$79.99/mo',
-            description: 'Patent intelligence, ESG sustainability suite, startup pitch coaching, and access to the Kimuntu Innovation Network.',
-            features: ['Patent Intelligence', 'ESG & Sustainability', 'Startup Pitch Coach', 'Innovation Network'],
+            description: t.landing_trackInnovDesc,
+            features: [t.landing_trackInnovF1, t.landing_trackInnovF2, t.landing_trackInnovF3, t.landing_trackInnovF4],
             gradient: 'from-amber-500 to-orange-500',
             iconBg: 'bg-amber-500/10 border-amber-500/20',
             iconColor: 'text-amber-400',
@@ -239,18 +241,18 @@ export default function LandingPage() {
     ];
 
     const features = [
-        { icon: Brain, title: 'AI-Powered Intelligence', description: 'Leveraging GPT-4 and Claude for deep insights across every domain.' },
-        { icon: Zap, title: 'Lightning Fast', description: 'Get instant AI-powered responses and generated content in seconds.' },
-        { icon: Shield, title: 'Enterprise Security', description: 'SOC2 compliant, GDPR ready, with end-to-end encryption.' },
-        { icon: Globe, title: 'Multi-Language', description: 'Full support for English and French with more languages coming.' },
-        { icon: Layers, title: 'All-in-One Platform', description: 'Career, business, legal, and innovation tools in a single platform.' },
-        { icon: Bot, title: 'AI Assistant 24/7', description: 'Always-available AI chatbot ready to help with any question.' },
+        { icon: Brain, title: t.landing_feat1Title, description: t.landing_feat1Desc },
+        { icon: Zap, title: t.landing_feat2Title, description: t.landing_feat2Desc },
+        { icon: Shield, title: t.landing_feat3Title, description: t.landing_feat3Desc },
+        { icon: Globe, title: t.landing_feat4Title, description: t.landing_feat4Desc },
+        { icon: Layers, title: t.landing_feat5Title, description: t.landing_feat5Desc },
+        { icon: Bot, title: t.landing_feat6Title, description: t.landing_feat6Desc },
     ];
 
     const testimonials = [
-        { name: 'Sarah M.', role: 'Startup Founder', text: 'Kimuntu helped me create a professional business plan and website in hours, not weeks.', rating: 5 },
-        { name: 'James K.', role: 'Software Engineer', text: 'The career track completely transformed my resume and landing me interviews at top companies.', rating: 5 },
-        { name: 'Amara D.', role: 'Legal Consultant', text: 'The contract review feature saves me hours of manual document analysis every single week.', rating: 5 },
+        { name: 'Sarah M.', role: t.landing_t1Role, text: t.landing_t1Text, rating: 5 },
+        { name: 'James K.', role: t.landing_t2Role, text: t.landing_t2Text, rating: 5 },
+        { name: 'Amara D.', role: t.landing_t3Role, text: t.landing_t3Text, rating: 5 },
     ];
 
     if (loading) {
@@ -262,7 +264,7 @@ export default function LandingPage() {
                         <div className="absolute inset-0 bg-emerald-500/20 rounded-full blur-2xl animate-pulse" />
                     </div>
                     <div className={`text-2xl font-semibold ${isDark ? 'text-white' : 'text-black'}`}>
-                        Loading...
+                        {t.loading}
                     </div>
                 </div>
             </div>
@@ -307,6 +309,27 @@ export default function LandingPage() {
                         />
                     </div>
                     <div className="flex items-center gap-4">
+                        {/* Language Toggle */}
+                        <div className={`flex rounded-xl overflow-hidden border ${isDark ? 'border-white/10' : 'border-black/10'}`}>
+                            <button
+                                onClick={() => setLanguage('en')}
+                                className={`px-3 py-2 text-sm font-medium transition-all ${language === 'en'
+                                    ? 'bg-emerald-500 text-white'
+                                    : isDark ? 'bg-white/5 text-white/60 hover:bg-white/10' : 'bg-black/5 text-black/60 hover:bg-black/10'
+                                }`}
+                            >
+                                EN
+                            </button>
+                            <button
+                                onClick={() => setLanguage('fr')}
+                                className={`px-3 py-2 text-sm font-medium transition-all ${language === 'fr'
+                                    ? 'bg-emerald-500 text-white'
+                                    : isDark ? 'bg-white/5 text-white/60 hover:bg-white/10' : 'bg-black/5 text-black/60 hover:bg-black/10'
+                                }`}
+                            >
+                                FR
+                            </button>
+                        </div>
                         <button
                             onClick={toggleTheme}
                             className={`p-2.5 rounded-xl transition-all ${isDark
@@ -318,12 +341,9 @@ export default function LandingPage() {
                         </button>
                         <button
                             onClick={scrollToAuth}
-                            className={`px-6 py-2.5 rounded-xl font-semibold text-sm transition-all hover:scale-105 ${isDark
-                                ? 'bg-white text-black hover:bg-white/90'
-                                : 'bg-black text-white hover:bg-black/90'
-                            }`}
+                            className="px-6 py-2.5 rounded-xl font-semibold text-sm transition-all hover:scale-105 bg-emerald-500 text-white hover:bg-emerald-600"
                         >
-                            Get Started
+                            {t.getStarted}
                         </button>
                     </div>
                 </div>
@@ -342,23 +362,22 @@ export default function LandingPage() {
                     >
                         <Sparkles className={`w-4 h-4 ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`} />
                         <span className={`text-sm font-medium ${isDark ? 'text-emerald-300' : 'text-emerald-700'}`}>
-                            AI-Powered Professional Platform
+                            {t.landing_badge}
                         </span>
                     </div>
 
                     {/* Main Headline */}
                     <h1 className={`text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold leading-[1.05] mb-6 ${isDark ? 'text-white' : 'text-black'}`} style={{ opacity: heroInView ? 1 : 0, transform: heroInView ? 'translateY(0)' : 'translateY(30px)', transition: 'opacity 0.8s ease 0.1s, transform 0.8s ease 0.1s' }}>
-                        Empowering Your
+                        {t.landing_heroLine1}
                         <br />
                         <span className="bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent text-gradient-animate">
-                            Future with AI
+                            {t.landing_heroLine2}
                         </span>
                     </h1>
 
                     {/* Subtitle */}
                     <p className={`text-lg sm:text-xl max-w-2xl mx-auto mb-10 ${isDark ? 'text-white/60' : 'text-black'}`} style={{ opacity: heroInView ? 1 : 0, transform: heroInView ? 'translateY(0)' : 'translateY(30px)', transition: 'opacity 0.8s ease 0.2s, transform 0.8s ease 0.2s' }}>
-                        Career development, business growth, legal assistance, and innovation
-                        — all powered by cutting-edge artificial intelligence in one platform.
+                        {t.landing_heroDesc}
                     </p>
 
                     {/* CTA Buttons */}
@@ -368,7 +387,7 @@ export default function LandingPage() {
                             className="group relative px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-semibold rounded-2xl hover:shadow-lg hover:shadow-emerald-500/25 transition-all hover:scale-105"
                         >
                             <span className="flex items-center gap-2">
-                                Start Free
+                                {t.landing_startFree}
                                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                             </span>
                         </button>
@@ -381,7 +400,7 @@ export default function LandingPage() {
                         >
                             <span className="flex items-center gap-2">
                                 <Play className="w-5 h-5" />
-                                See How It Works
+                                {t.landing_seeHowItWorks}
                             </span>
                         </button>
                     </div>
@@ -389,10 +408,10 @@ export default function LandingPage() {
                     {/* Feature Pills */}
                     <div className="flex flex-wrap gap-3 justify-center" style={{ opacity: heroInView ? 1 : 0, transform: heroInView ? 'translateY(0)' : 'translateY(30px)', transition: 'opacity 0.8s ease 0.4s, transform 0.8s ease 0.4s' }}>
                         {[
-                            { icon: Briefcase, label: 'Career Development', color: 'text-blue-400', price: '$19.99/mo' },
-                            { icon: BarChart, label: 'Business Planning', color: 'text-emerald-400', price: '$29.99/mo' },
-                            { icon: Scale, label: 'Legal Support', color: 'text-violet-400', price: '$29.99/mo' },
-                            { icon: Rocket, label: 'Innovation Hub', color: 'text-amber-400', price: '$79.99/mo' },
+                            { icon: Briefcase, label: t.landing_trackCareerTitle, color: 'text-blue-400', price: '$19.99/mo' },
+                            { icon: BarChart, label: t.landing_trackBizTitle, color: 'text-emerald-400', price: '$29.99/mo' },
+                            { icon: Scale, label: t.landing_trackLegalTitle, color: 'text-violet-400', price: '$29.99/mo' },
+                            { icon: Rocket, label: t.landing_trackInnovTitle, color: 'text-amber-400', price: '$79.99/mo' },
                         ].map((pill, i) => (
                             <div key={i} className={`group flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all duration-300 hover:scale-105 cursor-pointer ${isDark
                                 ? 'bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20'
@@ -469,10 +488,10 @@ export default function LandingPage() {
                         : 'bg-white border border-black/5 shadow-lg'
                     }`}>
                         {[
-                            { value: 10, suffix: 'K+', label: 'Active Users' },
-                            { value: 50, suffix: 'K+', label: 'Documents Generated' },
-                            { value: 99, suffix: '%', label: 'Uptime' },
-                            { value: 4, suffix: '.9', label: 'User Rating' },
+                            { value: 10, suffix: 'K+', label: t.landing_activeUsers },
+                            { value: 50, suffix: 'K+', label: t.landing_docsGenerated },
+                            { value: 99, suffix: '%', label: t.landing_uptime },
+                            { value: 4, suffix: '.9', label: t.landing_userRating },
                         ].map((stat, i) => (
                             <div key={i} className="text-center" style={{ opacity: statsInView ? 1 : 0, transform: statsInView ? 'translateY(0)' : 'translateY(20px)', transition: `opacity 0.6s ease ${i * 0.1}s, transform 0.6s ease ${i * 0.1}s` }}>
                                 <div className={`text-3xl sm:text-4xl font-bold mb-1 ${isDark ? 'text-white' : 'text-black'}`}>
@@ -490,13 +509,10 @@ export default function LandingPage() {
                 <div className="max-w-7xl mx-auto">
                     <div className="text-center mb-16">
                         <h2 className={`text-4xl sm:text-5xl font-bold mb-4 ${isDark ? 'text-white' : 'text-black'}`} style={{ opacity: featuresInView ? 1 : 0, transform: featuresInView ? 'translateY(0)' : 'translateY(30px)', transition: 'opacity 0.8s ease, transform 0.8s ease' }}>
-                            Why Choose{' '}
-                            <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
-                                Kimuntu
-                            </span>
+                            {t.whyChooseTitle}
                         </h2>
-                        <p className={`text-lg max-w-2xl mx-auto ${isDark ? 'text-white/50' : 'text-black'}`} style={{ opacity: featuresInView ? 1 : 0, transform: featuresInView ? 'translateY(0)' : 'translateY(30px)', transition: 'opacity 0.8s ease 0.1s, transform 0.8s ease 0.1s' }}>
-                            A single platform that combines AI power with professional tools
+                        <p className={`text-lg max-w-2xl mx-auto ${isDark ? 'text-white' : 'text-black'}`} style={{ opacity: featuresInView ? 1 : 0, transform: featuresInView ? 'translateY(0)' : 'translateY(30px)', transition: 'opacity 0.8s ease 0.1s, transform 0.8s ease 0.1s' }}>
+                            {t.landing_whyChooseSubtitle}
                         </p>
                     </div>
 
@@ -519,7 +535,7 @@ export default function LandingPage() {
                                 <h3 className={`text-lg font-semibold mb-2 transition-colors duration-300 ${isDark ? 'text-white group-hover:text-emerald-300' : 'text-black group-hover:text-emerald-700'}`}>
                                     {feature.title}
                                 </h3>
-                                <p className={`text-sm leading-relaxed ${isDark ? 'text-white/50' : 'text-black'}`}>
+                                <p className={`text-sm leading-relaxed ${isDark ? 'text-white' : 'text-black'}`}>
                                     {feature.description}
                                 </p>
                             </div>
@@ -533,13 +549,13 @@ export default function LandingPage() {
                 <div className="max-w-7xl mx-auto">
                     <div className="text-center mb-16">
                         <h2 className={`text-4xl sm:text-5xl font-bold mb-4 ${isDark ? 'text-white' : 'text-black'}`} style={{ opacity: tracksInView ? 1 : 0, transform: tracksInView ? 'translateY(0)' : 'translateY(30px)', transition: 'opacity 0.8s ease, transform 0.8s ease' }}>
-                            Four Powerful{' '}
+                            {t.landing_tracksTitle1}{' '}
                             <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
-                                AI Tracks
+                                {t.landing_tracksTitle2}
                             </span>
                         </h2>
                         <p className={`text-lg max-w-2xl mx-auto ${isDark ? 'text-white/50' : 'text-black'}`} style={{ opacity: tracksInView ? 1 : 0, transform: tracksInView ? 'translateY(0)' : 'translateY(30px)', transition: 'opacity 0.8s ease 0.1s, transform 0.8s ease 0.1s' }}>
-                            Specialized AI tools for every aspect of your professional journey
+                            {t.landing_tracksSubtitle}
                         </p>
                     </div>
 
@@ -604,7 +620,7 @@ export default function LandingPage() {
                                             ))}
                                         </div>
                                         <div className={`mt-5 flex items-center gap-2 text-sm font-semibold opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                                            Explore Track <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                                            {t.landing_exploreTrack} <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                                         </div>
                                     </div>
                                 </div>
@@ -626,21 +642,21 @@ export default function LandingPage() {
                                 <div className="flex items-center gap-3 mb-2">
                                     <Crown className={`w-6 h-6 ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`} />
                                     <h3 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-black'}`}>
-                                        Full Package — All 4 Tracks
+                                        {t.landing_fullPkgTitle}
                                     </h3>
                                     <span className="px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-emerald-500 to-teal-500 text-white">
-                                        BEST VALUE
+                                        {t.landing_bestValue}
                                     </span>
                                 </div>
                                 <p className={`text-sm ${isDark ? 'text-white/60' : 'text-black'}`}>
-                                    Get everything for <strong className={isDark ? 'text-white' : 'text-black'}>$99/month</strong> (save $60.96/month vs. buying separately) — includes 5 free Live Avatar sessions, priority AI processing, and dedicated account manager.
+                                    {t.landing_fullPkgDesc}
                                 </p>
                             </div>
                             <button
                                 onClick={scrollToAuth}
                                 className="shrink-0 px-8 py-3.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-semibold rounded-2xl hover:shadow-lg hover:shadow-emerald-500/25 transition-all hover:scale-105"
                             >
-                                Start Free Trial
+                                {t.landing_startFreeTrial}
                             </button>
                         </div>
                     </div>
@@ -652,15 +668,15 @@ export default function LandingPage() {
                 <div className="max-w-7xl mx-auto">
                     <div className="text-center mb-16">
                         <h2 className={`text-4xl sm:text-5xl font-bold mb-4 ${isDark ? 'text-white' : 'text-black'}`} style={{ opacity: testimonialsInView ? 1 : 0, transform: testimonialsInView ? 'translateY(0)' : 'translateY(30px)', transition: 'opacity 0.8s ease, transform 0.8s ease' }}>
-                            Loved by{' '}
+                            {t.landing_lovedBy}{' '}
                             <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
-                                Professionals
+                                {t.landing_professionals}
                             </span>
                         </h2>
                     </div>
 
                     <div className="grid md:grid-cols-3 gap-6">
-                        {testimonials.map((t, i) => (
+                        {testimonials.map((testimonial, i) => (
                             <div
                                 key={i}
                                 className={`p-6 rounded-2xl ${isDark
@@ -670,16 +686,16 @@ export default function LandingPage() {
                                 style={{ opacity: testimonialsInView ? 1 : 0, transform: testimonialsInView ? 'translateY(0)' : 'translateY(30px)', transition: `opacity 0.6s ease ${0.1 + i * 0.12}s, transform 0.6s ease ${0.1 + i * 0.12}s` }}
                             >
                                 <div className="flex gap-1 mb-4">
-                                    {Array.from({ length: t.rating }).map((_, j) => (
+                                    {Array.from({ length: testimonial.rating }).map((_, j) => (
                                         <Star key={j} className="w-4 h-4 text-amber-400 fill-amber-400" />
                                     ))}
                                 </div>
                                 <p className={`text-sm mb-4 leading-relaxed ${isDark ? 'text-white/70' : 'text-black'}`}>
-                                    &ldquo;{t.text}&rdquo;
+                                    &ldquo;{testimonial.text}&rdquo;
                                 </p>
                                 <div>
-                                    <div className={`font-semibold text-sm ${isDark ? 'text-white' : 'text-black'}`}>{t.name}</div>
-                                    <div className={`text-xs ${isDark ? 'text-white/40' : 'text-black'}`}>{t.role}</div>
+                                    <div className={`font-semibold text-sm ${isDark ? 'text-white' : 'text-black'}`}>{testimonial.name}</div>
+                                    <div className={`text-xs ${isDark ? 'text-white/40' : 'text-black'}`}>{testimonial.role}</div>
                                 </div>
                             </div>
                         ))}
@@ -691,7 +707,7 @@ export default function LandingPage() {
             <section className="relative z-10 py-16 overflow-hidden">
                 <div className="text-center mb-10">
                     <p className={`text-xs font-semibold tracking-[0.2em] uppercase ${isDark ? 'text-white/30' : 'text-black'}`}>
-                        Powered by Industry Leaders
+                        {t.landing_poweredBy}
                     </p>
                 </div>
                 <div className="relative overflow-hidden group/marquee">
@@ -753,21 +769,21 @@ export default function LandingPage() {
                     <div ref={pricingRef} className="text-center mb-16" style={{ opacity: pricingInView ? 1 : 0, transform: pricingInView ? 'translateY(0)' : 'translateY(30px)', transition: 'opacity 0.8s ease, transform 0.8s ease' }}>
                         <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold tracking-wider uppercase mb-6 ${isDark ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}`}>
                             <Zap className="w-3.5 h-3.5" />
-                            Flexible Pricing
+                            {t.landing_flexPricing}
                         </div>
                         <h2 className={`text-4xl sm:text-5xl font-bold mb-4 ${isDark ? 'text-white' : 'text-black'}`}>
-                            Plans for{' '}
+                            {t.landing_plansFor}{' '}
                             <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
-                                Every Need
+                                {t.landing_everyNeed}
                             </span>
                         </h2>
                         <p className={`text-lg max-w-2xl mx-auto ${isDark ? 'text-white/50' : 'text-black'}`}>
-                            Start free, pick an individual track, or unlock everything with the Full Package.
+                            {t.landing_plansSubtitle}
                         </p>
 
                         {/* Billing toggle */}
                         <div className="flex items-center justify-center gap-4 mt-8">
-                            <span className={`text-sm font-medium ${!isYearly ? (isDark ? 'text-white' : 'text-black') : (isDark ? 'text-white/40' : 'text-black')}`}>Monthly</span>
+                            <span className={`text-sm font-medium ${!isYearly ? (isDark ? 'text-white' : 'text-black') : (isDark ? 'text-white/40' : 'text-black')}`}>{t.landing_monthly}</span>
                             <button
                                 onClick={() => setIsYearly(!isYearly)}
                                 className={`relative w-14 h-7 rounded-full transition-all duration-300 ${isYearly ? 'bg-emerald-500' : isDark ? 'bg-white/10' : 'bg-black/10'}`}
@@ -775,8 +791,8 @@ export default function LandingPage() {
                                 <div className={`absolute top-0.5 w-6 h-6 rounded-full bg-white shadow-md transition-all duration-300`} style={{ left: isYearly ? '1.75rem' : '0.125rem' }} />
                             </button>
                             <span className={`text-sm font-medium ${isYearly ? (isDark ? 'text-white' : 'text-black') : (isDark ? 'text-white/40' : 'text-black')}`}>
-                                Yearly
-                                <span className="ml-1.5 text-xs text-emerald-400 font-semibold">Save 20%</span>
+                                {t.landing_yearly}
+                                <span className="ml-1.5 text-xs text-emerald-400 font-semibold">{t.landing_save20}</span>
                             </span>
                         </div>
                     </div>
@@ -789,23 +805,23 @@ export default function LandingPage() {
                         >
                             {isDark && <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />}
                             <div className="relative z-10">
-                                <h3 className={`text-lg font-bold mb-1 ${isDark ? 'text-white' : 'text-black'}`}>Free</h3>
-                                <p className={`text-sm mb-6 ${isDark ? 'text-white/40' : 'text-black'}`}>Explore and get started</p>
+                                <h3 className={`text-lg font-bold mb-1 ${isDark ? 'text-white' : 'text-black'}`}>{t.landing_planFreeTitle}</h3>
+                                <p className={`text-sm mb-6 ${isDark ? 'text-white/40' : 'text-black'}`}>{t.landing_planFreeSubtitle}</p>
 
                                 <div className="flex items-baseline gap-1 mb-8">
                                     <span className={`text-5xl font-bold ${isDark ? 'text-white' : 'text-black'}`}>$0</span>
-                                    <span className={`text-sm ${isDark ? 'text-white/40' : 'text-black'}`}>/forever</span>
+                                    <span className={`text-sm ${isDark ? 'text-white/40' : 'text-black'}`}>{t.landing_forever}</span>
                                 </div>
 
                                 <button
                                     onClick={scrollToAuth}
                                     className={`w-full py-3.5 rounded-xl font-semibold text-sm transition-all duration-300 hover:scale-[1.02] mb-8 ${isDark ? 'bg-white/5 text-white/70 hover:bg-white/10 border border-white/10' : 'bg-gray-50 text-black hover:bg-gray-100 border border-gray-200'}`}
                                 >
-                                    Get Started Free
+                                    {t.landing_getStartedFree}
                                 </button>
 
                                 <div className="space-y-3">
-                                    {['3 CV generations/month (watermarked)', '1 Business Plan preview', 'Legal Chatbot: 5 questions/month', '1 free Live Avatar session (10 min)', 'Community access & Resource Hub'].map((f, i) => (
+                                    {[t.landing_freeF1, t.landing_freeF2, t.landing_freeF3, t.landing_freeF4, t.landing_freeF5].map((f, i) => (
                                         <div key={i} className="flex items-center gap-3">
                                             <div className={`w-5 h-5 rounded-full flex items-center justify-center ${isDark ? 'bg-white/5' : 'bg-gray-100'}`}>
                                                 <Check className={`w-3 h-3 ${isDark ? 'text-white/40' : 'text-black'}`} />
@@ -824,13 +840,13 @@ export default function LandingPage() {
                         >
                             {isDark && <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />}
                             <div className="relative z-10">
-                                <h3 className={`text-lg font-bold mb-1 ${isDark ? 'text-white' : 'text-black'}`}>Individual Tracks</h3>
-                                <p className={`text-sm mb-6 ${isDark ? 'text-white/40' : 'text-black'}`}>Pick the track you need</p>
+                                <h3 className={`text-lg font-bold mb-1 ${isDark ? 'text-white' : 'text-black'}`}>{t.landing_planTracksTitle}</h3>
+                                <p className={`text-sm mb-6 ${isDark ? 'text-white/40' : 'text-black'}`}>{t.landing_planTracksSubtitle}</p>
 
                                 <div className="flex items-baseline gap-1 mb-2">
-                                    <span className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-black'}`}>From</span>
+                                    <span className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-black'}`}>{t.landing_from}</span>
                                     <span className={`text-5xl font-bold ${isDark ? 'text-white' : 'text-black'}`}>{isYearly ? '$191.90' : '$19.99'}</span>
-                                    <span className={`text-sm ${isDark ? 'text-white/40' : 'text-black'}`}>/{isYearly ? 'yr' : 'mo'}</span>
+                                    <span className={`text-sm ${isDark ? 'text-white/40' : 'text-black'}`}>/{isYearly ? t.landing_yr : t.landing_mo}</span>
                                 </div>
                                 <div className="mb-8" />
 
@@ -838,15 +854,15 @@ export default function LandingPage() {
                                     onClick={scrollToAuth}
                                     className={`w-full py-3.5 rounded-xl font-semibold text-sm transition-all duration-300 hover:scale-[1.02] mb-8 ${isDark ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20' : 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100'}`}
                                 >
-                                    Explore Tracks
+                                    {t.landing_exploreTracks}
                                 </button>
 
                                 <div className="space-y-4">
                                     {[
-                                        { name: 'Career Premium', price: '$19.99/mo' },
-                                        { name: 'Business Premium', price: '$29.99/mo' },
-                                        { name: 'Legal Premium', price: '$29.99/mo' },
-                                        { name: 'Innovation Premium', price: '$79.99/mo' },
+                                        { name: t.landing_careerPremium, price: '$19.99/mo' },
+                                        { name: t.landing_bizPremium, price: '$29.99/mo' },
+                                        { name: t.landing_legalPremium, price: '$29.99/mo' },
+                                        { name: t.landing_innovPremium, price: '$79.99/mo' },
                                     ].map((track, i) => (
                                         <div key={i} className="flex items-center justify-between">
                                             <div className="flex items-center gap-3">
@@ -874,34 +890,34 @@ export default function LandingPage() {
                             {/* Best Seller badge */}
                             <div className="absolute top-6 right-6">
                                 <span className="px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-emerald-500 to-teal-500 text-white">
-                                    BEST SELLER
+                                    {t.landing_bestSeller}
                                 </span>
                             </div>
 
                             <div className="relative z-10">
-                                <h3 className={`text-lg font-bold mb-1 ${isDark ? 'text-white' : 'text-black'}`}>Full Package</h3>
-                                <p className={`text-sm mb-6 ${isDark ? 'text-white/40' : 'text-black'}`}>All 4 tracks — maximum value</p>
+                                <h3 className={`text-lg font-bold mb-1 ${isDark ? 'text-white' : 'text-black'}`}>{t.landing_planFullTitle}</h3>
+                                <p className={`text-sm mb-6 ${isDark ? 'text-white/40' : 'text-black'}`}>{t.landing_planFullSubtitle}</p>
 
                                 <div className="flex items-baseline gap-1 mb-2">
                                     <span className={`text-5xl font-bold bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent`}>
                                         ${isYearly ? PLANS.fullPackage.yearlyPrice : PLANS.fullPackage.monthlyPrice}
                                     </span>
                                     <span className={`text-sm ${isDark ? 'text-white/40' : 'text-black'}`}>
-                                        /{isYearly ? 'year' : 'month'}
+                                        /{isYearly ? t.landing_yr : t.landing_mo}
                                     </span>
                                 </div>
                                 {isYearly && (
-                                    <p className="text-sm text-emerald-400 font-medium mb-6">That&apos;s just ${(PLANS.fullPackage.yearlyPrice / 12).toFixed(2)}/month</p>
+                                    <p className="text-sm text-emerald-400 font-medium mb-6">{t.landing_thatsJust} ${(PLANS.fullPackage.yearlyPrice / 12).toFixed(2)}/{t.landing_mo}</p>
                                 )}
                                 {!isYearly && (
-                                    <p className="text-sm text-emerald-400 font-medium mb-6">Save $60.96/mo vs. separate tracks</p>
+                                    <p className="text-sm text-emerald-400 font-medium mb-6">{t.landing_savePerMo}</p>
                                 )}
 
                                 <button
                                     onClick={scrollToAuth}
                                     className="w-full py-3.5 rounded-xl font-semibold text-sm text-white bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 transition-all duration-300 hover:scale-[1.02] shadow-lg shadow-emerald-500/25 mb-8"
                                 >
-                                    Get Full Package
+                                    {t.landing_getFullPkg}
                                 </button>
 
                                 <div className="space-y-3">
@@ -921,9 +937,9 @@ export default function LandingPage() {
                     {/* Trust badges */}
                     <div className="flex flex-wrap items-center justify-center gap-6 mt-12" style={{ opacity: pricingInView ? 1 : 0, transition: 'opacity 0.8s ease 0.4s' }}>
                         {[
-                            { icon: Shield, text: 'SSL Encrypted' },
-                            { icon: CreditCard, text: 'Secure Payments' },
-                            { icon: RefreshCw, text: 'Cancel Anytime' },
+                            { icon: Shield, text: t.landing_sslEncrypted },
+                            { icon: CreditCard, text: t.landing_securePayments },
+                            { icon: RefreshCw, text: t.pricingCancelAnytime },
                         ].map((badge, i) => (
                             <div key={i} className={`flex items-center gap-2 text-xs font-medium ${isDark ? 'text-white/30' : 'text-black'}`}>
                                 <badge.icon className="w-4 h-4" />
@@ -941,22 +957,22 @@ export default function LandingPage() {
                         {/* Left: CTA content */}
                         <div style={{ opacity: ctaInView ? 1 : 0, transform: ctaInView ? 'translateX(0)' : 'translateX(-30px)', transition: 'opacity 0.8s ease, transform 0.8s ease' }}>
                             <h2 className={`text-4xl sm:text-5xl font-bold mb-6 leading-tight ${isDark ? 'text-white' : 'text-black'}`}>
-                                Ready to Transform
+                                {t.landing_ctaTitle1}
                                 <br />
                                 <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
-                                    Your Workflow?
+                                    {t.landing_ctaTitle2}
                                 </span>
                             </h2>
                             <p className={`text-lg mb-8 ${isDark ? 'text-white/50' : 'text-black'}`}>
-                                Join thousands of professionals who use Kimuntu to accelerate their career, grow their business, and navigate legal complexities with AI.
+                                {t.landing_ctaDesc}
                             </p>
 
                             <div className="space-y-4">
                                 {[
-                                    'Free tier available with generous limits',
-                                    'No credit card required to start',
-                                    'AI-powered tools across 4 professional tracks',
-                                    'Export to PDF, DOCX, and more',
+                                    t.landing_ctaBenefit1,
+                                    t.landing_ctaBenefit2,
+                                    t.landing_ctaBenefit3,
+                                    t.landing_ctaBenefit4,
                                 ].map((item, i) => (
                                     <div key={i} className="flex items-center gap-3">
                                         <CheckCircle2 className={`w-5 h-5 shrink-0 ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`} />
@@ -983,16 +999,16 @@ export default function LandingPage() {
                                             <Image src="/assets/new_single_logo.png" alt="Logo" width={80} height={80} className="animate-float" />
                                         </div>
                                         <h2 className={`text-2xl font-bold mb-2 ${isDark ? 'text-white' : 'text-black'}`}>
-                                            {isLogin ? 'Welcome Back' : 'Get Started'}
+                                            {isLogin ? t.welcomeBack : t.getStarted}
                                         </h2>
                                         <p className={`text-sm ${isDark ? 'text-white/50' : 'text-black'}`}>
-                                            {isLogin ? 'Sign in to continue your journey' : 'Create your account today'}
+                                            {isLogin ? t.continueJourney : t.createAccount}
                                         </p>
                                     </div>
 
                                     <div className="space-y-4">
                                         <div>
-                                            <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-white/80' : 'text-black'}`}>Email</label>
+                                            <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-white/80' : 'text-black'}`}>{t.email}</label>
                                             <div className="relative">
                                                 <Mail className={`absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 ${isDark ? 'text-white/30' : 'text-black'}`} />
                                                 <input
@@ -1011,7 +1027,7 @@ export default function LandingPage() {
                                         </div>
 
                                         <div>
-                                            <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-white/80' : 'text-black'}`}>Password</label>
+                                            <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-white/80' : 'text-black'}`}>{t.password}</label>
                                             <div className="relative">
                                                 <Lock className={`absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 ${isDark ? 'text-white/30' : 'text-black'}`} />
                                                 <input
@@ -1046,10 +1062,10 @@ export default function LandingPage() {
                                             {authLoading ? (
                                                 <span className="flex items-center justify-center gap-2">
                                                     <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                                    Processing...
+                                                    {t.processing}
                                                 </span>
                                             ) : (
-                                                isLogin ? 'Sign In' : 'Create Account'
+                                                isLogin ? t.signIn : t.landing_createAccountBtn
                                             )}
                                         </button>
                                     </div>
@@ -1059,7 +1075,7 @@ export default function LandingPage() {
                                             <div className={`w-full border-t ${isDark ? 'border-white/10' : 'border-black/10'}`} />
                                         </div>
                                         <div className="relative flex justify-center text-sm">
-                                            <span className={`px-3 ${isDark ? 'bg-black text-white/40' : 'bg-white text-black'}`}>or</span>
+                                            <span className={`px-3 ${isDark ? 'bg-black text-white/40' : 'bg-white text-black'}`}>{t.or}</span>
                                         </div>
                                     </div>
 
@@ -1072,11 +1088,11 @@ export default function LandingPage() {
                                         }`}
                                     >
                                         <Chrome className="w-5 h-5" />
-                                        Continue with Google
+                                        {t.continueWithGoogle}
                                     </button>
 
                                     <p className={`text-center text-sm mt-6 ${isDark ? 'text-white/40' : 'text-black'}`}>
-                                        {isLogin ? "Don't have an account? " : "Already have an account? "}
+                                        {isLogin ? t.dontHaveAccount + ' ' : t.alreadyHaveAccount + ' '}
                                         <button
                                             onClick={() => {
                                                 setIsLogin(!isLogin);
@@ -1090,7 +1106,7 @@ export default function LandingPage() {
                                             }`}
                                             disabled={authLoading}
                                         >
-                                            {isLogin ? 'Sign Up' : 'Sign In'}
+                                            {isLogin ? t.signUp : t.signIn}
                                         </button>
                                     </p>
                                 </div>

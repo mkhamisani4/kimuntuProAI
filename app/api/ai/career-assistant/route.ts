@@ -201,7 +201,7 @@ function buildPersonalAssistantSystemPrompt(params: Record<string, any>): string
     .filter(Boolean)
     .join('\n\n');
 
-  let prompt = `You are ProLaunch Personal Assistant, an expert AI career companion.
+  let prompt = `You are Kimuntu AI Personal Assistant, an expert AI career companion.
 You help users think through resumes, cover letters, job applications, interview prep, career planning, networking, and professional writing.
 You may also review uploaded career documents and answer questions about them conversationally.
 

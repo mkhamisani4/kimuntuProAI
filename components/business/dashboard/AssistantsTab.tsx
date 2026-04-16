@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { getRecentResults, type AssistantResult } from '@kimuntupro/db';
 import { FileText, RefreshCw, ExternalLink, Trash2 } from 'lucide-react';
 import EmptyState from './shared/EmptyState';
+import { useLanguage } from '@/components/providers/LanguageProvider';
 
 interface AssistantsTabProps {
   tenantId: string;
@@ -12,6 +13,7 @@ interface AssistantsTabProps {
 }
 
 export default function AssistantsTab({ tenantId, limit = 8 }: AssistantsTabProps) {
+  const { t } = useLanguage();
   const [results, setResults] = useState<AssistantResult[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -47,10 +49,10 @@ export default function AssistantsTab({ tenantId, limit = 8 }: AssistantsTabProp
 
   const getAssistantLabel = (assistant: string): string => {
     const labels: Record<string, string> = {
-      streamlined_plan: 'Streamlined Plan',
-      exec_summary: 'Executive Summary',
-      market_analysis: 'Market Analysis',
-      financial_overview: 'Financial Overview',
+      streamlined_plan: t.biz_streamlinedPlan,
+      exec_summary: t.biz_execSummary,
+      market_analysis: t.biz_marketAnalysis,
+      financial_overview: t.biz_financialOverview,
     };
     return labels[assistant] || assistant;
   };
@@ -175,9 +177,9 @@ export default function AssistantsTab({ tenantId, limit = 8 }: AssistantsTabProp
     return (
       <EmptyState
         icon={FileText}
-        title="No AI Assistants Yet"
-        description="Generate your first business plan or analysis to see results here. Our AI assistants can help you create comprehensive plans in minutes."
-        actionLabel="Generate Business Plan"
+        title={t.biz_noAssistantsTitle}
+        description={t.biz_noAssistantsDesc}
+        actionLabel={t.biz_generateBusinessPlan}
         actionRoute="/dashboard/business/streamlined-plan"
       />
     );
@@ -188,18 +190,18 @@ export default function AssistantsTab({ tenantId, limit = 8 }: AssistantsTabProp
       {/* Filter Dropdown */}
       <div className="flex items-center justify-between">
         <div className="text-sm text-gray-500">
-          {filteredResults.length} result{filteredResults.length !== 1 ? 's' : ''}
+          {filteredResults.length} {filteredResults.length !== 1 ? t.biz_results : t.biz_result}
         </div>
         <select
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
           className="px-3 py-1.5 text-sm bg-white border border-gray-200 text-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-sm"
         >
-          <option value="all">All Types</option>
-          <option value="streamlined_plan">Streamlined Plan</option>
-          <option value="exec_summary">Executive Summary</option>
-          <option value="market_analysis">Market Analysis</option>
-          <option value="financial_overview">Financial Overview</option>
+          <option value="all">{t.biz_allTypes}</option>
+          <option value="streamlined_plan">{t.biz_streamlinedPlan}</option>
+          <option value="exec_summary">{t.biz_execSummary}</option>
+          <option value="market_analysis">{t.biz_marketAnalysis}</option>
+          <option value="financial_overview">{t.biz_financialOverview}</option>
         </select>
       </div>
 
@@ -259,7 +261,7 @@ export default function AssistantsTab({ tenantId, limit = 8 }: AssistantsTabProp
                   className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500 text-white text-sm font-medium rounded-lg hover:bg-emerald-600 transition-colors shadow-sm"
                 >
                   <ExternalLink size={14} />
-                  Open
+                  {t.biz_open}
                 </button>
                 <button
                   onClick={(e) => {
@@ -269,7 +271,7 @@ export default function AssistantsTab({ tenantId, limit = 8 }: AssistantsTabProp
                   className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 text-gray-600 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors shadow-sm"
                 >
                   <RefreshCw size={14} />
-                  New
+                  {t.biz_new}
                 </button>
 
                 {/* Delete Button with Confirmation */}
@@ -283,7 +285,7 @@ export default function AssistantsTab({ tenantId, limit = 8 }: AssistantsTabProp
                       disabled={deletingId === result.id}
                       className="px-3 py-1.5 bg-red-500 text-white text-xs font-medium rounded-lg hover:bg-red-600 transition-colors disabled:opacity-50"
                     >
-                      {deletingId === result.id ? 'Deleting...' : 'Confirm'}
+                      {deletingId === result.id ? t.biz_deleting : t.biz_confirm}
                     </button>
                     <button
                       onClick={(e) => {
@@ -292,7 +294,7 @@ export default function AssistantsTab({ tenantId, limit = 8 }: AssistantsTabProp
                       }}
                       className="px-3 py-1.5 bg-gray-100 text-gray-600 text-xs font-medium rounded-lg hover:bg-gray-200 transition-colors"
                     >
-                      Cancel
+                      {t.biz_cancel}
                     </button>
                   </div>
                 ) : (
@@ -320,7 +322,7 @@ export default function AssistantsTab({ tenantId, limit = 8 }: AssistantsTabProp
             onClick={() => router.push('/dashboard/business/ai-assistant')}
             className="text-sm text-emerald-600 hover:text-emerald-700 font-medium"
           >
-            View All Results →
+            {t.biz_viewAllResults_link}
           </button>
         </div>
       )}

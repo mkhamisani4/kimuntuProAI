@@ -11,10 +11,12 @@ import { TrendingUp, Clock, Lock, AlertTriangle, X, ArrowLeft } from 'lucide-rea
 import AssistantLayout from '@/components/ai/AssistantLayout';
 import TaskForm from '@/app/dashboard/business/ai-assistant/TaskForm';
 import ResultViewer from '@/app/dashboard/business/ai-assistant/ResultViewer';
+import { useLanguage } from '@/components/providers/LanguageProvider';
 import type { AssistantResult } from '@/app/dashboard/business/ai-assistant/page';
 import { getAssistantResult, type AssistantResult as DbAssistantResult } from '@kimuntupro/db';
 
 export default function StreamlinedPlanPage() {
+  const { t } = useLanguage();
   const searchParams = useSearchParams();
   const [result, setResult] = useState<AssistantResult | null>(null);
   const [resultId, setResultId] = useState<string | null>(null);
@@ -46,13 +48,13 @@ export default function StreamlinedPlanPage() {
               },
             });
           } else {
-            setError('Saved result not found');
+            setError(t.biz_savedResultNotFound);
             setErrorType('server');
           }
         })
         .catch((err) => {
           console.error('Failed to load saved result:', err);
-          setError('Failed to load saved result');
+          setError(t.biz_failedLoadSavedResult);
           setErrorType('server');
         })
         .finally(() => {
@@ -98,8 +100,8 @@ export default function StreamlinedPlanPage() {
 
   return (
     <AssistantLayout
-      title="Streamlined Business Plan"
-      description="Generate a lean one-page business plan in under 60 seconds"
+      title={t.biz_streamlinedPlanTitle}
+      description={t.biz_streamlinedPlanSubtitle}
       icon={<TrendingUp className="w-16 h-16" />}
       backHref="/dashboard/business"
     >
@@ -120,33 +122,33 @@ export default function StreamlinedPlanPage() {
                 {errorType === 'quota' && (
                   <>
                     <Clock className="w-5 h-5" />
-                    Quota Exceeded
+                    {t.biz_quotaExceeded}
                   </>
                 )}
                 {errorType === 'auth' && (
                   <>
                     <Lock className="w-5 h-5" />
-                    Authentication Required
+                    {t.biz_authRequired}
                   </>
                 )}
                 {errorType === 'server' && (
                   <>
                     <AlertTriangle className="w-5 h-5" />
-                    Server Error
+                    {t.biz_serverError}
                   </>
                 )}
               </p>
               <p className="mt-1 text-sm">{error}</p>
               {resetsAt && (
                 <p className="mt-2 text-sm font-medium">
-                  Resets at: {new Date(resetsAt).toLocaleString()}
+                  {t.biz_resetsAt} {new Date(resetsAt).toLocaleString()}
                 </p>
               )}
             </div>
             <button
               onClick={clearError}
               className="ml-4 text-gray-400 hover:text-white transition-colors"
-              aria-label="Dismiss error"
+              aria-label={t.biz_dismissError}
             >
               <X className="w-5 h-5" />
             </button>
@@ -181,9 +183,9 @@ export default function StreamlinedPlanPage() {
               <div className="text-gray-400 text-lg">
                 <p className="mb-2 flex items-center gap-2">
                   <ArrowLeft className="w-4 h-4" />
-                  Enter your prompt to get started
+                  {t.biz_enterPromptToStart}
                 </p>
-                <p className="text-sm">Your business plan will appear here</p>
+                <p className="text-sm">{t.biz_planWillAppear}</p>
               </div>
             </div>
           )}

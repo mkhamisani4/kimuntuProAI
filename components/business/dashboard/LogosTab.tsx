@@ -8,6 +8,7 @@ import StatusBadge, { StatusType } from './shared/StatusBadge';
 import EmptyState from './shared/EmptyState';
 import LogoCanvas from '@/app/dashboard/business/logo-studio/components/LogoCanvas';
 import { toast } from '@/components/ai/Toast';
+import { useLanguage } from '@/components/providers/LanguageProvider';
 
 interface LogosTabProps {
   tenantId: string;
@@ -16,6 +17,7 @@ interface LogosTabProps {
 }
 
 export default function LogosTab({ tenantId, userId, limit = 6 }: LogosTabProps) {
+  const { t } = useLanguage();
   const [logos, setLogos] = useState<Logo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -319,9 +321,9 @@ export default function LogosTab({ tenantId, userId, limit = 6 }: LogosTabProps)
     return (
       <EmptyState
         icon={Palette}
-        title="No Logos Yet"
-        description="Create a professional logo for your brand in minutes. AI generates concepts, you refine and export in multiple formats. Link your business plan for even better suggestions!"
-        actionLabel="Create Your First Logo"
+        title={t.biz_noLogosTitle}
+        description={t.biz_noLogosDesc}
+        actionLabel={t.biz_createFirstLogo}
         actionRoute="/dashboard/business/logo-studio"
       />
     );
@@ -335,12 +337,12 @@ export default function LogosTab({ tenantId, userId, limit = 6 }: LogosTabProps)
       {/* Count and prompt */}
       <div className="flex items-center justify-between">
         <div className="text-sm text-gray-500">
-          {logos.length} logo{logos.length !== 1 ? 's' : ''}
+          {logos.length} {logos.length !== 1 ? t.biz_logos : t.biz_logo}
         </div>
         {hasNoPrimary && (
           <div className="text-xs text-orange-500 flex items-center gap-1 bg-orange-50 px-2 py-1 rounded-full border border-orange-200">
             <Star className="w-3 h-3" />
-            Set a primary logo
+            {t.biz_setPrimaryLogo}
           </div>
         )}
       </div>
@@ -395,14 +397,14 @@ export default function LogosTab({ tenantId, userId, limit = 6 }: LogosTabProps)
                       disabled={renamingId === logo.id}
                       className="px-2 py-1 bg-purple-600 text-white text-xs rounded hover:bg-purple-700 disabled:opacity-50 shadow-sm"
                     >
-                      {renamingId === logo.id ? 'Saving...' : 'Save'}
+                      {renamingId === logo.id ? t.biz_saving : t.biz_save}
                     </button>
                     <button
                       onClick={handleCancelRename}
                       disabled={renamingId === logo.id}
                       className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded hover:bg-gray-200 disabled:opacity-50"
                     >
-                      Cancel
+                      {t.biz_cancel}
                     </button>
                   </div>
                 ) : (
@@ -441,14 +443,14 @@ export default function LogosTab({ tenantId, userId, limit = 6 }: LogosTabProps)
                   className="flex items-center gap-1.5 px-3 py-1.5 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors shadow-sm"
                 >
                   <Pencil size={14} />
-                  Edit
+                  {t.biz_edit}
                 </button>
                 <button
                   onClick={(e) => handleExport(logo, e)}
                   className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 text-gray-600 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors shadow-sm"
                 >
                   <Download size={14} />
-                  Export
+                  {t.biz_export}
                 </button>
 
                 {/* Set Primary / Delete */}
@@ -458,7 +460,7 @@ export default function LogosTab({ tenantId, userId, limit = 6 }: LogosTabProps)
                     className="flex items-center gap-1.5 px-3 py-1.5 bg-yellow-50 border border-yellow-200 text-yellow-600 text-xs font-medium rounded-lg hover:bg-yellow-100 transition-colors"
                   >
                     <Star size={12} />
-                    Primary
+                    {t.biz_primary}
                   </button>
                 )}
 
@@ -470,13 +472,13 @@ export default function LogosTab({ tenantId, userId, limit = 6 }: LogosTabProps)
                       disabled={deletingId === logo.id}
                       className="px-3 py-1.5 bg-red-500 text-white text-xs font-medium rounded-lg hover:bg-red-600 transition-colors disabled:opacity-50"
                     >
-                      {deletingId === logo.id ? 'Deleting...' : 'Confirm'}
+                      {deletingId === logo.id ? t.biz_deleting : t.biz_confirm}
                     </button>
                     <button
                       onClick={cancelDelete}
                       className="px-3 py-1.5 bg-gray-100 text-gray-600 text-xs font-medium rounded-lg hover:bg-gray-200 transition-colors"
                     >
-                      Cancel
+                      {t.biz_cancel}
                     </button>
                   </div>
                 ) : (
@@ -501,7 +503,7 @@ export default function LogosTab({ tenantId, userId, limit = 6 }: LogosTabProps)
             onClick={() => router.push('/dashboard/business/logos')}
             className="text-sm text-purple-600 hover:text-purple-700 font-medium"
           >
-            View All Logos →
+            {t.biz_viewAllLogos_link}
           </button>
         </div>
       )}

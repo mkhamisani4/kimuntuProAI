@@ -79,7 +79,7 @@ const CareerTrack = () => {
         'Professional formatting and tone'
       ],
       coverLetterDesc: 'Create compelling, job-specific cover letters that highlight your relevant experience and skills. Our AI analyzes the job description and crafts a personalized letter that matches the employer\'s tone and incorporates key keywords.',
-      jobChatbot: 'ProLaunch AI Assistant',
+      jobChatbot: 'Kimuntu AI Assistant',
       personalAssistant: 'Personal Assistant',
       jobChatbotItems: [
         'Ask questions about your resume',
@@ -133,7 +133,7 @@ const CareerTrack = () => {
         'Formatage et ton professionnels'
       ],
       coverLetterDesc: 'Créez des lettres de motivation convaincantes et spécifiques à l\'emploi qui mettent en valeur votre expérience et vos compétences pertinentes. Notre IA analyse la description de poste et rédige une lettre personnalisée qui correspond au ton de l\'employeur et intègre les mots-clés essentiels.',
-      jobChatbot: 'Assistant IA ProLaunch',
+      jobChatbot: 'Assistant Kimuntu AI',
       personalAssistant: 'Assistant personnel',
       jobChatbotItems: [
         'Posez des questions sur votre CV',
@@ -1145,7 +1145,7 @@ const CareerTrack = () => {
       description: t.jobChatbotDesc,
       outline: {
         title: 'General Outline',
-        formTitle: 'ProLaunch AI Assistant',
+        formTitle: 'Kimuntu AI Assistant',
         inputs: [],
         howItWorks: [
           { label: 'Upload Context', desc: 'Optionally upload resume, cover letter, or job description' },
@@ -1161,17 +1161,23 @@ const CareerTrack = () => {
     <div>
       <div className="mb-10">
         <div className="text-center mb-10">
-          <h1 className="text-5xl font-bold mb-4 text-white">
+          <h1 className={`text-5xl font-bold mb-4 ${isDark ? 'text-white' : 'text-black'}`}>
             {t.personalTrack}
           </h1>
-          <p className="text-xl text-white/70 mb-8">{t.description}</p>
+          <p className={`text-xl mb-8 ${isDark ? 'text-white/70' : 'text-gray-700'}`}>{t.description}</p>
         </div>
 
         {/* Features Section */}
         <div id="features" className="mb-10">
-          <div className="bg-gray-800/80 border border-gray-700 rounded-2xl p-8 mb-8">
-            <h2 className="text-3xl font-bold text-white mb-2">{t.features}</h2>
-            <p className="text-gray-400 mb-6">{t.focusedTools}</p>
+          <div
+            className={`rounded-2xl p-8 mb-8 ${
+              isDark
+                ? 'bg-gray-800/80 border border-gray-700'
+                : 'bg-white border border-gray-200 shadow-sm'
+            }`}
+          >
+            <h2 className={`text-3xl font-bold mb-2 ${isDark ? 'text-white' : 'text-black'}`}>{t.features}</h2>
+            <p className={`mb-6 ${isDark ? 'text-gray-400' : 'text-gray-700'}`}>{t.focusedTools}</p>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {features.map((feature) => (
@@ -1188,16 +1194,20 @@ const CareerTrack = () => {
                       showFeature(feature.id);
                     }
                   }}
-                  className="bg-white/5 border border-white/10 rounded-2xl p-6 text-left hover:bg-white/10 transition-all cursor-pointer group"
+                  className={`rounded-2xl p-6 text-left transition-all cursor-pointer group ${
+                    isDark
+                      ? 'bg-white/5 border border-white/10 hover:bg-white/10'
+                      : 'bg-white border border-gray-200 shadow-sm hover:shadow-md hover:border-gray-300'
+                  }`}
                 >
                   <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                     <feature.icon className="w-6 h-6 text-black" />
                   </div>
-                  <h3 className="text-xl font-bold text-white mb-4">{feature.title}</h3>
+                  <h3 className={`text-xl font-bold mb-4 ${isDark ? 'text-white' : 'text-black'}`}>{feature.title}</h3>
                   <ul className="space-y-2">
                     {feature.items.map((item, i) => (
-                      <li key={i} className="flex items-start gap-2 text-white/70 text-sm">
-                        <span className="text-white font-bold mt-0.5">✓</span>
+                      <li key={i} className={`flex items-start gap-2 text-sm ${isDark ? 'text-white/70' : 'text-gray-700'}`}>
+                        <span className={`font-bold mt-0.5 ${isDark ? 'text-white' : 'text-emerald-600'}`}>✓</span>
                         <span>{item}</span>
                       </li>
                     ))}
@@ -1208,10 +1218,16 @@ const CareerTrack = () => {
           </div>
 
           {/* Privacy Section */}
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-8 text-center">
-            <Shield className="w-12 h-12 text-white mx-auto mb-4" />
-            <h3 className="text-2xl font-bold text-white mb-2">{t.privacyFirst}</h3>
-            <p className="text-white/70">
+          <div
+            className={`rounded-2xl p-8 text-center ${
+              isDark
+                ? 'bg-white/5 border border-white/10'
+                : 'bg-white border border-gray-200 shadow-sm'
+            }`}
+          >
+            <Shield className={`w-12 h-12 mx-auto mb-4 ${isDark ? 'text-white' : 'text-emerald-700'}`} />
+            <h3 className={`text-2xl font-bold mb-2 ${isDark ? 'text-white' : 'text-black'}`}>{t.privacyFirst}</h3>
+            <p className={isDark ? 'text-white/70' : 'text-gray-700'}>
               {t.privacyDesc}
             </p>
           </div>
@@ -1784,7 +1800,7 @@ const CareerTrack = () => {
               {selectedFeature.id === 'jobchatbot' ? (
                 <div className="space-y-6">
                   <div className="bg-gray-900/50 rounded-2xl p-6">
-                    <h3 className="text-xl font-bold text-white mb-4 text-center">ProLaunch AI Assistant</h3>
+                    <h3 className="text-xl font-bold text-white mb-4 text-center">Kimuntu AI Assistant</h3>
                     
                     {/* Context Upload Section */}
                     <div className="mb-6 space-y-4">

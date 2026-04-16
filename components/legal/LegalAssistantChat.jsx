@@ -4,6 +4,7 @@ import React, { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, ChevronRight, Loader2, Scale, Sparkles } from 'lucide-react';
 import { useTheme } from '@/components/providers/ThemeProvider';
+import { useLanguage } from '@/components/providers/LanguageProvider';
 import { AIAvatar, useAIAvatar } from '@/components/AIAvatarCustomizer';
 
 const THEMES = {
@@ -65,7 +66,7 @@ const THEMES = {
     },
 };
 
-function AssistantBubble({ message, isDark, accentClass }) {
+function AssistantBubble({ message, isDark, accentClass, t }) {
     if (message.role === 'user') {
         return (
             <div className="flex justify-end">
@@ -84,7 +85,7 @@ function AssistantBubble({ message, isDark, accentClass }) {
 
             {message.sources?.length ? (
                 <div className="mt-4">
-                    <p className={`text-[11px] font-semibold uppercase tracking-[0.16em] ${accentClass}`}>Retrieved Sources</p>
+                    <p className={`text-[11px] font-semibold uppercase tracking-[0.16em] ${accentClass}`}>{t.legal_retrievedSources}</p>
                     <div className="mt-2 space-y-2">
                         {message.sources.map((source) => (
                             <div key={`${source.title}-${source.citation || ''}`} className={`rounded-xl border px-3 py-2 text-xs ${isDark ? 'border-gray-800 bg-gray-900/60 text-gray-300' : 'border-gray-200 bg-white text-gray-700'}`}>
@@ -103,7 +104,7 @@ function AssistantBubble({ message, isDark, accentClass }) {
 
             {message.relatedTopics?.length ? (
                 <div className="mt-4">
-                    <p className={`text-[11px] font-semibold uppercase tracking-[0.16em] ${accentClass}`}>Suggested Follow-Ups</p>
+                    <p className={`text-[11px] font-semibold uppercase tracking-[0.16em] ${accentClass}`}>{t.legal_suggestedFollowUps}</p>
                     <div className="mt-2 flex flex-wrap gap-2">
                         {message.relatedTopics.map((topic) => (
                             <span key={topic} className={`rounded-full border px-3 py-1 text-xs ${isDark ? 'border-gray-700 bg-gray-900 text-gray-300' : 'border-gray-200 bg-white text-gray-700'}`}>
@@ -124,6 +125,7 @@ function AssistantBubble({ message, isDark, accentClass }) {
 export default function LegalAssistantChat({ agent }) {
     const router = useRouter();
     const { isDark } = useTheme();
+    const { t } = useLanguage();
     const { config } = useAIAvatar(agent.id);
     const theme = THEMES[agent.theme] || THEMES.slate;
 
@@ -134,7 +136,7 @@ export default function LegalAssistantChat({ agent }) {
     const [messages, setMessages] = useState([
         {
             role: 'assistant',
-            content: `${agent.title}\n\n${agent.subtitle}\n\nAsk a question or use one of the starter prompts to begin.`,
+            content: `${agent.title}\n\n${agent.subtitle}\n\n${t.legal_introPrompt}`,
             relatedTopics: agent.prompts,
         },
     ]);
@@ -170,7 +172,7 @@ export default function LegalAssistantChat({ agent }) {
 
             const data = await response.json();
             if (!response.ok) {
-                throw new Error(data.error || 'Failed to get assistant response');
+                throw new Error(data.error || t.legal_failedResponse);
             }
 
             setMessages((current) => [
@@ -184,7 +186,7 @@ export default function LegalAssistantChat({ agent }) {
                 },
             ]);
         } catch (err) {
-            setError(err?.message || 'Something went wrong.');
+            setError(err?.message || t.legal_genericError);
         } finally {
             setLoading(false);
         }
@@ -200,7 +202,7 @@ export default function LegalAssistantChat({ agent }) {
                         className="inline-flex items-center gap-2 text-sm text-white/70 hover:text-white transition-colors"
                     >
                         <ArrowLeft className="w-4 h-4" />
-                        Back to Legal Track
+                        {t.legal_backToLegal}
                     </button>
 
                     <div className="mt-8 flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
@@ -223,10 +225,10 @@ export default function LegalAssistantChat({ agent }) {
                         <div className={`rounded-2xl border px-4 py-3 ${theme.border} bg-white/5 text-white`}>
                             <div className="flex items-center gap-2 text-sm font-semibold">
                                 <Scale className="w-4 h-4" />
-                                OpenAI + Retrieval
+                                {t.legal_openAIRetrieval}
                             </div>
                             <p className="mt-1 text-xs text-white/65">
-                                Responses are generated with retrieved legal context for this practice area.
+                                {t.legal_retrievalDesc}
                             </p>
                         </div>
                     </div>
@@ -237,7 +239,7 @@ export default function LegalAssistantChat({ agent }) {
                 <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-6">
                     <section className={`rounded-3xl border p-6 ${isDark ? 'bg-gray-900/80 border-gray-800' : 'bg-white border-gray-200 shadow-sm'}`}>
                         <div className="flex items-center justify-between gap-4">
-                            <h2 className={`text-lg font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>Legal Chat</h2>
+                            <h2 className={`text-lg font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>{t.legal_legalChat}</h2>
                             <select
                                 value={category}
                                 onChange={(e) => setCategory(e.target.value)}
@@ -256,13 +258,14 @@ export default function LegalAssistantChat({ agent }) {
                                     message={message}
                                     isDark={isDark}
                                     accentClass={theme.accent}
+                                    t={t}
                                 />
                             ))}
 
                             {loading ? (
                                 <div className={`inline-flex items-center gap-2 rounded-2xl border px-4 py-3 text-sm ${isDark ? 'border-gray-800 bg-gray-950/70 text-gray-300' : 'border-gray-200 bg-gray-50 text-gray-700'}`}>
                                     <Loader2 className="w-4 h-4 animate-spin" />
-                                    Generating answer from retrieved legal context...
+                                    {t.legal_generatingAnswer}
                                 </div>
                             ) : null}
                         </div>
@@ -278,7 +281,7 @@ export default function LegalAssistantChat({ agent }) {
                                 value={input}
                                 onChange={(e) => setInput(e.target.value)}
                                 rows={4}
-                                placeholder="Ask a legal question, describe your situation, or request a checklist..."
+                                placeholder={t.legal_askPlaceholder}
                                 className={`w-full rounded-2xl border px-4 py-3 text-sm resize-none ${isDark ? 'border-gray-700 bg-gray-950 text-white placeholder:text-gray-500' : 'border-gray-300 bg-white text-gray-900 placeholder:text-gray-400'}`}
                             />
                             <div className="mt-3 flex justify-end">
@@ -288,7 +291,7 @@ export default function LegalAssistantChat({ agent }) {
                                     disabled={loading || !input.trim()}
                                     className={`inline-flex items-center gap-2 rounded-2xl px-4 py-2 text-sm font-semibold text-white transition-all shadow-lg disabled:cursor-not-allowed disabled:opacity-50 ${theme.button}`}
                                 >
-                                    Ask Assistant
+                                    {t.legal_askAssistant}
                                     <ChevronRight className="w-4 h-4" />
                                 </button>
                             </div>
@@ -296,7 +299,7 @@ export default function LegalAssistantChat({ agent }) {
                     </section>
 
                     <aside className={`rounded-3xl border p-6 ${isDark ? 'bg-gray-900/80 border-gray-800' : 'bg-white border-gray-200 shadow-sm'}`}>
-                        <h2 className={`text-lg font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>Starter Prompts</h2>
+                        <h2 className={`text-lg font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>{t.legal_starterPrompts}</h2>
                         <div className="mt-4 space-y-3">
                             {agent.prompts.map((prompt) => (
                                 <button
@@ -313,7 +316,7 @@ export default function LegalAssistantChat({ agent }) {
 
                         {agent.links?.length ? (
                             <div className="mt-6">
-                                <h3 className={`text-sm font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>Related Tools</h3>
+                                <h3 className={`text-sm font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>{t.legal_relatedTools}</h3>
                                 <div className="mt-3 space-y-3">
                                     {agent.links.map((link) => (
                                         <button
