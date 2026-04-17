@@ -87,13 +87,13 @@ const Footer = () => {
                                     key={index}
                                     href={item.href}
                                     className={`flex items-center gap-3 text-sm transition-all group ${isDark
-                                        ? 'text-white/70 hover:text-white'
-                                        : 'text-black hover:text-black'
+                                        ? 'text-emerald-300 hover:text-emerald-200'
+                                        : 'text-emerald-700 hover:text-emerald-600'
                                         }`}
                                 >
                                     <div className={`p-2 rounded-lg transition-all ${isDark
-                                        ? 'bg-white/5 group-hover:bg-white/10 border border-white/10'
-                                        : 'bg-black/5 group-hover:bg-black/10 border border-black/10'
+                                        ? 'bg-emerald-500/10 group-hover:bg-emerald-500/15 border border-emerald-500/20'
+                                        : 'bg-emerald-50 group-hover:bg-emerald-100 border border-emerald-200'
                                         }`}>
                                         <item.icon className="w-4 h-4" />
                                     </div>

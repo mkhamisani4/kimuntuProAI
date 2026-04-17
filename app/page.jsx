@@ -308,15 +308,15 @@ export default function LandingPage() {
                 ? 'bg-black/60 border-white/10'
                 : 'bg-white/60 border-black/5'
             }`}>
-                <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center">
                     <div className="flex items-center">
                         <img
                             src={isDark ? '/assets/new_darkmode_logo.png' : '/assets/new_light_mode_logo.png'}
                             alt="Kimuntu AI Logo"
-                            className="h-12 w-auto object-contain"
+                            className="h-10 sm:h-12 w-auto object-contain"
                         />
                     </div>
-                    <div className="flex items-center gap-4">
+                    <div className="flex w-full sm:w-auto items-center justify-between sm:justify-end gap-2 sm:gap-4">
                         {/* Language Toggle */}
                         <div className={`flex rounded-xl overflow-hidden border ${isDark ? 'border-white/10' : 'border-black/10'}`}>
                             <button
@@ -349,7 +349,7 @@ export default function LandingPage() {
                         </button>
                         <button
                             onClick={scrollToAuth}
-                            className="px-6 py-2.5 rounded-xl font-semibold text-sm transition-all hover:scale-105 bg-emerald-500 text-white hover:bg-emerald-600"
+                            className="px-4 sm:px-6 py-2.5 rounded-xl font-semibold text-sm transition-all hover:scale-105 bg-emerald-500 text-white hover:bg-emerald-600 whitespace-nowrap"
                         >
                             {t.getStarted}
                         </button>
@@ -358,7 +358,7 @@ export default function LandingPage() {
             </header>
 
             {/* ====== HERO SECTION ====== */}
-            <section ref={heroRef} className="relative z-10 pt-20 pb-16 px-6">
+            <section ref={heroRef} className="relative z-10 pt-14 sm:pt-20 pb-14 sm:pb-16 px-4 sm:px-6">
                 <div className="max-w-7xl mx-auto text-center">
                     {/* Badge */}
                     <div
@@ -375,7 +375,7 @@ export default function LandingPage() {
                     </div>
 
                     {/* Main Headline */}
-                    <h1 className={`text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold leading-[1.05] mb-6 ${isDark ? 'text-white' : 'text-black'}`} style={{ opacity: heroInView ? 1 : 0, transform: heroInView ? 'translateY(0)' : 'translateY(30px)', transition: 'opacity 0.8s ease 0.1s, transform 0.8s ease 0.1s' }}>
+                    <h1 className={`text-4xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold leading-[1.05] mb-6 ${isDark ? 'text-white' : 'text-black'}`} style={{ opacity: heroInView ? 1 : 0, transform: heroInView ? 'translateY(0)' : 'translateY(30px)', transition: 'opacity 0.8s ease 0.1s, transform 0.8s ease 0.1s' }}>
                         {t.landing_heroLine1}
                         <br />
                         <span className="bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent text-gradient-animate">
@@ -384,15 +384,15 @@ export default function LandingPage() {
                     </h1>
 
                     {/* Subtitle */}
-                    <p className={`text-lg sm:text-xl max-w-2xl mx-auto mb-10 ${isDark ? 'text-white/60' : 'text-black'}`} style={{ opacity: heroInView ? 1 : 0, transform: heroInView ? 'translateY(0)' : 'translateY(30px)', transition: 'opacity 0.8s ease 0.2s, transform 0.8s ease 0.2s' }}>
+                    <p className={`text-base sm:text-xl max-w-2xl mx-auto mb-8 sm:mb-10 px-2 sm:px-0 ${isDark ? 'text-white/60' : 'text-black'}`} style={{ opacity: heroInView ? 1 : 0, transform: heroInView ? 'translateY(0)' : 'translateY(30px)', transition: 'opacity 0.8s ease 0.2s, transform 0.8s ease 0.2s' }}>
                         {t.landing_heroDesc}
                     </p>
 
                     {/* CTA Buttons */}
-                    <div className="flex flex-wrap gap-4 justify-center mb-16" style={{ opacity: heroInView ? 1 : 0, transform: heroInView ? 'translateY(0)' : 'translateY(30px)', transition: 'opacity 0.8s ease 0.3s, transform 0.8s ease 0.3s' }}>
+                    <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mb-12 sm:mb-16 max-w-md sm:max-w-none mx-auto" style={{ opacity: heroInView ? 1 : 0, transform: heroInView ? 'translateY(0)' : 'translateY(30px)', transition: 'opacity 0.8s ease 0.3s, transform 0.8s ease 0.3s' }}>
                         <button
                             onClick={scrollToAuth}
-                            className="group relative px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-semibold rounded-2xl hover:shadow-lg hover:shadow-emerald-500/25 transition-all hover:scale-105"
+                            className="group relative w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-semibold rounded-2xl hover:shadow-lg hover:shadow-emerald-500/25 transition-all hover:scale-105"
                         >
                             <span className="flex items-center gap-2">
                                 {t.landing_startFree}
@@ -401,7 +401,7 @@ export default function LandingPage() {
                         </button>
                         <button
                             onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
-                            className={`px-8 py-4 rounded-2xl font-semibold transition-all hover:scale-105 ${isDark
+                            className={`w-full sm:w-auto px-8 py-4 rounded-2xl font-semibold transition-all hover:scale-105 ${isDark
                                 ? 'bg-white/5 border border-white/10 text-white hover:bg-white/10'
                                 : 'bg-black/5 border border-black/5 text-black hover:bg-black/10'
                             }`}
@@ -414,22 +414,22 @@ export default function LandingPage() {
                     </div>
 
                     {/* Feature Pills */}
-                    <div className="flex flex-wrap gap-3 justify-center" style={{ opacity: heroInView ? 1 : 0, transform: heroInView ? 'translateY(0)' : 'translateY(30px)', transition: 'opacity 0.8s ease 0.4s, transform 0.8s ease 0.4s' }}>
+                    <div className="flex flex-wrap gap-2 sm:gap-3 justify-center" style={{ opacity: heroInView ? 1 : 0, transform: heroInView ? 'translateY(0)' : 'translateY(30px)', transition: 'opacity 0.8s ease 0.4s, transform 0.8s ease 0.4s' }}>
                         {[
                             { icon: Briefcase, label: t.landing_trackCareerTitle, color: 'text-blue-400', price: '$19.99/mo' },
                             { icon: BarChart, label: t.landing_trackBizTitle, color: 'text-emerald-400', price: '$29.99/mo' },
                             { icon: Scale, label: t.landing_trackLegalTitle, color: 'text-violet-400', price: '$29.99/mo' },
                             { icon: Rocket, label: t.landing_trackInnovTitle, color: 'text-amber-400', price: '$79.99/mo' },
                         ].map((pill, i) => (
-                            <div key={i} className={`group flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all duration-300 hover:scale-105 cursor-pointer ${isDark
+                            <div key={i} className={`group flex items-center gap-2 px-3 sm:px-4 py-2.5 rounded-xl transition-all duration-300 hover:scale-105 cursor-pointer ${isDark
                                 ? 'bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20'
                                 : 'bg-white border border-black/5 shadow-sm hover:shadow-md'
                             }`}>
                                 <pill.icon className={`w-4 h-4 ${pill.color} group-hover:scale-110 transition-transform`} />
-                                <span className={`text-sm font-medium ${isDark ? 'text-white/80' : 'text-black'}`}>
+                                <span className={`text-xs sm:text-sm font-medium ${isDark ? 'text-white/80' : 'text-black'}`}>
                                     {pill.label}
                                 </span>
-                                <span className={`text-xs font-semibold ${isDark ? 'text-white/40' : 'text-black'}`}>
+                                <span className={`hidden sm:inline text-xs font-semibold ${isDark ? 'text-white/40' : 'text-black'}`}>
                                     {pill.price}
                                 </span>
                             </div>
@@ -437,7 +437,7 @@ export default function LandingPage() {
                     </div>
 
                     {/* Hero Visual - Dashboard Slider */}
-                    <div className="mt-16 max-w-6xl mx-auto" style={{ opacity: heroInView ? 1 : 0, transform: heroInView ? 'translateY(0)' : 'translateY(40px)', transition: 'opacity 1s ease 0.5s, transform 1s ease 0.5s' }}>
+                    <div className="mt-12 sm:mt-16 max-w-6xl mx-auto" style={{ opacity: heroInView ? 1 : 0, transform: heroInView ? 'translateY(0)' : 'translateY(40px)', transition: 'opacity 1s ease 0.5s, transform 1s ease 0.5s' }}>
                         <div className={`relative rounded-3xl overflow-hidden p-4 sm:p-5 ${isDark ? 'bg-white/[0.03] border border-white/10' : 'bg-white/60 border border-black/5 shadow-xl'}`}>
                             <div className="absolute inset-0 animate-grid-bg opacity-50" />
                             <div className="relative z-10">
@@ -494,7 +494,7 @@ export default function LandingPage() {
             {/* ====== STATS SECTION ====== */}
             <section ref={statsRef} className="relative z-10 py-16 px-6">
                 <div className="max-w-5xl mx-auto">
-                    <div className={`grid grid-cols-2 md:grid-cols-4 gap-6 p-8 rounded-3xl ${isDark
+                    <div className={`grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 p-5 sm:p-8 rounded-3xl ${isDark
                         ? 'glass-card'
                         : 'bg-white border border-black/5 shadow-lg'
                     }`}>
@@ -516,7 +516,7 @@ export default function LandingPage() {
             </section>
 
             {/* ====== FEATURES GRID ====== */}
-            <section id="features" ref={featuresRef} className="relative z-10 py-20 px-6">
+            <section id="features" ref={featuresRef} className="relative z-10 py-16 sm:py-20 px-4 sm:px-6">
                 <div className="max-w-7xl mx-auto">
                     <div className="text-center mb-16">
                         <h2 className={`text-4xl sm:text-5xl font-bold mb-4 ${isDark ? 'text-white' : 'text-black'}`} style={{ opacity: featuresInView ? 1 : 0, transform: featuresInView ? 'translateY(0)' : 'translateY(30px)', transition: 'opacity 0.8s ease, transform 0.8s ease' }}>
@@ -556,21 +556,21 @@ export default function LandingPage() {
             </section>
 
             {/* ====== TRACKS / PRODUCT SHOWCASE ====== */}
-            <section ref={tracksRef} className="relative z-10 py-20 px-6">
+            <section ref={tracksRef} className="relative z-10 py-16 sm:py-20 px-4 sm:px-6">
                 <div className="max-w-7xl mx-auto">
-                    <div className="text-center mb-16">
+                    <div className="text-center mb-12 sm:mb-16">
                         <h2 className={`text-4xl sm:text-5xl font-bold mb-4 ${isDark ? 'text-white' : 'text-black'}`} style={{ opacity: tracksInView ? 1 : 0, transform: tracksInView ? 'translateY(0)' : 'translateY(30px)', transition: 'opacity 0.8s ease, transform 0.8s ease' }}>
                             {t.landing_tracksTitle1}{' '}
                             <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
                                 {t.landing_tracksTitle2}
                             </span>
                         </h2>
-                        <p className={`text-lg max-w-2xl mx-auto ${isDark ? 'text-white/50' : 'text-black'}`} style={{ opacity: tracksInView ? 1 : 0, transform: tracksInView ? 'translateY(0)' : 'translateY(30px)', transition: 'opacity 0.8s ease 0.1s, transform 0.8s ease 0.1s' }}>
+                        <p className={`text-base sm:text-lg max-w-2xl mx-auto ${isDark ? 'text-white/50' : 'text-black'}`} style={{ opacity: tracksInView ? 1 : 0, transform: tracksInView ? 'translateY(0)' : 'translateY(30px)', transition: 'opacity 0.8s ease 0.1s, transform 0.8s ease 0.1s' }}>
                             {t.landing_tracksSubtitle}
                         </p>
                     </div>
 
-                    <div className="grid md:grid-cols-2 gap-8">
+                    <div className="grid md:grid-cols-2 gap-5 sm:gap-8">
                         {tracks.map((track, i) => (
                             <div
                                 key={i}
@@ -585,7 +585,7 @@ export default function LandingPage() {
 
                                 <div className="relative z-10 flex flex-col md:flex-row">
                                     {/* Track Image */}
-                                    <div className="track-image relative w-full md:w-2/5 h-52 md:h-auto overflow-hidden rounded-t-3xl md:rounded-l-3xl md:rounded-tr-none">
+                                    <div className="track-image relative w-full md:w-2/5 h-56 sm:h-64 md:h-auto overflow-hidden rounded-t-3xl md:rounded-l-3xl md:rounded-tr-none">
                                         <Image
                                             src={track.image}
                                             alt={track.title}
@@ -599,13 +599,13 @@ export default function LandingPage() {
                                     </div>
 
                                     {/* Content */}
-                                    <div className="flex-1 p-6 md:p-8">
+                                    <div className="flex-1 p-5 sm:p-6 md:p-8">
                                         <div className="flex items-center gap-3 mb-3">
                                             <div className={`track-icon w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 border ${track.iconBg} transition-all duration-300 group-hover:scale-110`}>
                                                 <track.icon className={`w-6 h-6 ${track.iconColor}`} />
                                             </div>
                                             <div>
-                                                <h3 className={`track-title text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                                                <h3 className={`track-title text-lg sm:text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
                                                     {track.title}
                                                 </h3>
                                                 <span className={`text-sm font-semibold bg-gradient-to-r ${track.gradient} bg-clip-text text-transparent`}>
@@ -613,14 +613,14 @@ export default function LandingPage() {
                                                 </span>
                                             </div>
                                         </div>
-                                        <p className={`track-description text-sm mb-5 leading-relaxed ${isDark ? 'text-white/65' : 'text-black'}`}>
+                                        <p className={`track-description text-sm sm:text-base mb-5 leading-relaxed ${isDark ? 'text-white/65' : 'text-black'}`}>
                                             {track.description}
                                         </p>
                                         <div className="track-features flex flex-wrap gap-2">
                                             {track.features.map((feat, j) => (
                                                 <span
                                                     key={j}
-                                                    className={`text-xs px-3 py-1.5 rounded-lg font-medium transition-all duration-300 group-hover:scale-105 ${isDark
+                                                    className={`text-[11px] sm:text-xs px-3 py-1.5 rounded-lg font-medium transition-all duration-300 group-hover:scale-105 ${isDark
                                                         ? 'bg-white/8 text-white/75 border border-white/12 group-hover:bg-white/14 group-hover:border-white/25 group-hover:text-white'
                                                         : 'bg-gray-100 text-black border border-gray-200 group-hover:bg-gray-200 group-hover:text-gray-900'
                                                     }`}
@@ -675,7 +675,7 @@ export default function LandingPage() {
             </section>
 
             {/* ====== TESTIMONIALS ====== */}
-            <section ref={testimonialsRef} className="relative z-10 py-20 px-6">
+            <section ref={testimonialsRef} className="relative z-10 py-16 sm:py-20 px-4 sm:px-6">
                 <div className="max-w-7xl mx-auto">
                     <div className="text-center mb-16">
                         <h2 className={`text-4xl sm:text-5xl font-bold mb-4 ${isDark ? 'text-white' : 'text-black'}`} style={{ opacity: testimonialsInView ? 1 : 0, transform: testimonialsInView ? 'translateY(0)' : 'translateY(30px)', transition: 'opacity 0.8s ease, transform 0.8s ease' }}>
@@ -686,11 +686,11 @@ export default function LandingPage() {
                         </h2>
                     </div>
 
-                    <div className="grid md:grid-cols-3 gap-6">
+                    <div className="grid md:grid-cols-3 gap-4 sm:gap-6">
                         {testimonials.map((testimonial, i) => (
                             <div
                                 key={i}
-                                className={`p-6 rounded-2xl ${isDark
+                                className={`p-5 sm:p-6 rounded-2xl ${isDark
                                     ? 'glass-card'
                                     : 'bg-white border border-black/5 shadow-sm'
                                 }`}
@@ -775,9 +775,9 @@ export default function LandingPage() {
             </section>
 
             {/* ====== PRICING SECTION ====== */}
-            <section id="pricing" className="relative z-10 py-24 px-6">
+            <section id="pricing" className="relative z-10 py-16 sm:py-24 px-4 sm:px-6">
                 <div className="max-w-6xl mx-auto">
-                    <div ref={pricingRef} className="text-center mb-16" style={{ opacity: pricingInView ? 1 : 0, transform: pricingInView ? 'translateY(0)' : 'translateY(30px)', transition: 'opacity 0.8s ease, transform 0.8s ease' }}>
+                    <div ref={pricingRef} className="text-center mb-12 sm:mb-16" style={{ opacity: pricingInView ? 1 : 0, transform: pricingInView ? 'translateY(0)' : 'translateY(30px)', transition: 'opacity 0.8s ease, transform 0.8s ease' }}>
                         <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold tracking-wider uppercase mb-6 ${isDark ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}`}>
                             <Zap className="w-3.5 h-3.5" />
                             {t.landing_flexPricing}
@@ -793,7 +793,7 @@ export default function LandingPage() {
                         </p>
 
                         {/* Billing toggle */}
-                        <div className="flex items-center justify-center gap-4 mt-8">
+                        <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 mt-8">
                             <span className={`text-sm font-medium ${!isYearly ? (isDark ? 'text-white' : 'text-black') : (isDark ? 'text-white/40' : 'text-black')}`}>{t.landing_monthly}</span>
                             <button
                                 onClick={() => setIsYearly(!isYearly)}
@@ -808,10 +808,10 @@ export default function LandingPage() {
                         </div>
                     </div>
 
-                    <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+                    <div className="grid md:grid-cols-3 gap-4 sm:gap-6 max-w-5xl mx-auto">
                         {/* Free Plan */}
                         <div
-                            className={`relative rounded-3xl p-8 overflow-hidden ${isDark ? 'bg-white/[0.03] border border-white/[0.08] backdrop-blur-2xl' : 'bg-white border border-black/5 shadow-xl'}`}
+                            className={`relative rounded-3xl p-6 sm:p-8 overflow-hidden ${isDark ? 'bg-white/[0.03] border border-white/[0.08] backdrop-blur-2xl' : 'bg-white border border-black/5 shadow-xl'}`}
                             style={{ opacity: pricingInView ? 1 : 0, transform: pricingInView ? 'translateY(0)' : 'translateY(30px)', transition: 'opacity 0.7s ease 0.1s, transform 0.7s ease 0.1s' }}
                         >
                             {isDark && <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />}
@@ -846,7 +846,7 @@ export default function LandingPage() {
 
                         {/* Individual Tracks */}
                         <div
-                            className={`relative rounded-3xl p-8 overflow-hidden ${isDark ? 'bg-white/[0.03] border border-white/[0.08] backdrop-blur-2xl' : 'bg-white border border-black/5 shadow-xl'}`}
+                            className={`relative rounded-3xl p-6 sm:p-8 overflow-hidden ${isDark ? 'bg-white/[0.03] border border-white/[0.08] backdrop-blur-2xl' : 'bg-white border border-black/5 shadow-xl'}`}
                             style={{ opacity: pricingInView ? 1 : 0, transform: pricingInView ? 'translateY(0)' : 'translateY(30px)', transition: 'opacity 0.7s ease 0.15s, transform 0.7s ease 0.15s' }}
                         >
                             {isDark && <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />}
@@ -891,7 +891,7 @@ export default function LandingPage() {
 
                         {/* Full Package — Hero Plan */}
                         <div
-                            className={`relative rounded-3xl p-8 overflow-hidden ${isDark ? 'bg-white/[0.03] border border-emerald-500/20 backdrop-blur-2xl' : 'bg-white border-2 border-emerald-500/30 shadow-xl shadow-emerald-500/5'}`}
+                            className={`relative rounded-3xl p-6 sm:p-8 overflow-hidden ${isDark ? 'bg-white/[0.03] border border-emerald-500/20 backdrop-blur-2xl' : 'bg-white border-2 border-emerald-500/30 shadow-xl shadow-emerald-500/5'}`}
                             style={{ opacity: pricingInView ? 1 : 0, transform: pricingInView ? 'translateY(0)' : 'translateY(30px)', transition: 'opacity 0.7s ease 0.2s, transform 0.7s ease 0.2s' }}
                         >
                             {/* Glow border effect */}
@@ -962,7 +962,7 @@ export default function LandingPage() {
             </section>
 
             {/* ====== AUTH / SIGN UP SECTION ====== */}
-            <section ref={authSectionRef} className="relative z-10 py-20 px-6">
+            <section ref={authSectionRef} className="relative z-10 py-16 sm:py-20 px-4 sm:px-6">
                 <div className="max-w-7xl mx-auto">
                     <div ref={ctaRef} className="grid lg:grid-cols-2 gap-12 items-center">
                         {/* Left: CTA content */}
