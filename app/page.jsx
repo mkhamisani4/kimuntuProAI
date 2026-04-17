@@ -208,6 +208,8 @@ export default function LandingPage() {
             iconColor: 'text-blue-400',
             bgAccent: 'bg-blue-500',
             image: '/assets/career-track.jpeg',
+            imageWrapperClassName: '',
+            imageClassName: 'object-cover object-center transition-transform duration-700 group-hover:scale-110',
         },
         {
             id: 'business-track',
@@ -222,6 +224,8 @@ export default function LandingPage() {
             iconColor: 'text-emerald-400',
             bgAccent: 'bg-emerald-500',
             image: '/assets/business-track.jpeg',
+            imageWrapperClassName: '',
+            imageClassName: 'object-cover object-center transition-transform duration-700 group-hover:scale-110',
         },
         {
             id: 'legal-track',
@@ -236,6 +240,8 @@ export default function LandingPage() {
             iconColor: 'text-violet-400',
             bgAccent: 'bg-violet-500',
             image: '/assets/legal-track.jpeg',
+            imageWrapperClassName: '',
+            imageClassName: 'object-cover object-center transition-transform duration-700 group-hover:scale-110',
         },
         {
             id: 'innovative-track',
@@ -250,6 +256,8 @@ export default function LandingPage() {
             iconColor: 'text-amber-400',
             bgAccent: 'bg-amber-500',
             image: '/assets/innovation-track.jpeg',
+            imageWrapperClassName: '',
+            imageClassName: 'object-cover object-center transition-transform duration-700 group-hover:scale-110',
         },
     ];
 
@@ -596,7 +604,7 @@ export default function LandingPage() {
                             <div
                                 key={i}
                                 id={track.id}
-                                className={`track-card group relative rounded-3xl overflow-hidden cursor-pointer ${isDark
+                                className={`track-card group relative rounded-3xl overflow-hidden cursor-pointer flex flex-col ${isDark
                                     ? 'bg-white/[0.07] border border-white/10 hover:bg-white/[0.11] hover:border-white/20'
                                     : 'bg-white border border-black/5 shadow-sm hover:shadow-xl'
                                 }`}
@@ -614,14 +622,14 @@ export default function LandingPage() {
                                 {/* Gradient accent line at top */}
                                 <div className={`absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r ${track.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
 
-                                <div className="relative z-10 flex flex-col md:flex-row">
+                                <div className="relative z-10 flex flex-col md:flex-row md:items-stretch h-full">
                                     {/* Track Image */}
-                                    <div className={`track-image relative w-full md:w-2/5 h-56 sm:h-64 md:h-auto overflow-hidden rounded-t-3xl md:rounded-l-3xl md:rounded-tr-none ${isDark ? 'bg-white/[0.04]' : 'bg-slate-100'}`}>
+                                    <div className={`track-image relative w-full md:w-2/5 h-56 sm:h-64 md:h-auto overflow-hidden rounded-t-3xl md:rounded-l-3xl md:rounded-tr-none ${track.imageWrapperClassName} ${isDark ? 'bg-white/[0.04]' : 'bg-slate-100'}`}>
                                         <Image
                                             src={track.image}
                                             alt={track.title}
                                             fill
-                                            className="object-contain object-center p-4 transition-transform duration-700 group-hover:scale-105"
+                                            className={track.imageClassName}
                                             sizes="(max-width: 768px) 100vw, 40vw"
                                         />
                                         {/* Gradient overlay on image */}
