@@ -1,9 +1,11 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import PageWrapper from '@/components/PageWrapper';
 import { useTheme } from '@/components/providers/ThemeProvider';
 import { HelpCircle, MessageCircle, Mail, Phone } from 'lucide-react';
+import { CONTACT_EMAIL } from '@/lib/contact';
 
 const SupportCenter = () => {
     const { isDark } = useTheme();
@@ -248,7 +250,7 @@ const SupportCenter = () => {
         {
             icon: Mail,
             title: 'Email Support',
-            description: 'support@kimuntu.ai',
+            description: CONTACT_EMAIL,
             response: 'Response within 24 hours'
         },
         {
@@ -388,9 +390,12 @@ const SupportCenter = () => {
                     <p className="mb-4">
                         Our support team is here to help. Send us a message and we'll get back to you as soon as possible.
                     </p>
-                    <button className="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-semibold rounded-xl hover:from-emerald-600 hover:to-teal-600 transition-all">
+                    <Link
+                        href="/support/contact"
+                        className="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-semibold rounded-xl hover:from-emerald-600 hover:to-teal-600 transition-all"
+                    >
                         Contact Support
-                    </button>
+                    </Link>
                 </div>
             </div>
         </PageWrapper>

@@ -8,6 +8,7 @@ import { Mail, Phone, MapPin, Facebook, Linkedin, Instagram, Youtube, FileText, 
 import { useTheme } from '@/components/providers/ThemeProvider';
 import { useLanguage } from '@/components/providers/LanguageProvider';
 import { auth } from '@/lib/firebase';
+import { CONTACT_EMAIL } from '@/lib/contact';
 
 const Footer = () => {
     const { isDark } = useTheme();
@@ -68,7 +69,7 @@ const Footer = () => {
     ];
 
     const contactInfo = [
-        { icon: Mail, text: 'contact@kimuntu.ai', href: 'mailto:contact@kimuntu.ai' },
+        { icon: Mail, text: CONTACT_EMAIL, href: `mailto:${CONTACT_EMAIL}` },
         { icon: Phone, text: '+1 (613) 290-3200', href: 'tel:+16132903200' },
         { icon: MapPin, text: '1520 Beaverpond Dr. Unit B, Ottawa, ON K1B 3R9, Canada', href: '#location' },
     ];
