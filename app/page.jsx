@@ -181,8 +181,23 @@ export default function LandingPage() {
         authSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
 
+    const scrollToTracks = () => {
+        document.getElementById('tracks')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+
+    const handleTrackNavigation = (href) => {
+        if (user) {
+            router.push(href);
+            return;
+        }
+
+        scrollToAuth();
+    };
+
     const tracks = [
         {
+            id: 'career-track',
+            href: '/dashboard/career',
             icon: GraduationCap,
             title: t.landing_trackCareerTitle,
             price: '$19.99/mo',
@@ -195,6 +210,8 @@ export default function LandingPage() {
             image: '/assets/career-track.jpeg',
         },
         {
+            id: 'business-track',
+            href: '/dashboard/business',
             icon: Building2,
             title: t.landing_trackBizTitle,
             price: '$29.99/mo',
@@ -207,6 +224,8 @@ export default function LandingPage() {
             image: '/assets/business-track.jpeg',
         },
         {
+            id: 'legal-track',
+            href: '/dashboard/legal',
             icon: Gavel,
             title: t.landing_trackLegalTitle,
             price: '$29.99/mo',
@@ -219,6 +238,8 @@ export default function LandingPage() {
             image: '/assets/legal-track.jpeg',
         },
         {
+            id: 'innovative-track',
+            href: '/dashboard/innovative',
             icon: Lightbulb,
             title: t.landing_trackInnovTitle,
             price: '$79.99/mo',
@@ -556,7 +577,7 @@ export default function LandingPage() {
             </section>
 
             {/* ====== TRACKS / PRODUCT SHOWCASE ====== */}
-            <section ref={tracksRef} className="relative z-10 py-16 sm:py-20 px-4 sm:px-6">
+            <section id="tracks" ref={tracksRef} className="relative z-10 py-16 sm:py-20 px-4 sm:px-6">
                 <div className="max-w-7xl mx-auto">
                     <div className="text-center mb-12 sm:mb-16">
                         <h2 className={`text-4xl sm:text-5xl font-bold mb-4 ${isDark ? 'text-white' : 'text-black'}`} style={{ opacity: tracksInView ? 1 : 0, transform: tracksInView ? 'translateY(0)' : 'translateY(30px)', transition: 'opacity 0.8s ease, transform 0.8s ease' }}>
@@ -574,10 +595,20 @@ export default function LandingPage() {
                         {tracks.map((track, i) => (
                             <div
                                 key={i}
+                                id={track.id}
                                 className={`track-card group relative rounded-3xl overflow-hidden cursor-pointer ${isDark
                                     ? 'bg-white/[0.07] border border-white/10 hover:bg-white/[0.11] hover:border-white/20'
                                     : 'bg-white border border-black/5 shadow-sm hover:shadow-xl'
                                 }`}
+                                onClick={() => handleTrackNavigation(track.href)}
+                                onKeyDown={(event) => {
+                                    if (event.key === 'Enter' || event.key === ' ') {
+                                        event.preventDefault();
+                                        handleTrackNavigation(track.href);
+                                    }
+                                }}
+                                role="link"
+                                tabIndex={0}
                                 style={{ opacity: tracksInView ? 1 : 0, transform: tracksInView ? 'translateY(0)' : 'translateY(30px)', transition: `opacity 0.6s ease ${0.1 + i * 0.12}s, transform 0.6s ease ${0.1 + i * 0.12}s` }}
                             >
                                 {/* Gradient accent line at top */}
@@ -585,12 +616,12 @@ export default function LandingPage() {
 
                                 <div className="relative z-10 flex flex-col md:flex-row">
                                     {/* Track Image */}
-                                    <div className="track-image relative w-full md:w-2/5 h-56 sm:h-64 md:h-auto overflow-hidden rounded-t-3xl md:rounded-l-3xl md:rounded-tr-none">
+                                    <div className={`track-image relative w-full md:w-2/5 h-56 sm:h-64 md:h-auto overflow-hidden rounded-t-3xl md:rounded-l-3xl md:rounded-tr-none ${isDark ? 'bg-white/[0.04]' : 'bg-slate-100'}`}>
                                         <Image
                                             src={track.image}
                                             alt={track.title}
                                             fill
-                                            className="object-cover transition-transform duration-700 group-hover:scale-110"
+                                            className="object-contain object-center p-4 transition-transform duration-700 group-hover:scale-105"
                                             sizes="(max-width: 768px) 100vw, 40vw"
                                         />
                                         {/* Gradient overlay on image */}
@@ -854,15 +885,19 @@ export default function LandingPage() {
                                 <h3 className={`text-lg font-bold mb-1 ${isDark ? 'text-white' : 'text-black'}`}>{t.landing_planTracksTitle}</h3>
                                 <p className={`text-sm mb-6 ${isDark ? 'text-white/40' : 'text-black'}`}>{t.landing_planTracksSubtitle}</p>
 
-                                <div className="flex items-baseline gap-1 mb-2">
-                                    <span className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-black'}`}>{t.landing_from}</span>
-                                    <span className={`text-5xl font-bold ${isDark ? 'text-white' : 'text-black'}`}>{isYearly ? '$191.90' : '$19.99'}</span>
-                                    <span className={`text-sm ${isDark ? 'text-white/40' : 'text-black'}`}>/{isYearly ? t.landing_yr : t.landing_mo}</span>
+                                <div className="mb-2 space-y-2">
+                                    <div className={`text-base sm:text-lg font-semibold ${isDark ? 'text-white/70' : 'text-gray-700'}`}>
+                                        {t.landing_from}
+                                    </div>
+                                    <div className="flex flex-wrap items-end gap-1.5">
+                                        <span className={`text-4xl sm:text-5xl font-bold leading-none ${isDark ? 'text-white' : 'text-black'}`}>{isYearly ? '$191.90' : '$19.99'}</span>
+                                        <span className={`text-sm ${isDark ? 'text-white/40' : 'text-black'}`}>/{isYearly ? t.landing_yr : t.landing_mo}</span>
+                                    </div>
                                 </div>
                                 <div className="mb-8" />
 
                                 <button
-                                    onClick={scrollToAuth}
+                                    onClick={scrollToTracks}
                                     className={`w-full py-3.5 rounded-xl font-semibold text-sm transition-all duration-300 hover:scale-[1.02] mb-8 ${isDark ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20' : 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100'}`}
                                 >
                                     {t.landing_exploreTracks}
@@ -962,7 +997,7 @@ export default function LandingPage() {
             </section>
 
             {/* ====== AUTH / SIGN UP SECTION ====== */}
-            <section ref={authSectionRef} className="relative z-10 py-16 sm:py-20 px-4 sm:px-6">
+            <section id="auth" ref={authSectionRef} className="relative z-10 py-16 sm:py-20 px-4 sm:px-6">
                 <div className="max-w-7xl mx-auto">
                     <div ref={ctaRef} className="grid lg:grid-cols-2 gap-12 items-center">
                         {/* Left: CTA content */}

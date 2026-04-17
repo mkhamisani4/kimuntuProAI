@@ -1,22 +1,37 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { onAuthStateChanged } from 'firebase/auth';
 import { Mail, Phone, MapPin, Facebook, Linkedin, Instagram, Youtube, FileText, Shield, Info } from 'lucide-react';
 import { useTheme } from '@/components/providers/ThemeProvider';
 import { useLanguage } from '@/components/providers/LanguageProvider';
+import { auth } from '@/lib/firebase';
 
 const Footer = () => {
     const { isDark } = useTheme();
     const { t } = useLanguage();
+    const pathname = usePathname();
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            setIsAuthenticated(Boolean(user));
+        });
+
+        return () => unsubscribe();
+    }, []);
+
+    const showDashboardProductLinks = isAuthenticated || pathname?.startsWith('/dashboard');
 
     const footerLinks = {
         product: [
-            { name: t.career, href: '/dashboard/career' },
-            { name: t.business, href: '/dashboard/business' },
-            { name: t.legal, href: '/dashboard/legal' },
-            { name: t.innovative, href: '/dashboard/innovative' },
-            { name: t.pricing, href: '/dashboard/pricing' },
+            { name: t.career, href: showDashboardProductLinks ? '/dashboard/career' : '/#career-track' },
+            { name: t.business, href: showDashboardProductLinks ? '/dashboard/business' : '/#business-track' },
+            { name: t.legal, href: showDashboardProductLinks ? '/dashboard/legal' : '/#legal-track' },
+            { name: t.innovative, href: showDashboardProductLinks ? '/dashboard/innovative' : '/#innovative-track' },
+            { name: t.pricing, href: showDashboardProductLinks ? '/dashboard/pricing' : '/#pricing' },
         ],
         company: [
             { name: t.footerAboutUs, href: '/about' },
