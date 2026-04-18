@@ -89,7 +89,7 @@ const Footer = () => {
                             <img
                                 src={isDark ? '/assets/new_darkmode_logo.png' : '/assets/new_light_mode_logo.png'}
                                 alt="Kimuntu AI Logo"
-                                className="h-8 w-auto object-contain"
+                                className="h-11 w-auto object-contain"
                             />
                         </div>
                         <p className={`text-sm mb-6 ${isDark ? 'text-white/70' : 'text-black'} leading-relaxed`}>
