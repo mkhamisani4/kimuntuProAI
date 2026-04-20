@@ -10,7 +10,6 @@ import {
   addDoc,
   query,
   where,
-  orderBy,
   limit,
   getDocs,
   doc,
@@ -62,7 +61,6 @@ export async function listEmailErrorLogs(
       constraints.push(where('emailCampaignId', '==', emailCampaignId));
     }
 
-    constraints.push(orderBy('createdAt', 'desc'));
     constraints.push(limit(limitCount));
 
     const q = query(collection(db, 'email_error_log'), ...constraints);
@@ -81,7 +79,12 @@ export async function listEmailErrorLogs(
           updatedAt: data.updatedAt?.toDate(),
         } as EmailErrorLog;
       })
-      .filter((e): e is EmailErrorLog => e !== null);
+      .filter((e): e is EmailErrorLog => e !== null)
+      .sort((a, b) => {
+        const aTime = a.createdAt?.getTime() ?? 0;
+        const bTime = b.createdAt?.getTime() ?? 0;
+        return bTime - aTime;
+      });
   } catch (error: any) {
     console.error('[Firestore] Failed to list email error logs:', error);
     throw error;
@@ -100,8 +103,7 @@ export async function listPendingRetryErrors(
       collection(db, 'email_error_log'),
       where('tenantId', '==', tenantId),
       where('userId', '==', userId),
-      where('status', '==', 'pending_retry'),
-      orderBy('nextRetryAt', 'asc')
+      where('status', '==', 'pending_retry')
     );
 
     const snapshot = await getDocs(q);
@@ -118,7 +120,12 @@ export async function listPendingRetryErrors(
           updatedAt: data.updatedAt?.toDate(),
         } as EmailErrorLog;
       })
-      .filter((e): e is EmailErrorLog => e !== null);
+      .filter((e): e is EmailErrorLog => e !== null)
+      .sort((a, b) => {
+        const aTime = a.nextRetryAt?.getTime() ?? 0;
+        const bTime = b.nextRetryAt?.getTime() ?? 0;
+        return aTime - bTime;
+      });
   } catch (error: any) {
     console.error('[Firestore] Failed to list pending retry errors:', error);
     throw error;

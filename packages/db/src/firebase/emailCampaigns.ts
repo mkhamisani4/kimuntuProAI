@@ -10,7 +10,6 @@ import {
   addDoc,
   query,
   where,
-  orderBy,
   limit,
   getDocs,
   getDoc,
@@ -84,7 +83,6 @@ export async function listEmailCampaigns(
       collection(db, 'email_campaigns'),
       where('tenantId', '==', tenantId),
       where('userId', '==', userId),
-      orderBy('createdAt', 'desc'),
       limit(limitCount)
     );
 
@@ -102,7 +100,12 @@ export async function listEmailCampaigns(
           updatedAt: data.updatedAt?.toDate(),
         } as EmailCampaign;
       })
-      .filter((c): c is EmailCampaign => c !== null);
+      .filter((c): c is EmailCampaign => c !== null)
+      .sort((a, b) => {
+        const aTime = a.createdAt?.getTime() ?? 0;
+        const bTime = b.createdAt?.getTime() ?? 0;
+        return bTime - aTime;
+      });
 
     console.log(`[Firestore] Fetched ${campaigns.length} email campaigns for tenant ${tenantId}`);
     return campaigns;

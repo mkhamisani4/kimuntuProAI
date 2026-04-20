@@ -6,7 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import {
   getMarketingSettings,
-  updateCampaign,
+  updateEmailCampaign,
 } from '@kimuntupro/db';
 import Anthropic from '@anthropic-ai/sdk';
 
@@ -156,7 +156,7 @@ export async function PUT(req: NextRequest): Promise<NextResponse> {
     }
 
     // Update Firestore
-    await updateCampaign(campaignId, { htmlContent } as any);
+    await updateEmailCampaign(campaignId, { htmlContent });
 
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (error: any) {

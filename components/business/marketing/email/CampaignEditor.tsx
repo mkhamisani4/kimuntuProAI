@@ -28,6 +28,8 @@ export default function CampaignEditor({
   const [title, setTitle] = useState(campaign?.title || '');
   const [subject, setSubject] = useState(campaign?.subject || '');
   const [previewText, setPreviewText] = useState(campaign?.previewText || '');
+  const [replyTo, setReplyTo] = useState(settings.mailchimpReplyTo || '');
+  const [fromName, setFromName] = useState(settings.mailchimpFromName || '');
   const [htmlContent, setHtmlContent] = useState(initialHtml || campaign?.htmlContent || '');
   const [isSaving, setIsSaving] = useState(false);
   const [isGeneratingSubjects, setIsGeneratingSubjects] = useState(false);
@@ -38,6 +40,10 @@ export default function CampaignEditor({
   const handleSave = async () => {
     if (!title.trim() || !subject.trim()) {
       toast.error('Title and subject are required');
+      return;
+    }
+    if (!replyTo.trim()) {
+      toast.error('Reply-to email is required');
       return;
     }
 
@@ -56,6 +62,8 @@ export default function CampaignEditor({
             title,
             subject,
             previewText,
+            replyTo,
+            fromName,
           }),
         });
 
@@ -95,6 +103,8 @@ export default function CampaignEditor({
             title,
             subject,
             previewText,
+            replyTo,
+            fromName,
           }),
         });
 
@@ -261,6 +271,33 @@ export default function CampaignEditor({
             placeholder="Short text that appears after the subject line in inbox"
             className="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
           />
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              From Name *
+            </label>
+            <input
+              type="text"
+              value={fromName}
+              onChange={(e) => setFromName(e.target.value)}
+              placeholder="e.g., Your Company Name"
+              className="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Reply-To Email *
+            </label>
+            <input
+              type="email"
+              value={replyTo}
+              onChange={(e) => setReplyTo(e.target.value)}
+              placeholder="e.g., hello@yourcompany.com"
+              className="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+            />
+          </div>
         </div>
       </div>
 

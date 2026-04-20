@@ -45,9 +45,12 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     let mcBody: string | undefined;
 
     if (scheduleAt) {
-      // Schedule campaign
+      // Schedule campaign — Mailchimp requires 15-minute intervals
       action = 'schedule';
       const scheduleDate = new Date(scheduleAt);
+      const minutes = scheduleDate.getUTCMinutes();
+      const roundedMinutes = Math.ceil(minutes / 15) * 15;
+      scheduleDate.setUTCMinutes(roundedMinutes, 0, 0);
       mcBody = JSON.stringify({ schedule_time: scheduleDate.toISOString() });
     } else {
       // Send immediately

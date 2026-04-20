@@ -91,6 +91,8 @@ export async function updateMarketingSettings(
         mailchimpAccessToken: null,
         mailchimpServer: null,
         mailchimpListId: null,
+        mailchimpReplyTo: null,
+        mailchimpFromName: null,
         ...updates,
         updatedAt: Timestamp.now(),
       });

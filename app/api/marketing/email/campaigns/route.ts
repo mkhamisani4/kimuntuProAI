@@ -57,7 +57,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     const body = await req.json();
-    const { tenantId, userId, title, subject, previewText, segmentId } = body;
+    const { tenantId, userId, title, subject, previewText, segmentId, replyTo, fromName } = body;
 
     if (!tenantId || !userId || !title || !subject) {
       return NextResponse.json(
@@ -74,6 +74,15 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       );
     }
 
+    // Resolve reply-to email: request body > saved settings
+    const resolvedReplyTo = replyTo || settings.mailchimpReplyTo;
+    if (!resolvedReplyTo) {
+      return NextResponse.json(
+        { error: 'validation_failed', message: 'Reply-to email is required. Set it in campaign settings or reconnect Mailchimp.' },
+        { status: 400 }
+      );
+    }
+
     // Create campaign in Mailchimp
     const mcPayload: Record<string, any> = {
       type: 'regular',
@@ -84,8 +93,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         subject_line: subject,
         preview_text: previewText || '',
         title,
-        from_name: title,
-        reply_to: '', // Will use Mailchimp default
+        from_name: fromName || settings.mailchimpFromName || title,
+        reply_to: resolvedReplyTo,
       },
     };
 
@@ -175,7 +184,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 export async function PUT(req: NextRequest): Promise<NextResponse> {
   try {
     const body = await req.json();
-    const { tenantId, userId, campaignId, mailchimpCampaignId, title, subject, previewText } = body;
+    const { tenantId, userId, campaignId, mailchimpCampaignId, title, subject, previewText, replyTo, fromName } = body;
 
     if (!tenantId || !userId || !campaignId || !mailchimpCampaignId) {
       return NextResponse.json(
@@ -197,6 +206,8 @@ export async function PUT(req: NextRequest): Promise<NextResponse> {
     if (title) mcPayload.settings.title = title;
     if (subject) mcPayload.settings.subject_line = subject;
     if (previewText !== undefined) mcPayload.settings.preview_text = previewText;
+    if (replyTo) mcPayload.settings.reply_to = replyTo;
+    if (fromName) mcPayload.settings.from_name = fromName;
 
     const mcResponse = await mailchimpApi(
       settings.mailchimpServer,

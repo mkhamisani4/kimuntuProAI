@@ -9,7 +9,6 @@ import EmailAnalyticsDashboard from './EmailAnalyticsDashboard';
 import TemplateLibrary from './TemplateLibrary';
 import {
   getMarketingSettings,
-  listEmailCampaigns,
   type MarketingSettings,
   type EmailCampaign,
 } from '@kimuntupro/db';
@@ -34,10 +33,16 @@ export default function EmailDashboard({ userId, tenantId }: EmailDashboardProps
       const settingsData = await getMarketingSettings(tenantId, userId);
       setSettings(settingsData);
 
-      // Load campaigns independently — don't let a failure here block settings
+      // Load campaigns via API — avoids client-side Firestore index requirements
       try {
-        const campaignsData = await listEmailCampaigns(tenantId, userId);
-        setCampaigns(campaignsData);
+        const res = await fetch(`/api/marketing/email/campaigns?tenantId=${encodeURIComponent(tenantId)}&userId=${encodeURIComponent(userId)}`);
+        if (res.ok) {
+          const data = await res.json();
+          setCampaigns(data.campaigns || []);
+        } else {
+          console.error('[Email] Failed to load campaigns:', res.status);
+          setCampaigns([]);
+        }
       } catch (error) {
         console.error('[Email] Failed to load campaigns:', error);
         setCampaigns([]);

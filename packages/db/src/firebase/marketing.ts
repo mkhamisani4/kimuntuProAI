@@ -51,6 +51,8 @@ export interface MarketingSettings {
   mailchimpAccessToken: string | null;
   mailchimpServer: string | null;
   mailchimpListId: string | null;
+  mailchimpReplyTo: string | null;
+  mailchimpFromName: string | null;
   updatedAt?: Date;
 }
 

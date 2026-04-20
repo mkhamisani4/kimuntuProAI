@@ -88,10 +88,12 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     const metadata = await metadataResponse.json();
     const server = metadata.dc; // e.g. "us21"
 
-    // Store token in marketing settings
+    // Store token and default sender info in marketing settings
     await updateMarketingSettings(tenantId, userId, {
       mailchimpAccessToken: accessToken,
       mailchimpServer: server,
+      mailchimpReplyTo: metadata.login?.email || null,
+      mailchimpFromName: metadata.accountname || null,
     });
 
     console.log(`[API] Mailchimp OAuth complete for tenant ${tenantId}, server: ${server}`);
