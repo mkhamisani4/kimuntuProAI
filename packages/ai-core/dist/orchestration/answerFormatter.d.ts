@@ -28,7 +28,7 @@ export interface ParsedExecutorResponse {
  *
  * @returns System prompt
  */
-export declare function buildExecutorSystemPrompt(): string;
+export declare function buildExecutorSystemPrompt(assistant?: string): string;
 /**
  * Build developer prompt with section requirements
  *

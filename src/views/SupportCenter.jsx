@@ -261,8 +261,8 @@ const SupportCenter = () => {
         },
         {
             icon: Phone,
-            title: 'Security Issues',
-            description: 'security@kimuntu.ai',
+            title: 'Phone Support',
+            description: '+1 (613) 290-32-00',
             response: 'Emergency security reports'
         }
     ];

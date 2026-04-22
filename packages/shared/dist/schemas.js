@@ -11,6 +11,7 @@ export const AssistantTypeSchema = z.enum([
     'exec_summary',
     'financial_overview',
     'market_analysis',
+    'legal_analysis',
 ]);
 export const AssistantRequestSchema = z.object({
     assistant: AssistantTypeSchema,

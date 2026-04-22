@@ -62,6 +62,12 @@ export function deriveHeuristics(input: PlannerInput): PlanHeuristics {
     heuristics.suggested_requires_web_search = true;
   }
 
+  // Legal analysis always needs web search (case law, precedents)
+  if (assistant === 'legal_analysis') {
+    heuristics.suggested_requires_web_search = true;
+    heuristics.suggested_requires_retrieval = true; // User-uploaded docs
+  }
+
   // Check for market/competitor references
   const webSearchTriggers = [
     /\b(market|industry|competitor|competitive|pricing|trend|forecast)\b/i,
@@ -211,6 +217,17 @@ export function deriveHeuristics(input: PlannerInput): PlanHeuristics {
         'Pricing Bands',
         'GTM Angles',
         'Assumptions & Data Freshness',
+      ];
+      break;
+
+    case 'legal_analysis':
+      heuristics.suggested_sections = [
+        'Case Summary',
+        'Legal Analysis',
+        'Predicted Outcome',
+        'Action Plan',
+        'Risk Assessment',
+        'Disclaimer',
       ];
       break;
   }

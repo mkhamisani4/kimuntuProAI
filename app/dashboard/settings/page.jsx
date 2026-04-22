@@ -1,11 +1,11 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Settings, User, Shield, Globe, Moon, Sun, Camera, Mail, Phone, MapPin, FileText, Save, CheckCircle2 } from 'lucide-react';
+import { Settings, User, Shield, Globe, Moon, Sun, Camera, Mail, Phone, MapPin, FileText, Save, CheckCircle2, Eye, EyeOff, Lock } from 'lucide-react';
 import { useTheme } from '@/components/providers/ThemeProvider';
 import { useLanguage } from '@/components/providers/LanguageProvider';
 import { auth } from '@/lib/firebase';
-import { onAuthStateChanged, updateProfile } from 'firebase/auth';
+import { onAuthStateChanged, updateProfile, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from 'firebase/auth';
 
 export default function SettingsPage() {
     const { isDark, toggleTheme } = useTheme();
@@ -21,6 +21,17 @@ export default function SettingsPage() {
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
     const fileInputRef = useRef(null);
+
+    // Change password state
+    const [currentPassword, setCurrentPassword] = useState('');
+    const [newPassword, setNewPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [showCurrent, setShowCurrent] = useState(false);
+    const [showNew, setShowNew] = useState(false);
+    const [showConfirm, setShowConfirm] = useState(false);
+    const [pwSaving, setPwSaving] = useState(false);
+    const [pwSaved, setPwSaved] = useState(false);
+    const [pwError, setPwError] = useState('');
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -60,6 +71,39 @@ export default function SettingsPage() {
         }
     };
 
+    const handleChangePassword = async () => {
+        setPwError('');
+        if (!newPassword || newPassword.length < 6) {
+            setPwError('New password must be at least 6 characters.');
+            return;
+        }
+        if (newPassword !== confirmPassword) {
+            setPwError('Passwords do not match.');
+            return;
+        }
+        if (!user) return;
+        setPwSaving(true);
+        try {
+            // Re-authenticate first (required by Firebase before sensitive operations)
+            const credential = EmailAuthProvider.credential(user.email, currentPassword);
+            await reauthenticateWithCredential(user, credential);
+            await updatePassword(user, newPassword);
+            setPwSaved(true);
+            setCurrentPassword('');
+            setNewPassword('');
+            setConfirmPassword('');
+            setTimeout(() => setPwSaved(false), 3000);
+        } catch (err) {
+            if (err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+                setPwError('Current password is incorrect.');
+            } else {
+                setPwError(err.message || 'Failed to change password.');
+            }
+        } finally {
+            setPwSaving(false);
+        }
+    };
+
     const getInitials = () => {
         if (displayName) {
             return displayName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
@@ -77,7 +121,7 @@ export default function SettingsPage() {
         : 'bg-white border border-black/5 shadow-sm'
     }`;
 
-    const labelClass = `block text-sm font-medium mb-2 ${isDark ? 'text-white/70' : 'text-black'}`;
+    const labelClass = `block text-sm font-medium mb-2 ${isDark ? 'text-white/70' : 'text-black/70'}`;
 
     return (
         <div className="max-w-3xl">
@@ -93,7 +137,9 @@ export default function SettingsPage() {
                 <div className={cardClass}>
                     <div className="flex items-center gap-3 mb-6">
                         <User className={`w-5 h-5 ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`} />
-                        <h3 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>{t.settings_profile}</h3>
+                        <h3 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                            Profile
+                        </h3>
                     </div>
 
                     {/* Avatar */}
@@ -130,13 +176,13 @@ export default function SettingsPage() {
                         </div>
                         <div>
                             <p className={`font-semibold text-lg ${isDark ? 'text-white' : 'text-black'}`}>
-                                {displayName || t.settings_yourName}
+                                {displayName || 'Your Name'}
                             </p>
-                            <p className={`text-sm ${isDark ? 'text-white/40' : 'text-black'}`}>
+                            <p className={`text-sm ${isDark ? 'text-white/40' : 'text-black/40'}`}>
                                 {user?.email}
                             </p>
-                            <p className={`text-xs mt-1 ${isDark ? 'text-white/30' : 'text-black'}`}>
-                                {t.settings_clickCamera}
+                            <p className={`text-xs mt-1 ${isDark ? 'text-white/30' : 'text-black/30'}`}>
+                                Click the camera icon to change your photo
                             </p>
                         </div>
                     </div>
@@ -144,12 +190,12 @@ export default function SettingsPage() {
                     {/* Profile Fields */}
                     <div className="grid sm:grid-cols-2 gap-4">
                         <div>
-                            <label className={labelClass}>{t.settings_displayName}</label>
+                            <label className={labelClass}>Display Name</label>
                             <input
                                 type="text"
                                 value={displayName}
                                 onChange={(e) => setDisplayName(e.target.value)}
-                                placeholder={t.settings_fullNamePlaceholder}
+                                placeholder="Your full name"
                                 className={inputClass}
                             />
                         </div>
@@ -163,27 +209,27 @@ export default function SettingsPage() {
                             />
                         </div>
                         <div>
-                            <label className={labelClass}>{t.settings_jobTitle}</label>
+                            <label className={labelClass}>Job Title</label>
                             <input
                                 type="text"
                                 value={jobTitle}
                                 onChange={(e) => setJobTitle(e.target.value)}
-                                placeholder={t.settings_jobTitlePlaceholder}
+                                placeholder="e.g. Software Engineer"
                                 className={inputClass}
                             />
                         </div>
                         <div>
-                            <label className={labelClass}>{t.settings_company}</label>
+                            <label className={labelClass}>Company</label>
                             <input
                                 type="text"
                                 value={company}
                                 onChange={(e) => setCompany(e.target.value)}
-                                placeholder={t.settings_companyPlaceholder}
+                                placeholder="e.g. Acme Inc."
                                 className={inputClass}
                             />
                         </div>
                         <div>
-                            <label className={labelClass}>{t.settings_phone}</label>
+                            <label className={labelClass}>Phone</label>
                             <input
                                 type="tel"
                                 value={phone}
@@ -193,23 +239,23 @@ export default function SettingsPage() {
                             />
                         </div>
                         <div>
-                            <label className={labelClass}>{t.settings_location}</label>
+                            <label className={labelClass}>Location</label>
                             <input
                                 type="text"
                                 value={location}
                                 onChange={(e) => setLocation(e.target.value)}
-                                placeholder={t.settings_locationPlaceholder}
+                                placeholder="City, Country"
                                 className={inputClass}
                             />
                         </div>
                     </div>
 
                     <div className="mt-4">
-                        <label className={labelClass}>{t.settings_bio}</label>
+                        <label className={labelClass}>Bio</label>
                         <textarea
                             value={bio}
                             onChange={(e) => setBio(e.target.value)}
-                            placeholder={t.settings_bioPlaceholder}
+                            placeholder="Tell us a bit about yourself..."
                             rows={3}
                             className={`${inputClass} resize-none`}
                         />
@@ -228,19 +274,19 @@ export default function SettingsPage() {
                             {saving ? (
                                 <>
                                     <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                    {t.settings_saving}
+                                    Saving...
                                 </>
                             ) : (
                                 <>
                                     <Save className="w-4 h-4" />
-                                    {t.settings_saveChanges}
+                                    Save Changes
                                 </>
                             )}
                         </button>
                         {saved && (
                             <div className="flex items-center gap-2 text-emerald-400 animate-fadeIn">
                                 <CheckCircle2 className="w-4 h-4" />
-                                <span className="text-sm font-medium">{t.settings_profileUpdated}</span>
+                                <span className="text-sm font-medium">Profile updated!</span>
                             </div>
                         )}
                     </div>
@@ -257,10 +303,10 @@ export default function SettingsPage() {
                     <div className="space-y-5">
                         <div className="flex items-center justify-between">
                             <div>
-                                <label className={`block text-sm font-medium ${isDark ? 'text-white/80' : 'text-black'}`}>
+                                <label className={`block text-sm font-medium ${isDark ? 'text-white/80' : 'text-black/80'}`}>
                                     {t.theme}
                                 </label>
-                                <p className={`text-xs mt-1 ${isDark ? 'text-white/40' : 'text-black'}`}>
+                                <p className={`text-xs mt-1 ${isDark ? 'text-white/40' : 'text-black/40'}`}>
                                     {t.themeDesc}
                                 </p>
                             </div>
@@ -281,10 +327,10 @@ export default function SettingsPage() {
                         <div className={`border-t ${isDark ? 'border-white/10' : 'border-black/5'}`} />
                         <div className="flex items-center justify-between">
                             <div>
-                                <label className={`block text-sm font-medium ${isDark ? 'text-white/80' : 'text-black'}`}>
+                                <label className={`block text-sm font-medium ${isDark ? 'text-white/80' : 'text-black/80'}`}>
                                     {t.language}
                                 </label>
-                                <p className={`text-xs mt-1 ${isDark ? 'text-white/40' : 'text-black'}`}>
+                                <p className={`text-xs mt-1 ${isDark ? 'text-white/40' : 'text-black/40'}`}>
                                     {t.languageDesc}
                                 </p>
                             </div>
@@ -295,7 +341,7 @@ export default function SettingsPage() {
                                         ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-lg shadow-emerald-500/20'
                                         : isDark
                                             ? 'bg-white/5 text-white/40 hover:bg-white/10 border border-white/10'
-                                            : 'bg-black/5 text-black hover:bg-black/10 border border-black/5'
+                                            : 'bg-black/5 text-black/40 hover:bg-black/10 border border-black/5'
                                     }`}
                                 >
                                     English
@@ -306,7 +352,7 @@ export default function SettingsPage() {
                                         ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-lg shadow-emerald-500/20'
                                         : isDark
                                             ? 'bg-white/5 text-white/40 hover:bg-white/10 border border-white/10'
-                                            : 'bg-black/5 text-black hover:bg-black/10 border border-black/5'
+                                            : 'bg-black/5 text-black/40 hover:bg-black/10 border border-black/5'
                                     }`}
                                 >
                                     Français
@@ -324,27 +370,115 @@ export default function SettingsPage() {
                             {t.privacySecurity}
                         </h3>
                     </div>
-                    <div className="space-y-4">
+                    <div className="space-y-6">
+                        {/* Account status */}
                         <div className={`p-4 rounded-xl ${isDark ? 'bg-white/[0.03] border border-white/10' : 'bg-black/[0.02] border border-black/5'}`}>
                             <div className="flex items-center gap-3 mb-2">
                                 <div className={`w-2 h-2 rounded-full ${isDark ? 'bg-emerald-400' : 'bg-emerald-500'}`} />
-                                <span className={`text-sm font-medium ${isDark ? 'text-white/80' : 'text-black'}`}>Account secured</span>
+                                <span className={`text-sm font-medium ${isDark ? 'text-white/80' : 'text-black/80'}`}>Account secured</span>
                             </div>
-                            <p className={`text-xs ml-5 ${isDark ? 'text-white/40' : 'text-black'}`}>
+                            <p className={`text-xs ml-5 ${isDark ? 'text-white/40' : 'text-black/40'}`}>
                                 Your data is encrypted and stored securely with Firebase Auth
                             </p>
                         </div>
-                        <p className={`text-sm ${isDark ? 'text-white/40' : 'text-black'}`}>
-                            {t.deleteAccountDesc}
-                        </p>
-                        <button
-                            className={`px-5 py-2.5 rounded-xl text-sm font-medium transition-all ${isDark
-                                ? 'bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/20'
-                                : 'bg-red-50 text-red-600 hover:bg-red-100 border border-red-200'
-                            }`}
-                        >
-                            {t.deleteAccount}
-                        </button>
+
+                        {/* Change Password */}
+                        <div>
+                            <div className="flex items-center gap-2 mb-4">
+                                <Lock className={`w-4 h-4 ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`} />
+                                <h4 className={`text-sm font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>Change Password</h4>
+                            </div>
+                            <div className="space-y-3">
+                                {/* Current password */}
+                                <div>
+                                    <label className={labelClass}>Current Password</label>
+                                    <div className="relative">
+                                        <input
+                                            type={showCurrent ? 'text' : 'password'}
+                                            value={currentPassword}
+                                            onChange={(e) => setCurrentPassword(e.target.value)}
+                                            placeholder="Enter current password"
+                                            className={inputClass}
+                                        />
+                                        <button type="button" onClick={() => setShowCurrent(!showCurrent)}
+                                            className={`absolute right-3 top-1/2 -translate-y-1/2 ${isDark ? 'text-white/40' : 'text-black/40'}`}>
+                                            {showCurrent ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                        </button>
+                                    </div>
+                                </div>
+                                {/* New password */}
+                                <div>
+                                    <label className={labelClass}>New Password</label>
+                                    <div className="relative">
+                                        <input
+                                            type={showNew ? 'text' : 'password'}
+                                            value={newPassword}
+                                            onChange={(e) => setNewPassword(e.target.value)}
+                                            placeholder="At least 6 characters"
+                                            className={inputClass}
+                                        />
+                                        <button type="button" onClick={() => setShowNew(!showNew)}
+                                            className={`absolute right-3 top-1/2 -translate-y-1/2 ${isDark ? 'text-white/40' : 'text-black/40'}`}>
+                                            {showNew ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                        </button>
+                                    </div>
+                                </div>
+                                {/* Confirm password */}
+                                <div>
+                                    <label className={labelClass}>Confirm New Password</label>
+                                    <div className="relative">
+                                        <input
+                                            type={showConfirm ? 'text' : 'password'}
+                                            value={confirmPassword}
+                                            onChange={(e) => setConfirmPassword(e.target.value)}
+                                            placeholder="Repeat new password"
+                                            className={inputClass}
+                                        />
+                                        <button type="button" onClick={() => setShowConfirm(!showConfirm)}
+                                            className={`absolute right-3 top-1/2 -translate-y-1/2 ${isDark ? 'text-white/40' : 'text-black/40'}`}>
+                                            {showConfirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                        </button>
+                                    </div>
+                                </div>
+                                {pwError && (
+                                    <p className="text-xs text-red-500">{pwError}</p>
+                                )}
+                                <div className="flex items-center gap-4">
+                                    <button
+                                        onClick={handleChangePassword}
+                                        disabled={pwSaving || !currentPassword || !newPassword || !confirmPassword}
+                                        className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all disabled:opacity-50 bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:shadow-lg hover:shadow-emerald-500/25`}
+                                    >
+                                        {pwSaving ? (
+                                            <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Updating…</>
+                                        ) : (
+                                            <><Lock className="w-4 h-4" />Update Password</>
+                                        )}
+                                    </button>
+                                    {pwSaved && (
+                                        <div className="flex items-center gap-2 text-emerald-400">
+                                            <CheckCircle2 className="w-4 h-4" />
+                                            <span className="text-sm font-medium">Password updated!</span>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className={`border-t ${isDark ? 'border-white/10' : 'border-black/5'}`} />
+                        <div>
+                            <p className={`text-sm mb-3 ${isDark ? 'text-white/40' : 'text-black/40'}`}>
+                                {t.deleteAccountDesc}
+                            </p>
+                            <button
+                                className={`px-5 py-2.5 rounded-xl text-sm font-medium transition-all ${isDark
+                                    ? 'bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/20'
+                                    : 'bg-red-50 text-red-600 hover:bg-red-100 border border-red-200'
+                                }`}
+                            >
+                                {t.deleteAccount}
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>

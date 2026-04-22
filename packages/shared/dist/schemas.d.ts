@@ -3,21 +3,21 @@
  * Provides runtime validation for all shared types
  */
 import { z } from 'zod';
-export declare const AssistantTypeSchema: z.ZodEnum<["streamlined_plan", "exec_summary", "financial_overview", "market_analysis"]>;
+export declare const AssistantTypeSchema: z.ZodEnum<["streamlined_plan", "exec_summary", "financial_overview", "market_analysis", "legal_analysis"]>;
 export declare const AssistantRequestSchema: z.ZodObject<{
-    assistant: z.ZodEnum<["streamlined_plan", "exec_summary", "financial_overview", "market_analysis"]>;
+    assistant: z.ZodEnum<["streamlined_plan", "exec_summary", "financial_overview", "market_analysis", "legal_analysis"]>;
     input: z.ZodString;
     tenantId: z.ZodString;
     userId: z.ZodString;
     extra: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodAny>>;
 }, "strip", z.ZodTypeAny, {
-    assistant: "streamlined_plan" | "exec_summary" | "financial_overview" | "market_analysis";
+    assistant: "streamlined_plan" | "exec_summary" | "financial_overview" | "market_analysis" | "legal_analysis";
     input: string;
     tenantId: string;
     userId: string;
     extra?: Record<string, any> | undefined;
 }, {
-    assistant: "streamlined_plan" | "exec_summary" | "financial_overview" | "market_analysis";
+    assistant: "streamlined_plan" | "exec_summary" | "financial_overview" | "market_analysis" | "legal_analysis";
     input: string;
     tenantId: string;
     userId: string;
@@ -43,7 +43,7 @@ export declare const AssistantSourceSchema: z.ZodObject<{
     docId?: string | undefined;
 }>;
 export declare const AssistantResponseSchema: z.ZodObject<{
-    assistant: z.ZodEnum<["streamlined_plan", "exec_summary", "financial_overview", "market_analysis"]>;
+    assistant: z.ZodEnum<["streamlined_plan", "exec_summary", "financial_overview", "market_analysis", "legal_analysis"]>;
     sections: z.ZodRecord<z.ZodString, z.ZodString>;
     sources: z.ZodArray<z.ZodObject<{
         type: z.ZodEnum<["rag", "web"]>;
@@ -105,7 +105,7 @@ export declare const AssistantResponseSchema: z.ZodObject<{
         } | undefined;
     }>>;
 }, "strip", z.ZodTypeAny, {
-    assistant: "streamlined_plan" | "exec_summary" | "financial_overview" | "market_analysis";
+    assistant: "streamlined_plan" | "exec_summary" | "financial_overview" | "market_analysis" | "legal_analysis";
     sections: Record<string, string>;
     sources: {
         type: "rag" | "web";
@@ -127,7 +127,7 @@ export declare const AssistantResponseSchema: z.ZodObject<{
         } | undefined;
     } | undefined;
 }, {
-    assistant: "streamlined_plan" | "exec_summary" | "financial_overview" | "market_analysis";
+    assistant: "streamlined_plan" | "exec_summary" | "financial_overview" | "market_analysis" | "legal_analysis";
     sections: Record<string, string>;
     sources: {
         type: "rag" | "web";
@@ -150,26 +150,26 @@ export declare const AssistantResponseSchema: z.ZodObject<{
     } | undefined;
 }>;
 export declare const PlannerInputSchema: z.ZodObject<{
-    assistant: z.ZodEnum<["streamlined_plan", "exec_summary", "financial_overview", "market_analysis"]>;
+    assistant: z.ZodEnum<["streamlined_plan", "exec_summary", "financial_overview", "market_analysis", "legal_analysis"]>;
     input: z.ZodString;
     tenantId: z.ZodString;
     userId: z.ZodString;
     extra: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodAny>>;
 }, "strip", z.ZodTypeAny, {
-    assistant: "streamlined_plan" | "exec_summary" | "financial_overview" | "market_analysis";
+    assistant: "streamlined_plan" | "exec_summary" | "financial_overview" | "market_analysis" | "legal_analysis";
     input: string;
     tenantId: string;
     userId: string;
     extra?: Record<string, any> | undefined;
 }, {
-    assistant: "streamlined_plan" | "exec_summary" | "financial_overview" | "market_analysis";
+    assistant: "streamlined_plan" | "exec_summary" | "financial_overview" | "market_analysis" | "legal_analysis";
     input: string;
     tenantId: string;
     userId: string;
     extra?: Record<string, any> | undefined;
 }>;
 export declare const PlannerOutputSchema: z.ZodObject<{
-    task: z.ZodEnum<["streamlined_plan", "exec_summary", "financial_overview", "market_analysis"]>;
+    task: z.ZodEnum<["streamlined_plan", "exec_summary", "financial_overview", "market_analysis", "legal_analysis"]>;
     requires_retrieval: z.ZodBoolean;
     requires_web_search: z.ZodBoolean;
     query_terms: z.ZodArray<z.ZodString, "many">;
@@ -178,7 +178,7 @@ export declare const PlannerOutputSchema: z.ZodObject<{
     escalate_model: z.ZodBoolean;
 }, "strip", z.ZodTypeAny, {
     sections: string[];
-    task: "streamlined_plan" | "exec_summary" | "financial_overview" | "market_analysis";
+    task: "streamlined_plan" | "exec_summary" | "financial_overview" | "market_analysis" | "legal_analysis";
     requires_retrieval: boolean;
     requires_web_search: boolean;
     query_terms: string[];
@@ -186,7 +186,7 @@ export declare const PlannerOutputSchema: z.ZodObject<{
     escalate_model: boolean;
 }, {
     sections: string[];
-    task: "streamlined_plan" | "exec_summary" | "financial_overview" | "market_analysis";
+    task: "streamlined_plan" | "exec_summary" | "financial_overview" | "market_analysis" | "legal_analysis";
     requires_retrieval: boolean;
     requires_web_search: boolean;
     query_terms: string[];
@@ -271,7 +271,7 @@ export declare const UsageLogEntrySchema: z.ZodObject<{
     id: z.ZodString;
     tenantId: z.ZodString;
     userId: z.ZodString;
-    assistantType: z.ZodNullable<z.ZodEnum<["streamlined_plan", "exec_summary", "financial_overview", "market_analysis"]>>;
+    assistantType: z.ZodNullable<z.ZodEnum<["streamlined_plan", "exec_summary", "financial_overview", "market_analysis", "legal_analysis"]>>;
     createdAt: z.ZodDate;
 }, "strip", z.ZodTypeAny, {
     tenantId: string;
@@ -287,7 +287,7 @@ export declare const UsageLogEntrySchema: z.ZodObject<{
     tokensOut: number;
     costCents: number;
     id: string;
-    assistantType: "streamlined_plan" | "exec_summary" | "financial_overview" | "market_analysis" | null;
+    assistantType: "streamlined_plan" | "exec_summary" | "financial_overview" | "market_analysis" | "legal_analysis" | null;
     createdAt: Date;
 }, {
     tenantId: string;
@@ -303,7 +303,7 @@ export declare const UsageLogEntrySchema: z.ZodObject<{
     tokensOut: number;
     costCents: number;
     id: string;
-    assistantType: "streamlined_plan" | "exec_summary" | "financial_overview" | "market_analysis" | null;
+    assistantType: "streamlined_plan" | "exec_summary" | "financial_overview" | "market_analysis" | "legal_analysis" | null;
     createdAt: Date;
 }>;
 export declare const WebSearchResultItemSchema: z.ZodObject<{

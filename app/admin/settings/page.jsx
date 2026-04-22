@@ -3,11 +3,13 @@
 import { useState } from 'react';
 import {
   Settings, Shield, Bell, AlertTriangle,
-  Save, Check, Globe, Mail, Eye, EyeOff,
+  Save, Check, Globe, Mail, Eye, EyeOff, Lock, CheckCircle2,
 } from 'lucide-react';
 import { useTheme } from '@/components/providers/ThemeProvider';
+import { useSiteSettings } from '@/components/providers/SiteSettingsProvider';
 import { doc, setDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { db, auth } from '@/lib/firebase';
+import { updatePassword, reauthenticateWithCredential, EmailAuthProvider } from 'firebase/auth';
 
 /* ── Section wrapper ───────────────────────────────────────── */
 function Section({ icon: Icon, title, description, children, isDark }) {
@@ -88,9 +90,9 @@ function Toggle({ label, description, value, onChange, isDark }) {
 
 export default function SettingsPage() {
   const { isDark } = useTheme();
+  const { siteName, setSiteName } = useSiteSettings();
 
   /* Platform */
-  const [siteName,    setSiteName]    = useState('KimuntuPro AI');
   const [siteTagline, setSiteTagline] = useState('Empowering African professionals with AI');
   const [supportEmail, setSupportEmail] = useState('support@kimuntuproai.com');
   const [siteUrl,     setSiteUrl]     = useState('https://kimuntuproai.com');
@@ -111,6 +113,39 @@ export default function SettingsPage() {
   const [saving,  setSaving]  = useState(false);
   const [saved,   setSaved]   = useState(false);
   const [error,   setError]   = useState(null);
+
+  /* Change password state */
+  const [pwCurrent,  setPwCurrent]  = useState('');
+  const [pwNew,      setPwNew]      = useState('');
+  const [pwConfirm,  setPwConfirm]  = useState('');
+  const [pwSaving,   setPwSaving]   = useState(false);
+  const [pwSaved,    setPwSaved]    = useState(false);
+  const [pwError,    setPwError]    = useState('');
+
+  const handleChangePassword = async () => {
+    setPwError('');
+    if (!pwNew || pwNew.length < 6) { setPwError('New password must be at least 6 characters.'); return; }
+    if (pwNew !== pwConfirm) { setPwError('Passwords do not match.'); return; }
+    const user = auth.currentUser;
+    if (!user) { setPwError('Not authenticated.'); return; }
+    setPwSaving(true);
+    try {
+      const credential = EmailAuthProvider.credential(user.email, pwCurrent);
+      await reauthenticateWithCredential(user, credential);
+      await updatePassword(user, pwNew);
+      setPwSaved(true);
+      setPwCurrent(''); setPwNew(''); setPwConfirm('');
+      setTimeout(() => setPwSaved(false), 3000);
+    } catch (err) {
+      if (err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+        setPwError('Current password is incorrect.');
+      } else {
+        setPwError(err.message || 'Failed to change password.');
+      }
+    } finally {
+      setPwSaving(false);
+    }
+  };
 
   const text    = isDark ? 'text-white' : 'text-black';
   const muted   = isDark ? 'text-white/50' : 'text-black/50';
@@ -199,6 +234,32 @@ export default function SettingsPage() {
           onChange={setMaintenance}
           isDark={isDark}
         />
+      </Section>
+
+      {/* ── Change Password ──────────────────────────────────── */}
+      <Section icon={Lock} title="Change Password" description="Update the password for your admin account" isDark={isDark}>
+        <Field label="Current Password" type="password" value={pwCurrent} onChange={setPwCurrent} placeholder="Enter current password" isDark={isDark} />
+        <Field label="New Password"     type="password" value={pwNew}     onChange={setPwNew}     placeholder="At least 6 characters"  isDark={isDark} />
+        <Field label="Confirm Password" type="password" value={pwConfirm} onChange={setPwConfirm} placeholder="Repeat new password"    isDark={isDark} />
+        {pwError && <p className="text-xs text-red-500">{pwError}</p>}
+        <div className="flex items-center gap-4 pt-1">
+          <button
+            type="button"
+            onClick={handleChangePassword}
+            disabled={pwSaving || !pwCurrent || !pwNew || !pwConfirm}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold bg-emerald-500 hover:bg-emerald-600 text-white disabled:opacity-50 transition-all"
+          >
+            {pwSaving
+              ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Updating…</>
+              : <><Lock className="w-4 h-4" />Update Password</>
+            }
+          </button>
+          {pwSaved && (
+            <span className="flex items-center gap-1.5 text-sm text-emerald-500">
+              <CheckCircle2 className="w-4 h-4" /> Password updated!
+            </span>
+          )}
+        </div>
       </Section>
 
       {/* ── Notification Settings ───────────────────────────── */}

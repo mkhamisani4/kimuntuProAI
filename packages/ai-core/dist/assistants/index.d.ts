@@ -6,4 +6,5 @@ export { runStreamlinedPlanAssistant } from './streamlinedPlan.js';
 export { runExecSummaryAssistant } from './execSummary.js';
 export { runMarketAnalysisAssistant } from './marketAnalysis.js';
 export { runFinancialOverviewAssistant } from './financialOverview.js';
+export { runLegalAnalysisAssistant } from './legalAnalysis.js';
 //# sourceMappingURL=index.d.ts.map

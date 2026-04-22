@@ -23,6 +23,7 @@ ASSISTANT-SPECIFIC DEFAULTS:
 - market_analysis (#110): requires_web_search = true by default
 - exec_summary & financial_overview (#109): include finance metrics in metrics_needed
 - streamlined_plan (#108): requires_retrieval often true for internal materials
+- legal_analysis: requires_web_search = true AND requires_retrieval = true AND escalate_model = true by default
 
 Always include "Sources" in sections if requires_retrieval or requires_web_search is true.`;
 /**
@@ -63,7 +64,16 @@ QUERY TERMS:
 ESCALATE_MODEL:
 - Default: false (use mini model for cost efficiency)
 - Set true only if: complex multi-step reasoning, heavy abstraction, mathematical proofs
-- Example rare cases: strategic pivots requiring game theory, multi-stakeholder analysis`;
+- Example rare cases: strategic pivots requiring game theory, multi-stakeholder analysis
+
+"legal_analysis":
+- Expected sections: ["Case Summary", "Legal Analysis", "Predicted Outcome", "Action Plan", "Risk Assessment", "Disclaimer"]
+- ALWAYS requires_web_search: true (needs case law, precedents, statutes)
+- ALWAYS requires_retrieval: true (user uploads legal documents)
+- ALWAYS escalate_model: true (legal reasoning requires GPT-4o)
+- query_terms: focus on legal terms, jurisdiction, case type, relevant statutes
+- metrics_needed: rarely needed (not a financial assistant)
+- MUST include Disclaimer section with "This is not legal advice" notice`;
 /**
  * Get system prompt for planner
  * @param version - Prompt version (default: 1)

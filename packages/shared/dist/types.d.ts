@@ -3,10 +3,11 @@
  * Used across ai-core, Business Track UI, and API routes
  */
 /**
- * Available AI assistant types for Business Track
- * All assistants are integrated into /app/dashboard/business/ai-assistant/
+ * Available AI assistant types
+ * Business Track: /app/dashboard/business/ai-assistant/
+ * Legal Track: /app/dashboard/legal/ai-agent/
  */
-export type AssistantType = 'streamlined_plan' | 'exec_summary' | 'financial_overview' | 'market_analysis';
+export type AssistantType = 'streamlined_plan' | 'exec_summary' | 'financial_overview' | 'market_analysis' | 'legal_analysis';
 /**
  * Request payload for AI assistant from Business Track UI
  * Sent to /app/api/ai/answer
