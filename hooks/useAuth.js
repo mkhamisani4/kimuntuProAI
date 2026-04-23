@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
-import { auth, db } from '@/lib/firebase';
+import { auth } from '@/lib/firebase';
 
 export function useAuth() {
   const [user, setUser] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [profile, setProfile] = useState(null);
+  const [features, setFeatures] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -15,13 +16,24 @@ export function useAuth() {
       setUser(currentUser);
       if (currentUser) {
         try {
-          const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
-          setIsAdmin(userDoc.exists() && userDoc.data()?.role === 'admin');
+          const token = await currentUser.getIdToken();
+          const response = await fetch('/api/admin/me', {
+            headers: { Authorization: `Bearer ${token}` },
+            cache: 'no-store',
+          });
+          const data = await response.json().catch(() => ({}));
+          setIsAdmin(response.ok && data.isAdmin === true);
+          setProfile(response.ok ? (data.profile || null) : null);
+          setFeatures(response.ok ? (data.features || []) : []);
         } catch {
           setIsAdmin(false);
+          setProfile(null);
+          setFeatures([]);
         }
       } else {
         setIsAdmin(false);
+        setProfile(null);
+        setFeatures([]);
       }
       setLoading(false);
     });
@@ -29,5 +41,5 @@ export function useAuth() {
     return () => unsubscribe();
   }, []);
 
-  return { user, isAdmin, loading };
+  return { user, isAdmin, profile, features, loading };
 }

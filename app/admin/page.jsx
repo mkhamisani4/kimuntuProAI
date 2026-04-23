@@ -17,7 +17,9 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useTheme } from '@/components/providers/ThemeProvider';
 import { auth } from '@/lib/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 import { NOTIFICATIONS } from '@/lib/adminNotifications';
+import { PLAN_LABELS, normalizePlanId } from '@/lib/accessControl';
 
 /* ─── Deterministic seeded random ───────────────────────────── */
 function seededRand(seed) {
@@ -137,6 +139,27 @@ const quickActions = [
   { label: 'Generate Report',   icon: FileText,  href: '/admin/analytics', bg: 'bg-red-500/10',     color: 'text-red-500' },
 ];
 
+async function getAdminHeaders() {
+  const currentUser = auth.currentUser || await new Promise((resolve) => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      unsubscribe();
+      resolve(user);
+    });
+  });
+  const token = currentUser ? await currentUser.getIdToken() : null;
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+function formatRelativeTime(value) {
+  if (!value) return 'Just now';
+  const diff = Date.now() - new Date(value).getTime();
+  if (Number.isNaN(diff)) return 'Just now';
+  const hours = Math.floor(diff / 3_600_000);
+  if (hours < 1) return 'Just now';
+  if (hours < 24) return `${hours}h ago`;
+  return `${Math.floor(hours / 24)}d ago`;
+}
+
 /* ─── Mini Sparkline ─────────────────────────────────────────── */
 function Sparkline({ data, color }) {
   return (
@@ -229,6 +252,7 @@ export default function AdminDashboard() {
   const router = useRouter();
   const [metrics, setMetrics] = useState(null);
   const [user, setUser]       = useState(null);
+  const [dashboard, setDashboard] = useState(null);
 
   // Date range
   const [dateRange, setDateRange]       = useState({ start: '2024-11-01', end: '2024-11-30' });
@@ -241,9 +265,10 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     setUser(auth.currentUser);
-    fetch('/api/admin/metrics')
+    getAdminHeaders()
+      .then((headers) => fetch('/api/admin/dashboard', { headers }))
       .then((r) => r.ok ? r.json() : null)
-      .then(setMetrics)
+      .then(setDashboard)
       .catch(() => {});
   }, []);
 
@@ -258,6 +283,41 @@ export default function AdminDashboard() {
   const dateLabel = `${fmtDate(dateRange.start)} – ${fmtDate(dateRange.end)}`;
 
   const { platformData, stats, sparks, growthSlices, activePct } = rangeData;
+  const realStats = dashboard?.stats;
+  const displayStats = realStats ? {
+    users: realStats.totalUsers.toLocaleString(),
+    requests: realStats.aiRequests.toLocaleString(),
+    revenue: `$${Math.round(realStats.mrr).toLocaleString()}`,
+    cost: `$${(realStats.aiCostCents / 100).toFixed(2)}`,
+    active: realStats.openTickets.toLocaleString(),
+    newUsers: `${realStats.paidUsers.toLocaleString()} paid`,
+    newReq: `${realStats.enabledFeatures.toLocaleString()} enabled`,
+    newRev: 'MRR',
+    newCost: realStats.stripeConfigured ? 'Stripe ready' : 'Stripe setup',
+  } : stats;
+  const displayRecentUsers = dashboard?.recentUsers?.length
+    ? dashboard.recentUsers.map((u) => ({
+      name: u.displayName || u.email || 'User',
+      email: u.email || u.uid,
+      plan: PLAN_LABELS[normalizePlanId(u.subscriptionTier)] || 'Free',
+      joined: u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '—',
+      status: u.disabled ? 'Inactive' : (u.subscriptionStatus || (u.subscriptionTier === 'free' ? 'Free' : 'Active')),
+    }))
+    : recentUsers;
+  const displayAiFeatures = dashboard?.featureUsage?.length
+    ? dashboard.featureUsage.map((feature, index) => {
+      const max = Math.max(...dashboard.featureUsage.map((item) => item.requests), 1);
+      const colors = ['bg-emerald-500', 'bg-blue-500', 'bg-purple-500', 'bg-amber-500', 'bg-red-400', 'bg-gray-400'];
+      return {
+        name: feature.name,
+        pct: Math.max(5, Math.round((feature.requests / max) * 100)),
+        color: colors[index % colors.length],
+      };
+    })
+    : aiFeatures;
+  const displayAlerts = dashboard?.alerts?.length
+    ? dashboard.alerts.map((alert) => ({ ...alert, time: formatRelativeTime(alert.time) }))
+    : NOTIFICATIONS;
 
   const card     = isDark ? 'bg-white/[0.03] border-white/10' : 'bg-white border-black/5 shadow-sm';
   const text     = isDark ? 'text-white' : 'text-black';
@@ -420,11 +480,11 @@ export default function AdminDashboard() {
 
       {/* ── Stat cards (reactive to date range) ─────────────── */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-        <StatCard label="Total Users"   value={stats.users}    change="12.5%"  sub={`${stats.newUsers} this period`}  icon={Users}      iconBg="bg-emerald-500/10" iconColor="text-emerald-500" chart={sparks.users}    chartColor="#10b981" />
-        <StatCard label="AI Requests"   value={stats.requests} change="18.7%"  sub={`${stats.newReq} this period`}   icon={TrendingUp} iconBg="bg-blue-500/10"    iconColor="text-blue-500"    chart={sparks.requests} chartColor="#3b82f6" />
-        <StatCard label="Total Revenue" value={stats.revenue}  change="24.3%"  sub={`${stats.newRev} this period`}  icon={DollarSign} iconBg="bg-amber-500/10"   iconColor="text-amber-500"   chart={sparks.revenue}  chartColor="#f59e0b" />
-        <StatCard label="AI Cost"       value={stats.cost}     change="9.3%"   sub={`${stats.newCost} this period`} icon={Cpu}        iconBg="bg-purple-500/10"  iconColor="text-purple-500"  chart={sparks.cost}     chartColor="#8b5cf6" />
-        <StatCard label="Active Now"    value={stats.active}   change="5.2%"   sub="Users online"                   icon={Wifi}       iconBg="bg-red-500/10"     iconColor="text-red-400"     chart={sparks.active}   chartColor="#f87171" barChart />
+        <StatCard label="Total Users"   value={displayStats.users}    change={realStats ? displayStats.newUsers : '12.5%'}  sub={realStats ? 'Firebase Auth users' : `${displayStats.newUsers} this period`}  icon={Users}      iconBg="bg-emerald-500/10" iconColor="text-emerald-500" chart={sparks.users}    chartColor="#10b981" />
+        <StatCard label="AI Requests"   value={displayStats.requests} change={realStats ? displayStats.newReq : '18.7%'}  sub={realStats ? 'Feature flags' : `${displayStats.newReq} this period`}   icon={TrendingUp} iconBg="bg-blue-500/10"    iconColor="text-blue-500"    chart={sparks.requests} chartColor="#3b82f6" />
+        <StatCard label="Monthly Revenue" value={displayStats.revenue}  change={realStats ? displayStats.newRev : '24.3%'}  sub={realStats ? 'Estimated from active plans' : `${displayStats.newRev} this period`}  icon={DollarSign} iconBg="bg-amber-500/10"   iconColor="text-amber-500"   chart={sparks.revenue}  chartColor="#f59e0b" />
+        <StatCard label="AI Cost"       value={displayStats.cost}     change={realStats ? displayStats.newCost : '9.3%'}   sub={realStats ? 'Usage log estimate' : `${displayStats.newCost} this period`} icon={Cpu}        iconBg="bg-purple-500/10"  iconColor="text-purple-500"  chart={sparks.cost}     chartColor="#8b5cf6" />
+        <StatCard label="Open Tickets"    value={displayStats.active}   change={realStats ? 'Live' : '5.2%'}   sub={realStats ? 'Support center tickets' : 'Users online'}                   icon={Wifi}       iconBg="bg-red-500/10"     iconColor="text-red-400"     chart={sparks.active}   chartColor="#f87171" barChart />
       </div>
 
       {/* ── Charts row ──────────────────────────────────────── */}
@@ -546,7 +606,7 @@ export default function AdminDashboard() {
               </tr>
             </thead>
             <tbody className={`divide-y ${divider}`}>
-              {recentUsers.map((u) => (
+              {displayRecentUsers.map((u) => (
                 <tr key={u.email} className={`transition-colors ${rowHover}`}>
                   <td className="py-3 px-5">
                     <div className="flex items-center gap-2.5">
@@ -581,7 +641,7 @@ export default function AdminDashboard() {
             <Link href="/admin/ai-usage" className="text-xs text-emerald-500 font-medium hover:text-emerald-400">View All</Link>
           </div>
           <div className="space-y-3">
-            {aiFeatures.map((f) => (
+            {displayAiFeatures.map((f) => (
               <div key={f.name}>
                 <div className="flex items-center justify-between mb-1">
                   <span className={`text-xs font-medium ${text}`}>{f.name}</span>
@@ -602,7 +662,7 @@ export default function AdminDashboard() {
             <Link href="/admin/notifications" className="text-xs text-emerald-500 font-medium hover:text-emerald-400">View Inbox</Link>
           </div>
           <div className="space-y-3">
-            {NOTIFICATIONS.map((a) => (
+            {displayAlerts.map((a) => (
               <Link
                 key={a.id}
                 href="/admin/notifications"

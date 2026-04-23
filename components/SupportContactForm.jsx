@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { Mail, Send } from 'lucide-react';
+import { Mail, Send, CheckCircle2, Loader2 } from 'lucide-react';
 import { CONTACT_EMAIL, buildSupportMailto } from '@/lib/contact';
+import { auth } from '@/lib/firebase';
 
 const initialForm = {
   name: '',
@@ -14,6 +15,8 @@ const initialForm = {
 export default function SupportContactForm({ isDark = true }) {
   const [form, setForm] = useState(initialForm);
   const [error, setError] = useState('');
+  const [sending, setSending] = useState(false);
+  const [sentTicket, setSentTicket] = useState(null);
 
   const inputClassName = useMemo(() => (
     isDark
@@ -26,7 +29,7 @@ export default function SupportContactForm({ isDark = true }) {
     if (error) setError('');
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     if (!form.name.trim() || !form.email.trim() || !form.subject.trim() || !form.message.trim()) {
@@ -34,8 +37,28 @@ export default function SupportContactForm({ isDark = true }) {
       return;
     }
 
-    window.location.href = buildSupportMailto(form);
-    setForm(initialForm);
+    setSending(true);
+    setSentTicket(null);
+    try {
+      const token = auth.currentUser ? await auth.currentUser.getIdToken() : null;
+      const res = await fetch('/api/support/tickets', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ ...form, source: 'support_center' }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'Failed to send message.');
+      setSentTicket(data.ticketId);
+      setForm(initialForm);
+    } catch (err) {
+      setError(err.message || 'Failed to send message. Opening your email app instead.');
+      window.location.href = buildSupportMailto(form);
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -43,7 +66,7 @@ export default function SupportContactForm({ isDark = true }) {
       <div className={`px-6 py-5 border-b ${isDark ? 'border-white/10' : 'border-black/10'}`}>
         <h2 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-black'}`}>Contact Support</h2>
         <p className={`text-sm mt-2 ${isDark ? 'text-white/50' : 'text-black/60'}`}>
-          Fill out the form below and your email app will open a message addressed to {CONTACT_EMAIL}.
+          Fill out the form below and it will appear as a support ticket in the admin dashboard.
         </p>
       </div>
 
@@ -99,6 +122,13 @@ export default function SupportContactForm({ isDark = true }) {
           </div>
         )}
 
+        {sentTicket && (
+          <div className={`rounded-2xl px-4 py-3 text-sm border flex items-center gap-2 ${isDark ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-300' : 'bg-emerald-50 border-emerald-200 text-emerald-700'}`}>
+            <CheckCircle2 className="w-4 h-4" />
+            Message sent. Ticket {sentTicket.slice(0, 8)} is now in admin support.
+          </div>
+        )}
+
         <div className={`flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 border-t ${isDark ? 'border-white/10' : 'border-black/10'}`}>
           <div className={`flex items-center gap-2 text-sm ${isDark ? 'text-white/45' : 'text-black/55'}`}>
             <Mail className="w-4 h-4" />
@@ -106,10 +136,11 @@ export default function SupportContactForm({ isDark = true }) {
           </div>
           <button
             type="submit"
+            disabled={sending}
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl font-semibold bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:from-emerald-600 hover:to-teal-600 transition-all"
           >
-            <Send className="w-4 h-4" />
-            Send Message
+            {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+            {sending ? 'Sending...' : 'Send Message'}
           </button>
         </div>
       </form>

@@ -29,6 +29,9 @@ function initializeAdmin(): App | null {
     if (process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
       console.log('[Firebase Admin] Initializing with service account key');
       const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
+      if (typeof serviceAccount.private_key === 'string') {
+        serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
+      }
       return admin.initializeApp({
         credential: admin.credential.cert(serviceAccount),
       });

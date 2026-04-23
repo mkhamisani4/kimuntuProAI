@@ -3,6 +3,7 @@
 import React from 'react';
 import { Mail, MessageCircle, Phone } from 'lucide-react';
 import { useTheme } from '@/components/providers/ThemeProvider';
+import SupportContactForm from '@/components/SupportContactForm';
 
 const faqCategories = [
     {
@@ -161,6 +162,10 @@ export default function SupportPage() {
             <p className={`mb-8 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
                 Find answers to common questions or get in touch with our team.
             </p>
+
+            <div className="mb-10">
+                <SupportContactForm isDark={isDark} />
+            </div>
 
             {/* Contact Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">

@@ -71,6 +71,7 @@ export default function CheckoutPage() {
                         planId: plan.id,
                         userId: user?.uid,
                         userEmail: user?.email,
+                        billingCycle,
                     }),
                 });
                 const data = await res.json();

@@ -6,11 +6,8 @@ import {
   XCircle, AlertCircle, Search, Send, X, Loader2,
 } from 'lucide-react';
 import { useTheme } from '@/components/providers/ThemeProvider';
-import { db } from '@/lib/firebase';
-import {
-  collection, getDocs, updateDoc, doc,
-  query, orderBy,
-} from 'firebase/firestore';
+import { auth } from '@/lib/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 
 const STATUS_CFG = {
   open:        { label: 'Open',        color: 'text-blue-500',    bg: 'bg-blue-500/10',    icon: AlertCircle  },
@@ -26,6 +23,20 @@ const PRIORITY_CFG = {
   low:    { label: 'Low',    color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
 };
 
+async function getAdminHeaders(contentType = false) {
+  const user = auth.currentUser || await new Promise((resolve) => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      unsubscribe();
+      resolve(currentUser);
+    });
+  });
+  const token = user ? await user.getIdToken() : null;
+  return {
+    ...(contentType ? { 'Content-Type': 'application/json' } : {}),
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
+}
+
 /* ── Reply / status modal ───────────────────────────────────── */
 function ReplyModal({ ticket, onClose, onStatusChange, isDark }) {
   const [reply,   setReply]   = useState('');
@@ -40,13 +51,13 @@ function ReplyModal({ ticket, onClose, onStatusChange, isDark }) {
     if (saving) return;
     setSaving(true);
     try {
-      // Persist status change to Firestore
-      if (status !== ticket.status) {
-        await updateDoc(doc(db, 'support_tickets', ticket.id), { status });
-        onStatusChange(ticket.id, status);
-      }
-      // In a full implementation, replies would be stored in a subcollection.
-      // For now we just update the status and show confirmation.
+      const res = await fetch('/api/admin/support', {
+        method: 'PATCH',
+        headers: await getAdminHeaders(true),
+        body: JSON.stringify({ ticketId: ticket.id, status, reply }),
+      });
+      if (!res.ok) throw new Error('Failed to update support ticket');
+      onStatusChange(ticket.id, status, reply);
       setDone(true);
       setTimeout(onClose, 1200);
     } catch (err) {
@@ -86,7 +97,7 @@ function ReplyModal({ ticket, onClose, onStatusChange, isDark }) {
             rows={5}
             value={reply}
             onChange={(e) => setReply(e.target.value)}
-            placeholder="Type your response… (note: replies are not yet persisted — only status is saved)"
+            placeholder="Type your response note for the ticket..."
             className={`w-full px-3 py-2.5 rounded-xl text-sm border focus:outline-none focus:ring-2 focus:ring-emerald-500/20 resize-none ${
               isDark ? 'bg-white/5 border-white/10 text-white placeholder:text-white/20' : 'bg-white border-black/10 text-black placeholder:text-black/20'
             }`}
@@ -126,38 +137,29 @@ export default function SupportPage() {
   const rowHover = isDark ? 'hover:bg-white/[0.02]' : 'hover:bg-black/[0.02]';
   const thead    = isDark ? 'bg-white/[0.02]' : 'bg-gray-50';
 
-  /* ── Load tickets from Firestore ────────────────────────── */
+  /* ── Load tickets from admin API ────────────────────────── */
   useEffect(() => {
     const load = async () => {
       setLoading(true);
       try {
-        const snap = await getDocs(
-          query(collection(db, 'support_tickets'), orderBy('createdAt', 'desc')),
-        );
-        setTickets(snap.docs.map((d) => {
-          const data = d.data();
-          return {
-            id:       d.id,
-            user:     data.user     || data.userName || 'Unknown',
-            email:    data.email    || '',
-            subject:  data.subject  || '(no subject)',
-            status:   data.status   || 'open',
-            priority: data.priority || 'medium',
-            category: data.category || 'General',
-            created:  data.createdAt?.toDate?.()?.toISOString() ?? data.createdAt ?? new Date().toISOString(),
-            messages: data.messages || 0,
-          };
-        }));
+        const res = await fetch('/api/admin/support', { headers: await getAdminHeaders() });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || 'Failed to load support tickets');
+        setTickets(data.tickets || []);
       } catch (err) {
-        console.error('[Support] Firestore load error:', err);
+        console.error('[Support] Ticket load error:', err);
       }
       setLoading(false);
     };
     load();
   }, []);
 
-  const handleStatusChange = (id, newStatus) => {
-    setTickets((prev) => prev.map((t) => t.id === id ? { ...t, status: newStatus } : t));
+  const handleStatusChange = (id, newStatus, reply) => {
+    setTickets((prev) => prev.map((t) => (
+      t.id === id
+        ? { ...t, status: newStatus, messages: reply?.trim() ? (t.messages || 1) + 1 : t.messages }
+        : t
+    )));
   };
 
   const filtered = tickets.filter((t) => {
@@ -193,7 +195,7 @@ export default function SupportPage() {
           <div>
             <h1 className={`text-2xl font-bold ${text}`}>Support</h1>
             <p className={`text-sm mt-0.5 ${muted}`}>
-              Live tickets from Firestore <code className="text-xs opacity-60">support_tickets</code> collection.
+              Live tickets submitted from the support center and stored in Firestore.
             </p>
           </div>
           <div className="relative">

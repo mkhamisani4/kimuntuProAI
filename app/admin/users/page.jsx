@@ -7,33 +7,37 @@ import {
 } from 'lucide-react';
 import { useTheme } from '@/components/providers/ThemeProvider';
 import { auth } from '@/lib/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 
 const PLAN_LABEL = {
-  pro: 'Pro Launch Plan',
-  starter: 'Career Premium',
-  free: 'Legal Premium',
+  free: 'Free',
+  career: 'Career Premium',
   business: 'Business Premium',
+  legal: 'Legal Premium',
   innovation: 'Innovation Premium',
+  fullPackage: 'Full Package',
 };
 
 // Returns Tailwind classes based on isDark so plan badges look right in both modes
 function planBadgeClasses(key, isDark) {
   const map = {
-    pro:        isDark ? 'bg-emerald-500/15 text-emerald-400' : 'bg-emerald-50 text-emerald-700',
-    starter:    isDark ? 'bg-sky-500/15 text-sky-400'         : 'bg-sky-50 text-sky-700',
+    fullPackage: isDark ? 'bg-emerald-500/15 text-emerald-400' : 'bg-emerald-50 text-emerald-700',
+    career:      isDark ? 'bg-sky-500/15 text-sky-400'         : 'bg-sky-50 text-sky-700',
     business:   isDark ? 'bg-violet-500/15 text-violet-400'   : 'bg-violet-50 text-violet-700',
-    free:       isDark ? 'bg-amber-500/15 text-amber-400'     : 'bg-amber-50 text-amber-700',
+    legal:      isDark ? 'bg-amber-500/15 text-amber-400'     : 'bg-amber-50 text-amber-700',
     innovation: isDark ? 'bg-pink-500/15 text-pink-400'       : 'bg-pink-50 text-pink-700',
+    free:       isDark ? 'bg-white/10 text-white/60'          : 'bg-black/5 text-black/50',
   };
   return map[key] || (isDark ? 'bg-white/10 text-white/60' : 'bg-black/5 text-black/50');
 }
 
 const PLAN_COLOR = {
-  pro:        { bar: '#10b981' },
-  starter:    { bar: '#0ea5e9' },
+  fullPackage: { bar: '#10b981' },
+  career:     { bar: '#0ea5e9' },
   business:   { bar: '#8b5cf6' },
-  free:       { bar: '#f59e0b' },
+  legal:      { bar: '#f59e0b' },
   innovation: { bar: '#ec4899' },
+  free:       { bar: '#94a3b8' },
 };
 
 function getPlanColor(key) {
@@ -143,7 +147,14 @@ function Donut({ slices, total, isDark }) {
   );
 }
 
-function planKey(u) { return (u.subscriptionTier || 'free').toLowerCase(); }
+function planKey(u) {
+  const key = u.subscriptionTier || 'free';
+  const legacyMap = {
+    pro: 'fullPackage',
+    starter: 'career',
+  };
+  return legacyMap[key] || key;
+}
 
 function aiUsagePct(u) {
   return 30 + (hash(u.uid) % 65);
@@ -213,11 +224,12 @@ async function exportUsersPDF(users) {
 }
 
 const PLAN_OPTIONS = [
-  { value: 'pro', label: 'Pro Launch Plan' },
-  { value: 'starter', label: 'Career Premium' },
+  { value: 'fullPackage', label: 'Full Package' },
+  { value: 'career', label: 'Career Premium' },
   { value: 'business', label: 'Business Premium' },
-  { value: 'free', label: 'Legal Premium' },
+  { value: 'legal', label: 'Legal Premium' },
   { value: 'innovation', label: 'Innovation Premium' },
+  { value: 'free', label: 'Free' },
 ];
 
 function Modal({ title, onClose, onSubmit, submitting, isDark, children }) {
@@ -304,10 +316,10 @@ export default function AdminUsersPage() {
   const [sortOrder, setSortOrder] = useState('newest');
   const [page, setPage] = useState(1);
   const [showAddModal, setShowAddModal] = useState(false);
-  const [addForm, setAddForm] = useState({ firstName: '', lastName: '', email: '', subscriptionTier: 'pro' });
+  const [addForm, setAddForm] = useState({ firstName: '', lastName: '', email: '', subscriptionTier: 'fullPackage' });
   const [addSubmitting, setAddSubmitting] = useState(false);
   const [editUser, setEditUser] = useState(null); // user object being edited
-  const [editForm, setEditForm] = useState({ firstName: '', lastName: '', email: '', subscriptionTier: 'pro' });
+  const [editForm, setEditForm] = useState({ firstName: '', lastName: '', email: '', subscriptionTier: 'fullPackage' });
   const [editSubmitting, setEditSubmitting] = useState(false);
   const [openRoleDropdown, setOpenRoleDropdown] = useState(null); // uid of open dropdown
   const [pwUser, setPwUser] = useState(null); // user whose password is being changed
@@ -318,8 +330,22 @@ export default function AdminUsersPage() {
   const [showPwConfirm, setShowPwConfirm] = useState(false);
   const pageSize = 10;
 
+  const waitForCurrentUser = () =>
+    new Promise((resolve) => {
+      if (auth.currentUser) {
+        resolve(auth.currentUser);
+        return;
+      }
+
+      const unsubscribe = onAuthStateChanged(auth, (user) => {
+        unsubscribe();
+        resolve(user);
+      });
+    });
+
   const getAuthHeaders = async (extra = {}) => {
-    const token = await auth.currentUser?.getIdToken();
+    const user = await waitForCurrentUser();
+    const token = await user?.getIdToken();
     return {
       ...extra,
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -390,7 +416,7 @@ export default function AdminUsersPage() {
       const data = await res.json();
       setUsers((prev) => [data.user, ...prev]);
       setShowAddModal(false);
-      setAddForm({ firstName: '', lastName: '', email: '', subscriptionTier: 'pro' });
+      setAddForm({ firstName: '', lastName: '', email: '', subscriptionTier: 'fullPackage' });
     } catch (err) { alert(err.message); }
     finally { setAddSubmitting(false); }
   };
@@ -466,7 +492,7 @@ export default function AdminUsersPage() {
     const day7 = 7 * 86400 * 1000;
     const total = users.length;
     const newUsers = users.filter((u) => u.createdAt && now - new Date(u.createdAt).getTime() < day30).length;
-    const premium = users.filter((u) => ['pro', 'business', 'innovation'].includes(planKey(u))).length;
+    const premium = users.filter((u) => ['career', 'business', 'legal', 'innovation', 'fullPackage'].includes(planKey(u))).length;
     const active = users.filter((u) => !u.disabled && u.lastSignIn && now - new Date(u.lastSignIn).getTime() < day7).length;
     const inactive = users.filter((u) => u.disabled || !u.lastSignIn || now - new Date(u.lastSignIn).getTime() >= day7).length;
     return { total, newUsers, premium, active, inactive };
@@ -504,7 +530,7 @@ export default function AdminUsersPage() {
   useEffect(() => { setPage(1); }, [searchQuery, planFilter, statusFilter, sortOrder]);
 
   const planSlices = useMemo(() => {
-    const buckets = { pro: 0, starter: 0, business: 0, free: 0, innovation: 0 };
+    const buckets = { fullPackage: 0, career: 0, business: 0, legal: 0, innovation: 0, free: 0 };
     users.forEach((u) => { buckets[planKey(u)] = (buckets[planKey(u)] || 0) + 1; });
     return Object.entries(buckets)
       .filter(([, v]) => v > 0)
@@ -607,11 +633,12 @@ export default function AdminUsersPage() {
           <select value={planFilter} onChange={(e) => setPlanFilter(e.target.value)}
             className={`rounded-xl border px-3 py-2 text-sm ${border} ${isDark ? 'bg-white/5 text-white' : 'bg-white text-black'}`}>
             <option value="all">Plan: All</option>
-            <option value="pro">Pro Launch</option>
-            <option value="starter">Career</option>
+            <option value="fullPackage">Full Package</option>
+            <option value="career">Career</option>
             <option value="business">Business</option>
-            <option value="free">Legal</option>
+            <option value="legal">Legal</option>
             <option value="innovation">Innovation</option>
+            <option value="free">Free</option>
           </select>
           <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}
             className={`rounded-xl border px-3 py-2 text-sm ${border} ${isDark ? 'bg-white/5 text-white' : 'bg-white text-black'}`}>

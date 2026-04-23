@@ -8,6 +8,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import * as admin from 'firebase-admin';
 import { adminApp, adminDb } from '@kimuntupro/db/firebase/admin';
 
+class AdminAuthError extends Error {
+  status: number;
+
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = 'AdminAuthError';
+    this.status = status;
+  }
+}
+
 /**
  * Verify request comes from an authenticated admin user.
  * Returns the decoded token uid on success, throws on failure.
@@ -17,40 +27,43 @@ async function verifyAdmin(req: NextRequest): Promise<string> {
   const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
 
   if (!token) {
-    throw new Error('Missing authorization token');
+    throw new AdminAuthError('Missing authorization token', 401);
   }
 
   if (!adminApp) {
-    throw new Error('Firebase Admin SDK not initialized. Set FIREBASE_SERVICE_ACCOUNT_KEY.');
+    throw new AdminAuthError('Firebase Admin SDK not initialized. Set FIREBASE_SERVICE_ACCOUNT_KEY.', 503);
   }
 
   const decoded = await admin.auth(adminApp).verifyIdToken(token);
 
   // Check admin role in Firestore
   if (!adminDb) {
-    throw new Error('Admin Firestore not available');
+    throw new AdminAuthError('Admin Firestore not available', 503);
   }
   const userDoc = await adminDb.collection('users').doc(decoded.uid).get();
   if (!userDoc.exists || userDoc.data()?.role !== 'admin') {
-    throw new Error('Insufficient permissions');
+    throw new AdminAuthError(
+      `Insufficient permissions for ${decoded.email || decoded.uid}. Set users/${decoded.uid}.role to "admin".`,
+      403
+    );
   }
 
   return decoded.uid;
 }
 
 const MOCK_USERS = [
-  { uid: 'mock-001', email: 'james.okafor@gmail.com',      displayName: 'James Okafor',      disabled: false, createdAt: '2024-09-03T10:22:00Z', lastSignIn: '2026-04-12T08:14:00Z', role: 'admin',  subscriptionTier: 'pro',      subscriptionStatus: 'active' },
-  { uid: 'mock-002', email: 'amara.diallo@outlook.com',    displayName: 'Amara Diallo',      disabled: false, createdAt: '2024-10-17T14:05:00Z', lastSignIn: '2026-04-11T19:30:00Z', role: 'user',   subscriptionTier: 'pro',      subscriptionStatus: 'active' },
+  { uid: 'mock-001', email: 'james.okafor@gmail.com',      displayName: 'James Okafor',      disabled: false, createdAt: '2024-09-03T10:22:00Z', lastSignIn: '2026-04-12T08:14:00Z', role: 'admin',  subscriptionTier: 'fullPackage', subscriptionStatus: 'active' },
+  { uid: 'mock-002', email: 'amara.diallo@outlook.com',    displayName: 'Amara Diallo',      disabled: false, createdAt: '2024-10-17T14:05:00Z', lastSignIn: '2026-04-11T19:30:00Z', role: 'user',   subscriptionTier: 'fullPackage', subscriptionStatus: 'active' },
   { uid: 'mock-003', email: 'sofia.reyes@icloud.com',      displayName: 'Sofia Reyes',       disabled: false, createdAt: '2024-11-22T09:47:00Z', lastSignIn: '2026-04-10T11:55:00Z', role: 'user',   subscriptionTier: 'free',     subscriptionStatus: null },
-  { uid: 'mock-004', email: 'marcus.lee@yahoo.com',        displayName: 'Marcus Lee',        disabled: false, createdAt: '2025-01-08T16:33:00Z', lastSignIn: '2026-04-09T07:20:00Z', role: 'user',   subscriptionTier: 'starter',  subscriptionStatus: 'active' },
-  { uid: 'mock-005', email: 'priya.nair@gmail.com',        displayName: 'Priya Nair',        disabled: false, createdAt: '2025-02-14T12:00:00Z', lastSignIn: '2026-04-08T15:45:00Z', role: 'user',   subscriptionTier: 'pro',      subscriptionStatus: 'active' },
+  { uid: 'mock-004', email: 'marcus.lee@yahoo.com',        displayName: 'Marcus Lee',        disabled: false, createdAt: '2025-01-08T16:33:00Z', lastSignIn: '2026-04-09T07:20:00Z', role: 'user',   subscriptionTier: 'fullPackage',  subscriptionStatus: 'active' },
+  { uid: 'mock-005', email: 'priya.nair@gmail.com',        displayName: 'Priya Nair',        disabled: false, createdAt: '2025-02-14T12:00:00Z', lastSignIn: '2026-04-08T15:45:00Z', role: 'user',   subscriptionTier: 'fullPackage',      subscriptionStatus: 'active' },
   { uid: 'mock-006', email: 'david.mensah@hotmail.com',    displayName: 'David Mensah',      disabled: true,  createdAt: '2025-03-01T08:10:00Z', lastSignIn: '2026-03-20T10:00:00Z', role: 'user',   subscriptionTier: 'free',     subscriptionStatus: null },
-  { uid: 'mock-007', email: 'fatima.al-hassan@gmail.com',  displayName: 'Fatima Al-Hassan',  disabled: false, createdAt: '2025-03-19T17:55:00Z', lastSignIn: '2026-04-07T09:10:00Z', role: 'user',   subscriptionTier: 'starter',  subscriptionStatus: 'active' },
+  { uid: 'mock-007', email: 'fatima.al-hassan@gmail.com',  displayName: 'Fatima Al-Hassan',  disabled: false, createdAt: '2025-03-19T17:55:00Z', lastSignIn: '2026-04-07T09:10:00Z', role: 'user',   subscriptionTier: 'fullPackage',  subscriptionStatus: 'active' },
   { uid: 'mock-008', email: 'ethan.carter@protonmail.com', displayName: 'Ethan Carter',      disabled: false, createdAt: '2025-04-05T11:22:00Z', lastSignIn: '2026-04-06T20:30:00Z', role: 'user',   subscriptionTier: 'free',     subscriptionStatus: null },
-  { uid: 'mock-009', email: 'yuki.tanaka@gmail.com',       displayName: 'Yuki Tanaka',       disabled: false, createdAt: '2025-05-12T13:40:00Z', lastSignIn: '2026-04-05T14:00:00Z', role: 'user',   subscriptionTier: 'pro',      subscriptionStatus: 'trialing' },
-  { uid: 'mock-010', email: 'chloe.dupont@gmail.com',      displayName: 'Chloe Dupont',      disabled: false, createdAt: '2025-06-28T10:15:00Z', lastSignIn: '2026-04-04T18:25:00Z', role: 'user',   subscriptionTier: 'starter',  subscriptionStatus: 'active' },
+  { uid: 'mock-009', email: 'yuki.tanaka@gmail.com',       displayName: 'Yuki Tanaka',       disabled: false, createdAt: '2025-05-12T13:40:00Z', lastSignIn: '2026-04-05T14:00:00Z', role: 'user',   subscriptionTier: 'fullPackage',      subscriptionStatus: 'active' },
+  { uid: 'mock-010', email: 'chloe.dupont@gmail.com',      displayName: 'Chloe Dupont',      disabled: false, createdAt: '2025-06-28T10:15:00Z', lastSignIn: '2026-04-04T18:25:00Z', role: 'user',   subscriptionTier: 'fullPackage',  subscriptionStatus: 'active' },
   { uid: 'mock-011', email: 'kwame.asante@gmail.com',      displayName: 'Kwame Asante',      disabled: false, createdAt: '2025-07-04T09:00:00Z', lastSignIn: '2026-04-03T12:10:00Z', role: 'user',   subscriptionTier: 'free',     subscriptionStatus: null },
-  { uid: 'mock-012', email: 'isabella.rossi@gmail.com',    displayName: 'Isabella Rossi',    disabled: true,  createdAt: '2025-08-11T15:30:00Z', lastSignIn: '2026-02-14T08:00:00Z', role: 'user',   subscriptionTier: 'starter',  subscriptionStatus: 'canceled' },
+  { uid: 'mock-012', email: 'isabella.rossi@gmail.com',    displayName: 'Isabella Rossi',    disabled: true,  createdAt: '2025-08-11T15:30:00Z', lastSignIn: '2026-02-14T08:00:00Z', role: 'user',   subscriptionTier: 'fullPackage',  subscriptionStatus: 'active' },
 ];
 
 async function listAllAuthUsers() {
@@ -66,6 +79,15 @@ async function listAllAuthUsers() {
   return users;
 }
 
+const VALID_SUBSCRIPTION_TIERS = new Set([
+  'free',
+  'career',
+  'business',
+  'legal',
+  'innovation',
+  'fullPackage',
+]);
+
 /**
  * POST /api/admin/users
  * Body: { firstName, lastName, email, subscriptionTier }
@@ -74,9 +96,12 @@ async function listAllAuthUsers() {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { firstName, lastName, email, subscriptionTier = 'free' } = body;
+    const { firstName, lastName, email, subscriptionTier = 'fullPackage' } = body;
 
     if (!email) return NextResponse.json({ error: 'Email is required' }, { status: 400 });
+    if (!VALID_SUBSCRIPTION_TIERS.has(subscriptionTier)) {
+      return NextResponse.json({ error: 'Invalid subscription tier' }, { status: 400 });
+    }
 
     if (!adminApp || !adminDb) {
       const newUser = {
@@ -148,11 +173,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ users, source: 'firebase' }, { status: 200 });
   } catch (error: any) {
-    const status =
-      error.message === 'Missing authorization token' ||
-      error.message === 'Insufficient permissions'
-        ? 403
-        : 500;
+    const status = error.status || 500;
     return NextResponse.json({ error: error.message }, { status });
   }
 }

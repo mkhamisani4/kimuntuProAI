@@ -1,12 +1,20 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { collection, getDocs, orderBy, query, limit } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
-import { DollarSign, ArrowUpRight, CheckCircle2, XCircle, Users } from 'lucide-react';
+import { auth } from '@/lib/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
+import { DollarSign, ArrowUpRight, CheckCircle2, XCircle, Users, CreditCard } from 'lucide-react';
 import { useTheme } from '@/components/providers/ThemeProvider';
+import { PLAN_LABELS, getPlanPrice, normalizePlanId } from '@/lib/accessControl';
 
-const TIER_PRICES = { free: 0, starter: 15, pro: 49, enterprise: 199 };
+const TIER_PRICES = {
+  free: 0,
+  career: 19.99,
+  business: 29.99,
+  legal: 29.99,
+  innovation: 79.99,
+  fullPackage: 99,
+};
 
 const MOCK_SUBSCRIBERS = [
   { uid: 'mock-001', email: 'james.okafor@gmail.com',      subscriptionTier: 'pro',      subscriptionStatus: 'active',   createdAt: '2024-09-03T10:22:00Z' },
@@ -25,6 +33,17 @@ const MOCK_SUBSCRIBERS = [
   { uid: 'mock-014', email: 'layla.kim@icloud.com',        subscriptionTier: 'starter',  subscriptionStatus: 'active',   createdAt: '2025-09-20T14:30:00Z' },
   { uid: 'mock-015', email: 'tom.nguyen@gmail.com',        subscriptionTier: 'free',     subscriptionStatus: null,       createdAt: '2025-10-05T11:00:00Z' },
 ];
+
+async function getAdminHeaders() {
+  const user = auth.currentUser || await new Promise((resolve) => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      unsubscribe();
+      resolve(currentUser);
+    });
+  });
+  const token = user ? await user.getIdToken() : null;
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
 
 function StatCard({ label, value, sub, icon: Icon }) {
   const { isDark } = useTheme();
@@ -50,23 +69,26 @@ function StatCard({ label, value, sub, icon: Icon }) {
 export default function AdminPaymentsPage() {
   const { isDark } = useTheme();
   const [subscribers, setSubscribers] = useState([]);
+  const [stripeHealth, setStripeHealth] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (process.env.NODE_ENV !== 'production') {
-      setSubscribers(MOCK_SUBSCRIBERS);
-      setLoading(false);
-      return;
-    }
     const fetchData = async () => {
       try {
-        const snap = await getDocs(
-          query(collection(db, 'users'), orderBy('createdAt', 'desc'), limit(100))
-        );
-        setSubscribers(snap.docs.map((d) => ({ uid: d.id, ...d.data() })));
+        const headers = await getAdminHeaders();
+        const [usersRes, stripeRes] = await Promise.all([
+          fetch('/api/admin/users', { headers }),
+          fetch('/api/admin/payments/stripe', { headers }),
+        ]);
+        const usersData = await usersRes.json().catch(() => ({}));
+        const stripeData = await stripeRes.json().catch(() => ({}));
+        if (!usersRes.ok) throw new Error(usersData.error || 'Failed to load users');
+        setSubscribers(usersData.users || MOCK_SUBSCRIBERS);
+        setStripeHealth(stripeData);
       } catch (err) {
         setError(err.message);
+        setSubscribers(MOCK_SUBSCRIBERS);
       } finally {
         setLoading(false);
       }
@@ -74,8 +96,8 @@ export default function AdminPaymentsPage() {
     fetchData();
   }, []);
 
-  const paid = subscribers.filter((u) => u.subscriptionTier && u.subscriptionTier !== 'free');
-  const mrr = paid.reduce((sum, u) => sum + (TIER_PRICES[u.subscriptionTier] || 0), 0);
+  const paid = subscribers.filter((u) => normalizePlanId(u.subscriptionTier) !== 'free');
+  const mrr = paid.reduce((sum, u) => sum + getPlanPrice(u.subscriptionTier), 0);
   const active = paid.filter((u) => !u.subscriptionStatus || u.subscriptionStatus === 'active').length;
 
   const th = `py-4 px-6 text-left text-sm font-semibold ${isDark ? 'text-white/50' : 'text-black/50'}`;
@@ -92,6 +114,35 @@ export default function AdminPaymentsPage() {
         <StatCard label="Paid Subscribers" value={active} sub={`${paid.length} total with a plan`} icon={CheckCircle2} />
         <StatCard label="Total Users" value={subscribers.length} sub={`${subscribers.length - paid.length} on free tier`} icon={Users} />
       </div>
+
+      {stripeHealth && (
+        <div className={`rounded-2xl border p-5 mb-8 ${isDark ? 'bg-white/[0.03] border-white/10' : 'bg-white border-black/5 shadow-sm'}`}>
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className={`p-2 rounded-xl ${stripeHealth.ready ? 'bg-emerald-500/10' : 'bg-amber-500/10'}`}>
+                <CreditCard className={`w-5 h-5 ${stripeHealth.ready ? 'text-emerald-500' : 'text-amber-500'}`} />
+              </div>
+              <div>
+                <h2 className={`font-semibold ${isDark ? 'text-white' : 'text-black'}`}>Stripe Integration</h2>
+                <p className={`text-sm ${isDark ? 'text-white/50' : 'text-black/50'}`}>
+                  {stripeHealth.ready
+                    ? 'Stripe is configured and reachable.'
+                    : stripeHealth.stripeError || 'Stripe setup is incomplete.'}
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {Object.entries(stripeHealth.configured || {}).map(([key, ok]) => (
+                <span key={key} className={`rounded-lg px-2.5 py-1 text-xs font-medium ${
+                  ok ? 'bg-emerald-500/10 text-emerald-500' : 'bg-red-500/10 text-red-500'
+                }`}>
+                  {key}: {ok ? 'ok' : 'missing'}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {loading && (
         <div className="flex items-center justify-center h-48">
@@ -131,7 +182,7 @@ export default function AdminPaymentsPage() {
                     </td>
                   </tr>
                 ) : subscribers.map((user) => {
-                  const tier = user.subscriptionTier || 'free';
+                  const tier = normalizePlanId(user.subscriptionTier);
                   const price = TIER_PRICES[tier] || 0;
                   const status = user.subscriptionStatus || (tier === 'free' ? 'free' : 'active');
                   return (
@@ -143,7 +194,7 @@ export default function AdminPaymentsPage() {
                         <span className={`inline-flex items-center rounded-lg px-2 py-1 text-xs font-medium border capitalize ${
                           isDark ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-emerald-50 text-emerald-700 border-emerald-200'
                         }`}>
-                          {tier}
+                          {PLAN_LABELS[tier] || tier}
                         </span>
                       </td>
                       <td className={`py-4 px-6 text-sm font-medium ${isDark ? 'text-white' : 'text-black'}`}>

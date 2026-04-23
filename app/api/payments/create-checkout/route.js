@@ -8,10 +8,12 @@
  */
 
 import { NextResponse } from 'next/server';
+import Stripe from 'stripe';
+import { PLANS } from '@/lib/payments';
 
 export async function POST(request) {
   try {
-    const { planId, userId, userEmail } = await request.json();
+    const { planId, userId, userEmail, billingCycle = 'monthly' } = await request.json();
 
     // ─── Validate ───
     if (!planId || !userId) {
@@ -21,35 +23,34 @@ export async function POST(request) {
     const useReal = process.env.NEXT_PUBLIC_USE_REAL_PAYMENTS === 'true';
 
     if (useReal) {
-      // ══════════════════════════════════════════════
-      // REAL STRIPE — uncomment when you're ready
-      // ══════════════════════════════════════════════
-      //
-      // const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-      //
-      // const prices = {
-      //   monthly: process.env.NEXT_PUBLIC_STRIPE_MONTHLY_PRICE_ID,
-      //   yearly: process.env.NEXT_PUBLIC_STRIPE_YEARLY_PRICE_ID,
-      // };
-      //
-      // const session = await stripe.checkout.sessions.create({
-      //   mode: 'subscription',
-      //   payment_method_types: ['card'],
-      //   customer_email: userEmail,
-      //   metadata: { userId, planId },
-      //   line_items: [{ price: prices[planId], quantity: 1 }],
-      //   success_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      //   cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/pricing`,
-      // });
-      //
-      // return NextResponse.json({ url: session.url });
-      //
-      // ══════════════════════════════════════════════
+      if (!process.env.STRIPE_SECRET_KEY) {
+        return NextResponse.json({ error: 'STRIPE_SECRET_KEY is not configured' }, { status: 503 });
+      }
+      const plan = PLANS[planId];
+      if (!plan || plan.id === 'free') {
+        return NextResponse.json({ error: 'Invalid paid plan' }, { status: 400 });
+      }
+      const priceId = billingCycle === 'yearly' ? plan.stripePriceIdYearly : plan.stripePriceIdMonthly;
+      if (!priceId || priceId.includes('REPLACE')) {
+        return NextResponse.json({ error: `Stripe price ID is missing for ${plan.name} (${billingCycle})` }, { status: 503 });
+      }
 
-      return NextResponse.json(
-        { error: 'Real payments enabled but Stripe code is still commented out. See PAYMENTS.md Step 5.' },
-        { status: 501 }
-      );
+      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || request.nextUrl.origin;
+      const session = await stripe.checkout.sessions.create({
+        mode: 'subscription',
+        payment_method_types: ['card'],
+        customer_email: userEmail,
+        metadata: { userId, planId, billingCycle },
+        subscription_data: {
+          metadata: { userId, planId, billingCycle },
+        },
+        line_items: [{ price: priceId, quantity: 1 }],
+        success_url: `${appUrl}/dashboard/subscription?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${appUrl}/dashboard/pricing?checkout=cancelled`,
+      });
+
+      return NextResponse.json({ url: session.url });
     }
 
     // ─── Mock mode ───

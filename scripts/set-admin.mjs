@@ -8,21 +8,20 @@
  */
 
 import admin from 'firebase-admin';
-import { readFileSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import nextEnv from '@next/env';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-// Load .env.local manually
-const envPath = resolve(__dirname, '../.env.local');
-const envLines = readFileSync(envPath, 'utf8').split('\n');
-for (const line of envLines) {
-  const [key, ...rest] = line.split('=');
-  if (key && rest.length) process.env[key.trim()] = rest.join('=').trim();
-}
+// Load .env.local the same way Next does, including quoted JSON values.
+const { loadEnvConfig } = nextEnv;
+loadEnvConfig(resolve(__dirname, '..'));
 
 const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
+if (typeof serviceAccount.private_key === 'string') {
+  serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
+}
 
 if (!admin.apps.length) {
   admin.initializeApp({
@@ -90,5 +89,5 @@ if (uid) {
   uid = snap.docs[0].id;
 }
 
-console.log(`\n✓ ${target.email} (${target.uid}) is now an admin.\n`);
+console.log(`\n✓ ${targetEmail} (${uid}) is now an admin.\n`);
 process.exit(0);

@@ -1,22 +1,35 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Settings2, Zap, Cpu, Layers, ShieldAlert, Globe, Calendar, FileText, BarChart2, Bot, Languages } from 'lucide-react';
+import { Settings2, Zap, Briefcase, Scale, Rocket, FileText, LayoutDashboard, Lock } from 'lucide-react';
 import { useTheme } from '@/components/providers/ThemeProvider';
+import { auth } from '@/lib/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
+import { PLAN_IDS, PLAN_LABELS, TRACK_LABELS } from '@/lib/accessControl';
 
 const ICON_MAP = {
-  'legal-ai':             Cpu,
-  'immigration-assistant': Globe,
-  'document-upload':      FileText,
-  'judicial-prediction':  BarChart2,
-  'collaboration':        Zap,
-  'analytics':            Layers,
-  'export-formats':       ShieldAlert,
-  'ai-avatar':            Bot,
-  'calendar-deadlines':   Calendar,
-  'multi-language':       Languages,
+  career: Briefcase,
+  business: Zap,
+  legal: Scale,
+  innovation: Rocket,
+  documents: FileText,
+  platform: LayoutDashboard,
 };
-const getIcon = (id) => ICON_MAP[id] || Settings2;
+const getIcon = (track) => ICON_MAP[track] || Settings2;
+
+async function getAdminHeaders(contentType = false) {
+  const user = auth.currentUser || await new Promise((resolve) => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      unsubscribe();
+      resolve(currentUser);
+    });
+  });
+  const token = user ? await user.getIdToken() : null;
+  return {
+    ...(contentType ? { 'Content-Type': 'application/json' } : {}),
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
+}
 
 export default function AdminFeaturesPage() {
   const { isDark } = useTheme();
@@ -27,7 +40,8 @@ export default function AdminFeaturesPage() {
   const [dirty, setDirty] = useState(false);
 
   useEffect(() => {
-    fetch('/api/admin/features')
+    getAdminHeaders()
+      .then((headers) => fetch('/api/admin/features', { headers }))
       .then((r) => r.ok ? r.json() : Promise.reject('Failed to load feature flags'))
       .then((d) => setFeatures(d.features || []))
       .catch((e) => setError(String(e)))
@@ -39,12 +53,23 @@ export default function AdminFeaturesPage() {
     setDirty(true);
   };
 
+  const togglePlan = (id, plan) => {
+    setFeatures((prev) => prev.map((f) => {
+      if (f.id !== id) return f;
+      const current = new Set(f.requiredPlans || []);
+      if (current.has(plan)) current.delete(plan);
+      else current.add(plan);
+      return { ...f, requiredPlans: Array.from(current) };
+    }));
+    setDirty(true);
+  };
+
   const handleSave = async () => {
     setSaving(true);
     try {
       const res = await fetch('/api/admin/features', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: await getAdminHeaders(true),
         body: JSON.stringify({ features }),
       });
       if (!res.ok) throw new Error('Failed to save');
@@ -61,7 +86,7 @@ export default function AdminFeaturesPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
         <div>
           <h1 className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-black'}`}>Feature Flags</h1>
-          <p className={`mt-1 ${isDark ? 'text-white/50' : 'text-black/50'}`}>Manage global feature rollouts and tier-based access.</p>
+          <p className={`mt-1 ${isDark ? 'text-white/50' : 'text-black/50'}`}>Manage each track tool and choose which plans can access it.</p>
         </div>
         <button
           onClick={handleSave}
@@ -101,7 +126,7 @@ export default function AdminFeaturesPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {features.map((feature) => {
-          const Icon = getIcon(feature.id);
+          const Icon = getIcon(feature.track);
           return (
             <div
               key={feature.id}
@@ -127,7 +152,7 @@ export default function AdminFeaturesPage() {
                     <span className={`text-xs px-2 py-0.5 rounded-full border mt-1 inline-block ${
                       isDark ? 'bg-white/5 text-white/40 border-white/10' : 'bg-black/5 text-black/40 border-black/10'
                     }`}>
-                      Tier: {feature.tier || 'All'}
+                      {TRACK_LABELS[feature.track] || feature.track || 'Platform'}
                     </span>
                   </div>
                 </div>
@@ -157,6 +182,33 @@ export default function AdminFeaturesPage() {
               <p className={`mt-4 text-sm leading-relaxed ${isDark ? 'text-white/50' : 'text-black/50'}`}>
                 {feature.description}
               </p>
+              <div className="mt-5">
+                <div className={`mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] ${isDark ? 'text-white/35' : 'text-black/40'}`}>
+                  <Lock className="w-3.5 h-3.5" />
+                  Plan Access
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {PLAN_IDS.map((plan) => {
+                    const selected = (feature.requiredPlans || []).includes(plan);
+                    return (
+                      <button
+                        type="button"
+                        key={plan}
+                        onClick={() => togglePlan(feature.id, plan)}
+                        className={`rounded-lg border px-2.5 py-2 text-xs font-medium transition-all ${
+                          selected
+                            ? 'bg-emerald-500 text-white border-emerald-500'
+                            : isDark
+                              ? 'border-white/10 text-white/50 hover:bg-white/5'
+                              : 'border-black/10 text-black/55 hover:bg-black/[0.04]'
+                        }`}
+                      >
+                        {PLAN_LABELS[plan]}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
           );
         })}

@@ -7,79 +7,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import * as admin from 'firebase-admin';
 import { adminApp, adminDb } from '@kimuntupro/db/firebase/admin';
-
-const DEFAULT_FLAGS = [
-  {
-    id: 'legal-ai',
-    name: 'Advanced Legal AI Model',
-    description: 'Use the latest highly-accurate AI model for legal document analysis, case predictions, and outcome forecasting.',
-    enabled: true,
-    tier: 'Pro',
-  },
-  {
-    id: 'immigration-assistant',
-    name: 'Immigration Assistant',
-    description: 'AI-powered immigration guidance including visa eligibility checks, form preparation, and step-by-step filing instructions.',
-    enabled: true,
-    tier: 'All',
-  },
-  {
-    id: 'document-upload',
-    name: 'Document Upload & Analysis',
-    description: 'Allow users to upload PDFs and images for AI extraction and analysis. Supports contracts, court filings, and identity documents.',
-    enabled: true,
-    tier: 'Starter',
-  },
-  {
-    id: 'judicial-prediction',
-    name: 'Judicial Outcome Predictor',
-    description: 'Predicts likely case outcomes based on historical rulings, judge profiles, and case similarity scoring.',
-    enabled: true,
-    tier: 'Pro',
-  },
-  {
-    id: 'collaboration',
-    name: 'Real-time Collaboration',
-    description: 'Allow multiple users to review and annotate the same document or business plan simultaneously.',
-    enabled: false,
-    tier: 'Enterprise',
-  },
-  {
-    id: 'analytics',
-    name: 'Beta Analytics Dashboard',
-    description: 'Early access to the new visual metrics dashboard showing usage trends, AI query volume, and feature adoption by tier.',
-    enabled: true,
-    tier: 'All',
-  },
-  {
-    id: 'export-formats',
-    name: 'Priority Export Formats',
-    description: 'Export AI-generated reports, action plans, and case summaries to Word (.docx) and advanced PDF formats.',
-    enabled: true,
-    tier: 'Pro',
-  },
-  {
-    id: 'ai-avatar',
-    name: 'AI Legal Avatar',
-    description: 'Interactive 3D avatar that walks users through their legal situation in plain language. Powered by HeyGen LiveAvatar.',
-    enabled: false,
-    tier: 'Enterprise',
-  },
-  {
-    id: 'calendar-deadlines',
-    name: 'Legal Deadline Calendar',
-    description: 'Automatically extract filing deadlines and court dates from documents and sync them to the user\'s calendar.',
-    enabled: true,
-    tier: 'Starter',
-  },
-  {
-    id: 'multi-language',
-    name: 'Multi-language Support',
-    description: 'Translate AI responses and UI into Spanish, French, Arabic, and Mandarin for non-English speaking users.',
-    enabled: false,
-    tier: 'All',
-  },
-];
+import { DEFAULT_FEATURE_FLAGS, PLAN_IDS, mergeFeatureDefaults } from '@/lib/accessControl';
 
 async function verifyAdmin(req: NextRequest): Promise<string> {
   const authHeader = req.headers.get('Authorization') || '';
@@ -105,30 +33,26 @@ async function verifyAdmin(req: NextRequest): Promise<string> {
  */
 export async function GET(req: NextRequest) {
   try {
-    if (process.env.NODE_ENV !== 'production') {
-      return NextResponse.json({ features: DEFAULT_FLAGS });
+    if (!adminDb) {
+      return NextResponse.json({ features: DEFAULT_FEATURE_FLAGS, source: 'defaults' });
     }
 
     await verifyAdmin(req);
-
-    if (!adminDb) {
-      return NextResponse.json({ features: DEFAULT_FLAGS });
-    }
 
     const snap = await adminDb.collection('feature_flags').get();
 
     if (snap.empty) {
       // Seed defaults
       const batch = adminDb.batch();
-      DEFAULT_FLAGS.forEach((flag) => {
+      DEFAULT_FEATURE_FLAGS.forEach((flag) => {
         batch.set(adminDb!.collection('feature_flags').doc(flag.id), flag);
       });
       await batch.commit();
-      return NextResponse.json({ features: DEFAULT_FLAGS });
+      return NextResponse.json({ features: DEFAULT_FEATURE_FLAGS, source: 'seeded' });
     }
 
-    const features = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-    return NextResponse.json({ features });
+    const features = mergeFeatureDefaults(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+    return NextResponse.json({ features, source: 'firebase' });
   } catch (error: any) {
     const status =
       error.message.includes('permissions') || error.message.includes('token') ? 403 : 500;
@@ -158,12 +82,17 @@ export async function PUT(req: NextRequest) {
 
     const batch = adminDb.batch();
     features.forEach((flag: any) => {
+      const requiredPlans = Array.isArray(flag.requiredPlans)
+        ? flag.requiredPlans.filter((plan: string) => PLAN_IDS.includes(plan))
+        : [];
       const ref = adminDb!.collection('feature_flags').doc(flag.id);
       batch.set(ref, {
         name: flag.name,
         description: flag.description,
+        track: flag.track || 'platform',
         enabled: Boolean(flag.enabled),
-        tier: flag.tier || 'All',
+        requiredPlans,
+        routes: Array.isArray(flag.routes) ? flag.routes : [],
       });
     });
     await batch.commit();

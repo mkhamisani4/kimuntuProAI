@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { Briefcase, Scale, Home, FileText, TrendingUp, HelpCircle, Sun, Moon, Rocket, Settings, CreditCard, Shield } from 'lucide-react';
+import { Briefcase, Scale, Home, FileText, TrendingUp, HelpCircle, Sun, Moon, Rocket, Settings, CreditCard, Shield, Lock } from 'lucide-react';
 import { auth, signOutUser } from '@/lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useTheme } from '@/components/providers/ThemeProvider';
@@ -12,6 +12,9 @@ import { ProfileButton } from '@/components/shared/ProfileButton';
 import Footer from '@/components/Footer';
 import FloatingChatbot from '@/components/FloatingChatbot';
 import Image from 'next/image';
+import DashboardAccessGate from '@/components/DashboardAccessGate';
+import { useAuth } from '@/hooks/useAuth';
+import { canAccessPath } from '@/lib/accessControl';
 
 export default function DashboardLayout({ children }) {
     const router = useRouter();
@@ -20,6 +23,7 @@ export default function DashboardLayout({ children }) {
     const { t } = useLanguage();
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
+    const { profile, features } = useAuth();
     
     // Pages where footer should be hidden
     const hideFooterPages = [
@@ -165,21 +169,46 @@ export default function DashboardLayout({ children }) {
                         {navItems.map((item) => {
                             const isActive = pathname === item.href ||
                                 (item.href !== '/dashboard' && pathname.startsWith(item.href));
+                            const isLocked = item.href.startsWith('/dashboard') && !canAccessPath(item.href, profile, features);
+                            const baseClass = `w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-left transition-all text-sm border`;
+                            const stateClass = isLocked
+                                ? isDark
+                                    ? 'text-white/25 bg-white/[0.02] border-white/5 cursor-not-allowed opacity-70'
+                                    : 'text-black/25 bg-black/[0.02] border-black/5 cursor-not-allowed opacity-70'
+                                : isActive
+                                    ? isDark
+                                        ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                                        : 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                    : isDark
+                                        ? 'text-white/50 hover:bg-white/5 hover:text-white border-transparent'
+                                        : 'text-black/50 hover:bg-black/5 hover:text-black border-transparent';
+                            const content = (
+                                <>
+                                    <item.icon className="w-[18px] h-[18px]" />
+                                    <span className="font-medium">{item.label}</span>
+                                    {isLocked && <Lock className="w-3.5 h-3.5 ml-auto opacity-80" />}
+                                </>
+                            );
+                            if (isLocked) {
+                                return (
+                                    <button
+                                        key={item.id}
+                                        type="button"
+                                        disabled
+                                        title="Locked by plan"
+                                        className={`${baseClass} ${stateClass}`}
+                                    >
+                                        {content}
+                                    </button>
+                                );
+                            }
                             return (
                                 <Link
                                     key={item.id}
                                     href={item.href}
-                                    className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-left transition-all text-sm ${isActive
-                                        ? isDark
-                                            ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                                            : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                                        : isDark
-                                            ? 'text-white/50 hover:bg-white/5 hover:text-white border border-transparent'
-                                            : 'text-black/50 hover:bg-black/5 hover:text-black border border-transparent'
-                                    }`}
+                                    className={`${baseClass} ${stateClass}`}
                                 >
-                                    <item.icon className="w-[18px] h-[18px]" />
-                                    <span className="font-medium">{item.label}</span>
+                                    {content}
                                 </Link>
                             );
                         })}
@@ -210,7 +239,7 @@ export default function DashboardLayout({ children }) {
 
                 <div className="flex-1 p-8">
                     <div className="max-w-7xl mx-auto">
-                        {children}
+                        <DashboardAccessGate>{children}</DashboardAccessGate>
                     </div>
                 </div>
             </div>

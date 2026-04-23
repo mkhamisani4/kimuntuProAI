@@ -8,6 +8,7 @@
  */
 
 import { NextResponse } from 'next/server';
+import { adminDb } from '@kimuntupro/db/firebase/admin';
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
@@ -20,27 +21,23 @@ export async function GET(request) {
   const useReal = process.env.NEXT_PUBLIC_USE_REAL_PAYMENTS === 'true';
 
   if (useReal) {
-    // ══════════════════════════════════════════════
-    // REAL MODE — uncomment when ready
-    // ══════════════════════════════════════════════
-    //
-    // const { getFirestore } = require('firebase-admin/firestore');
-    // const { initAdmin } = require('@/lib/firebaseAdmin');  // you'll create this
-    //
-    // initAdmin();
-    // const db = getFirestore();
-    // const userDoc = await db.collection('users').doc(uid).get();
-    // const data = userDoc.data();
-    //
-    // return NextResponse.json({
-    //   active: data?.subscriptionStatus === 'active',
-    //   planId: data?.planId || null,
-    //   currentPeriodEnd: data?.currentPeriodEnd || null,
-    // });
-    //
-    // ══════════════════════════════════════════════
-
-    return NextResponse.json({ active: false, mock: false });
+    if (!adminDb) {
+      return NextResponse.json({ error: 'Firebase Admin SDK not configured' }, { status: 503 });
+    }
+    const userDoc = await adminDb.collection('users').doc(uid).get();
+    const data = userDoc.exists ? userDoc.data() : {};
+    const planId = data?.subscriptionTier || data?.planId || 'free';
+    const status = data?.subscriptionStatus || (planId === 'free' ? null : 'active');
+    return NextResponse.json({
+      active: ['active', 'trialing'].includes(status),
+      planId,
+      status,
+      price: data?.subscriptionPrice || null,
+      currentPeriodEnd: data?.currentPeriodEnd || null,
+      stripeCustomerId: data?.stripeCustomerId || null,
+      stripeSubscriptionId: data?.stripeSubscriptionId || null,
+      mock: false,
+    });
   }
 
   // Mock mode

@@ -26,6 +26,23 @@ async function verifyAdmin(req: NextRequest): Promise<string> {
   return decoded.uid;
 }
 
+const VALID_SUBSCRIPTION_TIERS = new Set([
+  'free',
+  'career',
+  'business',
+  'legal',
+  'innovation',
+  'fullPackage',
+]);
+
+const VALID_SUBSCRIPTION_STATUSES = new Set([
+  'active',
+  'trialing',
+  'past_due',
+  'canceled',
+  'inactive',
+]);
+
 /**
  * PATCH /api/admin/users/[uid]
  * Body: { role: 'admin' | 'user' }
@@ -38,20 +55,20 @@ export async function PATCH(
     const { uid } = params;
     const body = await req.json();
 
-    if (process.env.NODE_ENV !== 'production') {
+    if (!adminApp || !adminDb) {
       const { role, displayName, email, subscriptionTier } = body;
       return NextResponse.json({ success: true, uid, role, displayName, email, subscriptionTier });
     }
 
     const adminUid = await verifyAdmin(req);
 
-    if (uid === adminUid) {
+    if (uid === adminUid && body.role !== undefined) {
       return NextResponse.json(
         { error: 'Cannot change your own role' },
         { status: 400 }
       );
     }
-    const { role, displayName, email, subscriptionTier } = body;
+    const { role, displayName, email, subscriptionTier, subscriptionStatus } = body;
 
     const firestoreUpdate: Record<string, any> = {};
 
@@ -62,7 +79,18 @@ export async function PATCH(
       firestoreUpdate.role = role;
     }
     if (displayName !== undefined) firestoreUpdate.displayName = displayName;
-    if (subscriptionTier !== undefined) firestoreUpdate.subscriptionTier = subscriptionTier;
+    if (subscriptionTier !== undefined) {
+      if (!VALID_SUBSCRIPTION_TIERS.has(subscriptionTier)) {
+        return NextResponse.json({ error: 'Invalid subscription tier' }, { status: 400 });
+      }
+      firestoreUpdate.subscriptionTier = subscriptionTier;
+    }
+    if (subscriptionStatus !== undefined) {
+      if (!VALID_SUBSCRIPTION_STATUSES.has(subscriptionStatus)) {
+        return NextResponse.json({ error: 'Invalid subscription status' }, { status: 400 });
+      }
+      firestoreUpdate.subscriptionStatus = subscriptionStatus;
+    }
 
     if (email !== undefined) {
       await admin.auth(adminApp!).updateUser(uid, { email });
@@ -94,7 +122,7 @@ export async function DELETE(
   try {
     const { uid } = params;
 
-    if (process.env.NODE_ENV !== 'production') {
+    if (!adminApp || !adminDb) {
       return NextResponse.json({ success: true, uid });
     }
 

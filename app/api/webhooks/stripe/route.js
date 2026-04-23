@@ -12,6 +12,8 @@
  */
 
 import { NextResponse } from 'next/server';
+import Stripe from 'stripe';
+import { adminDb } from '@kimuntupro/db/firebase/admin';
 
 export async function POST(request) {
   const useReal = process.env.NEXT_PUBLIC_USE_REAL_PAYMENTS === 'true';
@@ -20,87 +22,88 @@ export async function POST(request) {
     return NextResponse.json({ received: true, mock: true });
   }
 
-  // ══════════════════════════════════════════════════════════
-  // REAL STRIPE WEBHOOK — uncomment when ready (Step 6 in PAYMENTS.md)
-  // ══════════════════════════════════════════════════════════
-  //
-  // const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-  // const { getFirestore } = require('firebase-admin/firestore');
-  // const { initAdmin } = require('@/lib/firebaseAdmin');
-  //
-  // initAdmin();
-  // const db = getFirestore();
-  //
-  // const body = await request.text();
-  // const signature = request.headers.get('stripe-signature');
-  //
-  // let event;
-  // try {
-  //   event = stripe.webhooks.constructEvent(
-  //     body,
-  //     signature,
-  //     process.env.STRIPE_WEBHOOK_SECRET
-  //   );
-  // } catch (err) {
-  //   console.error('Webhook signature verification failed:', err.message);
-  //   return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
-  // }
-  //
-  // // Handle the event
-  // switch (event.type) {
-  //
-  //   case 'checkout.session.completed': {
-  //     const session = event.data.object;
-  //     const userId = session.metadata.userId;
-  //     const planId = session.metadata.planId;
-  //
-  //     await db.collection('users').doc(userId).update({
-  //       subscriptionStatus: 'active',
-  //       planId: planId,
-  //       stripeCustomerId: session.customer,
-  //       stripeSubscriptionId: session.subscription,
-  //       subscribedAt: new Date().toISOString(),
-  //     });
-  //     break;
-  //   }
-  //
-  //   case 'invoice.paid': {
-  //     // Recurring payment succeeded — keep subscription active
-  //     const invoice = event.data.object;
-  //     const subId = invoice.subscription;
-  //     // Find user by stripeSubscriptionId and update
-  //     // (you'd query Firestore for this)
-  //     break;
-  //   }
-  //
-  //   case 'invoice.payment_failed': {
-  //     // Payment failed — mark as past_due
-  //     const invoice = event.data.object;
-  //     // Find user and update subscriptionStatus to 'past_due'
-  //     break;
-  //   }
-  //
-  //   case 'customer.subscription.deleted': {
-  //     // Subscription fully cancelled
-  //     const subscription = event.data.object;
-  //     // Find user and update subscriptionStatus to 'cancelled'
-  //     break;
-  //   }
-  //
-  //   case 'customer.subscription.updated': {
-  //     // Plan changed, or cancel_at_period_end toggled
-  //     const subscription = event.data.object;
-  //     // Update user's planId, status, etc.
-  //     break;
-  //   }
-  //
-  //   default:
-  //     console.log(`Unhandled event type: ${event.type}`);
-  // }
-  //
-  // return NextResponse.json({ received: true });
-  //
-  // ══════════════════════════════════════════════════════════
+  if (!process.env.STRIPE_SECRET_KEY || !process.env.STRIPE_WEBHOOK_SECRET || !adminDb) {
+    return NextResponse.json({ error: 'Stripe webhook is not configured' }, { status: 503 });
+  }
 
-  return NextResponse.json({ received: true, mock: true });
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+  const body = await request.text();
+  const signature = request.headers.get('stripe-signature');
+
+  let event;
+  try {
+    event = stripe.webhooks.constructEvent(body, signature, process.env.STRIPE_WEBHOOK_SECRET);
+  } catch (err) {
+    console.error('Webhook signature verification failed:', err.message);
+    return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
+  }
+
+  const updateUserBySubscription = async (subscriptionId, update) => {
+    const snap = await adminDb
+      .collection('users')
+      .where('stripeSubscriptionId', '==', subscriptionId)
+      .limit(1)
+      .get();
+    if (!snap.empty) {
+      await snap.docs[0].ref.set(update, { merge: true });
+    }
+  };
+
+  switch (event.type) {
+    case 'checkout.session.completed': {
+      const session = event.data.object;
+      const userId = session.metadata?.userId;
+      const planId = session.metadata?.planId;
+      if (userId && planId) {
+        await adminDb.collection('users').doc(userId).set({
+          subscriptionTier: planId,
+          planId,
+          subscriptionStatus: 'active',
+          stripeCustomerId: session.customer,
+          stripeSubscriptionId: session.subscription,
+          billingCycle: session.metadata?.billingCycle || 'monthly',
+          subscribedAt: new Date().toISOString(),
+        }, { merge: true });
+      }
+      break;
+    }
+    case 'invoice.paid': {
+      const invoice = event.data.object;
+      if (invoice.subscription) {
+        await updateUserBySubscription(invoice.subscription, { subscriptionStatus: 'active' });
+      }
+      break;
+    }
+    case 'invoice.payment_failed': {
+      const invoice = event.data.object;
+      if (invoice.subscription) {
+        await updateUserBySubscription(invoice.subscription, { subscriptionStatus: 'past_due' });
+      }
+      break;
+    }
+    case 'customer.subscription.updated': {
+      const subscription = event.data.object;
+      await updateUserBySubscription(subscription.id, {
+        subscriptionStatus: subscription.status,
+        cancelAtPeriodEnd: subscription.cancel_at_period_end,
+        currentPeriodEnd: subscription.current_period_end
+          ? new Date(subscription.current_period_end * 1000).toISOString()
+          : null,
+      });
+      break;
+    }
+    case 'customer.subscription.deleted': {
+      const subscription = event.data.object;
+      await updateUserBySubscription(subscription.id, {
+        subscriptionTier: 'free',
+        subscriptionStatus: 'canceled',
+        cancelAtPeriodEnd: false,
+      });
+      break;
+    }
+    default:
+      console.log(`Unhandled Stripe event type: ${event.type}`);
+  }
+
+  return NextResponse.json({ received: true });
 }

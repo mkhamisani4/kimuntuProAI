@@ -42,6 +42,7 @@
     "react-dom": "^18.2.0",
     "react-hot-toast": "^2.6.0",
     "recharts": "^3.5.1",
+    "stripe": "^22.0.2",
     "three": "^0.183.2",
     "zod": "^3.25.76"
   },

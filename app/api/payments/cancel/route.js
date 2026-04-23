@@ -8,6 +8,8 @@
  */
 
 import { NextResponse } from 'next/server';
+import Stripe from 'stripe';
+import { adminDb } from '@kimuntupro/db/firebase/admin';
 
 export async function POST(request) {
   try {
@@ -20,40 +22,32 @@ export async function POST(request) {
     const useReal = process.env.NEXT_PUBLIC_USE_REAL_PAYMENTS === 'true';
 
     if (useReal) {
-      // ══════════════════════════════════════════════
-      // REAL MODE — uncomment when ready
-      // ══════════════════════════════════════════════
-      //
-      // const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-      // const { getFirestore } = require('firebase-admin/firestore');
-      // const { initAdmin } = require('@/lib/firebaseAdmin');
-      //
-      // initAdmin();
-      // const db = getFirestore();
-      // const userDoc = await db.collection('users').doc(userId).get();
-      // const stripeSubId = userDoc.data()?.stripeSubscriptionId;
-      //
-      // if (!stripeSubId) {
-      //   return NextResponse.json({ error: 'No active subscription found' }, { status: 404 });
-      // }
-      //
-      // // Cancel at end of billing period (not immediately)
-      // await stripe.subscriptions.update(stripeSubId, {
-      //   cancel_at_period_end: true,
-      // });
-      //
-      // await db.collection('users').doc(userId).update({
-      //   subscriptionStatus: 'cancelling',
-      // });
-      //
-      // return NextResponse.json({ success: true, cancelsAt: 'end_of_period' });
-      //
-      // ══════════════════════════════════════════════
+      if (!process.env.STRIPE_SECRET_KEY) {
+        return NextResponse.json({ error: 'STRIPE_SECRET_KEY is not configured' }, { status: 503 });
+      }
+      if (!adminDb) {
+        return NextResponse.json({ error: 'Firebase Admin SDK not configured' }, { status: 503 });
+      }
+      const userDoc = await adminDb.collection('users').doc(userId).get();
+      const stripeSubId = userDoc.data()?.stripeSubscriptionId;
+      if (!stripeSubId) {
+        return NextResponse.json({ error: 'No active Stripe subscription found' }, { status: 404 });
+      }
 
-      return NextResponse.json(
-        { error: 'Real payments enabled but Stripe code is still commented out.' },
-        { status: 501 }
-      );
+      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+      const subscription = await stripe.subscriptions.update(stripeSubId, {
+        cancel_at_period_end: true,
+      });
+
+      await adminDb.collection('users').doc(userId).set({
+        subscriptionStatus: 'canceled',
+        cancelAtPeriodEnd: true,
+        currentPeriodEnd: subscription.current_period_end
+          ? new Date(subscription.current_period_end * 1000).toISOString()
+          : null,
+      }, { merge: true });
+
+      return NextResponse.json({ success: true, cancelsAt: 'end_of_period' });
     }
 
     // Mock mode
