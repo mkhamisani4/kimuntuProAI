@@ -6,7 +6,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import * as admin from 'firebase-admin';
-import { adminApp, adminDb } from '@kimuntupro/db';
+import { adminApp, adminDb } from '@kimuntupro/db/firebase/admin';
 
 const DEFAULT_FLAGS = [
   {

@@ -21,6 +21,10 @@
     "./firebase/logos.server": {
       "types": "./src/firebase/logos.server.ts",
       "import": "./src/firebase/logos.server.ts"
+    },
+    "./firebase/admin": {
+      "types": "./src/firebase/admin.ts",
+      "import": "./src/firebase/admin.ts"
     }
   },
   "scripts": {

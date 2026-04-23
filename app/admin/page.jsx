@@ -17,15 +17,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useTheme } from '@/components/providers/ThemeProvider';
 import { auth } from '@/lib/firebase';
-
-/* ─── Notifications (exported so inbox page can share) ──────── */
-export const NOTIFICATIONS = [
-  { id: 0, type: 'warning', msg: 'High AI usage detected',        detail: 'AI request volume exceeded 150k/day threshold. Consider scaling compute resources.', time: '2 minutes ago' },
-  { id: 1, type: 'error',   msg: 'Payment failed for user #12345', detail: 'Stripe charge declined (insufficient funds). User notified via email automatically.', time: '15 minutes ago' },
-  { id: 2, type: 'info',    msg: 'New user registration spike',    detail: '3× normal signup rate observed in the last hour. Traffic source: organic search.', time: '1 hour ago' },
-  { id: 3, type: 'warning', msg: 'AI service latency high',        detail: 'p95 latency for the AI Chatbot assistant is 4.2 s (normal < 1.5 s). Investigating.', time: '2 hours ago' },
-  { id: 4, type: 'success', msg: 'Database backup completed',      detail: 'Full Firestore snapshot saved to Cloud Storage. Retention: 30 days.', time: '3 hours ago' },
-];
+import { NOTIFICATIONS } from '@/lib/adminNotifications';
 
 /* ─── Deterministic seeded random ───────────────────────────── */
 function seededRand(seed) {
@@ -207,7 +199,7 @@ function StatCard({ label, value, change, sub, icon: Icon, iconBg, iconColor, ch
 }
 
 /* ─── Alert icon helper ──────────────────────────────────────── */
-export function AlertIcon({ type }) {
+function AlertIcon({ type }) {
   if (type === 'warning') return <div className="p-1.5 rounded-lg bg-amber-500/10"><AlertTriangle className="w-4 h-4 text-amber-500" /></div>;
   if (type === 'error')   return <div className="p-1.5 rounded-lg bg-red-500/10"><XCircle className="w-4 h-4 text-red-500" /></div>;
   if (type === 'success') return <div className="p-1.5 rounded-lg bg-emerald-500/10"><CheckCircle2 className="w-4 h-4 text-emerald-500" /></div>;

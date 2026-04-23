@@ -11,8 +11,8 @@ import {
   db,
   doc,
   updateDoc,
-  increment,
 } from '@kimuntupro/db';
+import { increment } from 'firebase/firestore';
 
 type WebhookCampaign = {
   id: string;

@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { AlertTriangle, CheckCircle2, XCircle, Info, Bell, Check } from 'lucide-react';
 import { useTheme } from '@/components/providers/ThemeProvider';
-import { NOTIFICATIONS } from '@/app/admin/page';
+import { NOTIFICATIONS } from '@/lib/adminNotifications';
 
 const TYPE_META = {
   warning: { label: 'Warning',  bg: 'bg-amber-500/10',   text: 'text-amber-500',   border: 'border-amber-500/20',   icon: AlertTriangle },

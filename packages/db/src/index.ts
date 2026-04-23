@@ -6,6 +6,8 @@
 // Export Firebase client and utilities
 export * from './firebase/client';
 
+export { increment } from './firebase/client';
+
 // Export usage tracking functions (Firestore)
 export {
   recordUsage,

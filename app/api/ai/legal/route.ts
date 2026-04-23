@@ -181,7 +181,10 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         title: generateTitle(input, 'legal_analysis'),
         summary: generateSummary(response.sections),
         sections: response.sections,
-        sources: response.sources,
+        sources: response.sources.map((source, index) => ({
+          ...source,
+          title: source.title || source.url || `Source ${index + 1}`,
+        })),
         metadata: {
           model: response.metadata?.model || 'unknown',
           tokensUsed: tokensIn + tokensOut,
