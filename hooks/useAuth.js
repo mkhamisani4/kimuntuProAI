@@ -2,20 +2,17 @@
 
 import { useState, useEffect } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
-import { auth, db } from '@/lib/firebase';
-import { DEFAULT_FEATURE_FLAGS, normalizePlanId } from '@/lib/accessControl';
+import { auth } from '@/lib/firebase';
+import { DEFAULT_FEATURE_FLAGS } from '@/lib/accessControl';
 
-async function getClientProfile(currentUser) {
-  const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
-  const data = userDoc.exists() ? userDoc.data() : {};
-  const plan = normalizePlanId(data.subscriptionTier);
+function getTemporaryFullAccessProfile(currentUser, profile = {}) {
   return {
     uid: currentUser.uid,
-    email: currentUser.email || data.email || null,
-    role: data.role || 'user',
-    subscriptionTier: plan,
-    subscriptionStatus: data.subscriptionStatus || (plan === 'free' ? null : 'active'),
+    email: currentUser.email || profile.email || null,
+    // TEMPORARY OVERRIDE: every signed-in account is admin/fullPackage until production roles are restored.
+    role: 'admin',
+    subscriptionTier: 'fullPackage',
+    subscriptionStatus: 'active',
   };
 }
 
@@ -40,28 +37,14 @@ export function useAuth() {
           if (!response.ok) {
             throw new Error(data.error || 'Profile API failed');
           }
-          setIsAdmin(data.isAdmin === true);
-          setProfile(data.profile || null);
+          setIsAdmin(true);
+          setProfile(getTemporaryFullAccessProfile(currentUser, data.profile));
           setFeatures(data.features?.length ? data.features : DEFAULT_FEATURE_FLAGS);
         } catch (error) {
-          console.warn('[useAuth] Server profile unavailable, using client Firestore fallback:', error?.message);
-          try {
-            const clientProfile = await getClientProfile(currentUser);
-            setIsAdmin(clientProfile.role === 'admin');
-            setProfile(clientProfile);
-            setFeatures(DEFAULT_FEATURE_FLAGS);
-          } catch (fallbackError) {
-            console.warn('[useAuth] Client profile fallback failed:', fallbackError?.message);
-            setIsAdmin(false);
-            setProfile({
-              uid: currentUser.uid,
-              email: currentUser.email || null,
-              role: 'user',
-              subscriptionTier: 'free',
-              subscriptionStatus: null,
-            });
-            setFeatures(DEFAULT_FEATURE_FLAGS);
-          }
+          console.warn('[useAuth] Server profile unavailable, using temporary full-access profile:', error?.message);
+          setIsAdmin(true);
+          setProfile(getTemporaryFullAccessProfile(currentUser));
+          setFeatures(DEFAULT_FEATURE_FLAGS);
         }
       } else {
           setIsAdmin(false);
