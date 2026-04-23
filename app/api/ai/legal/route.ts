@@ -9,6 +9,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { requireAuthContext } from '@/lib/api/requireAuthContext';
 import { runLegalAnalysisAssistant } from '@kimuntupro/ai-core/assistants';
 import {
   createRequestContext,
@@ -66,13 +67,26 @@ async function extractFileText(file: File): Promise<string> {
 export async function POST(req: NextRequest): Promise<NextResponse> {
   let requestContext;
 
+  // Verify Firebase ID token
+  const authResult = await requireAuthContext(req);
+  if (!authResult.ok) return authResult.response;
+  const authedUid = authResult.auth.uid;
+
   try {
     const formData = await req.formData();
 
-    // Extract fields
+    // Extract fields — tenantId/userId are taken from the verified token, not the body.
     const input = formData.get('input') as string;
-    const tenantId = (formData.get('tenantId') as string) || 'demo-tenant';
-    const userId = formData.get('userId') as string;
+    const bodyTenantId = formData.get('tenantId') as string | null;
+    const bodyUserId = formData.get('userId') as string | null;
+    if ((bodyTenantId && bodyTenantId !== authedUid) || (bodyUserId && bodyUserId !== authedUid)) {
+      return NextResponse.json(
+        { error: 'forbidden', message: 'Identity in request does not match authenticated session.' },
+        { status: 403 }
+      );
+    }
+    const tenantId = authedUid;
+    const userId = authedUid;
     const jurisdiction = formData.get('jurisdiction') as string | null;
     const caseType = formData.get('caseType') as string | null;
 

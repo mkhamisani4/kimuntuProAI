@@ -7,6 +7,8 @@ import { Globe, Eye, Edit, Download, RefreshCw, Copy, Trash2 } from 'lucide-reac
 import StatusBadge, { StatusType } from './shared/StatusBadge';
 import EmptyState from './shared/EmptyState';
 import { useLanguage } from '@/components/providers/LanguageProvider';
+import { fetchAuthed } from '@/lib/api/fetchAuthed';
+import { toast } from '@/components/ai/Toast';
 
 interface WebsitesTabProps {
   tenantId: string;
@@ -21,6 +23,7 @@ export default function WebsitesTab({ tenantId, userId, limit = 8 }: WebsitesTab
   const [error, setError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
+  const [retryingId, setRetryingId] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -73,10 +76,39 @@ export default function WebsitesTab({ tenantId, userId, limit = 8 }: WebsitesTab
     router.push(`/dashboard/business/websites/${website.id}/edit`);
   };
 
-  const handleRetry = (website: Website, e: React.MouseEvent) => {
+  const handleRetry = async (website: Website, e: React.MouseEvent) => {
     e.stopPropagation();
-    // TODO: Implement retry logic
-    console.log('Retry website generation:', website.id);
+    if (retryingId || !website.id) return;
+
+    setRetryingId(website.id);
+    const toastId = toast.loading('Retrying website generation...');
+    try {
+      const res = await fetchAuthed(`/api/websites/${website.id}/regenerate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tenantId,
+          userId,
+          wizardInput: website.wizardInput,
+          businessPlan: website.businessPlanId ? { id: website.businessPlanId } : null,
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.message || data.error || 'Regeneration failed');
+      }
+
+      toast.success('Regenerating — this usually takes 1–2 minutes.', { id: toastId });
+
+      // Optimistically flip the row to `generating` so status badge updates immediately.
+      setWebsites((prev) => prev.map((w) => (w.id === website.id ? { ...w, status: 'generating' as any } : w)));
+    } catch (err: any) {
+      console.error('[WebsitesTab] Retry failed:', err);
+      toast.error(err?.message || 'Retry failed', { id: toastId });
+    } finally {
+      setRetryingId(null);
+    }
   };
 
   const handleCreateSimilar = (website: Website, e: React.MouseEvent) => {

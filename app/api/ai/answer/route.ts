@@ -39,8 +39,8 @@ async function handleAnswer(req: NextRequest): Promise<NextResponse> {
     const input: string = body.input;
     const extra: Record<string, any> | undefined = body.extra;
 
-    // Get tenant and user from request body (already validated by middleware)
-    const tenantId: string = body.tenantId || 'demo-tenant';
+    // Tenant and user are validated by withQuotaGuard middleware and requireAuthContext.
+    const tenantId: string = body.tenantId;
     const userId: string = body.userId;
 
     // Validate inputs

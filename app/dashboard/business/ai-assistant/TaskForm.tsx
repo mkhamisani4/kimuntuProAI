@@ -9,6 +9,7 @@
 import { useState, useEffect } from 'react';
 import { Check, ChevronDown, ChevronRight } from 'lucide-react';
 import { auth } from '@/lib/firebase';
+import { fetchAuthed } from '@/lib/api/fetchAuthed';
 import { toast } from '@/components/ai/Toast';
 import { useLanguage } from '@/components/providers/LanguageProvider';
 import type { AssistantResult } from './page';
@@ -114,8 +115,8 @@ export default function TaskForm({ onResult, onError, assistant: assistantProp, 
       const body: any = {
         assistant,
         input: input.trim(),
-        tenantId: 'demo-tenant', // Use default tenant for demo
-        userId: currentUserId, // Use Firebase user ID
+        tenantId: currentUserId, // Per-user tenant isolation
+        userId: currentUserId, // Firebase user ID
       };
 
       // Add finance fields for exec_summary and financial_overview
@@ -130,8 +131,8 @@ export default function TaskForm({ onResult, onError, assistant: assistantProp, 
         };
       }
 
-      // Call API
-      const response = await fetch('/api/ai/answer', {
+      // Call API (fetchAuthed attaches the Firebase ID token)
+      const response = await fetchAuthed('/api/ai/answer', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

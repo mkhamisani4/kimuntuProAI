@@ -46,7 +46,7 @@ export default function Step1BrandBasics({ data, updateData, onNext, hasPlanAtta
 
       try {
         console.log('[Step1] Checking for primary logo for user:', user.uid);
-        const primaryLogo = await getPrimaryLogo('demo-tenant', user.uid);
+        const primaryLogo = await getPrimaryLogo(user.uid, user.uid);
         console.log('[Step1] Primary logo found:', !!primaryLogo);
         setHasPrimaryLogo(!!primaryLogo);
       } catch (error) {
@@ -160,7 +160,7 @@ export default function Step1BrandBasics({ data, updateData, onNext, hasPlanAtta
     const toastId = toast.loading('Loading your logo...');
 
     try {
-      const primaryLogo = await getPrimaryLogo('demo-tenant', user.uid);
+      const primaryLogo = await getPrimaryLogo(user.uid, user.uid);
 
       if (!primaryLogo) {
         toast.error('No primary logo found. Create one in Logo Studio first!', { id: toastId });
@@ -214,9 +214,9 @@ export default function Step1BrandBasics({ data, updateData, onNext, hasPlanAtta
   };
 
   const handleNext = () => {
-    // Validation: Company name is required (unless AI Choose in plan mode)
-    if (!data.companyName?.trim() && !(hasPlanAttached && data.companyName === 'ai_choose')) {
-      toast.error('Please enter your company name or select AI Choose');
+    // Validation: Company name is required.
+    if (!data.companyName?.trim()) {
+      toast.error('Please enter your company name');
       return;
     }
 
@@ -234,40 +234,17 @@ export default function Step1BrandBasics({ data, updateData, onNext, hasPlanAtta
         {/* Company Name */}
         <div>
           <label className="block text-sm font-medium text-gray-200 mb-2">
-            Company Name {!hasPlanAttached && <span className="text-red-400">*</span>}
-            {hasPlanAttached && <span className="text-gray-500">(Optional in plan mode)</span>}
+            Company Name <span className="text-red-400">*</span>
           </label>
 
-          {hasPlanAttached && (
-            <button
-              type="button"
-              onClick={() => updateData({ companyName: data.companyName === 'ai_choose' ? '' : 'ai_choose' })}
-              className={`w-full mb-3 p-4 rounded-lg border-2 transition-all ${
-                data.companyName === 'ai_choose'
-                  ? 'border-purple-500 bg-purple-500/10'
-                  : 'border-gray-700 bg-white/5 hover:border-gray-600'
-              }`}
-            >
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-purple-400" />
-                <div className="flex-1 text-left">
-                  <div className="font-semibold text-white">Generate with AI</div>
-                  <div className="text-sm text-gray-400">Let AI extract company name from your business plan</div>
-                </div>
-              </div>
-            </button>
-          )}
-
-          {data.companyName !== 'ai_choose' && (
-            <input
-              type="text"
-              value={data.companyName === 'ai_choose' ? '' : (data.companyName || '')}
-              onChange={(e) => updateData({ companyName: e.target.value })}
-              placeholder="e.g., Acme Inc"
-              className="w-full px-4 py-3 border border-gray-600 bg-white/10 text-gray-100 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-              maxLength={100}
-            />
-          )}
+          <input
+            type="text"
+            value={data.companyName || ''}
+            onChange={(e) => updateData({ companyName: e.target.value })}
+            placeholder="e.g., Acme Inc"
+            className="w-full px-4 py-3 border border-gray-600 bg-white/10 text-gray-100 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+            maxLength={100}
+          />
         </div>
 
         {/* Tagline */}
@@ -276,36 +253,14 @@ export default function Step1BrandBasics({ data, updateData, onNext, hasPlanAtta
             Tagline <span className="text-gray-500">(Optional)</span>
           </label>
 
-          {hasPlanAttached && (
-            <button
-              type="button"
-              onClick={() => updateData({ tagline: data.tagline === 'ai_fill' ? '' : 'ai_fill' })}
-              className={`w-full mb-3 p-4 rounded-lg border-2 transition-all ${
-                data.tagline === 'ai_fill'
-                  ? 'border-purple-500 bg-purple-500/10'
-                  : 'border-gray-700 bg-white/5 hover:border-gray-600'
-              }`}
-            >
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-purple-400" />
-                <div className="flex-1 text-left">
-                  <div className="font-semibold text-white">Generate with AI</div>
-                  <div className="text-sm text-gray-400">Let AI create a tagline based on your business plan</div>
-                </div>
-              </div>
-            </button>
-          )}
-
-          {data.tagline !== 'ai_fill' && (
-            <input
-              type="text"
-              value={data.tagline === 'ai_fill' ? '' : (data.tagline || '')}
-              onChange={(e) => updateData({ tagline: e.target.value })}
-              placeholder="e.g., Innovation at its finest"
-              className="w-full px-4 py-3 border border-gray-600 bg-white/10 text-gray-100 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-              maxLength={150}
-            />
-          )}
+          <input
+            type="text"
+            value={data.tagline || ''}
+            onChange={(e) => updateData({ tagline: e.target.value })}
+            placeholder="e.g., Innovation at its finest"
+            className="w-full px-4 py-3 border border-gray-600 bg-white/10 text-gray-100 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+            maxLength={150}
+          />
         </div>
 
         {/* Brand Voice */}
@@ -314,49 +269,24 @@ export default function Step1BrandBasics({ data, updateData, onNext, hasPlanAtta
             Brand Voice <span className="text-gray-500">(Optional)</span>
           </label>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {hasPlanAttached && (
+            {BRAND_VOICES.map((voice) => (
               <button
+                key={voice.value}
                 type="button"
-                onClick={() => updateData({ brandVoice: data.brandVoice === 'ai_choose' ? undefined : 'ai_choose' })}
+                onClick={() => updateData({ brandVoice: voice.value })}
                 className={`
                   p-4 rounded-lg border-2 text-left transition-all
                   ${
-                    data.brandVoice === 'ai_choose'
-                      ? 'border-purple-500 bg-purple-500/10'
+                    data.brandVoice === voice.value
+                      ? 'border-emerald-500 bg-emerald-500/10'
                       : 'border-gray-700 bg-white/5 hover:border-gray-600'
                   }
                 `}
               >
-                <div className="flex items-center gap-2 mb-1">
-                  <Sparkles className="w-5 h-5 text-purple-400" />
-                  <div className="font-semibold text-white">Let AI Choose</div>
-                </div>
-                <div className="text-sm text-gray-400">AI selects voice from your business plan</div>
+                <div className="font-semibold text-white mb-1">{voice.label}</div>
+                <div className="text-sm text-gray-400">{voice.description}</div>
               </button>
-            )}
-            {BRAND_VOICES.map((voice) => {
-              const isAIMode = data.brandVoice === 'ai_choose';
-              return (
-                <button
-                  key={voice.value}
-                  type="button"
-                  onClick={() => updateData({ brandVoice: voice.value })}
-                  className={`
-                    p-4 rounded-lg border-2 text-left transition-all
-                    ${
-                      isAIMode
-                        ? 'border-gray-700 bg-gray-800/50 opacity-50 hover:opacity-75 cursor-pointer'
-                        : data.brandVoice === voice.value
-                        ? 'border-emerald-500 bg-emerald-500/10'
-                        : 'border-gray-700 bg-white/5 hover:border-gray-600'
-                    }
-                  `}
-                >
-                  <div className="font-semibold text-white mb-1">{voice.label}</div>
-                  <div className="text-sm text-gray-400">{voice.description}</div>
-                </button>
-              );
-            })}
+            ))}
           </div>
         </div>
 

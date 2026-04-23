@@ -9,6 +9,7 @@
 import { useState } from 'react';
 import { ChevronLeft, Sparkles, Loader2, Palette, AlertCircle } from 'lucide-react';
 import { auth } from '@/lib/firebase';
+import { fetchAuthed } from '@/lib/api/fetchAuthed';
 import { toast } from '@/components/ai/Toast';
 import type { LogoDesignBrief, LogoSpec } from '@kimuntupro/shared';
 
@@ -47,11 +48,11 @@ export default function Step2ViewBrief({
     setError(null);
 
     try {
-      const response = await fetch('/api/logo/spec', {
+      const response = await fetchAuthed('/api/logo/spec', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          tenantId: 'demo-tenant',
+          tenantId: user.uid,
           userId: user.uid,
           brief: designBrief,
           companyName,

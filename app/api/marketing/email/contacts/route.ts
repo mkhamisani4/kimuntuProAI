@@ -4,6 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { requireAuthContext } from '@/lib/api/requireAuthContext';
 import { getMarketingSettings } from '@kimuntupro/db';
 import crypto from 'crypto';
 
@@ -22,21 +23,16 @@ function mailchimpApi(server: string, path: string, token: string, options: Requ
  * GET — List audience members
  */
 export async function GET(req: NextRequest): Promise<NextResponse> {
+  const authResult = await requireAuthContext(req);
+  if (!authResult.ok) return authResult.response;
+  const { uid } = authResult.auth;
+
   try {
     const { searchParams } = new URL(req.url);
-    const tenantId = searchParams.get('tenantId');
-    const userId = searchParams.get('userId');
     const offset = searchParams.get('offset') || '0';
     const count = searchParams.get('count') || '20';
 
-    if (!tenantId || !userId) {
-      return NextResponse.json(
-        { error: 'validation_failed', message: 'tenantId and userId are required' },
-        { status: 400 }
-      );
-    }
-
-    const settings = await getMarketingSettings(tenantId, userId);
+    const settings = await getMarketingSettings(uid, uid);
     if (!settings?.mailchimpAccessToken || !settings?.mailchimpServer || !settings?.mailchimpListId) {
       return NextResponse.json(
         { error: 'not_connected', message: 'Mailchimp is not connected or no audience selected' },
@@ -74,18 +70,22 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
  * POST — Add a contact
  */
 export async function POST(req: NextRequest): Promise<NextResponse> {
+  const authResult = await requireAuthContext(req);
+  if (!authResult.ok) return authResult.response;
+  const { uid } = authResult.auth;
+
   try {
     const body = await req.json();
-    const { tenantId, userId, email, firstName, lastName, tags } = body;
+    const { email, firstName, lastName, tags } = body;
 
-    if (!tenantId || !userId || !email) {
+    if (!email) {
       return NextResponse.json(
-        { error: 'validation_failed', message: 'tenantId, userId, and email are required' },
+        { error: 'validation_failed', message: 'email is required' },
         { status: 400 }
       );
     }
 
-    const settings = await getMarketingSettings(tenantId, userId);
+    const settings = await getMarketingSettings(uid, uid);
     if (!settings?.mailchimpAccessToken || !settings?.mailchimpServer || !settings?.mailchimpListId) {
       return NextResponse.json(
         { error: 'not_connected', message: 'Mailchimp is not connected or no audience selected' },
@@ -142,18 +142,22 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
  * DELETE — Archive a contact
  */
 export async function DELETE(req: NextRequest): Promise<NextResponse> {
+  const authResult = await requireAuthContext(req);
+  if (!authResult.ok) return authResult.response;
+  const { uid } = authResult.auth;
+
   try {
     const body = await req.json();
-    const { tenantId, userId, email } = body;
+    const { email } = body;
 
-    if (!tenantId || !userId || !email) {
+    if (!email) {
       return NextResponse.json(
-        { error: 'validation_failed', message: 'tenantId, userId, and email are required' },
+        { error: 'validation_failed', message: 'email is required' },
         { status: 400 }
       );
     }
 
-    const settings = await getMarketingSettings(tenantId, userId);
+    const settings = await getMarketingSettings(uid, uid);
     if (!settings?.mailchimpAccessToken || !settings?.mailchimpServer || !settings?.mailchimpListId) {
       return NextResponse.json(
         { error: 'not_connected', message: 'Mailchimp is not connected' },

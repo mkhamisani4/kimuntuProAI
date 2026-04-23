@@ -19,6 +19,7 @@ export default function ExecSummaryPage() {
   const { t } = useLanguage();
   const searchParams = useSearchParams();
   const [result, setResult] = useState<AssistantResult | null>(null);
+  const [resultId, setResultId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [errorType, setErrorType] = useState<'quota' | 'auth' | 'server' | null>(null);
@@ -26,10 +27,11 @@ export default function ExecSummaryPage() {
 
   // Load saved result from URL parameter
   useEffect(() => {
-    const resultId = searchParams.get('resultId');
-    if (resultId) {
+    const savedResultId = searchParams.get('resultId');
+    if (savedResultId) {
+      setResultId(savedResultId);
       setIsLoading(true);
-      getAssistantResult(resultId)
+      getAssistantResult(savedResultId)
         .then((savedResult) => {
           if (savedResult) {
             const dbResult = savedResult as DbAssistantResult;
@@ -63,6 +65,9 @@ export default function ExecSummaryPage() {
 
   const handleResult = (newResult: AssistantResult) => {
     setResult(newResult);
+    if (newResult.meta?.resultId) {
+      setResultId(newResult.meta.resultId);
+    }
     setError(null);
     setErrorType(null);
     setResetsAt(null);
@@ -167,6 +172,7 @@ export default function ExecSummaryPage() {
             error={error ? { message: error, type: errorType || 'server' } : null}
             onRetry={handleRetry}
             assistantType="exec_summary"
+            resultId={resultId}
           />
           {!result && !error && !isLoading && (
             <div className="bg-white/5 backdrop-blur border border-gray-800 rounded-2xl p-12 text-center">

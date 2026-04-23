@@ -9,6 +9,7 @@ import { useState } from 'react';
 import { X, Sparkles, Loader2, Shuffle, AlertCircle } from 'lucide-react';
 import { toast } from '@/components/ai/Toast';
 import { auth } from '@/lib/firebase';
+import { fetchAuthed } from '@/lib/api/fetchAuthed';
 import type { LogoSpec } from '@kimuntupro/shared';
 import LogoCanvas from './LogoCanvas';
 
@@ -56,11 +57,11 @@ export default function RefinementDialog({
     const toastId = toast.loading('Refining your logo with AI...');
 
     try {
-      const response = await fetch('/api/logo/refine', {
+      const response = await fetchAuthed('/api/logo/refine', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          tenantId: 'demo-tenant',
+          tenantId: user.uid,
           userId: user.uid,
           currentSpec,
           feedback,
@@ -98,11 +99,11 @@ export default function RefinementDialog({
     const toastId = toast.loading('Generating logo variations...');
 
     try {
-      const response = await fetch('/api/logo/variations', {
+      const response = await fetchAuthed('/api/logo/variations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          tenantId: 'demo-tenant',
+          tenantId: user.uid,
           userId: user.uid,
           currentSpec,
           companyName,

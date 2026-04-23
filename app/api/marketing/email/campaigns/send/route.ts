@@ -4,9 +4,11 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { requireAuthContext } from '@/lib/api/requireAuthContext';
 import {
   getMarketingSettings,
   updateEmailCampaign,
+  getEmailCampaign,
   createEmailErrorLog,
 } from '@kimuntupro/db';
 
@@ -22,13 +24,40 @@ function mailchimpApi(server: string, path: string, token: string, options: Requ
 }
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
+  const authResult = await requireAuthContext(req);
+  if (!authResult.ok) return authResult.response;
+  const { uid } = authResult.auth;
+  const tenantId = uid;
+  const userId = uid;
+
   try {
     const body = await req.json();
-    const { tenantId, userId, campaignId, mailchimpCampaignId, scheduleAt } = body;
+    const { campaignId, mailchimpCampaignId, scheduleAt } = body;
 
-    if (!tenantId || !userId || !campaignId || !mailchimpCampaignId) {
+    if (!campaignId || !mailchimpCampaignId) {
       return NextResponse.json(
-        { error: 'validation_failed', message: 'tenantId, userId, campaignId, and mailchimpCampaignId are required' },
+        { error: 'validation_failed', message: 'campaignId and mailchimpCampaignId are required' },
+        { status: 400 }
+      );
+    }
+
+    // Block sends/schedules for campaigns without content.
+    const campaign = await getEmailCampaign(campaignId);
+    if (!campaign) {
+      return NextResponse.json(
+        { error: 'not_found', message: 'Campaign not found' },
+        { status: 404 }
+      );
+    }
+    if (campaign.tenantId !== uid || campaign.userId !== uid) {
+      return NextResponse.json(
+        { error: 'forbidden', message: 'You do not own this campaign.' },
+        { status: 403 }
+      );
+    }
+    if (!campaign.htmlContent || campaign.htmlContent.trim() === '') {
+      return NextResponse.json(
+        { error: 'empty_content', message: 'Campaign has no content. Add HTML content before sending.' },
         { status: 400 }
       );
     }

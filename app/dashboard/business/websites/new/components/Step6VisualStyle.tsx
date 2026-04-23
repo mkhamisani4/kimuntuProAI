@@ -9,6 +9,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ChevronLeft, Sparkles, Check } from 'lucide-react';
 import { auth } from '@/lib/firebase';
+import { fetchAuthed } from '@/lib/api/fetchAuthed';
 import { toast } from '@/components/ai/Toast';
 import type { WizardInput } from '@kimuntupro/shared';
 
@@ -96,13 +97,13 @@ export default function Step6VisualStyle({ data, updateData, onBack, businessPla
 
     try {
       // Call the generation API
-      const response = await fetch('/api/websites/generate', {
+      const response = await fetchAuthed('/api/websites/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          tenantId: 'demo-tenant', // Use default tenant for demo
+          tenantId: currentUserId, // Per-user tenant isolation
           userId: currentUserId,
           businessPlanId: businessPlanId || null,
           businessPlan: businessPlanData || null, // Send full business plan object
@@ -151,36 +152,10 @@ export default function Step6VisualStyle({ data, updateData, onBack, businessPla
         {/* Color Theme */}
         <div>
           <h3 className="text-lg font-semibold text-white mb-4">Color Theme</h3>
-          <p className="text-sm text-gray-400 mb-4">
-            {hasPlanAttached ? 'Select a color palette, or let AI choose based on your business plan' : 'Select a color palette for your website'}
-          </p>
+          <p className="text-sm text-gray-400 mb-4">Select a color palette for your website</p>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {/* AI Choose option (only in plan mode) */}
-            {hasPlanAttached && (
-              <button
-                type="button"
-                onClick={() => updateData({ colorTheme: 'ai_choose' })}
-                className={`
-                  p-4 rounded-lg border-2 transition-all relative
-                  ${
-                    data.colorTheme === 'ai_choose'
-                      ? 'border-purple-500 bg-purple-500/10'
-                      : 'border-gray-700 bg-white/5 hover:border-gray-600'
-                  }
-                `}
-              >
-                <div className="flex items-center gap-2 mb-3">
-                  <Sparkles className="w-8 h-8 text-purple-400" />
-                </div>
-                <div className="text-sm font-medium text-white text-left">
-                  Let AI Choose
-                </div>
-              </button>
-            )}
-
             {/* Predefined themes */}
             {COLOR_THEMES.map((theme) => {
-              const isAIMode = data.colorTheme === 'ai_choose';
               return (
                 <button
                   key={theme.value}
@@ -189,9 +164,7 @@ export default function Step6VisualStyle({ data, updateData, onBack, businessPla
                   className={`
                     p-4 rounded-lg border-2 transition-all relative
                     ${
-                      isAIMode
-                        ? 'border-gray-700 bg-gray-800/50 opacity-50 hover:opacity-75 cursor-pointer'
-                        : data.colorTheme === theme.value
+                      data.colorTheme === theme.value
                         ? 'border-emerald-500 bg-emerald-500/10'
                         : 'border-gray-700 bg-white/5 hover:border-gray-600'
                     }
@@ -225,56 +198,26 @@ export default function Step6VisualStyle({ data, updateData, onBack, businessPla
         {/* Font Style */}
         <div>
           <h3 className="text-lg font-semibold text-white mb-4">Font Style</h3>
-          <p className="text-sm text-gray-400 mb-4">
-            {hasPlanAttached ? 'Choose typography, or let AI choose based on your business plan' : 'Choose the typography for your website'}
-          </p>
+          <p className="text-sm text-gray-400 mb-4">Choose the typography for your website</p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {/* AI Choose option (only in plan mode) */}
-            {hasPlanAttached && (
+            {FONT_STYLES.map((font) => (
               <button
+                key={font.value}
                 type="button"
-                onClick={() => updateData({ fontStyle: 'ai_choose' })}
+                onClick={() => updateData({ fontStyle: font.value })}
                 className={`
-                  p-4 rounded-lg border-2 text-left transition-all relative
+                  p-4 rounded-lg border-2 text-left transition-all
                   ${
-                    data.fontStyle === 'ai_choose'
-                      ? 'border-purple-500 bg-purple-500/10'
+                    data.fontStyle === font.value
+                      ? 'border-emerald-500 bg-emerald-500/10'
                       : 'border-gray-700 bg-white/5 hover:border-gray-600'
                   }
                 `}
               >
-                <div className="flex items-center gap-2 mb-1">
-                  <Sparkles className="w-5 h-5 text-purple-400" />
-                  <div className="font-semibold text-white">Let AI Choose</div>
-                </div>
-                <div className="text-sm text-gray-400">Let AI select the best font based on your business</div>
+                <div className="font-semibold text-white mb-1">{font.label}</div>
+                <div className="text-sm text-gray-400">{font.description}</div>
               </button>
-            )}
-
-            {/* Predefined fonts */}
-            {FONT_STYLES.map((font) => {
-              const isAIMode = data.fontStyle === 'ai_choose';
-              return (
-                <button
-                  key={font.value}
-                  type="button"
-                  onClick={() => updateData({ fontStyle: font.value })}
-                  className={`
-                    p-4 rounded-lg border-2 text-left transition-all
-                    ${
-                      isAIMode
-                        ? 'border-gray-700 bg-gray-800/50 opacity-50 hover:opacity-75 cursor-pointer'
-                        : data.fontStyle === font.value
-                        ? 'border-emerald-500 bg-emerald-500/10'
-                        : 'border-gray-700 bg-white/5 hover:border-gray-600'
-                    }
-                  `}
-                >
-                  <div className="font-semibold text-white mb-1">{font.label}</div>
-                  <div className="text-sm text-gray-400">{font.description}</div>
-                </button>
-              );
-            })}
+            ))}
           </div>
         </div>
 
@@ -287,12 +230,6 @@ export default function Step6VisualStyle({ data, updateData, onBack, businessPla
               : 'Your website will be generated using AI based on your inputs. This typically takes 1-2 minutes.'}
           </p>
           <ul className="text-sm text-gray-400 space-y-2">
-            {hasPlanAttached && (
-              <li className="flex items-start">
-                <Check className="w-4 h-4 text-emerald-400 mr-2 mt-0.5 flex-shrink-0" />
-                <span>AI will auto-fill any blank fields using your business plan</span>
-              </li>
-            )}
             <li className="flex items-start">
               <Check className="w-4 h-4 text-emerald-400 mr-2 mt-0.5 flex-shrink-0" />
               <span>Pure HTML website with modern, responsive design</span>

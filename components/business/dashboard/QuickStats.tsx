@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { TrendingUp, Globe, Zap, DollarSign, Palette } from 'lucide-react';
 import { useLanguage } from '@/components/providers/LanguageProvider';
+import { fetchAuthed } from '@/lib/api/fetchAuthed';
 
 interface QuickStatsProps {
   tenantId: string;
@@ -45,7 +46,7 @@ export default function QuickStats({ tenantId, userId }: QuickStatsProps) {
         const params = new URLSearchParams({ tenantId });
         if (userId) params.append('userId', userId);
 
-        const response = await fetch(`/api/user/stats?${params.toString()}`);
+        const response = await fetchAuthed(`/api/user/stats?${params.toString()}`);
         const data = await response.json();
 
         if (!response.ok) {

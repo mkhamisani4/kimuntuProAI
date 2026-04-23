@@ -10,6 +10,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { getWebsite, type Website } from '@kimuntupro/db';
 import { ArrowLeft, Download, ExternalLink, Loader2, AlertCircle, CheckCircle, Trash2, RefreshCw, Sparkles, Pencil, Check, X } from 'lucide-react';
 import { auth } from '@/lib/firebase';
+import { fetchAuthed } from '@/lib/api/fetchAuthed';
 import { toast } from '@/components/ai/Toast';
 import { sanitizeWebsiteHTML, getIframeSandboxAttributes } from '@/lib/sanitize';
 
@@ -54,19 +55,6 @@ export default function WebsitePage() {
 
         setWebsite(data as Website);
         setError(null);
-
-        // If still generating, poll for updates
-        if ((data as Website).status === 'generating') {
-          const pollInterval = setInterval(async () => {
-            const updated = await getWebsite(websiteId) as Website | null;
-            if (updated && updated.status !== 'generating') {
-              setWebsite(updated);
-              clearInterval(pollInterval);
-            }
-          }, 3000); // Poll every 3 seconds
-
-          return () => clearInterval(pollInterval);
-        }
       } catch (err: any) {
         console.error('Failed to fetch website:', err);
         setError(err.message || 'Failed to load website');
@@ -79,6 +67,23 @@ export default function WebsitePage() {
       fetchWebsite();
     }
   }, [websiteId]);
+
+  // Poll for updates only while the website is still generating. Interval is owned
+  // by this effect so React cleans it up on unmount / status change.
+  useEffect(() => {
+    if (website?.status !== 'generating' || !websiteId) return;
+    const pollInterval = setInterval(async () => {
+      try {
+        const updated = (await getWebsite(websiteId)) as Website | null;
+        if (updated && updated.status !== 'generating') {
+          setWebsite(updated);
+        }
+      } catch (err) {
+        console.error('[WebsitePreview] Poll failed:', err);
+      }
+    }, 3000);
+    return () => clearInterval(pollInterval);
+  }, [website?.status, websiteId]);
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -113,7 +118,10 @@ export default function WebsitePage() {
   };
 
   const handleDownload = () => {
-    if (!website?.siteCode) return;
+    if (!website?.siteCode) {
+      toast.error('Nothing to download yet — finish generating first.');
+      return;
+    }
 
     const blob = new Blob([website.siteCode], { type: 'text/html' });
     const url = URL.createObjectURL(blob);
@@ -131,7 +139,7 @@ export default function WebsitePage() {
 
     setDeleting(true);
     try {
-      const response = await fetch(`/api/websites/${websiteId}`, {
+      const response = await fetchAuthed(`/api/websites/${websiteId}`, {
         method: 'DELETE',
       });
 
@@ -160,11 +168,11 @@ export default function WebsitePage() {
     const toastId = toast.loading('Starting regeneration...');
 
     try {
-      const response = await fetch(`/api/websites/${websiteId}/regenerate`, {
+      const response = await fetchAuthed(`/api/websites/${websiteId}/regenerate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          tenantId: 'demo-tenant',
+          tenantId: currentUserId,
           userId: currentUserId,
           wizardInput: website.wizardInput,
           businessPlan: website.businessPlanId ? { id: website.businessPlanId } : null,
@@ -249,7 +257,7 @@ export default function WebsitePage() {
     }
 
     try {
-      const response = await fetch(`/api/websites/${websiteId}/rename`, {
+      const response = await fetchAuthed(`/api/websites/${websiteId}/rename`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

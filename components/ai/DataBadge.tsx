@@ -11,17 +11,20 @@ import { Globe, Book } from 'lucide-react';
 
 export interface DataBadgeProps {
   timestamp?: string;
-  isLive: boolean;
+  /** True if the result includes at least one web-sourced citation. */
+  isLive?: boolean;
+  /** Preferred name — same meaning as `isLive`. */
+  hasWebSources?: boolean;
 }
 
 /**
- * DataBadge displays data source and freshness
- * @param timestamp - ISO timestamp of when data was retrieved
- * @param isLive - True if data is from live web search
+ * DataBadge displays whether the result used knowledge-base sources or live web sources.
+ * The "web-sourced" label is static — it reflects what was used at generation time, not real-time data.
  */
-export default function DataBadge({ timestamp, isLive }: DataBadgeProps) {
-  if (isLive) {
-    // Format relative time
+export default function DataBadge({ timestamp, isLive, hasWebSources }: DataBadgeProps) {
+  const webSourced = hasWebSources ?? isLive ?? false;
+
+  if (webSourced) {
     const relativeTime = timestamp
       ? formatDistanceToNow(new Date(timestamp), { addSuffix: true })
       : 'just now';
@@ -32,7 +35,7 @@ export default function DataBadge({ timestamp, isLive }: DataBadgeProps) {
         data-testid="data-badge-live"
       >
         <Globe className="w-3 h-3" />
-        Live Data · {relativeTime}
+        Web-sourced · {relativeTime}
       </span>
     );
   }

@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, Download, Trash2, Star, Pencil } from 'lucide-react';
 import { toast } from '@/components/ai/Toast';
+import { fetchAuthed } from '@/lib/api/fetchAuthed';
 import type { Logo } from '@kimuntupro/db';
 import LogoCanvas from '../../logo-studio/components/LogoCanvas';
 import { logoSpecToSVGString } from '../../logo-studio/utils/svgRenderer';
@@ -36,7 +37,7 @@ export default function LogoDetailPage() {
         setLoading(true);
         setError(null);
 
-        const response = await fetch(`/api/logo/${logoId}`);
+        const response = await fetchAuthed(`/api/logo/${logoId}`);
 
         if (!response.ok) {
           if (response.status === 404) {
@@ -92,7 +93,7 @@ export default function LogoDetailPage() {
     try {
       setDeleting(true);
 
-      const response = await fetch(`/api/logo/${logoId}`, {
+      const response = await fetchAuthed(`/api/logo/${logoId}`, {
         method: 'DELETE',
       });
 
@@ -165,7 +166,7 @@ export default function LogoDetailPage() {
     try {
       setRenaming(true);
 
-      const response = await fetch(`/api/logo/${logoId}`, {
+      const response = await fetchAuthed(`/api/logo/${logoId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: newName.trim() }),

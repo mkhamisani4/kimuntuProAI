@@ -9,6 +9,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Upload, X, FileText, ChevronDown } from 'lucide-react';
 import { auth } from '@/lib/firebase';
+import { fetchAuthed } from '@/lib/api/fetchAuthed';
 import { toast } from '@/components/ai/Toast';
 import type { LegalResult } from './page';
 
@@ -123,7 +124,7 @@ export default function LegalTaskForm({ onResult, onError, onLoadingChange }: Le
     try {
       const formData = new FormData();
       formData.append('input', input.trim());
-      formData.append('tenantId', 'demo-tenant');
+      formData.append('tenantId', currentUserId);
       formData.append('userId', currentUserId);
 
       if (jurisdiction) formData.append('jurisdiction', jurisdiction);
@@ -133,7 +134,7 @@ export default function LegalTaskForm({ onResult, onError, onLoadingChange }: Le
         formData.append('files', file);
       }
 
-      const response = await fetch('/api/ai/legal', {
+      const response = await fetchAuthed('/api/ai/legal', {
         method: 'POST',
         body: formData,
       });

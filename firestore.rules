@@ -3,89 +3,133 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper function to check if user is authenticated
+    // ===== Helpers =====
     function isSignedIn() {
       return request.auth != null;
     }
 
-    // Helper function to check if user owns the document
-    function isOwner(userId) {
-      return isSignedIn() && request.auth.uid == userId;
+    // Per-user tenant model: request.auth.uid IS the tenantId.
+    function ownsWrite() {
+      return isSignedIn()
+        && request.auth.uid == request.resource.data.tenantId
+        && request.auth.uid == request.resource.data.userId;
     }
 
-    // Assistant results
-    // ⚠️ DEVELOPMENT MODE: Open for all reads and writes (no auth required)
-    // For production, use Admin SDK with service account key
+    // Existing record must already belong to the signed-in user.
+    function ownsExisting() {
+      return isSignedIn()
+        && request.auth.uid == resource.data.tenantId;
+    }
+
+    // ===== Assistant results =====
     match /assistant_results/{resultId} {
-      allow read, write: if true; // Completely open for development (server-side operations from API routes)
-      allow delete: if true; // Allow deletion via API routes
+      allow read: if ownsExisting();
+      allow create: if ownsWrite();
+      allow update, delete: if ownsExisting();
     }
 
-    // Usage tracking
-    // ⚠️ DEVELOPMENT MODE: Open for all reads and writes (no auth required)
-    // For production, use Admin SDK with service account key
+    // ===== Usage logs =====
+    // Owner can read their own logs. Writes happen from server via Admin SDK,
+    // which bypasses rules; block client writes entirely.
     match /usage_logs/{usageId} {
-      allow read, write: if true; // Completely open for development (server-side operations from API routes)
+      allow read: if ownsExisting();
+      allow write: if false;
     }
 
-    // Document metadata (RAG) - readable by authenticated users, writable by all (server writes)
+    // ===== Documents (RAG / shared library) =====
     match /documents/{docId} {
       allow read: if isSignedIn();
-      allow write: if isSignedIn(); // Allows server-side writes from API routes
+      allow write: if false; // Server-side only via Admin SDK.
     }
 
-    // Website documents
-    // ⚠️ DEVELOPMENT MODE: Open for all writes (no auth required)
-    // This is ONLY for development without Admin SDK
-    // For production, MUST use Admin SDK with service account key
+    // ===== Websites =====
     match /websites/{websiteId} {
-      allow read, write: if true; // Completely open for development
+      allow read: if ownsExisting();
+      allow create: if ownsWrite();
+      allow update, delete: if ownsExisting();
     }
 
-    // Logo documents
-    // ⚠️ DEVELOPMENT MODE: Open for all writes (no auth required)
-    // This is ONLY for development without Admin SDK
-    // For production, MUST use Admin SDK with service account key
+    // ===== Logos =====
     match /logos/{logoId} {
-      allow read, write: if true; // Completely open for development
+      allow read: if ownsExisting();
+      allow create: if ownsWrite();
+      allow update, delete: if ownsExisting();
     }
 
-    // Email campaigns
+    // ===== Logo versions =====
+    match /logo_versions/{versionId} {
+      allow read: if ownsExisting();
+      allow create: if ownsWrite();
+      allow update, delete: if ownsExisting();
+    }
+
+    // ===== Email campaigns =====
     match /email_campaigns/{campaignId} {
-      allow read, write: if true; // Development mode
+      allow read: if ownsExisting();
+      allow create: if ownsWrite();
+      allow update, delete: if ownsExisting();
     }
 
-    // Email analytics events
+    // ===== Email analytics events =====
     match /email_analytics/{eventId} {
-      allow read, write: if true; // Development mode
+      allow read: if ownsExisting();
+      allow write: if false; // Server-side only (webhook + Admin SDK).
     }
 
-    // Email error logs
+    // ===== Email error logs =====
     match /email_error_log/{errorId} {
-      allow read, write: if true; // Development mode
+      allow read: if ownsExisting();
+      allow write: if false; // Server-side only.
     }
 
-    // Marketing settings
+    // ===== Marketing settings =====
     match /marketing_settings/{settingsId} {
-      allow read, write: if true; // Development mode
+      allow read: if ownsExisting();
+      allow create: if ownsWrite();
+      allow update, delete: if ownsExisting();
     }
 
-    // Marketing keywords
+    // ===== Marketing keywords =====
     match /marketing_keywords/{keywordId} {
-      allow read, write: if true; // Development mode
+      allow read: if ownsExisting();
+      allow create: if ownsWrite();
+      allow update, delete: if ownsExisting();
     }
 
-    // Marketing campaigns
+    // ===== Marketing campaigns =====
     match /marketing_campaigns/{campaignId} {
-      allow read, write: if true; // Development mode
+      allow read: if ownsExisting();
+      allow create: if ownsWrite();
+      allow update, delete: if ownsExisting();
     }
 
-    // Marketing posts
+    // ===== Marketing posts =====
     match /marketing_posts/{postId} {
-      allow read, write: if true; // Development mode
+      allow read: if ownsExisting();
+      allow create: if ownsWrite();
+      allow update, delete: if ownsExisting();
     }
 
-    // Default: deny all other access
+    // ===== Keyword research history (Phase 4.1) =====
+    match /keyword_research_history/{historyId} {
+      allow read: if ownsExisting();
+      allow create: if ownsWrite();
+      allow update, delete: if ownsExisting();
+    }
+
+    // ===== Users profile =====
+    match /users/{userId} {
+      allow read: if isSignedIn() && request.auth.uid == userId;
+      allow write: if false; // Profile is server-managed.
+    }
+
+    // ===== Feature flags (admin-only) =====
+    match /feature_flags/{flagId} {
+      allow read: if isSignedIn();
+      allow write: if false;
+    }
+
+    // Default deny
     match /{document=**} {
       allow read, write: if false;
     }

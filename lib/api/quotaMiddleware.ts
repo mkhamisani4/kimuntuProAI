@@ -8,6 +8,7 @@ import type { PlannerInput, AssistantRequest } from '@kimuntupro/shared';
 import { QuotaError } from '@kimuntupro/shared';
 import { checkQuotaMiddleware } from '@kimuntupro/ai-core/orchestration/middleware';
 import { deriveHeuristics } from '@kimuntupro/ai-core/orchestration/planner';
+import { requireAuthContext, assertBodyMatchesAuth } from './requireAuthContext';
 
 /**
  * Route handler type for Next.js API routes
@@ -54,11 +55,11 @@ async function extractQuotaParams(
     };
   }
 
-  // Extract common fields (prioritize body, fallback to headers, then demo defaults)
-  const tenantId = body.tenantId || req.headers.get('x-tenant-id') || 'demo-tenant';
+  // Extract common fields from body or headers. No default — missing auth = 401.
+  const tenantId = body.tenantId || req.headers.get('x-tenant-id');
   const userId = body.userId || req.headers.get('x-user-id');
 
-  if (!userId) {
+  if (!userId || !tenantId) {
     return {
       ok: false,
       response: NextResponse.json(
@@ -178,21 +179,36 @@ export function withQuotaGuard(
   options: QuotaGuardOptions
 ): RouteHandler {
   return async (req: NextRequest): Promise<NextResponse> => {
-    // Clone the request so we can read the body multiple times
+    // 1. Verify the Firebase ID token. Every quota-guarded route is authenticated.
+    const authResult = await requireAuthContext(req);
+    if (!authResult.ok) {
+      return authResult.response;
+    }
+    const { uid } = authResult.auth;
+
+    // 2. Clone so we can read the body multiple times
     const reqClone = req.clone() as NextRequest;
 
-    // Extract quota params from request
+    // 3. Extract quota params from body/headers
     const params = await extractQuotaParams(reqClone, options.for);
-
     if (!params.ok) {
       return (params as { ok: false; response: NextResponse }).response;
     }
 
-    // Check quotas using middleware
+    // 4. In the per-user tenant model, tenantId and userId MUST equal the uid from the token.
+    //    Reject any request whose body lies about identity.
+    if (params.tenantId !== uid || params.userId !== uid) {
+      return NextResponse.json(
+        { error: 'forbidden', message: 'Identity in request does not match authenticated session.' },
+        { status: 403 }
+      );
+    }
+
+    // 5. Check quotas using middleware
     const quotaCheck = await checkQuotaMiddleware({
       plan: params.plan,
-      tenantId: params.tenantId,
-      userId: params.userId,
+      tenantId: uid,
+      userId: uid,
       inputLength: params.inputLength,
     });
 

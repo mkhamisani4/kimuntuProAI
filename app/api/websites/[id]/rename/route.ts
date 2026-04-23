@@ -4,6 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { requireAuthContext } from '@/lib/api/requireAuthContext';
 import { getWebsiteAdmin, updateWebsiteAdmin } from '@kimuntupro/db/firebase/websites.server';
 import type { Website } from '@kimuntupro/db';
 
@@ -11,6 +12,10 @@ import type { Website } from '@kimuntupro/db';
  * Handle PATCH request to rename a website
  */
 async function handleRename(request: NextRequest): Promise<NextResponse> {
+  const authResult = await requireAuthContext(request);
+  if (!authResult.ok) return authResult.response;
+  const { uid } = authResult.auth;
+
   try {
     // Extract website ID from URL path
     const url = new URL(request.url);
@@ -18,12 +23,12 @@ async function handleRename(request: NextRequest): Promise<NextResponse> {
     const websiteId = pathParts[pathParts.length - 2]; // /api/websites/[id]/rename -> [id] is second to last
 
     const body = await request.json();
-    const { userId, title } = body;
+    const { title } = body;
 
     // Validate required fields
-    if (!userId || !title) {
+    if (!title) {
       return NextResponse.json(
-        { error: 'Missing required fields: userId, title' },
+        { error: 'Missing required field: title' },
         { status: 400 }
       );
     }
@@ -49,7 +54,8 @@ async function handleRename(request: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ error: 'Website not found' }, { status: 404 });
     }
 
-    if ((existingWebsite as Website).userId !== userId) {
+    const site = existingWebsite as Website;
+    if (site.userId !== uid || site.tenantId !== uid) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
