@@ -4,15 +4,22 @@ import React, { useState, useEffect } from 'react';
 import { Search, AlertTriangle, Globe, X, CheckCircle, ChevronDown, ChevronRight, Bookmark } from 'lucide-react';
 import { saveKeyword, listKeywords, deleteKeyword, type MarketingKeyword } from '@kimuntupro/db';
 import { toast } from '@/components/ai/Toast';
+import { fetchAuthed } from '@/lib/api/fetchAuthed';
 
 interface SEOToolsProps {
     tenantId: string;
     userId: string;
     selectedCampaignId?: string | null;
+    initialSubTab?: 'keywords' | 'tracked' | 'audit';
 }
 
-export default function SEOTools({ tenantId, userId, selectedCampaignId }: SEOToolsProps) {
-    const [activeTab, setActiveTab] = useState('keywords');
+export default function SEOTools({ tenantId, userId, selectedCampaignId, initialSubTab }: SEOToolsProps) {
+    const [activeTab, setActiveTab] = useState(initialSubTab || 'keywords');
+
+    // Respond when the parent forces a sub-tab switch (e.g. quick-action button).
+    useEffect(() => {
+        if (initialSubTab) setActiveTab(initialSubTab);
+    }, [initialSubTab]);
     const [trackedKeywords, setTrackedKeywords] = useState<MarketingKeyword[]>([]);
 
     // Load tracked keywords from Firestore
@@ -115,6 +122,24 @@ function KeywordResearch({ trackedKeywords, onSaveKeyword }: {
     const [location, setLocation] = useState('United States');
     const [results, setResults] = useState<KeywordResult[]>([]);
     const [searching, setSearching] = useState(false);
+    const [history, setHistory] = useState<Array<{ query: string; location: string; results: KeywordResult[]; at: number }>>([]);
+
+    const HISTORY_KEY = 'kimuntupro:seo:keyword_history';
+    const HISTORY_MAX = 20;
+
+    // Hydrate history once from localStorage (client-only).
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+        try {
+            const raw = window.localStorage.getItem(HISTORY_KEY);
+            if (raw) setHistory(JSON.parse(raw));
+        } catch { /* ignore */ }
+    }, []);
+
+    const saveHistory = (next: typeof history) => {
+        setHistory(next);
+        try { window.localStorage.setItem(HISTORY_KEY, JSON.stringify(next)); } catch { /* ignore */ }
+    };
 
     const handleSearch = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -123,7 +148,7 @@ function KeywordResearch({ trackedKeywords, onSaveKeyword }: {
         setResults([]);
 
         try {
-            const response = await fetch('/api/marketing/keywords', {
+            const response = await fetchAuthed('/api/marketing/keywords', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ keyword: query, location }),
@@ -136,15 +161,27 @@ function KeywordResearch({ trackedKeywords, onSaveKeyword }: {
                 return;
             }
 
-            setResults(data.keywords || []);
-            if ((data.keywords || []).length === 0) {
+            const kws: KeywordResult[] = data.keywords || [];
+            setResults(kws);
+            if (kws.length === 0) {
                 toast.error('No keyword suggestions found. Check your API credentials.');
+            } else {
+                // Dedupe by query+location, most recent first, cap at HISTORY_MAX.
+                const entry = { query, location, results: kws, at: Date.now() };
+                const deduped = [entry, ...history.filter((h) => !(h.query === query && h.location === location))].slice(0, HISTORY_MAX);
+                saveHistory(deduped);
             }
         } catch (error) {
             toast.error('Network error fetching keywords');
         } finally {
             setSearching(false);
         }
+    };
+
+    const rehydrateFromHistory = (entry: typeof history[number]) => {
+        setQuery(entry.query);
+        setLocation(entry.location);
+        setResults(entry.results);
     };
 
     const isTracked = (keyword: string) => trackedKeywords.some(k => k.keyword === keyword);
@@ -187,6 +224,33 @@ function KeywordResearch({ trackedKeywords, onSaveKeyword }: {
                         {searching ? 'Analyzing...' : 'Analyze'}
                     </button>
                 </form>
+                {history.length > 0 && (
+                    <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
+                        <div className="flex items-center justify-between mb-2">
+                            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Recent searches</span>
+                            <button
+                                type="button"
+                                onClick={() => saveHistory([])}
+                                className="text-xs text-gray-400 hover:text-red-500 transition-colors"
+                            >
+                                Clear
+                            </button>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                            {history.slice(0, 10).map((h, i) => (
+                                <button
+                                    key={`${h.query}-${h.at}-${i}`}
+                                    type="button"
+                                    onClick={() => rehydrateFromHistory(h)}
+                                    className="px-3 py-1 text-xs bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-300 hover:bg-blue-100 dark:hover:bg-blue-900/30 hover:text-blue-700 rounded-full transition-colors"
+                                    title={`${h.results.length} results · ${h.location}`}
+                                >
+                                    {h.query}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                )}
             </div>
 
             {results.length > 0 && (
@@ -331,7 +395,7 @@ function SiteAudit() {
         setAudits([]);
 
         try {
-            const response = await fetch('/api/marketing/audit', {
+            const response = await fetchAuthed('/api/marketing/audit', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ url }),

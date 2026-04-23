@@ -4,9 +4,10 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { requireAuthContext } from '@/lib/api/requireAuthContext';
 import {
   getMarketingSettings,
-  updateCampaign,
+  updateEmailCampaign,
 } from '@kimuntupro/db';
 import Anthropic from '@anthropic-ai/sdk';
 
@@ -25,13 +26,16 @@ function mailchimpApi(server: string, path: string, token: string, options: Requ
  * POST — AI-generate email HTML content
  */
 export async function POST(req: NextRequest): Promise<NextResponse> {
+  const authResult = await requireAuthContext(req);
+  if (!authResult.ok) return authResult.response;
+
   try {
     const body = await req.json();
-    const { tenantId, userId, subject, goal, tone, generateSubjectLines } = body;
+    const { subject, goal, tone, generateSubjectLines } = body;
 
-    if (!tenantId || !userId || !goal) {
+    if (!goal) {
       return NextResponse.json(
-        { error: 'validation_failed', message: 'tenantId, userId, and goal are required' },
+        { error: 'validation_failed', message: 'goal is required' },
         { status: 400 }
       );
     }
@@ -106,13 +110,19 @@ Return ONLY the HTML content, no markdown code blocks.`;
  * PUT — Set HTML content on a Mailchimp campaign + update Firestore
  */
 export async function PUT(req: NextRequest): Promise<NextResponse> {
+  const authResult = await requireAuthContext(req);
+  if (!authResult.ok) return authResult.response;
+  const { uid } = authResult.auth;
+  const tenantId = uid;
+  const userId = uid;
+
   try {
     const body = await req.json();
-    const { tenantId, userId, campaignId, mailchimpCampaignId, htmlContent } = body;
+    const { campaignId, mailchimpCampaignId, htmlContent } = body;
 
-    if (!tenantId || !userId || !campaignId || !mailchimpCampaignId || !htmlContent) {
+    if (!campaignId || !mailchimpCampaignId || !htmlContent) {
       return NextResponse.json(
-        { error: 'validation_failed', message: 'All fields are required' },
+        { error: 'validation_failed', message: 'campaignId, mailchimpCampaignId, and htmlContent are required' },
         { status: 400 }
       );
     }
@@ -156,7 +166,7 @@ export async function PUT(req: NextRequest): Promise<NextResponse> {
     }
 
     // Update Firestore
-    await updateCampaign(campaignId, { htmlContent } as any);
+    await updateEmailCampaign(campaignId, { htmlContent } as any);
 
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (error: any) {

@@ -5,15 +5,21 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { requireAuthContext, assertBodyMatchesAuth } from '@/lib/api/requireAuthContext';
 import { createLogoAdmin, updateLogoAdmin, unsetPrimaryLogoForUser } from '@kimuntupro/db/firebase/logos.server';
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
+  const authResult = await requireAuthContext(req);
+  if (!authResult.ok) return authResult.response;
+  const { uid } = authResult.auth;
+
   try {
     const body = await req.json();
+    const mismatch = assertBodyMatchesAuth(body, uid);
+    if (mismatch) return mismatch;
+
     const {
       logoId, // If present, update; otherwise, create
-      tenantId,
-      userId,
       businessPlanId,
       companyName,
       brief,
@@ -22,9 +28,11 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       isPrimary,
       generationMetadata,
     } = body;
+    const tenantId = uid;
+    const userId = uid;
 
     // Validation
-    if (!tenantId || !userId || !companyName || !currentSpec) {
+    if (!companyName || !currentSpec) {
       return NextResponse.json(
         { error: 'validation_failed', message: 'Missing required fields' },
         { status: 400 }

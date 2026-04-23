@@ -9,6 +9,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ChevronLeft, Save, Loader2, AlertCircle, CheckCircle, Star } from 'lucide-react';
 import { auth } from '@/lib/firebase';
+import { fetchAuthed } from '@/lib/api/fetchAuthed';
 import { toast } from '@/components/ai/Toast';
 import type { LogoDesignBrief, LogoSpec } from '@kimuntupro/shared';
 import ConceptSelector from './ConceptSelector';
@@ -63,11 +64,11 @@ export default function Step3SelectConcept({
         generatedAt: new Date(),
       };
 
-      const response = await fetch('/api/logo/save', {
+      const response = await fetchAuthed('/api/logo/save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          tenantId: 'demo-tenant',
+          tenantId: user.uid,
           userId: user.uid,
           businessPlanId: businessPlanId || null,
           companyName,

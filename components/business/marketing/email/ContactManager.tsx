@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { UserPlus, Upload, Sparkles, Trash2, Search, RefreshCw } from 'lucide-react';
 import type { MarketingSettings } from '@kimuntupro/db';
 import { toast } from '@/components/ai/Toast';
+import { fetchAuthed } from '@/lib/api/fetchAuthed';
 
 interface ContactManagerProps {
   tenantId: string;
@@ -71,7 +72,7 @@ export default function ContactManager({ tenantId, userId, settings }: ContactMa
     if (!newEmail) return;
 
     try {
-      const response = await fetch('/api/marketing/email/contacts', {
+      const response = await fetchAuthed('/api/marketing/email/contacts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -103,7 +104,7 @@ export default function ContactManager({ tenantId, userId, settings }: ContactMa
     if (!confirm('Archive this contact?')) return;
 
     try {
-      const response = await fetch('/api/marketing/email/contacts', {
+      const response = await fetchAuthed('/api/marketing/email/contacts', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ tenantId, userId, email }),
@@ -142,7 +143,7 @@ export default function ContactManager({ tenantId, userId, settings }: ContactMa
 
           const toastId = toast.loading(`Importing ${contacts.length} contacts...`);
 
-          const response = await fetch('/api/marketing/email/contacts/import', {
+          const response = await fetchAuthed('/api/marketing/email/contacts/import', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ tenantId, userId, contacts }),
@@ -173,7 +174,7 @@ export default function ContactManager({ tenantId, userId, settings }: ContactMa
       const allTags = contacts.flatMap((c) => (c.tags || []).map((t) => t.name));
       const uniqueTags = [...new Set(allTags)];
 
-      const response = await fetch('/api/marketing/email/contacts/segment', {
+      const response = await fetchAuthed('/api/marketing/email/contacts/segment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

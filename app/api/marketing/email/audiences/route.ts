@@ -4,24 +4,18 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { requireAuthContext } from '@/lib/api/requireAuthContext';
 import { getMarketingSettings } from '@kimuntupro/db';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
+  const authResult = await requireAuthContext(req);
+  if (!authResult.ok) return authResult.response;
+  const { uid } = authResult.auth;
+
   try {
-    const { searchParams } = new URL(req.url);
-    const tenantId = searchParams.get('tenantId');
-    const userId = searchParams.get('userId');
-
-    if (!tenantId || !userId) {
-      return NextResponse.json(
-        { error: 'validation_failed', message: 'tenantId and userId are required' },
-        { status: 400 }
-      );
-    }
-
-    const settings = await getMarketingSettings(tenantId, userId);
+    const settings = await getMarketingSettings(uid, uid);
     if (!settings?.mailchimpAccessToken || !settings?.mailchimpServer) {
       return NextResponse.json(
         { error: 'not_connected', message: 'Mailchimp is not connected' },

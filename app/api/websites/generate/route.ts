@@ -45,12 +45,9 @@ async function generateWebsiteInBackground(
 
     console.log(`[WebsiteGeneration] Claude generation complete for ${websiteId}`);
 
-    // Generate updated title from AI-chosen company name
-    const updatedTitle = result.siteSpec.branding.companyName
-      ? `${result.siteSpec.branding.companyName} Website`
-      : wizardInput.companyName === 'ai_choose'
-      ? 'Untitled Website'
-      : `${wizardInput.companyName} Website`;
+    // Generate title from the company name the wizard collected.
+    const companyName = result.siteSpec.branding.companyName || wizardInput.companyName;
+    const updatedTitle = companyName ? `${companyName} Website` : 'Untitled Website';
 
     // Update website with generated content
     await updateWebsiteAdmin(websiteId, {

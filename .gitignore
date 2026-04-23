@@ -83,6 +83,9 @@ firebase-debug.log
 firestore-debug.log
 ui-debug.log
 
+# Local tooling
+.claude/
+
 # Misc
 .eslintcache
 .parcel-cache/

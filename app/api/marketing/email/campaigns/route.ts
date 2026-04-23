@@ -4,6 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { requireAuthContext } from '@/lib/api/requireAuthContext';
 import {
   getMarketingSettings,
   createEmailCampaign,
@@ -28,19 +29,12 @@ function mailchimpApi(server: string, path: string, token: string, options: Requ
  * GET — List email campaigns from Firestore
  */
 export async function GET(req: NextRequest): Promise<NextResponse> {
+  const authResult = await requireAuthContext(req);
+  if (!authResult.ok) return authResult.response;
+  const { uid } = authResult.auth;
+
   try {
-    const { searchParams } = new URL(req.url);
-    const tenantId = searchParams.get('tenantId');
-    const userId = searchParams.get('userId');
-
-    if (!tenantId || !userId) {
-      return NextResponse.json(
-        { error: 'validation_failed', message: 'tenantId and userId are required' },
-        { status: 400 }
-      );
-    }
-
-    const campaigns = await listEmailCampaigns(tenantId, userId);
+    const campaigns = await listEmailCampaigns(uid, uid);
     return NextResponse.json({ success: true, campaigns }, { status: 200 });
   } catch (error: any) {
     console.error('[API] List email campaigns error:', error);
@@ -55,13 +49,19 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
  * POST — Create a new email campaign in Mailchimp + Firestore
  */
 export async function POST(req: NextRequest): Promise<NextResponse> {
+  const authResult = await requireAuthContext(req);
+  if (!authResult.ok) return authResult.response;
+  const { uid } = authResult.auth;
+  const tenantId = uid;
+  const userId = uid;
+
   try {
     const body = await req.json();
-    const { tenantId, userId, title, subject, previewText, segmentId } = body;
+    const { title, subject, previewText, segmentId } = body;
 
-    if (!tenantId || !userId || !title || !subject) {
+    if (!title || !subject) {
       return NextResponse.json(
-        { error: 'validation_failed', message: 'tenantId, userId, title, and subject are required' },
+        { error: 'validation_failed', message: 'title and subject are required' },
         { status: 400 }
       );
     }
@@ -173,13 +173,19 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
  * PUT — Update an email campaign in Mailchimp + Firestore
  */
 export async function PUT(req: NextRequest): Promise<NextResponse> {
+  const authResult = await requireAuthContext(req);
+  if (!authResult.ok) return authResult.response;
+  const { uid } = authResult.auth;
+  const tenantId = uid;
+  const userId = uid;
+
   try {
     const body = await req.json();
-    const { tenantId, userId, campaignId, mailchimpCampaignId, title, subject, previewText } = body;
+    const { campaignId, mailchimpCampaignId, title, subject, previewText } = body;
 
-    if (!tenantId || !userId || !campaignId || !mailchimpCampaignId) {
+    if (!campaignId || !mailchimpCampaignId) {
       return NextResponse.json(
-        { error: 'validation_failed', message: 'tenantId, userId, campaignId, and mailchimpCampaignId are required' },
+        { error: 'validation_failed', message: 'campaignId and mailchimpCampaignId are required' },
         { status: 400 }
       );
     }
@@ -236,13 +242,19 @@ export async function PUT(req: NextRequest): Promise<NextResponse> {
  * DELETE — Delete campaign from Mailchimp + Firestore
  */
 export async function DELETE(req: NextRequest): Promise<NextResponse> {
+  const authResult = await requireAuthContext(req);
+  if (!authResult.ok) return authResult.response;
+  const { uid } = authResult.auth;
+  const tenantId = uid;
+  const userId = uid;
+
   try {
     const body = await req.json();
-    const { tenantId, userId, campaignId, mailchimpCampaignId } = body;
+    const { campaignId, mailchimpCampaignId } = body;
 
-    if (!tenantId || !userId || !campaignId || !mailchimpCampaignId) {
+    if (!campaignId || !mailchimpCampaignId) {
       return NextResponse.json(
-        { error: 'validation_failed', message: 'tenantId, userId, campaignId, and mailchimpCampaignId are required' },
+        { error: 'validation_failed', message: 'campaignId and mailchimpCampaignId are required' },
         { status: 400 }
       );
     }

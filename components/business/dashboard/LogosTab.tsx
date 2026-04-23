@@ -8,6 +8,7 @@ import StatusBadge, { StatusType } from './shared/StatusBadge';
 import EmptyState from './shared/EmptyState';
 import LogoCanvas from '@/app/dashboard/business/logo-studio/components/LogoCanvas';
 import { toast } from '@/components/ai/Toast';
+import { fetchAuthed } from '@/lib/api/fetchAuthed';
 import { useLanguage } from '@/components/providers/LanguageProvider';
 
 interface LogosTabProps {
@@ -121,7 +122,7 @@ export default function LogosTab({ tenantId, userId, limit = 6 }: LogosTabProps)
     const toastId = toast.loading('Setting as primary...');
 
     try {
-      const response = await fetch('/api/logo/save', {
+      const response = await fetchAuthed('/api/logo/save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -172,7 +173,7 @@ export default function LogosTab({ tenantId, userId, limit = 6 }: LogosTabProps)
     try {
       setDeletingId(logoId);
 
-      const response = await fetch(`/api/logo/${logoId}`, {
+      const response = await fetchAuthed(`/api/logo/${logoId}`, {
         method: 'DELETE',
       });
 
@@ -221,7 +222,7 @@ export default function LogosTab({ tenantId, userId, limit = 6 }: LogosTabProps)
     try {
       setRenamingId(logoId);
 
-      const response = await fetch(`/api/logo/${logoId}`, {
+      const response = await fetchAuthed(`/api/logo/${logoId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: editingName.trim() }),
@@ -250,41 +251,68 @@ export default function LogosTab({ tenantId, userId, limit = 6 }: LogosTabProps)
     }
   };
 
-  // Helper to generate SVG from spec
+  // XML-safe escape for attribute and text content.
+  const escapeXml = (value: unknown): string => {
+    if (value === null || value === undefined) return '';
+    return String(value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&apos;');
+  };
+
+  // Helper to generate SVG from spec. All user-controlled values are escaped.
   const generateSVG = (spec: any): string => {
-    const { canvas, shapes, texts } = spec;
+    try {
+      const canvas = spec?.canvas ?? {};
+      const shapes: any[] = Array.isArray(spec?.shapes) ? spec.shapes : [];
+      const texts: any[] = Array.isArray(spec?.texts) ? spec.texts : [];
 
-    let svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="${canvas.width}" height="${canvas.height}" viewBox="0 0 ${canvas.width} ${canvas.height}">`;
+      const w = Number.isFinite(canvas.width) ? canvas.width : 512;
+      const h = Number.isFinite(canvas.height) ? canvas.height : 512;
 
-    // Background - only add rect if not transparent
-    if (canvas.backgroundColor && canvas.backgroundColor !== 'transparent') {
-      svgContent += `<rect width="${canvas.width}" height="${canvas.height}" fill="${canvas.backgroundColor}" />`;
-    }
+      let svgContent = `<?xml version="1.0" encoding="UTF-8"?>`;
+      svgContent += `<svg xmlns="http://www.w3.org/2000/svg" width="${escapeXml(w)}" height="${escapeXml(h)}" viewBox="0 0 ${escapeXml(w)} ${escapeXml(h)}">`;
 
-    // Shapes
-    shapes.forEach((shape: any) => {
-      if (shape.type === 'rectangle') {
-        svgContent += `<rect x="${shape.x}" y="${shape.y}" width="${shape.width}" height="${shape.height}" fill="${shape.fill}" ${shape.rx ? `rx="${shape.rx}"` : ''} />`;
-      } else if (shape.type === 'circle') {
-        svgContent += `<circle cx="${shape.cx}" cy="${shape.cy}" r="${shape.r}" fill="${shape.fill}" />`;
-      } else if (shape.type === 'ellipse') {
-        svgContent += `<ellipse cx="${shape.cx}" cy="${shape.cy}" rx="${shape.rx}" ry="${shape.ry}" fill="${shape.fill}" />`;
-      } else if (shape.type === 'polygon') {
-        svgContent += `<polygon points="${shape.points}" fill="${shape.fill}" />`;
-      } else if (shape.type === 'path') {
-        svgContent += `<path d="${shape.d}" fill="${shape.fill}" ${shape.stroke ? `stroke="${shape.stroke}"` : ''} ${shape.strokeWidth ? `stroke-width="${shape.strokeWidth}"` : ''} />`;
-      } else if (shape.type === 'line') {
-        svgContent += `<line x1="${shape.x1}" y1="${shape.y1}" x2="${shape.x2}" y2="${shape.y2}" stroke="${shape.stroke}" stroke-width="${shape.strokeWidth}" />`;
+      if (canvas.backgroundColor && canvas.backgroundColor !== 'transparent') {
+        svgContent += `<rect width="${escapeXml(w)}" height="${escapeXml(h)}" fill="${escapeXml(canvas.backgroundColor)}" />`;
       }
-    });
 
-    // Texts
-    texts.forEach((text: any) => {
-      svgContent += `<text x="${text.x}" y="${text.y}" font-family="${text.fontFamily}" font-size="${text.fontSize}" font-weight="${text.fontWeight}" fill="${text.fill}" text-anchor="${text.textAnchor || 'start'}" ${text.letterSpacing ? `letter-spacing="${text.letterSpacing}"` : ''}>${text.content}</text>`;
-    });
+      for (const shape of shapes) {
+        switch (shape?.type) {
+          case 'rectangle':
+            svgContent += `<rect x="${escapeXml(shape.x)}" y="${escapeXml(shape.y)}" width="${escapeXml(shape.width)}" height="${escapeXml(shape.height)}" fill="${escapeXml(shape.fill)}"${shape.rx ? ` rx="${escapeXml(shape.rx)}"` : ''} />`;
+            break;
+          case 'circle':
+            svgContent += `<circle cx="${escapeXml(shape.cx)}" cy="${escapeXml(shape.cy)}" r="${escapeXml(shape.r)}" fill="${escapeXml(shape.fill)}" />`;
+            break;
+          case 'ellipse':
+            svgContent += `<ellipse cx="${escapeXml(shape.cx)}" cy="${escapeXml(shape.cy)}" rx="${escapeXml(shape.rx)}" ry="${escapeXml(shape.ry)}" fill="${escapeXml(shape.fill)}" />`;
+            break;
+          case 'polygon':
+            svgContent += `<polygon points="${escapeXml(shape.points)}" fill="${escapeXml(shape.fill)}" />`;
+            break;
+          case 'path':
+            svgContent += `<path d="${escapeXml(shape.d)}" fill="${escapeXml(shape.fill)}"${shape.stroke ? ` stroke="${escapeXml(shape.stroke)}"` : ''}${shape.strokeWidth ? ` stroke-width="${escapeXml(shape.strokeWidth)}"` : ''} />`;
+            break;
+          case 'line':
+            svgContent += `<line x1="${escapeXml(shape.x1)}" y1="${escapeXml(shape.y1)}" x2="${escapeXml(shape.x2)}" y2="${escapeXml(shape.y2)}" stroke="${escapeXml(shape.stroke)}" stroke-width="${escapeXml(shape.strokeWidth)}" />`;
+            break;
+        }
+      }
 
-    svgContent += '</svg>';
-    return svgContent;
+      for (const text of texts) {
+        svgContent += `<text x="${escapeXml(text?.x)}" y="${escapeXml(text?.y)}" font-family="${escapeXml(text?.fontFamily)}" font-size="${escapeXml(text?.fontSize)}" font-weight="${escapeXml(text?.fontWeight)}" fill="${escapeXml(text?.fill)}" text-anchor="${escapeXml(text?.textAnchor || 'start')}"${text?.letterSpacing ? ` letter-spacing="${escapeXml(text.letterSpacing)}"` : ''}>${escapeXml(text?.content)}</text>`;
+      }
+
+      svgContent += '</svg>';
+      return svgContent;
+    } catch (err) {
+      console.error('[LogosTab] SVG generation failed:', err);
+      toast.error('Could not generate SVG — logo data is malformed.');
+      return '';
+    }
   };
 
   // Loading state

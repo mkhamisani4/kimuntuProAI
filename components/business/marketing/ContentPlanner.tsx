@@ -11,6 +11,7 @@ import {
     type MarketingCampaign,
 } from '@kimuntupro/db';
 import { toast } from '@/components/ai/Toast';
+import { fetchAuthed } from '@/lib/api/fetchAuthed';
 import CalendarView from './CalendarView';
 
 interface ContentPlannerProps {
@@ -50,7 +51,7 @@ export default function ContentPlanner({ tenantId, userId, campaigns, selectedCa
         try {
             // Delete from Ayrshare if it was scheduled there
             if (ayrshareId) {
-                await fetch('/api/marketing/social/post', {
+                await fetchAuthed('/api/marketing/social/post', {
                     method: 'DELETE',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ ayrshareId }),
@@ -390,17 +391,23 @@ function CreatePostModal({ tenantId, userId, campaigns, selectedCampaignId, onCl
                 metrics: null,
             });
 
-            // Upload media if provided
+            // Upload media if provided. Report media errors separately so the user
+            // can tell that the post itself succeeded even if the image didn't upload.
             let mediaUrl: string | null = null;
             if (mediaFile) {
-                mediaUrl = await uploadPostMedia(mediaFile, tenantId, postId);
+                try {
+                    mediaUrl = await uploadPostMedia(mediaFile, tenantId, postId);
+                } catch (mediaErr: any) {
+                    console.error('[ContentPlanner] Media upload failed:', mediaErr);
+                    toast.error(`Media upload failed: ${mediaErr?.message || 'unknown error'}. Post saved without media.`);
+                }
             }
 
             // Schedule via Ayrshare if scheduled
             let ayrshareId: string | null = null;
             if (scheduledAt) {
                 try {
-                    const response = await fetch('/api/marketing/social/post', {
+                    const response = await fetchAuthed('/api/marketing/social/post', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({

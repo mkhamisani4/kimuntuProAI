@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Mail, ExternalLink, CheckCircle, List } from 'lucide-react';
 import { getMarketingSettings, updateMarketingSettings } from '@kimuntupro/db';
 import { toast } from '@/components/ai/Toast';
+import { fetchAuthed } from '@/lib/api/fetchAuthed';
 
 interface MailchimpConnectProps {
   tenantId: string;
@@ -45,9 +46,7 @@ export default function MailchimpConnect({ tenantId, userId, onConnected, select
   const loadAudiences = async () => {
     setLoadingAudiences(true);
     try {
-      const response = await fetch(
-        `/api/marketing/email/audiences?tenantId=${encodeURIComponent(tenantId)}&userId=${encodeURIComponent(userId)}`
-      );
+      const response = await fetchAuthed(`/api/marketing/email/audiences`);
 
       if (response.ok) {
         const data = await response.json();

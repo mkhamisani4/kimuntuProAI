@@ -4,11 +4,15 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { requireAuthContext } from '@/lib/api/requireAuthContext';
 
 /**
  * POST - Schedule a social media post via Ayrshare
  */
 export async function POST(req: NextRequest): Promise<NextResponse> {
+  const authResult = await requireAuthContext(req);
+  if (!authResult.ok) return authResult.response;
+
   try {
     const body = await req.json();
     const { post, platforms, mediaUrls, scheduleDate } = body;
@@ -81,6 +85,9 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
  * DELETE - Delete a scheduled post from Ayrshare
  */
 export async function DELETE(req: NextRequest): Promise<NextResponse> {
+  const authResult = await requireAuthContext(req);
+  if (!authResult.ok) return authResult.response;
+
   try {
     const body = await req.json();
     const { ayrshareId } = body;

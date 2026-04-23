@@ -15,6 +15,7 @@ import LoadingSkeleton from '@/components/ai/LoadingSkeleton';
 import ExportDropdown from '@/components/ai/ExportDropdown';
 import DataBadge from '@/components/ai/DataBadge';
 import { toast } from '@/components/ai/Toast';
+import { useLanguage } from '@/components/providers/LanguageProvider';
 
 interface ResultViewerProps {
   result: AssistantResult | null;
@@ -27,10 +28,8 @@ interface ResultViewerProps {
 
 export default function ResultViewer({ result, isLoading, error, onRetry, assistantType = 'streamlined_plan', resultId }: ResultViewerProps) {
   const router = useRouter();
+  const { t } = useLanguage();
   const [isAnimating, setIsAnimating] = useState(false);
-
-  // Debug logging for Turn Into Website button
-  console.log('[ResultViewer] Props:', { assistantType, resultId, hasResult: !!result });
 
   const handleConvertToWebsite = () => {
     if (resultId) {
@@ -50,10 +49,17 @@ export default function ResultViewer({ result, isLoading, error, onRetry, assist
     return (
       <div className="bg-white/5 backdrop-blur border border-red-500/50 rounded-2xl p-8 text-center">
         <div className="text-red-400 mb-4">
-          <svg className="w-16 h-16 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg
+            className="w-16 h-16 mx-auto mb-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            role="img"
+            aria-label={t.biz_generationFailed || 'Generation failed'}
+          >
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          <h3 className="text-lg font-semibold text-white mb-2">Generation Failed</h3>
+          <h3 className="text-lg font-semibold text-white mb-2">{t.biz_generationFailed || 'Generation Failed'}</h3>
           <p className="text-sm text-gray-400">{error.message}</p>
         </div>
         {onRetry && (
@@ -62,7 +68,7 @@ export default function ResultViewer({ result, isLoading, error, onRetry, assist
             className="mt-4 px-6 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-lg font-medium hover:shadow-lg transition-all"
             data-testid="retry-button"
           >
-            Try Again
+            {t.biz_tryAgain || 'Try Again'}
           </button>
         )}
       </div>

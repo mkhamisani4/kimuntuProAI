@@ -3,6 +3,7 @@
 import React, { useState, useCallback } from 'react';
 import { Sparkles, Image, Code, Eye } from 'lucide-react';
 import { toast } from '@/components/ai/Toast';
+import { fetchAuthed } from '@/lib/api/fetchAuthed';
 
 interface EmailContentEditorProps {
   tenantId: string;
@@ -33,7 +34,7 @@ export default function EmailContentEditor({
 
     setIsGenerating(true);
     try {
-      const response = await fetch('/api/marketing/email/campaigns/content', {
+      const response = await fetchAuthed('/api/marketing/email/campaigns/content', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

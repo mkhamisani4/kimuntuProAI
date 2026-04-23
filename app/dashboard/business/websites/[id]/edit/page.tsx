@@ -10,6 +10,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { getWebsite, type Website } from '@kimuntupro/db';
 import { ArrowLeft, Send, Loader2, CheckCircle, AlertCircle, Sparkles } from 'lucide-react';
 import { auth } from '@/lib/firebase';
+import { fetchAuthed } from '@/lib/api/fetchAuthed';
 import { toast } from '@/components/ai/Toast';
 import { sanitizeWebsiteHTML, getIframeSandboxAttributes } from '@/lib/sanitize';
 
@@ -146,11 +147,11 @@ export default function WebsiteEditPage() {
     setIsEditing(true);
 
     try {
-      const response = await fetch(`/api/websites/${websiteId}/edit`, {
+      const response = await fetchAuthed(`/api/websites/${websiteId}/edit`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          tenantId: 'demo-tenant',
+          tenantId: currentUserId,
           userId: currentUserId,
           instruction: userMessage.content,
         }),

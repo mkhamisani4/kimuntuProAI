@@ -11,6 +11,7 @@ import { auth } from '@/lib/firebase';
 import { listLogos, type Logo } from '@kimuntupro/db';
 import { Plus, Eye, Loader2, AlertCircle, RefreshCw, Trash2, Star, Pencil } from 'lucide-react';
 import { toast } from '@/components/ai/Toast';
+import { fetchAuthed } from '@/lib/api/fetchAuthed';
 import LogoCanvas from '../logo-studio/components/LogoCanvas';
 
 export default function LogosPage() {
@@ -45,7 +46,7 @@ export default function LogosPage() {
         setLoading(true);
         setError(null);
         console.log('[LogosList] Fetching logos for user:', currentUserId);
-        const data = await listLogos('demo-tenant', currentUserId, 50);
+        const data = await listLogos(currentUserId, currentUserId, 50);
         console.log('[LogosList] Fetched logos:', data.length, data);
         setLogos(data);
       } catch (error: any) {
@@ -65,7 +66,7 @@ export default function LogosPage() {
     setError(null);
     setLoading(true);
     if (currentUserId) {
-      listLogos('demo-tenant', currentUserId, 50)
+      listLogos(currentUserId, currentUserId, 50)
         .then((data) => {
           setLogos(data);
           setLoading(false);
@@ -85,7 +86,7 @@ export default function LogosPage() {
     }
 
     try {
-      const response = await fetch(`/api/logo/${logoId}`, {
+      const response = await fetchAuthed(`/api/logo/${logoId}`, {
         method: 'DELETE',
       });
 

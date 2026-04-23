@@ -10,7 +10,7 @@ export default function EmailMarketingPage() {
   const { user, loading } = useAuth();
 
   const userId = user?.uid || '';
-  const tenantId = 'demo-tenant';
+  const tenantId = user?.uid || '';
 
   return (
     <div className="min-h-screen bg-gray-50">

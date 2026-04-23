@@ -16,6 +16,7 @@ import {
 import SEOTools from './SEOTools';
 import ContentPlanner from './ContentPlanner';
 import CampaignManager from './CampaignManager';
+import { fetchAuthed } from '@/lib/api/fetchAuthed';
 import {
     listPosts,
     listCampaigns,
@@ -35,6 +36,7 @@ interface MarketingDashboardProps {
 
 export default function MarketingDashboard({ userId, tenantId }: MarketingDashboardProps) {
     const [activeTab, setActiveTab] = useState('overview');
+    const [seoInitialTab, setSeoInitialTab] = useState<'keywords' | 'tracked' | 'audit' | undefined>(undefined);
     const [selectedCampaignId, setSelectedCampaignId] = useState<string | null>(null);
 
     // Aggregated data for overview
@@ -72,7 +74,7 @@ export default function MarketingDashboard({ userId, tenantId }: MarketingDashbo
     const handleConnectSocials = async () => {
         try {
             const toastId = toast.loading('Generating connect link...');
-            const response = await fetch('/api/marketing/social/connect', {
+            const response = await fetchAuthed('/api/marketing/social/connect', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
             });
@@ -126,6 +128,7 @@ export default function MarketingDashboard({ userId, tenantId }: MarketingDashbo
                 <div className={activeTab === 'overview' ? 'block' : 'hidden'}>
                     <OverviewTab
                         setActiveTab={setActiveTab}
+                        setSeoInitialTab={setSeoInitialTab}
                         posts={posts}
                         campaigns={campaigns}
                         keywords={keywords}
@@ -139,6 +142,7 @@ export default function MarketingDashboard({ userId, tenantId }: MarketingDashbo
                         tenantId={tenantId}
                         userId={userId}
                         selectedCampaignId={selectedCampaignId}
+                        initialSubTab={seoInitialTab}
                     />
                 </div>
                 <div className={activeTab === 'content' ? 'block' : 'hidden'}>
@@ -167,6 +171,7 @@ export default function MarketingDashboard({ userId, tenantId }: MarketingDashbo
 
 interface OverviewTabProps {
     setActiveTab: (tab: string) => void;
+    setSeoInitialTab: (tab: 'keywords' | 'tracked' | 'audit' | undefined) => void;
     posts: MarketingPost[];
     campaigns: MarketingCampaign[];
     keywords: MarketingKeyword[];
@@ -175,7 +180,7 @@ interface OverviewTabProps {
     onConnectSocials: () => void;
 }
 
-function OverviewTab({ setActiveTab, posts, campaigns, keywords, settings, isLoading, onConnectSocials }: OverviewTabProps) {
+function OverviewTab({ setActiveTab, setSeoInitialTab, posts, campaigns, keywords, settings, isLoading, onConnectSocials }: OverviewTabProps) {
     const totalPosts = posts.length;
     const scheduledPosts = posts.filter(p => p.status === 'scheduled').length;
     const activeCampaigns = campaigns.filter(c => c.status === 'active').length;
@@ -362,7 +367,7 @@ function OverviewTab({ setActiveTab, posts, campaigns, keywords, settings, isLoa
                             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Schedule Post</span>
                         </button>
                         <button
-                            onClick={() => setActiveTab('seo')}
+                            onClick={() => { setSeoInitialTab('audit'); setActiveTab('seo'); }}
                             className="p-4 rounded-xl border border-dashed border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors text-center group"
                         >
                             <BarChart3 className="w-6 h-6 mx-auto mb-2 text-orange-500 group-hover:scale-110 transition-transform" />

@@ -131,6 +131,7 @@ function formatAssistantType(type: string): string {
     streamlined_plan: 'Streamlined Business Plan',
     exec_summary: 'Executive Summary + Financials',
     market_analysis: 'Market Analysis',
+    financial_overview: 'Financial Overview',
   };
 
   return typeMap[type] || type;

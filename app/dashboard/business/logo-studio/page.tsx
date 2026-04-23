@@ -14,6 +14,7 @@ import TemplateSelector from './components/TemplateSelector';
 import CompanyNameDialog from './components/CompanyNameDialog';
 import { getAssistantResult, type AssistantResult, createLogo } from '@kimuntupro/db';
 import { auth } from '@/lib/firebase';
+import { fetchAuthed } from '@/lib/api/fetchAuthed';
 import { toast } from '@/components/ai/Toast';
 import type { LogoTemplate } from './templates/templates';
 
@@ -88,11 +89,11 @@ export default function LogoStudioPage() {
     try {
 
       // Call AI customization API
-      const response = await fetch('/api/logo/customize-template', {
+      const response = await fetchAuthed('/api/logo/customize-template', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          tenantId: 'demo-tenant',
+          tenantId: user.uid,
           userId: user.uid,
           templateSpec: selectedTemplate.spec,
           companyName,
@@ -109,7 +110,7 @@ export default function LogoStudioPage() {
 
       // Save the customized logo (createLogo returns the logo ID)
       const logoData: any = {
-        tenantId: 'demo-tenant',
+        tenantId: user.uid,
         userId: user.uid,
         companyName,
         brief: {

@@ -8,6 +8,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { auth } from '@/lib/firebase';
+import { fetchAuthed } from '@/lib/api/fetchAuthed';
 import { listWebsites, type Website } from '@kimuntupro/db';
 import { Plus, Eye, Loader2, CheckCircle, AlertCircle, Clock, RefreshCw, Pencil, Check, X } from 'lucide-react';
 import { toast } from '@/components/ai/Toast';
@@ -47,7 +48,7 @@ export default function WebsitesPage() {
         setLoading(true);
         setError(null);
         console.log('[WebsitesList] Fetching websites for user:', currentUserId);
-        const data = await listWebsites('demo-tenant', currentUserId, 20);
+        const data = await listWebsites(currentUserId, currentUserId, 20);
         console.log('[WebsitesList] Fetched websites:', data.length, data);
         setWebsites(data);
       } catch (error: any) {
@@ -67,7 +68,7 @@ export default function WebsitesPage() {
     setError(null);
     setLoading(true);
     if (currentUserId) {
-      listWebsites('demo-tenant', currentUserId, 20)
+      listWebsites(currentUserId, currentUserId, 20)
         .then((data) => {
           setWebsites(data);
           setLoading(false);
@@ -115,7 +116,7 @@ export default function WebsitesPage() {
     }
 
     try {
-      const response = await fetch(`/api/websites/${websiteId}/rename`, {
+      const response = await fetchAuthed(`/api/websites/${websiteId}/rename`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -148,7 +149,7 @@ export default function WebsitesPage() {
 
     const pollInterval = setInterval(async () => {
       try {
-        const data = await listWebsites('demo-tenant', currentUserId, 20);
+        const data = await listWebsites(currentUserId, currentUserId, 20);
         setWebsites(data);
       } catch (error) {
         console.error('Failed to poll websites:', error);

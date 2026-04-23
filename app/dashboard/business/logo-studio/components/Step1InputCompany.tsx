@@ -9,6 +9,7 @@
 import { useState } from 'react';
 import { Loader2, Sparkles, AlertCircle } from 'lucide-react';
 import { auth } from '@/lib/firebase';
+import { fetchAuthed } from '@/lib/api/fetchAuthed';
 import { toast } from '@/components/ai/Toast';
 import type { LogoDesignBrief } from '@kimuntupro/shared';
 import type { AssistantResult } from '@kimuntupro/db';
@@ -71,11 +72,11 @@ export default function Step1InputCompany({
           .join('\n\n');
       }
 
-      const response = await fetch('/api/logo/brief', {
+      const response = await fetchAuthed('/api/logo/brief', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          tenantId: 'demo-tenant',
+          tenantId: user.uid,
           userId: user.uid,
           businessPlanId: businessPlanId || null,
           companyName: companyName.trim(),

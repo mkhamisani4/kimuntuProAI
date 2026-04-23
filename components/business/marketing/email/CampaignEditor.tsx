@@ -5,6 +5,7 @@ import { ArrowLeft, Save, Sparkles } from 'lucide-react';
 import EmailContentEditor from './EmailContentEditor';
 import type { EmailCampaign, MarketingSettings } from '@kimuntupro/db';
 import { toast } from '@/components/ai/Toast';
+import { fetchAuthed } from '@/lib/api/fetchAuthed';
 
 interface CampaignEditorProps {
   tenantId: string;
@@ -45,7 +46,7 @@ export default function CampaignEditor({
     try {
       if (isEditing) {
         // Update existing campaign
-        const response = await fetch('/api/marketing/email/campaigns', {
+        const response = await fetchAuthed('/api/marketing/email/campaigns', {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -66,7 +67,7 @@ export default function CampaignEditor({
 
         // If content changed, update it separately
         if (htmlContent && htmlContent !== campaign.htmlContent) {
-          const contentResponse = await fetch('/api/marketing/email/campaigns/content', {
+          const contentResponse = await fetchAuthed('/api/marketing/email/campaigns/content', {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -79,14 +80,15 @@ export default function CampaignEditor({
           });
 
           if (!contentResponse.ok) {
-            toast.error('Campaign saved but content update failed. Check error log.');
+            const data = await contentResponse.json().catch(() => ({}));
+            throw new Error(data.message || 'Failed to save campaign content — try again.');
           }
         }
 
         toast.success('Campaign updated!');
       } else {
         // Create new campaign
-        const response = await fetch('/api/marketing/email/campaigns', {
+        const response = await fetchAuthed('/api/marketing/email/campaigns', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -107,7 +109,7 @@ export default function CampaignEditor({
 
         // Set content if we have any
         if (htmlContent) {
-          await fetch('/api/marketing/email/campaigns/content', {
+          const contentResponse = await fetchAuthed('/api/marketing/email/campaigns/content', {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -118,6 +120,10 @@ export default function CampaignEditor({
               htmlContent,
             }),
           });
+          if (!contentResponse.ok) {
+            const err = await contentResponse.json().catch(() => ({}));
+            throw new Error(err.message || 'Campaign created but content upload failed — edit to retry.');
+          }
         }
 
         toast.success('Campaign created!');
@@ -139,7 +145,7 @@ export default function CampaignEditor({
 
     setIsGeneratingSubjects(true);
     try {
-      const response = await fetch('/api/marketing/email/campaigns/content', {
+      const response = await fetchAuthed('/api/marketing/email/campaigns/content', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

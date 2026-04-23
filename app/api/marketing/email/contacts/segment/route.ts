@@ -4,6 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { requireAuthContext } from '@/lib/api/requireAuthContext';
 import { getMarketingSettings } from '@kimuntupro/db';
 import Anthropic from '@anthropic-ai/sdk';
 
@@ -19,18 +20,22 @@ function mailchimpApi(server: string, path: string, token: string, options: Requ
 }
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
+  const authResult = await requireAuthContext(req);
+  if (!authResult.ok) return authResult.response;
+  const { uid } = authResult.auth;
+
   try {
     const body = await req.json();
-    const { tenantId, userId, goal, contactTags } = body;
+    const { goal, contactTags } = body;
 
-    if (!tenantId || !userId || !goal) {
+    if (!goal) {
       return NextResponse.json(
-        { error: 'validation_failed', message: 'tenantId, userId, and goal are required' },
+        { error: 'validation_failed', message: 'goal is required' },
         { status: 400 }
       );
     }
 
-    const settings = await getMarketingSettings(tenantId, userId) as any;
+    const settings = await getMarketingSettings(uid, uid) as any;
     if (!settings?.mailchimpAccessToken || !settings?.mailchimpServer || !settings?.mailchimpListId) {
       return NextResponse.json(
         { error: 'not_connected', message: 'Mailchimp is not connected or no audience selected' },

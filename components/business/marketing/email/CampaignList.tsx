@@ -25,6 +25,7 @@ import {
   type EmailErrorLog,
 } from '@kimuntupro/db';
 import { toast } from '@/components/ai/Toast';
+import { fetchAuthed } from '@/lib/api/fetchAuthed';
 
 interface CampaignListProps {
   tenantId: string;
@@ -102,7 +103,7 @@ export default function CampaignList({
     if (!confirm(`Delete campaign "${campaign.title}"?`)) return;
 
     try {
-      const response = await fetch('/api/marketing/email/campaigns', {
+      const response = await fetchAuthed('/api/marketing/email/campaigns', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -126,7 +127,7 @@ export default function CampaignList({
     if (!confirm(`${scheduleAt ? 'Schedule' : 'Send'} campaign "${campaign.title}"?`)) return;
 
     try {
-      const response = await fetch('/api/marketing/email/campaigns/send', {
+      const response = await fetchAuthed('/api/marketing/email/campaigns/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -174,7 +175,7 @@ export default function CampaignList({
       switch (errorLog.operation) {
         case 'send':
         case 'schedule':
-          response = await fetch('/api/marketing/email/campaigns/send', {
+          response = await fetchAuthed('/api/marketing/email/campaigns/send', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -187,7 +188,7 @@ export default function CampaignList({
           });
           break;
         case 'content_update':
-          response = await fetch('/api/marketing/email/campaigns/content', {
+          response = await fetchAuthed('/api/marketing/email/campaigns/content', {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({

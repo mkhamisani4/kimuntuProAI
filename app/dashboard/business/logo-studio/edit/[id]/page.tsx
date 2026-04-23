@@ -10,6 +10,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, Save, Download, Undo2, Redo2, Loader2, Sparkles, Grid, Clock } from 'lucide-react';
 import { auth } from '@/lib/firebase';
+import { fetchAuthed } from '@/lib/api/fetchAuthed';
 import { toast } from '@/components/ai/Toast';
 import type { Logo, LogoVersion } from '@kimuntupro/db';
 import { saveLogoVersion, getLogoVersions, restoreLogoVersion, deleteLogoVersion } from '@kimuntupro/db';
@@ -49,7 +50,7 @@ export default function LogoEditorPage() {
       try {
         setLoading(true);
 
-        const response = await fetch(`/api/logo/${logoId}`);
+        const response = await fetchAuthed(`/api/logo/${logoId}`);
 
         if (!response.ok) {
           if (response.status === 404) {
@@ -111,15 +112,24 @@ export default function LogoEditorPage() {
 
   const handleSave = async () => {
     const user = auth.currentUser;
-    if (!user || !logo || !editor.currentSpec) {
-      toast.error('Cannot save: missing data');
+    if (!user) {
+      toast.error('Please sign in to save your logo.');
+      return;
+    }
+    if (!logo) {
+      toast.error('Logo data is not loaded yet — refresh and try again.');
+      return;
+    }
+    if (!editor.currentSpec) {
+      console.error('[logo-editor] spec null at save', { logoId: logo.id });
+      toast.error('Could not read current design — please refresh the page and retry.');
       return;
     }
 
     setSaving(true);
 
     try {
-      const response = await fetch('/api/logo/save', {
+      const response = await fetchAuthed('/api/logo/save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -198,7 +208,7 @@ export default function LogoEditorPage() {
       await restoreLogoVersion(logoId, versionId);
 
       // Fetch updated logo to get restored spec
-      const response = await fetch(`/api/logo/${logoId}`);
+      const response = await fetchAuthed(`/api/logo/${logoId}`);
       if (!response.ok) throw new Error('Failed to load updated logo');
 
       const data = await response.json();
@@ -347,8 +357,9 @@ export default function LogoEditorPage() {
               {/* Save */}
               <button
                 onClick={handleSave}
-                disabled={saving}
+                disabled={saving || !editor.currentSpec}
                 className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-700 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors"
+                title={!editor.currentSpec ? 'Current design is empty' : undefined}
               >
                 {saving ? (
                   <>

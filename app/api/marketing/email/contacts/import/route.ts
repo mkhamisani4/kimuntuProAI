@@ -4,6 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { requireAuthContext } from '@/lib/api/requireAuthContext';
 import { getMarketingSettings } from '@kimuntupro/db';
 
 function mailchimpApi(server: string, path: string, token: string, options: RequestInit = {}) {
@@ -22,18 +23,36 @@ function mailchimpApi(server: string, path: string, token: string, options: Requ
  * Expects { tenantId, userId, contacts: [{ email, firstName?, lastName?, tags? }] }
  */
 export async function POST(req: NextRequest): Promise<NextResponse> {
+  const authResult = await requireAuthContext(req);
+  if (!authResult.ok) return authResult.response;
+  const { uid } = authResult.auth;
+
   try {
     const body = await req.json();
-    const { tenantId, userId, contacts } = body;
+    const { contacts } = body;
 
-    if (!tenantId || !userId || !contacts || !Array.isArray(contacts) || contacts.length === 0) {
+    if (!contacts || !Array.isArray(contacts) || contacts.length === 0) {
       return NextResponse.json(
-        { error: 'validation_failed', message: 'tenantId, userId, and contacts array are required' },
+        { error: 'validation_failed', message: 'contacts array is required' },
         { status: 400 }
       );
     }
 
-    const settings = await getMarketingSettings(tenantId, userId);
+    // Validate minimum schema: every row must have an email column.
+    const rowsMissingEmail = contacts
+      .map((c: any, i: number) => ({ i, has: typeof c?.email === 'string' && c.email.trim().length > 0 }))
+      .filter((r) => !r.has);
+    if (rowsMissingEmail.length > 0) {
+      return NextResponse.json(
+        {
+          error: 'invalid_schema',
+          message: `Missing required "email" column on ${rowsMissingEmail.length} row(s). First offending row index: ${rowsMissingEmail[0].i}.`,
+        },
+        { status: 400 }
+      );
+    }
+
+    const settings = await getMarketingSettings(uid, uid);
     if (!settings?.mailchimpAccessToken || !settings?.mailchimpServer || !settings?.mailchimpListId) {
       return NextResponse.json(
         { error: 'not_connected', message: 'Mailchimp is not connected or no audience selected' },
@@ -99,20 +118,22 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
  * GET — Poll batch status
  */
 export async function GET(req: NextRequest): Promise<NextResponse> {
+  const authResult = await requireAuthContext(req);
+  if (!authResult.ok) return authResult.response;
+  const { uid } = authResult.auth;
+
   try {
     const { searchParams } = new URL(req.url);
-    const tenantId = searchParams.get('tenantId');
-    const userId = searchParams.get('userId');
     const batchId = searchParams.get('batchId');
 
-    if (!tenantId || !userId || !batchId) {
+    if (!batchId) {
       return NextResponse.json(
-        { error: 'validation_failed', message: 'tenantId, userId, and batchId are required' },
+        { error: 'validation_failed', message: 'batchId is required' },
         { status: 400 }
       );
     }
 
-    const settings = await getMarketingSettings(tenantId, userId);
+    const settings = await getMarketingSettings(uid, uid);
     if (!settings?.mailchimpAccessToken || !settings?.mailchimpServer) {
       return NextResponse.json(
         { error: 'not_connected', message: 'Mailchimp is not connected' },
