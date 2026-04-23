@@ -61,7 +61,7 @@ const API = () => {
                     API Reference
                 </h2>
                 <p className="text-lg mb-10">
-                    Integrate KimuntuPro AI into your applications with our comprehensive API.
+                    Integrate Kimuntu AI into your applications with our comprehensive API.
                 </p>
 
                 <section className="mb-12">

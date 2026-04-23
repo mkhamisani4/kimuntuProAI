@@ -8,9 +8,7 @@ import {
   Shield, ArrowLeft, Bell,
 } from 'lucide-react';
 import { useTheme } from '@/components/providers/ThemeProvider';
-import { useSiteSettings } from '@/components/providers/SiteSettingsProvider';
 import { ProfileButton } from '@/components/shared/ProfileButton';
-import Image from 'next/image';
 
 const navigation = [
   { name: 'Dashboard',      href: '/admin',                icon: LayoutDashboard },
@@ -34,7 +32,6 @@ const systemHealth = [
 export function AdminSidebar() {
   const pathname = usePathname();
   const { isDark } = useTheme();
-  const { siteName } = useSiteSettings();
 
   const base = isDark
     ? 'bg-black/90 border-r border-white/10'
@@ -54,13 +51,14 @@ export function AdminSidebar() {
       {/* Logo */}
       <div className="p-5 pb-3 flex-shrink-0">
         <Link href="/admin" className="flex items-center gap-3 mb-4 hover:opacity-80 transition-opacity">
-          <Image src="/assets/LOGOS(9).svg" alt="KimuntuPro" width={32} height={32} />
-          <div>
-            <p className={`text-base font-bold leading-tight ${isDark ? 'text-white' : 'text-black'}`}>{siteName}</p>
-            <div className="flex items-center gap-1">
-              <Shield className="w-3 h-3 text-emerald-500" />
-              <span className="text-xs text-emerald-500 font-semibold">Admin</span>
-            </div>
+          <img
+            src={isDark ? '/assets/new_darkmode_logo.png' : '/assets/new_light_mode_logo.png'}
+            alt="Kimuntu AI Logo"
+            className="h-9 w-auto object-contain"
+          />
+          <div className="flex items-center gap-1">
+            <Shield className="w-3 h-3 text-emerald-500" />
+            <span className="text-xs text-emerald-500 font-semibold">Admin</span>
           </div>
         </Link>
 

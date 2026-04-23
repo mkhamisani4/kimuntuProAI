@@ -1,6 +1,6 @@
 /**
  * @kimuntupro/shared
- * Shared types and utilities for KimuntuPro AI
+ * Shared types and utilities for Kimuntu AI
  *
  * Provides shared TypeScript types, Zod schemas, and utilities
  * for use across ai-core, Business Track UI, and API routes
@@ -24,6 +24,6 @@ export type AppMetadata = {
 export function getAppInfo(): AppMetadata {
   return {
     version: '0.0.1',
-    name: 'KimuntuPro AI',
+    name: 'Kimuntu AI',
   };
 }

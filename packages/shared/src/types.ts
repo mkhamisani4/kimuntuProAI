@@ -1,5 +1,5 @@
 /**
- * Shared TypeScript Types for KimuntuPro AI
+ * Shared TypeScript Types for Kimuntu AI
  * Used across ai-core, Business Track UI, and API routes
  */
 

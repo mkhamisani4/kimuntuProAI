@@ -386,7 +386,7 @@ const Research = () => {
                         Canada + US Criminal Law Research
                     </h2>
                     <p className="text-lg max-w-4xl leading-relaxed">
-                        A structured, citation-forward bi-national research program powering the Kimuntu Legal Track and AI assistant. This program provides comprehensive coverage of criminal offenses, defenses, constitutional protections, sentencing frameworks, and procedural rules across Canadian federal law and United States federal and state law, grounded in primary sources and landmark case law.
+                        A structured, citation-forward bi-national research program powering the Kimuntu AI Legal Track and AI assistant. This program provides comprehensive coverage of criminal offenses, defenses, constitutional protections, sentencing frameworks, and procedural rules across Canadian federal law and United States federal and state law, grounded in primary sources and landmark case law.
                     </p>
                 </div>
 
@@ -792,7 +792,7 @@ const Research = () => {
                                 Ready for Database Population
                             </h3>
                             <p className="mb-4 max-w-2xl leading-relaxed">
-                                Research outputs are structured for direct ingestion into the Kimuntu legal database, enabling fast retrieval, comparative analysis, and grounded AI responses across both Canadian and United States criminal law.
+                                Research outputs are structured for direct ingestion into the Kimuntu AI legal database, enabling fast retrieval, comparative analysis, and grounded AI responses across both Canadian and United States criminal law.
                             </p>
                             <div className="flex flex-wrap gap-4">
                                 <a

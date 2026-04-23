@@ -16,7 +16,7 @@ export const MOCK_JOBS: JobPosting[] = [
   {
     id: 'job_002',
     title: 'Full-Stack Developer (Next.js)',
-    company: 'Kimuntu Partners',
+    company: 'Kimuntu AI Partners',
     location: 'Montreal, QC (Hybrid)',
     workType: 'Hybrid',
     description:

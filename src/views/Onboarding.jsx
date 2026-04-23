@@ -110,8 +110,8 @@ const Onboarding = () => {
                 <div className={`p-6 border-b ${isDark ? 'border-emerald-500/10' : 'border-emerald-100'}`}>
                     <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-3">
-                            <Image src="/assets/new_single_logo.png" alt="Kimuntu" width={36} height={36} />
-                            <span className={`text-sm font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>Kimuntu</span>
+                            <Image src="/assets/new_single_logo.png" alt="Kimuntu AI" width={40} height={40} />
+                            <span className={`text-sm font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>Kimuntu AI</span>
                         </div>
                         <span className={`text-xs font-medium px-3 py-1 rounded-full ${
                             isDark ? 'bg-emerald-500/10 text-emerald-400' : 'bg-emerald-50 text-emerald-600'
@@ -137,14 +137,14 @@ const Onboarding = () => {
                                 <div className="text-center space-y-4">
                                     <div className="flex justify-center">
                                         <div className="relative">
-                                            <Image src="/assets/new_single_logo.png" alt="Kimuntu" width={80} height={80} className="animate-float" />
+                                            <Image src="/assets/new_single_logo.png" alt="Kimuntu AI" width={88} height={88} className="animate-float" />
                                             <div className="absolute inset-0 bg-emerald-500/20 rounded-full blur-2xl animate-pulse" />
                                         </div>
                                     </div>
                                     <h1 className={`text-4xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
                                         Welcome to{' '}
                                         <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
-                                            Kimuntu
+                                            Kimuntu AI
                                         </span>
                                     </h1>
                                     <p className={`text-lg ${isDark ? 'text-white/60' : 'text-black/60'}`}>
@@ -278,7 +278,7 @@ const Onboarding = () => {
                                 <div className="text-center space-y-4">
                                     <div className="flex justify-center">
                                         <div className="relative">
-                                            <Image src="/assets/new_single_logo.png" alt="Kimuntu" width={72} height={72} className="animate-float" />
+                                            <Image src="/assets/new_single_logo.png" alt="Kimuntu AI" width={80} height={80} className="animate-float" />
                                             <div className="absolute inset-0 bg-emerald-500/20 rounded-full blur-2xl animate-pulse" />
                                         </div>
                                     </div>

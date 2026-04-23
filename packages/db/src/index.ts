@@ -1,6 +1,6 @@
 /**
  * @kimuntupro/db
- * Database layer with Firebase Firestore for KimuntuPro AI
+ * Database layer with Firebase Firestore for Kimuntu AI
  */
 
 // Export Firebase client and utilities

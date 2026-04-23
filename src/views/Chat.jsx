@@ -165,7 +165,7 @@ const buildDemoResponse = (text) => {
     }
 
     /* Default / Unrecognized */
-    return 'Thank you for your question. I am the Kimuntu Legal AI demo assistant, specializing in comparative criminal law between Canada and the United States. I can provide detailed information on a wide range of topics including: offense elements (theft, assault, murder, fraud, sexual offenses, drug offenses, cybercrime), procedural rights (bail, search and seizure, right to counsel, appeals), defenses (self-defense, necessity, duress), sentencing frameworks, and youth justice. Try asking me about a specific topic such as "Compare theft laws in Canada vs US," "Explain self-defense standards," or "How does bail work?" and I will provide a detailed comparative analysis with statutory references.';
+    return 'Thank you for your question. I am the Kimuntu AI Legal Assistant demo, specializing in comparative criminal law between Canada and the United States. I can provide detailed information on a wide range of topics including: offense elements (theft, assault, murder, fraud, sexual offenses, drug offenses, cybercrime), procedural rights (bail, search and seizure, right to counsel, appeals), defenses (self-defense, necessity, duress), sentencing frameworks, and youth justice. Try asking me about a specific topic such as "Compare theft laws in Canada vs US," "Explain self-defense standards," or "How does bail work?" and I will provide a detailed comparative analysis with statutory references.';
 };
 
 /* ------------------------------------------------------------------ */
@@ -269,7 +269,7 @@ const Chat = () => {
         {
             role: 'assistant',
             content:
-                'Welcome to the Kimuntu Legal AI demo. I can help you explore and compare criminal law concepts between Canada and the United States. Ask me about offense elements, procedural rights, defenses, sentencing, or any other criminal law topic. Try one of the suggested prompts below to get started.',
+                'Welcome to the Kimuntu AI Legal Assistant demo. I can help you explore and compare criminal law concepts between Canada and the United States. Ask me about offense elements, procedural rights, defenses, sentencing, or any other criminal law topic. Try one of the suggested prompts below to get started.',
             timestamp: new Date(),
         },
     ]);
@@ -392,7 +392,7 @@ const Chat = () => {
                         </div>
                         <div>
                             <h2 className={`text-base font-semibold leading-tight ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                                Kimuntu Legal AI
+                                Kimuntu AI Legal Assistant
                             </h2>
                             <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                                 <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1 align-middle" />

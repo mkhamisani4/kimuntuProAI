@@ -26,7 +26,7 @@ export default function LoginPage() {
       <div className={`min-h-screen flex items-center justify-center ${isDark ? 'bg-black' : 'bg-gray-50'}`}>
         <div className="flex flex-col items-center gap-6">
           <div className="relative">
-            <Image src="/assets/new_single_logo.png" alt="Kimuntu AI" width={80} height={80} className="animate-float" />
+            <Image src="/assets/new_single_logo.png" alt="Kimuntu AI" width={88} height={88} className="animate-float" />
             <div className="absolute inset-0 bg-emerald-500/20 rounded-full blur-2xl animate-pulse" />
           </div>
           <div className="flex items-center gap-3">
@@ -44,7 +44,7 @@ export default function LoginPage() {
       <div className={`min-h-screen flex items-center justify-center ${isDark ? 'bg-black' : 'bg-gray-50'}`}>
         <div className="flex flex-col items-center gap-4">
           <div className="relative">
-            <Image src="/assets/new_single_logo.png" alt="Kimuntu AI" width={80} height={80} className="animate-float" />
+            <Image src="/assets/new_single_logo.png" alt="Kimuntu AI" width={88} height={88} className="animate-float" />
             <div className="absolute inset-0 bg-emerald-500/20 rounded-full blur-2xl animate-pulse" />
           </div>
           <p className={`text-sm ${isDark ? 'text-white/50' : 'text-black/50'}`}>Redirecting...</p>

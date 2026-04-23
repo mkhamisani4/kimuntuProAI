@@ -274,7 +274,7 @@ const GDPR = () => {
                                 <tr><td className="p-3">Brevo (Sendinblue)</td><td className="p-3">Transactional and marketing email delivery</td></tr>
                                 <tr><td className="p-3">Google Analytics 4</td><td className="p-3">Anonymized platform usage analytics</td></tr>
                                 <tr><td className="p-3">Auth0 (Okta)</td><td className="p-3">Authentication and identity management</td></tr>
-                                <tr><td className="p-3">Twilio Inc.</td><td className="p-3">AI voice and SMS communication (Kimuntu TeamAI feature)</td></tr>
+                                <tr><td className="p-3">Twilio Inc.</td><td className="p-3">AI voice and SMS communication (Kimuntu AI TeamAI feature)</td></tr>
                             </tbody>
                         </table>
                     </div>

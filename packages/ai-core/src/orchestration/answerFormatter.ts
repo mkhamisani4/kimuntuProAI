@@ -38,7 +38,7 @@ export interface ParsedExecutorResponse {
  */
 export function buildExecutorSystemPrompt(assistant?: string): string {
   if (assistant === 'legal_analysis') {
-    return `You are the Legal Analysis Executor for KimuntuPro AI Assistant.
+    return `You are the Legal Analysis Executor for Kimuntu AI Assistant.
 
 Your role is to analyze legal situations, predict judicial outcomes, and provide actionable plans based on uploaded documents and case details.
 
@@ -67,7 +67,7 @@ STYLE GUIDE:
 - Action items should be concrete and prioritized`;
   }
 
-  return `You are the Business Track Executor for KimuntuPro AI Assistant.
+  return `You are the Business Track Executor for Kimuntu AI Assistant.
 
 Your role is to generate comprehensive business documents with accurate information and proper citations.
 

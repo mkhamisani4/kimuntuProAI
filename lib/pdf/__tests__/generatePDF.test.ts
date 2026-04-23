@@ -78,7 +78,7 @@ describe('generatePDF', () => {
     const allTextCalls = mockDoc.text.mock.calls.map((call: any[]) => JSON.stringify(call));
     const allCallsString = allTextCalls.join(' ');
 
-    expect(allCallsString).toContain('KimuntuPro');
+    expect(allCallsString).toContain('Kimuntu AI');
     expect(allCallsString).toContain('Streamlined Business Plan');
     expect(allCallsString).toContain('claude-haiku-4-5-20251001');
   });
@@ -126,8 +126,8 @@ describe('generatePDF', () => {
 
     const filename = mockDoc.save.mock.calls[0][0];
 
-    // Check filename format: KimuntuPro_<type>_<date>.pdf
-    expect(filename).toMatch(/^KimuntuPro_streamlined_plan_\d{4}-\d{2}-\d{2}\.pdf$/);
+    // Check filename format: Kimuntu_AI_<type>_<date>.pdf
+    expect(filename).toMatch(/^Kimuntu_AI_streamlined_plan_\d{4}-\d{2}-\d{2}\.pdf$/);
   });
 
   it('should show success toast on successful PDF generation', async () => {

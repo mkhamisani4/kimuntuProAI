@@ -44,7 +44,7 @@ export default function ProLaunchSection() {
               className="w-4 h-4 text-emerald-500 focus:ring-emerald-500"
             />
             <label htmlFor="orgai" className="cursor-pointer font-medium text-gray-300">
-              Kimuntu OrgAI
+              Kimuntu AI OrgAI
             </label>
           </div>
           <div className="flex items-center gap-2">
@@ -58,7 +58,7 @@ export default function ProLaunchSection() {
               className="w-4 h-4 text-emerald-500 focus:ring-emerald-500"
             />
             <label htmlFor="teamai" className="cursor-pointer font-medium text-gray-300">
-              Kimuntu TeamAI
+              Kimuntu AI TeamAI
             </label>
           </div>
           <div className="flex items-center gap-2">
@@ -72,7 +72,7 @@ export default function ProLaunchSection() {
               className="w-4 h-4 text-emerald-500 focus:ring-emerald-500"
             />
             <label htmlFor="smartoffice" className="cursor-pointer font-medium text-gray-300">
-              Kimuntu SmartOffice
+              Kimuntu AI SmartOffice
             </label>
           </div>
         </div>

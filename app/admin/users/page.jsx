@@ -6,6 +6,7 @@ import {
   Users as UsersIcon, UserPlus, Crown, DollarSign, AlertTriangle, Shield, ShieldOff, Trash2, X, KeyRound, EyeOff,
 } from 'lucide-react';
 import { useTheme } from '@/components/providers/ThemeProvider';
+import { auth } from '@/lib/firebase';
 
 const PLAN_LABEL = {
   pro: 'Pro Launch Plan',
@@ -317,11 +318,24 @@ export default function AdminUsersPage() {
   const [showPwConfirm, setShowPwConfirm] = useState(false);
   const pageSize = 10;
 
+  const getAuthHeaders = async (extra = {}) => {
+    const token = await auth.currentUser?.getIdToken();
+    return {
+      ...extra,
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    };
+  };
+
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const res = await fetch('/api/admin/users');
-      if (!res.ok) throw new Error('Failed to load users');
+      const res = await fetch('/api/admin/users', {
+        headers: await getAuthHeaders(),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || 'Failed to load users');
+      }
       const data = await res.json();
       setUsers(data.users || []);
       if (data.users?.[0]) setSelectedUid(data.users[0].uid);
@@ -340,7 +354,7 @@ export default function AdminUsersPage() {
       const newRole = currentRole === 'admin' ? 'user' : 'admin';
       const res = await fetch(`/api/admin/users/${uid}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: await getAuthHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({ role: newRole }),
       });
       if (!res.ok) throw new Error('Failed to update role');
@@ -353,7 +367,10 @@ export default function AdminUsersPage() {
     if (!confirm('Delete this user? This cannot be undone.')) return;
     setActionLoading(uid + '-delete');
     try {
-      const res = await fetch(`/api/admin/users/${uid}`, { method: 'DELETE' });
+      const res = await fetch(`/api/admin/users/${uid}`, {
+        method: 'DELETE',
+        headers: await getAuthHeaders(),
+      });
       if (!res.ok) throw new Error('Failed to delete user');
       setUsers((prev) => prev.filter((u) => u.uid !== uid));
     } catch (err) { alert(err.message); }
@@ -366,7 +383,7 @@ export default function AdminUsersPage() {
     try {
       const res = await fetch('/api/admin/users', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: await getAuthHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify(addForm),
       });
       if (!res.ok) throw new Error('Failed to create user');
@@ -401,7 +418,7 @@ export default function AdminUsersPage() {
     try {
       const res = await fetch(`/api/admin/users/${pwUser.uid}/password`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: await getAuthHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({ password: pwForm.newPassword }),
       });
       if (!res.ok) {
@@ -429,7 +446,7 @@ export default function AdminUsersPage() {
       const displayName = [editForm.firstName, editForm.lastName].filter(Boolean).join(' ');
       const res = await fetch(`/api/admin/users/${editUser.uid}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: await getAuthHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({ displayName, email: editForm.email, subscriptionTier: editForm.subscriptionTier }),
       });
       if (!res.ok) throw new Error('Failed to update user');

@@ -7,7 +7,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 
-const SYSTEM = `You are the Kimuntu AI assistant — an expert on the Kimuntu platform and a knowledgeable general-purpose assistant. You help users navigate the platform, answer questions about features and pricing, and assist with a wide range of topics.
+const SYSTEM = `You are the Kimuntu AI assistant — an expert on the Kimuntu AI platform and a knowledgeable general-purpose assistant. You help users navigate the platform, answer questions about features and pricing, and assist with a wide range of topics.
 
 ## About Kimuntu AI (ProLaunch Platform)
 
@@ -46,7 +46,7 @@ The left sidebar has these sections:
 3. Find "Change Password"
 4. Enter your Current Password, New Password (min 6 characters), and Confirm New Password
 5. Click "Update Password"
-Note: This only applies to email/password accounts. Google Sign-In users authenticate via Google — there is no Kimuntu password to change.
+Note: This only applies to email/password accounts. Google Sign-In users authenticate via Google — there is no Kimuntu AI password to change.
 
 **Manage Subscription / Cancel Plan:**
 - Go to Dashboard → Pricing (/dashboard/pricing) to upgrade or change plans
@@ -127,7 +127,7 @@ Credit uses: Live Avatar session (1 credit), Legal consultation (1 credit), Comp
 - Startup Pitch Coach (AI feedback on decks and financials)
 - Smart Policy Simulation
 - AI Learning Hub (personalized upskilling paths)
-- Kimuntu Innovation Network (VCs, accelerators, universities)
+- Kimuntu AI Innovation Network (VCs, accelerators, universities)
 - Dedicated account manager + priority support (24-hour response)
 
 ---
@@ -147,7 +147,7 @@ Credit uses: Live Avatar session (1 credit), Legal consultation (1 credit), Comp
 - Data is never sold to third parties
 - AES-256 encryption in transit and at rest
 - GDPR, CCPA, PIPEDA (Canadian), Quebec Law 25 compliant
-- Payment data (card numbers) processed by Stripe — Kimuntu only stores last 4 digits
+- Payment data (card numbers) processed by Stripe — Kimuntu AI only stores last 4 digits
 - Legal documents retained 7 years (legal compliance); AI-generated career/business docs retained 24 months
 - Inactive accounts (no login for 24 months) deleted after 90-day notice
 - User rights: access, rectification, erasure, data portability, opt-out of marketing
@@ -157,7 +157,7 @@ Credit uses: Live Avatar session (1 credit), Legal consultation (1 credit), Comp
 
 ## General Assistance
 
-Beyond Kimuntu platform questions, you can also help with:
+Beyond Kimuntu AI platform questions, you can also help with:
 - Legal questions (Canadian and US law comparisons, rights, procedures)
 - Business strategy, planning, market analysis, and growth
 - Career guidance, resume advice, and job searching
@@ -182,7 +182,7 @@ function buildFallbackResponse(lastUserMessage: string): string {
   /* ---- Platform / navigation ---- */
 
   if (q.includes('password') && (q.includes('reset') || q.includes('change') || q.includes('forgot') || q.includes('update') || q.includes('how') || q.includes('where') || q.includes('find'))) {
-    return "To change your password:\n\n1. Go to **Dashboard → Settings** (/dashboard/settings)\n2. Scroll to the **Privacy & Security** section\n3. Find **Change Password**\n4. Enter your Current Password, a New Password (min 6 characters), and confirm it\n5. Click **Update Password**\n\nIf you signed in with Google, you don't have a Kimuntu password — manage your password through your Google account instead.\n\nStill having trouble? Email support@kimuntu.ai or call +1 (613) 290-32-00 (Mon–Fri, 9 AM – 6 PM EST).";
+    return "To change your password:\n\n1. Go to **Dashboard → Settings** (/dashboard/settings)\n2. Scroll to the **Privacy & Security** section\n3. Find **Change Password**\n4. Enter your Current Password, a New Password (min 6 characters), and confirm it\n5. Click **Update Password**\n\nIf you signed in with Google, you don't have a Kimuntu AI password — manage your password through your Google account instead.\n\nStill having trouble? Email support@kimuntu.ai or call +1 (613) 290-32-00 (Mon–Fri, 9 AM – 6 PM EST).";
   }
 
   if (q.includes('refund') || q.includes('money back')) {
@@ -210,7 +210,7 @@ function buildFallbackResponse(lastUserMessage: string): string {
   }
 
   if (q.includes('contact') || q.includes('reach') || q.includes('support') || (q.includes('talk') && q.includes('human'))) {
-    return "You can reach the Kimuntu support team through:\n\n- **Email:** support@kimuntu.ai (replies within 24 hours for premium members)\n- **Live Chat:** Dashboard → Support — available Mon–Fri, 9 AM – 6 PM EST\n- **Phone:** +1 (613) 290-32-00 (Mon–Fri, 9 AM – 6 PM EST)\n\nFor legal/privacy matters: legal@kimuntu.ai or privacy@kimuntu.ai\n\nVisit the full Support page at **Dashboard → Support**.";
+    return "You can reach the Kimuntu AI support team through:\n\n- **Email:** support@kimuntu.ai (replies within 24 hours for premium members)\n- **Live Chat:** Dashboard → Support — available Mon–Fri, 9 AM – 6 PM EST\n- **Phone:** +1 (613) 290-32-00 (Mon–Fri, 9 AM – 6 PM EST)\n\nFor legal/privacy matters: legal@kimuntu.ai or privacy@kimuntu.ai\n\nVisit the full Support page at **Dashboard → Support**.";
   }
 
   /* ---- Pricing & plans ---- */
@@ -228,7 +228,7 @@ function buildFallbackResponse(lastUserMessage: string): string {
   }
 
   if (q.includes('full package') || q.includes('bundle') || (q.includes('all') && q.includes('track'))) {
-    return "The **Full Package** ($99/month | $950.40/year) includes all four tracks:\n\n✅ Career Premium\n✅ Business Premium\n✅ Legal Premium\n✅ Innovation Premium\n\nPlus exclusive benefits:\n- Priority AI processing (2× faster)\n- Unlimited document generation\n- 5 Live Avatar sessions/month\n- Dedicated account manager\n- White-label documents (no Kimuntu branding)\n- API access (100 calls/month)\n- 12-hour support response guarantee\n\nSaves $60.96/month vs. buying all tracks separately. View at **Dashboard → Pricing**.";
+    return "The **Full Package** ($99/month | $950.40/year) includes all four tracks:\n\n✅ Career Premium\n✅ Business Premium\n✅ Legal Premium\n✅ Innovation Premium\n\nPlus exclusive benefits:\n- Priority AI processing (2× faster)\n- Unlimited document generation\n- 5 Live Avatar sessions/month\n- Dedicated account manager\n- White-label documents (no Kimuntu AI branding)\n- API access (100 calls/month)\n- 12-hour support response guarantee\n\nSaves $60.96/month vs. buying all tracks separately. View at **Dashboard → Pricing**.";
   }
 
   /* ---- Features / tracks ---- */
@@ -246,7 +246,7 @@ function buildFallbackResponse(lastUserMessage: string): string {
   }
 
   if (q.includes('innovation') || q.includes('innovative') && (q.includes('track') || q.includes('what') || q.includes('feature'))) {
-    return "The **Innovation Hub Track** ($79.99/month) includes:\n\n- **Patent Intelligence Engine** — prior art search + patent drafting (USPTO + CIPO)\n- **Idea Stress-Tester** — AI validates business/invention viability\n- **ESG & Sustainability Suite** — carbon footprint, CSR strategy, B-Corp checklist\n- **Startup Pitch Coach** — AI feedback on decks and financials\n- **Smart Policy Simulation** — model regulatory impact on your business\n- **AI Learning Hub** — personalized upskilling paths\n- **Kimuntu Innovation Network** — VCs, accelerators, universities\n- Dedicated account manager + 24-hour priority support\n\nAccess at **Dashboard → Innovative**.";
+    return "The **Innovation Hub Track** ($79.99/month) includes:\n\n- **Patent Intelligence Engine** — prior art search + patent drafting (USPTO + CIPO)\n- **Idea Stress-Tester** — AI validates business/invention viability\n- **ESG & Sustainability Suite** — carbon footprint, CSR strategy, B-Corp checklist\n- **Startup Pitch Coach** — AI feedback on decks and financials\n- **Smart Policy Simulation** — model regulatory impact on your business\n- **AI Learning Hub** — personalized upskilling paths\n- **Kimuntu AI Innovation Network** — VCs, accelerators, universities\n- Dedicated account manager + 24-hour priority support\n\nAccess at **Dashboard → Innovative**.";
   }
 
   if (q.includes('avatar') || (q.includes('live') && q.includes('session'))) {
@@ -256,7 +256,7 @@ function buildFallbackResponse(lastUserMessage: string): string {
   /* ---- Privacy & security ---- */
 
   if (q.includes('privacy') || q.includes('data') || q.includes('gdpr') || q.includes('pipeda') || (q.includes('my') && q.includes('information'))) {
-    return "**Kimuntu AI Privacy & Security:**\n\n- 🔒 AES-256 encryption (data in transit and at rest)\n- ✅ GDPR, CCPA, PIPEDA, and Quebec Law 25 compliant\n- 🚫 Your data is **never sold** to third parties\n- 💳 Card numbers are processed by Stripe — Kimuntu only sees the last 4 digits\n- 🗑️ You can request data deletion anytime — processed within 30 days\n- 📥 You can export your data (JSON/CSV format)\n\n**Data retention:** AI-generated career/business docs are kept 24 months; legal documents are kept 7 years (legal compliance).\n\nContact privacy@kimuntu.ai for any privacy questions.";
+    return "**Kimuntu AI Privacy & Security:**\n\n- 🔒 AES-256 encryption (data in transit and at rest)\n- ✅ GDPR, CCPA, PIPEDA, and Quebec Law 25 compliant\n- 🚫 Your data is **never sold** to third parties\n- 💳 Card numbers are processed by Stripe — Kimuntu AI only sees the last 4 digits\n- 🗑️ You can request data deletion anytime — processed within 30 days\n- 📥 You can export your data (JSON/CSV format)\n\n**Data retention:** AI-generated career/business docs are kept 24 months; legal documents are kept 7 years (legal compliance).\n\nContact privacy@kimuntu.ai for any privacy questions.";
   }
 
   /* ---- General legal (Canadian & US law) ---- */
@@ -291,22 +291,22 @@ function buildFallbackResponse(lastUserMessage: string): string {
   /* ---- Business & career general ---- */
 
   if (q.includes('business plan') || q.includes('startup') || q.includes('entrepreneur'))
-    return 'A strong business plan covers: executive summary, market analysis, competitive landscape, product/service description, go-to-market strategy, financial projections (3–5 years), and funding requirements. For startups, validate your idea with customer discovery before writing the full plan. The Kimuntu Business track can generate detailed market analysis and financial overviews — go to **Dashboard → Business**.';
+    return 'A strong business plan covers: executive summary, market analysis, competitive landscape, product/service description, go-to-market strategy, financial projections (3–5 years), and funding requirements. For startups, validate your idea with customer discovery before writing the full plan. The Kimuntu AI Business track can generate detailed market analysis and financial overviews — go to **Dashboard → Business**.';
 
   if (q.includes('market analysis') || q.includes('market research') || q.includes('target market'))
-    return 'Effective market analysis includes: (1) Total Addressable Market (TAM) sizing, (2) Serviceable Addressable Market (SAM), (3) competitor mapping, (4) customer segmentation, and (5) pricing benchmarks. Tools like Statista, IBISWorld, and Google Trends provide market data. The Kimuntu Business track can generate a full market analysis report — navigate to **Dashboard → Business**.';
+    return 'Effective market analysis includes: (1) Total Addressable Market (TAM) sizing, (2) Serviceable Addressable Market (SAM), (3) competitor mapping, (4) customer segmentation, and (5) pricing benchmarks. Tools like Statista, IBISWorld, and Google Trends provide market data. The Kimuntu AI Business track can generate a full market analysis report — navigate to **Dashboard → Business**.';
 
   if (q.includes('funding') || q.includes('investor') || q.includes('venture capital') || q.includes('grant'))
-    return 'Common funding paths: (1) Bootstrapping — no dilution, slow growth; (2) Friends & family — quick but personal risk; (3) Angel investors — $25K–$500K, early stage; (4) Venture capital — $500K+, high growth required; (5) Government grants — non-dilutive, competitive (BDC, SR&ED in Canada; SBA in the U.S.); (6) Revenue-based financing — repay from revenue, no equity loss. Kimuntu\'s Business track has a Funding Finder for Canadian and US programs.';
+    return 'Common funding paths: (1) Bootstrapping — no dilution, slow growth; (2) Friends & family — quick but personal risk; (3) Angel investors — $25K–$500K, early stage; (4) Venture capital — $500K+, high growth required; (5) Government grants — non-dilutive, competitive (BDC, SR&ED in Canada; SBA in the U.S.); (6) Revenue-based financing — repay from revenue, no equity loss. Kimuntu AI\'s Business track has a Funding Finder for Canadian and US programs.';
 
   if (q.includes('resume') || q.includes('cv') || q.includes('cover letter'))
-    return 'Resume best practices: (1) Tailor it to each job using keywords from the job description; (2) Lead with a strong summary statement; (3) Quantify achievements ("increased sales by 32%"); (4) Keep it to 1–2 pages; (5) Use ATS-friendly formatting (no tables or graphics). The Kimuntu Career track can build a tailored, ATS-optimized resume and cover letter — go to **Dashboard → Career**.';
+    return 'Resume best practices: (1) Tailor it to each job using keywords from the job description; (2) Lead with a strong summary statement; (3) Quantify achievements ("increased sales by 32%"); (4) Keep it to 1–2 pages; (5) Use ATS-friendly formatting (no tables or graphics). The Kimuntu AI Career track can build a tailored, ATS-optimized resume and cover letter — go to **Dashboard → Career**.';
 
   if (q.includes('interview') || q.includes('job search') || q.includes('job offer') || q.includes('salary'))
-    return 'Interview tips: (1) Use the STAR method (Situation, Task, Action, Result) for behavioral questions; (2) Research the company thoroughly; (3) Prepare 3–5 questions to ask; (4) For salary, research ranges on Glassdoor and LinkedIn Salary before negotiating — always negotiate. Most offers have 10–20% flexibility. The Kimuntu Career track has AI-powered interview preparation and Live Avatar coaching at **Dashboard → Career**.';
+    return 'Interview tips: (1) Use the STAR method (Situation, Task, Action, Result) for behavioral questions; (2) Research the company thoroughly; (3) Prepare 3–5 questions to ask; (4) For salary, research ranges on Glassdoor and LinkedIn Salary before negotiating — always negotiate. Most offers have 10–20% flexibility. The Kimuntu AI Career track has AI-powered interview preparation and Live Avatar coaching at **Dashboard → Career**.';
 
   if (q.includes('immigration') || q.includes('visa') || q.includes('work permit') || q.includes('permanent resident'))
-    return "Canadian immigration pathways include: Express Entry (Federal Skilled Worker, Canadian Experience Class, Federal Skilled Trades), Provincial Nominee Programs (PNPs), Family Sponsorship, and Start-up Visa. For U.S. immigration: H-1B (specialty occupation), EB-1/EB-2/EB-3 employment-based green cards, and O-1 (extraordinary ability). The Kimuntu Legal track has an AI Immigration Statement Builder and Immigration Court Simulation — go to **Dashboard → Legal**. Always consult a licensed immigration consultant (RCIC in Canada, immigration attorney in the U.S.) for your specific case.";
+    return "Canadian immigration pathways include: Express Entry (Federal Skilled Worker, Canadian Experience Class, Federal Skilled Trades), Provincial Nominee Programs (PNPs), Family Sponsorship, and Start-up Visa. For U.S. immigration: H-1B (specialty occupation), EB-1/EB-2/EB-3 employment-based green cards, and O-1 (extraordinary ability). The Kimuntu AI Legal track has an AI Immigration Statement Builder and Immigration Court Simulation — go to **Dashboard → Legal**. Always consult a licensed immigration consultant (RCIC in Canada, immigration attorney in the U.S.) for your specific case.";
 
   /* ---- Help / default ---- */
 

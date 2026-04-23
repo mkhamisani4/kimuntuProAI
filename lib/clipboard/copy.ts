@@ -52,7 +52,7 @@ export async function copyAsHTML(sections: Record<string, string>): Promise<void
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>KimuntuPro AI Assistant Results</title>
+  <title>Kimuntu AI Assistant Results</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
@@ -78,7 +78,7 @@ export async function copyAsHTML(sections: Record<string, string>): Promise<void
   </style>
 </head>
 <body>
-  <h1>KimuntuPro AI Assistant Results</h1>
+  <h1>Kimuntu AI Assistant Results</h1>
   ${Object.entries(sections)
     .map(([title, content]) => `
     <div class="section">

@@ -48,7 +48,7 @@ export default function Sidebar({ user, t }) {
             <img
               src="/assets/new_darkmode_logo.png"
               alt="Kimuntu AI Logo"
-              className="h-12 w-auto object-contain"
+              className="h-14 w-auto object-contain"
             />
           </button>
           <nav className="space-y-1">

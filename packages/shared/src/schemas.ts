@@ -1,5 +1,5 @@
 /**
- * Zod Validation Schemas for KimuntuPro AI
+ * Zod Validation Schemas for Kimuntu AI
  * Provides runtime validation for all shared types
  */
 

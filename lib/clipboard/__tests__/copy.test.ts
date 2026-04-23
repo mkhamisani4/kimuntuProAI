@@ -145,7 +145,7 @@ describe('Clipboard Copy Utilities', () => {
       // Check HTML structure
       expect(copiedText).toContain('<!DOCTYPE html>');
       expect(copiedText).toContain('<html>');
-      expect(copiedText).toContain('<h1>KimuntuPro AI Assistant Results</h1>');
+      expect(copiedText).toContain('<h1>Kimuntu AI Assistant Results</h1>');
       expect(copiedText).toContain('<h2>Executive Summary</h2>');
       expect(copiedText).toContain('This is the executive summary content.');
     });

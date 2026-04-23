@@ -65,7 +65,7 @@ const SupportCenter = () => {
                     answer: 'Three levels: Basic (executive summary, market overview), Medium (competitor analysis, financial projections), and Professional (strategic marketing, investor-ready financial models, AI website builder, and SEO integration).'
                 },
                 {
-                    question: 'What is Kimuntu TeamAI?',
+                    question: 'What is Kimuntu AI TeamAI?',
                     answer: 'A virtual enterprise automation suite that simulates a full company — CEO, HR, Finance, Sales, and Administration AI agents. It allows a solo founder to operate like a 20-person team, with AI cold calling, automated emails, CRM integration, and daily executive reports.'
                 },
                 {
@@ -144,8 +144,8 @@ const SupportCenter = () => {
             answer: 'Three tiers: Basic (executive summary, market overview, company description, 1-year projections); Medium (competitor analysis, detailed financial models, marketing strategy, 3-year projections); and Professional (investor-ready format, strategic marketing plan, AI website builder integration, SEO roadmap, full financial statements, and pitch deck). All levels support Canadian and US market contexts with relevant regulatory and funding references.'
         },
         {
-            question: 'What is Kimuntu TeamAI?',
-            answer: 'Kimuntu TeamAI is a virtual enterprise automation suite that simulates a complete executive team. AI agents function as CEO (strategic decisions), HR Manager (hiring workflows, offer letters, onboarding), CFO (cash flow modeling, financial alerts), Sales Director (AI cold outreach via Twilio, CRM management), and Administrative Officer (scheduling, document management, follow-ups). A solo founder can operate with the efficiency of a 20-person team.'
+            question: 'What is Kimuntu AI TeamAI?',
+            answer: 'Kimuntu AI TeamAI is a virtual enterprise automation suite that simulates a complete executive team. AI agents function as CEO (strategic decisions), HR Manager (hiring workflows, offer letters, onboarding), CFO (cash flow modeling, financial alerts), Sales Director (AI cold outreach via Twilio, CRM management), and Administrative Officer (scheduling, document management, follow-ups). A solo founder can operate with the efficiency of a 20-person team.'
         },
         {
             question: 'How does the Funding Opportunities Finder work?',

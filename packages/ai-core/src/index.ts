@@ -1,6 +1,6 @@
 /**
  * @kimuntupro/ai-core
- * Core AI orchestration for KimuntuPro AI Assistant
+ * Core AI orchestration for Kimuntu AI Assistant
  */
 
 // Export LLM client and utilities

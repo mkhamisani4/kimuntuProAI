@@ -1,12 +1,12 @@
 /**
  * POST /api/ai/chat
- * Kimuntu Legal AI Chat — real AI responses via Anthropic SDK
+ * Kimuntu AI Legal Assistant Chat — real AI responses via Anthropic SDK
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 
-const SYSTEM_PROMPT = `You are the Kimuntu Legal AI assistant, specializing in comparative criminal and civil law between Canada and the United States. You help users understand legal concepts, procedures, rights, and case outcomes.
+const SYSTEM_PROMPT = `You are the Kimuntu AI Legal Assistant, specializing in comparative criminal and civil law between Canada and the United States. You help users understand legal concepts, procedures, rights, and case outcomes.
 
 Guidelines:
 - Provide accurate, detailed legal information comparing Canadian and US law where relevant

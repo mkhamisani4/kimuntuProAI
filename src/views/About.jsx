@@ -122,7 +122,7 @@ const About = () => {
                     </h3>
                     <div className={`p-6 rounded-2xl border mb-6 ${isDark ? 'bg-white/5 border-white/10' : 'bg-white/70 border-gray-200'}`}>
                         <h4 className={`text-xl font-semibold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                            KimuntuPro Launch AI: Powered Platform for Career, Business, and Legal Assistance
+                            Kimuntu AI: Powered Platform for Career, Business, and Legal Assistance
                         </h4>
                         <p className={isDark ? 'text-white/70' : 'text-gray-700'}>
                             A concise leadership structure guiding vision, AI innovation, compliance, and product experience across the platform.

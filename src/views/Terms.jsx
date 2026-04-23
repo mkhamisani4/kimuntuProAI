@@ -42,7 +42,7 @@ const Terms = () => {
                         Article 2 — Description of Services
                     </h3>
                     <p className="mb-4">
-                        Kimuntu AI provides AI-powered tools across four tracks: (1) Career Track — CV building, interview coaching, job matching, career planning; (2) Business Track — business plan generation, virtual team automation (Kimuntu TeamAI), funding discovery, website building; (3) Legal Track — document drafting, immigration tools, legal simulations, lawyer matching; (4) Innovation Track — patent research, ESG tools, policy simulation, AI learning hub. Services are delivered via web platform and mobile applications. Specific features vary by subscription plan.
+                        Kimuntu AI provides AI-powered tools across four tracks: (1) Career Track — CV building, interview coaching, job matching, career planning; (2) Business Track — business plan generation, virtual team automation (Kimuntu AI TeamAI), funding discovery, website building; (3) Legal Track — document drafting, immigration tools, legal simulations, lawyer matching; (4) Innovation Track — patent research, ESG tools, policy simulation, AI learning hub. Services are delivered via web platform and mobile applications. Specific features vary by subscription plan.
                     </p>
                 </section>
 

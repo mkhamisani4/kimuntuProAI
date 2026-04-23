@@ -1,6 +1,6 @@
 # @kimuntupro/db
 
-Database layer for KimuntuPro AI with Prisma and pgvector support.
+Database layer for Kimuntu AI with Prisma and pgvector support.
 
 ## Features
 

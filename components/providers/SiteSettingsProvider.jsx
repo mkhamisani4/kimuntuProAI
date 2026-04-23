@@ -3,12 +3,12 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 
 const SiteSettingsContext = createContext({
-  siteName: 'KimuntuPro',
+  siteName: 'Kimuntu AI',
   setSiteName: () => {},
 });
 
 export function SiteSettingsProvider({ children }) {
-  const [siteName, setSiteNameState] = useState('KimuntuPro');
+  const [siteName, setSiteNameState] = useState('Kimuntu AI');
 
   // Load persisted value on mount
   useEffect(() => {

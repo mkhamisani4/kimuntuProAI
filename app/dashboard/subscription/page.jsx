@@ -98,7 +98,7 @@ export default function SubscriptionPage() {
             <div className="min-h-[70vh] flex items-center justify-center">
                 <div className="flex flex-col items-center gap-4">
                     <div className="relative">
-                        <Image src="/assets/new_single_logo.png" alt="Kimuntu" width={56} height={56} className="animate-float" />
+                        <Image src="/assets/new_single_logo.png" alt="Kimuntu AI" width={64} height={64} className="animate-float" />
                         <div className="absolute inset-0 bg-emerald-500/20 rounded-full blur-2xl animate-pulse" />
                     </div>
                     <div className="flex items-center gap-2">
@@ -131,7 +131,7 @@ export default function SubscriptionPage() {
 
                     <div className="relative z-10">
                         <div className="relative inline-block mb-6">
-                            <Image src="/assets/new_single_logo.png" alt="Kimuntu AI" width={80} height={80} className="animate-float" />
+                            <Image src="/assets/new_single_logo.png" alt="Kimuntu AI" width={88} height={88} className="animate-float" />
                             <div className="absolute inset-0 bg-emerald-500/20 rounded-full blur-2xl" />
                         </div>
                         <h2 className={`text-2xl font-bold mb-3 ${isDark ? 'text-white' : 'text-gray-900'}`}>
@@ -172,7 +172,7 @@ export default function SubscriptionPage() {
             {/* Header */}
             <div className="flex items-center gap-4 mb-8 relative z-10">
                 <div className="relative">
-                    <Image src="/assets/new_single_logo.png" alt="Kimuntu AI" width={48} height={48} />
+                    <Image src="/assets/new_single_logo.png" alt="Kimuntu AI" width={54} height={54} />
                     <div className="absolute inset-0 bg-emerald-500/20 rounded-full blur-xl" />
                 </div>
                 <div>

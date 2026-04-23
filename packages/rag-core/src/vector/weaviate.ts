@@ -42,7 +42,7 @@ export class WeaviateClient implements VectorClient {
           .classCreator()
           .withClass({
             class: COLLECTION_NAME,
-            description: 'KimuntuPro document chunks for RAG',
+            description: 'Kimuntu AI document chunks for RAG',
             vectorizer: 'none', // We provide embeddings
             properties: [
               {

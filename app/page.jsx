@@ -297,7 +297,7 @@ export default function LandingPage() {
             <div className={`min-h-screen flex items-center justify-center ${isDark ? 'bg-black' : 'bg-white'}`}>
                 <div className="flex flex-col items-center gap-4">
                     <div className="relative">
-                        <Image src="/assets/new_single_logo.png" alt="Kimuntu" width={96} height={96} className="animate-float" />
+                        <Image src="/assets/new_single_logo.png" alt="Kimuntu AI" width={108} height={108} className="animate-float" />
                         <div className="absolute inset-0 bg-emerald-500/20 rounded-full blur-2xl animate-pulse" />
                     </div>
                     <div className={`text-2xl font-semibold ${isDark ? 'text-white' : 'text-black'}`}>
@@ -342,7 +342,7 @@ export default function LandingPage() {
                         <img
                             src={isDark ? '/assets/new_darkmode_logo.png' : '/assets/new_light_mode_logo.png'}
                             alt="Kimuntu AI Logo"
-                            className="h-10 sm:h-12 w-auto object-contain"
+                            className="h-11 sm:h-14 w-auto object-contain"
                         />
                     </div>
                     <div className="flex w-full sm:w-auto items-center justify-between sm:justify-end gap-2 sm:gap-4">
@@ -1050,7 +1050,7 @@ export default function LandingPage() {
                                 <div className="relative z-10">
                                     <div className="text-center mb-8">
                                         <div className="relative inline-block mb-4">
-                                            <Image src="/assets/new_single_logo.png" alt="Logo" width={80} height={80} className="animate-float" />
+                                            <Image src="/assets/new_single_logo.png" alt="Logo" width={88} height={88} className="animate-float" />
                                         </div>
                                         <h2 className={`text-2xl font-bold mb-2 ${isDark ? 'text-white' : 'text-black'}`}>
                                             {isLogin ? t.welcomeBack : t.getStarted}

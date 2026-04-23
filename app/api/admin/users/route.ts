@@ -53,6 +53,19 @@ const MOCK_USERS = [
   { uid: 'mock-012', email: 'isabella.rossi@gmail.com',    displayName: 'Isabella Rossi',    disabled: true,  createdAt: '2025-08-11T15:30:00Z', lastSignIn: '2026-02-14T08:00:00Z', role: 'user',   subscriptionTier: 'starter',  subscriptionStatus: 'canceled' },
 ];
 
+async function listAllAuthUsers() {
+  const users: admin.auth.UserRecord[] = [];
+  let pageToken: string | undefined;
+
+  do {
+    const result = await admin.auth(adminApp!).listUsers(1000, pageToken);
+    users.push(...result.users);
+    pageToken = result.pageToken;
+  } while (pageToken);
+
+  return users;
+}
+
 /**
  * POST /api/admin/users
  * Body: { firstName, lastName, email, subscriptionTier }
@@ -65,7 +78,7 @@ export async function POST(req: NextRequest) {
 
     if (!email) return NextResponse.json({ error: 'Email is required' }, { status: 400 });
 
-    if (process.env.NODE_ENV !== 'production') {
+    if (!adminApp || !adminDb) {
       const newUser = {
         uid: `mock-${Date.now()}`,
         email,
@@ -81,7 +94,6 @@ export async function POST(req: NextRequest) {
     }
 
     await verifyAdmin(req);
-    if (!adminApp || !adminDb) return NextResponse.json({ error: 'Admin SDK not available' }, { status: 503 });
 
     const displayName = [firstName, lastName].filter(Boolean).join(' ') || undefined;
     const authUser = await admin.auth(adminApp).createUser({ email, displayName, password: Math.random().toString(36).slice(-10) });
@@ -101,25 +113,25 @@ export async function POST(req: NextRequest) {
  */
 export async function GET(req: NextRequest) {
   try {
-    if (process.env.NODE_ENV !== 'production') {
-      return NextResponse.json({ users: MOCK_USERS }, { status: 200 });
+    if (!adminApp || !adminDb) {
+      return NextResponse.json({
+        users: MOCK_USERS,
+        source: 'mock',
+        warning: 'Firebase Admin SDK is not configured. Set FIREBASE_SERVICE_ACCOUNT_KEY to list real Firebase Auth users.',
+      }, { status: 200 });
     }
 
     await verifyAdmin(req);
 
-    if (!adminApp || !adminDb) {
-      return NextResponse.json({ error: 'Admin SDK not available' }, { status: 503 });
-    }
-
-    // List all Auth users (up to 1000)
-    const listResult = await admin.auth(adminApp).listUsers(1000);
+    // List all Auth users, following Firebase pagination beyond the first 1000.
+    const authUsers = await listAllAuthUsers();
 
     // Fetch Firestore profiles in parallel
     const profileSnapshots = await Promise.all(
-      listResult.users.map((u) => adminDb!.collection('users').doc(u.uid).get())
+      authUsers.map((u) => adminDb!.collection('users').doc(u.uid).get())
     );
 
-    const users = listResult.users.map((authUser, i) => {
+    const users = authUsers.map((authUser, i) => {
       const profile = profileSnapshots[i].exists ? profileSnapshots[i].data() : {};
       return {
         uid: authUser.uid,
@@ -134,7 +146,7 @@ export async function GET(req: NextRequest) {
       };
     });
 
-    return NextResponse.json({ users }, { status: 200 });
+    return NextResponse.json({ users, source: 'firebase' }, { status: 200 });
   } catch (error: any) {
     const status =
       error.message === 'Missing authorization token' ||

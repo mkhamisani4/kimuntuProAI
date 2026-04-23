@@ -213,7 +213,7 @@ export default function SettingsPage() {
 
       {/* ── Platform Settings ───────────────────────────────── */}
       <Section icon={Globe} title="Platform Settings" description="General information displayed to users" isDark={isDark}>
-        <Field label="Site Name"    value={siteName}     onChange={setSiteName}     placeholder="KimuntuPro AI"   isDark={isDark}/>
+        <Field label="Site Name"    value={siteName}     onChange={setSiteName}     placeholder="Kimuntu AI"   isDark={isDark}/>
         <Field label="Tagline"      value={siteTagline}  onChange={setSiteTagline}  placeholder="Your tagline…"   isDark={isDark}/>
         <Field label="Support Email" value={supportEmail} onChange={setSupportEmail} placeholder="support@…"       isDark={isDark}/>
         <Field label="Site URL"     value={siteUrl}      onChange={setSiteUrl}      placeholder="https://…"       isDark={isDark}/>
