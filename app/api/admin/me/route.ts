@@ -1,12 +1,12 @@
 /**
  * Admin identity API
- * Verifies the signed-in Firebase user and returns temporary full access.
+ * Verifies whether the signed-in Firebase user has the Firestore admin role.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import * as admin from 'firebase-admin';
 import { adminApp, adminDb } from '@kimuntupro/db/firebase/admin';
-import { DEFAULT_FEATURE_FLAGS, mergeFeatureDefaults } from '@/lib/accessControl';
+import { DEFAULT_FEATURE_FLAGS, mergeFeatureDefaults, normalizePlanId } from '@/lib/accessControl';
 
 export async function GET(req: NextRequest) {
   try {
@@ -27,23 +27,23 @@ export async function GET(req: NextRequest) {
     const decoded = await admin.auth(adminApp).verifyIdToken(token);
     const userDoc = await adminDb.collection('users').doc(decoded.uid).get();
     const profile = userDoc.exists ? userDoc.data() : null;
+    const isAdmin = profile?.role === 'admin';
     const flagsSnap = await adminDb.collection('feature_flags').get();
     const features = flagsSnap.empty
       ? DEFAULT_FEATURE_FLAGS
       : mergeFeatureDefaults(flagsSnap.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
 
     return NextResponse.json({
-      // TEMPORARY OVERRIDE: every signed-in account is admin/fullPackage until production roles are restored.
-      isAdmin: true,
+      isAdmin,
       uid: decoded.uid,
       email: decoded.email || null,
-      role: 'admin',
+      role: profile?.role || 'user',
       profile: {
         uid: decoded.uid,
-        email: decoded.email || profile?.email || null,
-        role: 'admin',
-        subscriptionTier: 'fullPackage',
-        subscriptionStatus: 'active',
+        email: decoded.email || null,
+        role: profile?.role || 'user',
+        subscriptionTier: normalizePlanId(profile?.subscriptionTier),
+        subscriptionStatus: profile?.subscriptionStatus || (profile?.subscriptionTier && profile.subscriptionTier !== 'free' ? 'active' : null),
       },
       features,
     });

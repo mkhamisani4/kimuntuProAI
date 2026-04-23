@@ -1,16 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import * as admin from 'firebase-admin';
-import { adminApp } from '@kimuntupro/db/firebase/admin';
+import { adminApp, adminDb } from '@kimuntupro/db/firebase/admin';
 import { PLANS } from '@/lib/payments';
 
 async function verifyAdmin(req: NextRequest) {
   const authHeader = req.headers.get('Authorization') || '';
   const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
   if (!token) throw new Error('Missing authorization token');
-  if (!adminApp) throw new Error('Admin SDK not initialized');
-  await admin.auth(adminApp).verifyIdToken(token);
-  // TEMPORARY OVERRIDE: any signed-in user is treated as admin until production roles are restored.
+  if (!adminApp || !adminDb) throw new Error('Admin SDK not initialized');
+  const decoded = await admin.auth(adminApp).verifyIdToken(token);
+  const userDoc = await adminDb.collection('users').doc(decoded.uid).get();
+  if (!userDoc.exists || userDoc.data()?.role !== 'admin') throw new Error('Insufficient permissions');
 }
 
 export async function GET(req: NextRequest) {
