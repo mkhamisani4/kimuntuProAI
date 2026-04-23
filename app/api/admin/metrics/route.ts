@@ -10,6 +10,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUsageMetrics } from '@kimuntupro/db';
 
+export const dynamic = 'force-dynamic';
+
 /**
  * GET /api/admin/metrics
  * Returns aggregated usage metrics (publicly accessible)

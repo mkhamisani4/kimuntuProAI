@@ -250,7 +250,6 @@ function PlatformTooltip({ active, payload, label, isDark }) {
 export default function AdminDashboard() {
   const { isDark, toggleTheme } = useTheme();
   const router = useRouter();
-  const [metrics, setMetrics] = useState(null);
   const [user, setUser]       = useState(null);
   const [dashboard, setDashboard] = useState(null);
 
@@ -266,11 +265,14 @@ export default function AdminDashboard() {
   useEffect(() => {
     setUser(auth.currentUser);
     getAdminHeaders()
-      .then((headers) => fetch('/api/admin/dashboard', { headers }))
+      .then((headers) => {
+        const params = new URLSearchParams({ start: dateRange.start, end: dateRange.end });
+        return fetch(`/api/admin/dashboard?${params.toString()}`, { headers, cache: 'no-store' });
+      })
       .then((r) => r.ok ? r.json() : null)
       .then(setDashboard)
       .catch(() => {});
-  }, []);
+  }, [dateRange.start, dateRange.end]);
 
   // Recompute all chart/stat data when date range changes
   const rangeData = useMemo(() => buildRangeData(dateRange.start, dateRange.end), [dateRange]);
@@ -282,18 +284,38 @@ export default function AdminDashboard() {
   };
   const dateLabel = `${fmtDate(dateRange.start)} – ${fmtDate(dateRange.end)}`;
 
-  const { platformData, stats, sparks, growthSlices, activePct } = rangeData;
+  const fallbackPlatformData = rangeData.platformData;
+  const { stats } = rangeData;
   const realStats = dashboard?.stats;
+  const livePlatformData = dashboard?.platformData?.length ? dashboard.platformData : null;
+  const platformData = livePlatformData || fallbackPlatformData;
+  const makeSpark = (key, fallback) => {
+    if (!livePlatformData) return fallback;
+    const values = livePlatformData.map((row) => row[key] || 0);
+    return values.length ? values : fallback;
+  };
+  const sparks = {
+    users: makeSpark('users', rangeData.sparks.users),
+    requests: makeSpark('requests', rangeData.sparks.requests),
+    revenue: makeSpark('revenue', rangeData.sparks.revenue),
+    cost: makeSpark('requests', rangeData.sparks.cost),
+    active: makeSpark('users', rangeData.sparks.active),
+  };
+  const growthSlices = dashboard?.growthSlices?.length ? dashboard.growthSlices : rangeData.growthSlices;
+  const growthTotal = growthSlices.reduce((sum, slice) => sum + (slice.value || 0), 0);
+  const activePct = growthTotal
+    ? Math.round(((growthSlices.find((slice) => slice.name === 'Active')?.value || 0) / growthTotal) * 100)
+    : rangeData.activePct;
   const displayStats = realStats ? {
     users: realStats.totalUsers.toLocaleString(),
     requests: realStats.aiRequests.toLocaleString(),
     revenue: `$${Math.round(realStats.mrr).toLocaleString()}`,
     cost: `$${(realStats.aiCostCents / 100).toFixed(2)}`,
     active: realStats.openTickets.toLocaleString(),
-    newUsers: `${realStats.paidUsers.toLocaleString()} paid`,
-    newReq: `${realStats.enabledFeatures.toLocaleString()} enabled`,
+    newUsers: `${(realStats.newUsers || 0).toLocaleString()} new`,
+    newReq: `${realStats.paidUsers.toLocaleString()} paid`,
     newRev: 'MRR',
-    newCost: realStats.stripeConfigured ? 'Stripe ready' : 'Stripe setup',
+    newCost: `${realStats.enabledFeatures.toLocaleString()} features`,
   } : stats;
   const displayRecentUsers = dashboard?.recentUsers?.length
     ? dashboard.recentUsers.map((u) => ({
@@ -301,16 +323,18 @@ export default function AdminDashboard() {
       email: u.email || u.uid,
       plan: PLAN_LABELS[normalizePlanId(u.subscriptionTier)] || 'Free',
       joined: u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '—',
-      status: u.disabled ? 'Inactive' : (u.subscriptionStatus || (u.subscriptionTier === 'free' ? 'Free' : 'Active')),
+      status: u.disabled
+        ? 'Inactive'
+        : (u.subscriptionStatus === 'active' ? 'Active' : (u.subscriptionStatus || (u.subscriptionTier === 'free' ? 'Free' : 'Active'))),
     }))
     : recentUsers;
   const displayAiFeatures = dashboard?.featureUsage?.length
     ? dashboard.featureUsage.map((feature, index) => {
-      const max = Math.max(...dashboard.featureUsage.map((item) => item.requests), 1);
+      const total = dashboard.featureUsage.reduce((sum, item) => sum + (item.requests || 0), 0) || 1;
       const colors = ['bg-emerald-500', 'bg-blue-500', 'bg-purple-500', 'bg-amber-500', 'bg-red-400', 'bg-gray-400'];
       return {
         name: feature.name,
-        pct: Math.max(5, Math.round((feature.requests / max) * 100)),
+        pct: Math.round((feature.requests / total) * 100),
         color: colors[index % colors.length],
       };
     })
@@ -481,7 +505,7 @@ export default function AdminDashboard() {
       {/* ── Stat cards (reactive to date range) ─────────────── */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
         <StatCard label="Total Users"   value={displayStats.users}    change={realStats ? displayStats.newUsers : '12.5%'}  sub={realStats ? 'Firebase Auth users' : `${displayStats.newUsers} this period`}  icon={Users}      iconBg="bg-emerald-500/10" iconColor="text-emerald-500" chart={sparks.users}    chartColor="#10b981" />
-        <StatCard label="AI Requests"   value={displayStats.requests} change={realStats ? displayStats.newReq : '18.7%'}  sub={realStats ? 'Feature flags' : `${displayStats.newReq} this period`}   icon={TrendingUp} iconBg="bg-blue-500/10"    iconColor="text-blue-500"    chart={sparks.requests} chartColor="#3b82f6" />
+        <StatCard label="AI Requests"   value={displayStats.requests} change={realStats ? displayStats.newReq : '18.7%'}  sub={realStats ? 'Requests in selected range' : `${displayStats.newReq} this period`}   icon={TrendingUp} iconBg="bg-blue-500/10"    iconColor="text-blue-500"    chart={sparks.requests} chartColor="#3b82f6" />
         <StatCard label="Monthly Revenue" value={displayStats.revenue}  change={realStats ? displayStats.newRev : '24.3%'}  sub={realStats ? 'Estimated from active plans' : `${displayStats.newRev} this period`}  icon={DollarSign} iconBg="bg-amber-500/10"   iconColor="text-amber-500"   chart={sparks.revenue}  chartColor="#f59e0b" />
         <StatCard label="AI Cost"       value={displayStats.cost}     change={realStats ? displayStats.newCost : '9.3%'}   sub={realStats ? 'Usage log estimate' : `${displayStats.newCost} this period`} icon={Cpu}        iconBg="bg-purple-500/10"  iconColor="text-purple-500"  chart={sparks.cost}     chartColor="#8b5cf6" />
         <StatCard label="Open Tickets"    value={displayStats.active}   change={realStats ? 'Live' : '5.2%'}   sub={realStats ? 'Support center tickets' : 'Users online'}                   icon={Wifi}       iconBg="bg-red-500/10"     iconColor="text-red-400"     chart={sparks.active}   chartColor="#f87171" barChart />
@@ -623,7 +647,7 @@ export default function AdminDashboard() {
                   <td className={`py-3 px-5 text-xs ${muted}`}>{u.joined}</td>
                   <td className="py-3 px-5">
                     <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-                      u.status === 'Active'
+                      ['active', 'Active'].includes(u.status)
                         ? 'bg-emerald-500/10 text-emerald-500'
                         : isDark ? 'bg-white/10 text-white/40' : 'bg-black/10 text-black/40'
                     }`}>{u.status}</span>

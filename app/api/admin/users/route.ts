@@ -153,9 +153,9 @@ export async function GET(req: NextRequest) {
         disabled: authUser.disabled,
         createdAt: authUser.metadata.creationTime,
         lastSignIn: authUser.metadata.lastSignInTime,
-        role: 'admin',
-        subscriptionTier: 'fullPackage',
-        subscriptionStatus: 'active',
+        role: profile?.role || 'user',
+        subscriptionTier: profile?.subscriptionTier || 'free',
+        subscriptionStatus: profile?.subscriptionStatus || null,
       };
     });
 
