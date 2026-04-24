@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { Briefcase, Scale, Home, FileText, TrendingUp, HelpCircle, Sun, Moon, Rocket, Settings, CreditCard, Shield, Lock } from 'lucide-react';
+import { Briefcase, Scale, Home, FileText, TrendingUp, HelpCircle, Sun, Moon, Rocket, Settings, CreditCard, Shield, Lock, FlaskConical } from 'lucide-react';
 import { auth, signOutUser } from '@/lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useTheme } from '@/components/providers/ThemeProvider';
@@ -119,6 +119,7 @@ export default function DashboardLayout({ children }) {
         { id: 'support', label: t.support, icon: HelpCircle, href: '/dashboard/support' },
         { id: 'settings', label: t.settings, icon: Settings, href: '/dashboard/settings' },
         { id: 'pricing', label: t.pricing, icon: CreditCard, href: '/dashboard/pricing' },
+        { id: 'research', label: t.research, icon: FlaskConical, href: '/dashboard/research' },
         { id: 'admin', label: 'Admin', icon: Shield, href: '/admin' },
     ];
 

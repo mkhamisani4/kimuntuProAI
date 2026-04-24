@@ -13,6 +13,12 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
+    function isAdmin() {
+      return isSignedIn() &&
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
     // Assistant results
     // ⚠️ DEVELOPMENT MODE: Open for all reads and writes (no auth required)
     // For production, use Admin SDK with service account key
@@ -83,6 +89,12 @@ service cloud.firestore {
     // Marketing posts
     match /marketing_posts/{postId} {
       allow read, write: if true; // Development mode
+    }
+
+    // Research showcase projects
+    match /research_projects/{projectId} {
+      allow read: if true;
+      allow write: if isAdmin();
     }
 
     // Default: deny all other access

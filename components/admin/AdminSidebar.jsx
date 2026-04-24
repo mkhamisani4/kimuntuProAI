@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard, Users, CreditCard, Activity,
   Settings2, LifeBuoy, FileText, BarChart3, Settings,
-  Shield, ArrowLeft, Bell,
+  Shield, ArrowLeft, Bell, FlaskConical,
 } from 'lucide-react';
 import { useTheme } from '@/components/providers/ThemeProvider';
 import { ProfileButton } from '@/components/shared/ProfileButton';
@@ -18,6 +18,7 @@ const navigation = [
   { name: 'Features',       href: '/admin/features',       icon: Settings2 },
   { name: 'Support',        href: '/admin/support',        icon: LifeBuoy },
   { name: 'Content',        href: '/admin/content',        icon: FileText },
+  { name: 'Research',       href: '/admin/research',       icon: FlaskConical },
   { name: 'Analytics',      href: '/admin/analytics',      icon: BarChart3 },
   { name: 'Notifications',  href: '/admin/notifications',  icon: Bell },
   { name: 'Settings',       href: '/admin/settings',       icon: Settings },

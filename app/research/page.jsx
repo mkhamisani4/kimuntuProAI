@@ -1,7 +1,12 @@
 'use client';
 
-import Research from '@/src/views/Research';
+import PageWrapper from '@/components/PageWrapper';
+import ResearchProjectsView from '@/components/research/ResearchProjectsView';
 
 export default function ResearchPage() {
-    return <Research />;
+    return (
+        <PageWrapper title="Research">
+            <ResearchProjectsView />
+        </PageWrapper>
+    );
 }
