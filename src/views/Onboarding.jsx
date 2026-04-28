@@ -80,7 +80,7 @@ const Onboarding = () => {
     }`;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 overflow-y-auto overscroll-contain p-3 sm:flex sm:items-center sm:justify-center sm:p-4">
             {/* Backdrop */}
             <div className="absolute inset-0">
                 <div className={`absolute inset-0 ${isDark ? 'bg-black/80' : 'bg-gray-50/80'} backdrop-blur-xl`} />
@@ -91,7 +91,7 @@ const Onboarding = () => {
 
             {/* Card */}
             <div
-                className="relative w-full max-w-3xl rounded-3xl shadow-2xl overflow-hidden"
+                className="relative my-0 w-full max-w-3xl rounded-3xl shadow-2xl overflow-hidden sm:my-4"
                 style={{
                     background: isDark
                         ? 'rgba(0, 0, 0, 0.6)'
@@ -107,7 +107,7 @@ const Onboarding = () => {
                 <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-emerald-500/30 to-transparent" />
 
                 {/* Progress bar */}
-                <div className={`p-6 border-b ${isDark ? 'border-emerald-500/10' : 'border-emerald-100'}`}>
+                <div className={`p-4 sm:p-6 border-b ${isDark ? 'border-emerald-500/10' : 'border-emerald-100'}`}>
                     <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-3">
                             <Image src="/assets/new_single_logo.png" alt="Kimuntu AI" width={40} height={40} />
@@ -128,26 +128,26 @@ const Onboarding = () => {
                 </div>
 
                 {/* Content */}
-                <div className="p-8 min-h-[480px] flex flex-col">
+                <div className="p-4 sm:p-8 min-h-[420px] sm:min-h-[480px] flex flex-col">
                     <div className="flex-1">
 
                         {/* STEP 0: Welcome */}
                         {currentStep === 0 && (
-                            <div className="space-y-8">
-                                <div className="text-center space-y-4">
+                            <div className="space-y-6 sm:space-y-8">
+                                <div className="text-center space-y-3 sm:space-y-4">
                                     <div className="flex justify-center">
                                         <div className="relative">
-                                            <Image src="/assets/new_single_logo.png" alt="Kimuntu AI" width={88} height={88} className="animate-float" />
+                                            <Image src="/assets/new_single_logo.png" alt="Kimuntu AI" width={72} height={72} className="w-16 h-16 sm:w-[88px] sm:h-[88px] animate-float" />
                                             <div className="absolute inset-0 bg-emerald-500/20 rounded-full blur-2xl animate-pulse" />
                                         </div>
                                     </div>
-                                    <h1 className={`text-4xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                                    <h1 className={`text-3xl sm:text-4xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
                                         Welcome to{' '}
                                         <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
                                             Kimuntu AI
                                         </span>
                                     </h1>
-                                    <p className={`text-lg ${isDark ? 'text-white/60' : 'text-black/60'}`}>
+                                    <p className={`text-base sm:text-lg ${isDark ? 'text-white/60' : 'text-black/60'}`}>
                                         Let&apos;s personalize your experience
                                     </p>
                                 </div>
@@ -182,21 +182,21 @@ const Onboarding = () => {
 
                         {/* STEP 1: Tracks */}
                         {currentStep === 1 && (
-                            <div className="space-y-8">
-                                <div className="text-center space-y-4">
+                            <div className="space-y-6 sm:space-y-8">
+                                <div className="text-center space-y-3 sm:space-y-4">
                                     <div className="flex justify-center">
-                                        <div className={`p-4 rounded-2xl ${isDark ? 'bg-emerald-500/10 border border-emerald-500/20' : 'bg-emerald-50 border border-emerald-100'}`}>
-                                            <Target className={`w-10 h-10 ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`} />
+                                        <div className={`p-3 sm:p-4 rounded-2xl ${isDark ? 'bg-emerald-500/10 border border-emerald-500/20' : 'bg-emerald-50 border border-emerald-100'}`}>
+                                            <Target className={`w-8 h-8 sm:w-10 sm:h-10 ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`} />
                                         </div>
                                     </div>
-                                    <h2 className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                                    <h2 className={`text-2xl sm:text-3xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
                                         Choose Your Tracks
                                     </h2>
-                                    <p className={`text-lg ${isDark ? 'text-white/60' : 'text-black/60'}`}>
+                                    <p className={`text-base sm:text-lg ${isDark ? 'text-white/60' : 'text-black/60'}`}>
                                         Select the areas you want to focus on
                                     </p>
                                 </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                                     {TRACKS.map((track) => {
                                         const Icon = track.icon;
                                         const sel = selectedTracks.includes(track.id);
@@ -205,7 +205,7 @@ const Onboarding = () => {
                                                 key={track.id}
                                                 type="button"
                                                 onClick={() => handleTrackToggle(track.id)}
-                                                className={`p-5 rounded-2xl text-left transition-all duration-300 ${
+                                                className={`p-4 sm:p-5 rounded-2xl text-left transition-all duration-300 ${
                                                     sel
                                                         ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-lg shadow-emerald-500/20 scale-[1.02]'
                                                         : isDark
@@ -217,9 +217,9 @@ const Onboarding = () => {
                                                     WebkitBackdropFilter: 'blur(20px)',
                                                 } : {}}
                                             >
-                                                <div className="flex items-start gap-4">
+                                                <div className="flex items-start gap-3 sm:gap-4">
                                                     <div className={`p-2 rounded-xl ${sel ? 'bg-white/20' : isDark ? 'bg-emerald-500/10' : 'bg-emerald-50'}`}>
-                                                        <Icon className={`w-6 h-6 ${sel ? 'text-white' : isDark ? 'text-emerald-400' : 'text-emerald-600'}`} />
+                                                        <Icon className={`w-5 h-5 sm:w-6 sm:h-6 ${sel ? 'text-white' : isDark ? 'text-emerald-400' : 'text-emerald-600'}`} />
                                                     </div>
                                                     <div className="flex-1">
                                                         <h3 className={`font-bold text-base mb-1 ${sel ? 'text-white' : isDark ? 'text-white' : 'text-gray-900'}`}>{track.label}</h3>
@@ -242,17 +242,17 @@ const Onboarding = () => {
 
                         {/* STEP 2: Goals */}
                         {currentStep === 2 && (
-                            <div className="space-y-8">
-                                <div className="text-center space-y-4">
+                            <div className="space-y-6 sm:space-y-8">
+                                <div className="text-center space-y-3 sm:space-y-4">
                                     <div className="flex justify-center">
-                                        <div className={`p-4 rounded-2xl ${isDark ? 'bg-emerald-500/10 border border-emerald-500/20' : 'bg-emerald-50 border border-emerald-100'}`}>
-                                            <Settings className={`w-10 h-10 ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`} />
+                                        <div className={`p-3 sm:p-4 rounded-2xl ${isDark ? 'bg-emerald-500/10 border border-emerald-500/20' : 'bg-emerald-50 border border-emerald-100'}`}>
+                                            <Settings className={`w-8 h-8 sm:w-10 sm:h-10 ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`} />
                                         </div>
                                     </div>
-                                    <h2 className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                                    <h2 className={`text-2xl sm:text-3xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
                                         Your Goals
                                     </h2>
-                                    <p className={`text-lg ${isDark ? 'text-white/60' : 'text-black/60'}`}>
+                                    <p className={`text-base sm:text-lg ${isDark ? 'text-white/60' : 'text-black/60'}`}>
                                         What do you want to achieve?
                                     </p>
                                 </div>
@@ -274,18 +274,18 @@ const Onboarding = () => {
 
                         {/* STEP 3: Summary */}
                         {currentStep === 3 && (
-                            <div className="space-y-8">
-                                <div className="text-center space-y-4">
+                            <div className="space-y-6 sm:space-y-8">
+                                <div className="text-center space-y-3 sm:space-y-4">
                                     <div className="flex justify-center">
                                         <div className="relative">
-                                            <Image src="/assets/new_single_logo.png" alt="Kimuntu AI" width={80} height={80} className="animate-float" />
+                                            <Image src="/assets/new_single_logo.png" alt="Kimuntu AI" width={72} height={72} className="w-16 h-16 sm:w-20 sm:h-20 animate-float" />
                                             <div className="absolute inset-0 bg-emerald-500/20 rounded-full blur-2xl animate-pulse" />
                                         </div>
                                     </div>
-                                    <h2 className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                                    <h2 className={`text-2xl sm:text-3xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
                                         All Set!
                                     </h2>
-                                    <p className={`text-lg ${isDark ? 'text-white/60' : 'text-black/60'}`}>
+                                    <p className={`text-base sm:text-lg ${isDark ? 'text-white/60' : 'text-black/60'}`}>
                                         Ready to start your journey
                                     </p>
                                 </div>
@@ -329,11 +329,11 @@ const Onboarding = () => {
                     </div>
 
                     {/* Navigation */}
-                    <div className={`flex justify-between items-center mt-8 pt-6 border-t ${isDark ? 'border-emerald-500/10' : 'border-emerald-100'}`}>
+                    <div className={`flex justify-between items-center gap-3 mt-6 sm:mt-8 pt-4 sm:pt-6 border-t ${isDark ? 'border-emerald-500/10' : 'border-emerald-100'}`}>
                         <button
                             type="button"
                             onClick={() => setCurrentStep(s => s - 1)}
-                            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium text-sm transition-all ${
+                            className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl font-medium text-sm transition-all ${
                                 currentStep === 0
                                     ? 'opacity-0 pointer-events-none'
                                     : isDark
@@ -350,7 +350,7 @@ const Onboarding = () => {
                                 type="button"
                                 onClick={() => setCurrentStep(s => s + 1)}
                                 disabled={!canProceed()}
-                                className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-semibold text-sm transition-all ${
+                                className={`flex items-center gap-2 px-5 sm:px-6 py-2.5 rounded-xl font-semibold text-sm transition-all ${
                                     canProceed()
                                         ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:shadow-lg hover:shadow-emerald-500/25 hover:scale-[1.02]'
                                         : 'opacity-30 cursor-not-allowed bg-gray-300 text-gray-500'
@@ -364,7 +364,7 @@ const Onboarding = () => {
                                 type="button"
                                 onClick={handleComplete}
                                 disabled={saving}
-                                className="flex items-center gap-2 px-8 py-2.5 rounded-xl font-semibold text-sm bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:shadow-lg hover:shadow-emerald-500/25 hover:scale-[1.02] transition-all disabled:opacity-50"
+                                className="flex items-center gap-2 px-6 sm:px-8 py-2.5 rounded-xl font-semibold text-sm bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:shadow-lg hover:shadow-emerald-500/25 hover:scale-[1.02] transition-all disabled:opacity-50"
                             >
                                 {saving ? (
                                     <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Setting up...</>

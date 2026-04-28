@@ -1005,7 +1005,7 @@ export default function LandingPage() {
             </section>
 
             {/* ====== AUTH / SIGN UP SECTION ====== */}
-            <section id="auth" ref={authSectionRef} className="relative z-10 py-16 sm:py-20 px-4 sm:px-6">
+            <section id="auth" ref={authSectionRef} className="relative z-10 py-12 sm:py-20 px-4 sm:px-6">
                 <div className="max-w-7xl mx-auto">
                     <div ref={ctaRef} className="grid lg:grid-cols-2 gap-12 items-center">
                         {/* Left: CTA content */}
@@ -1038,7 +1038,7 @@ export default function LandingPage() {
 
                         {/* Right: Auth Card */}
                         <div className="w-full max-w-md mx-auto" style={{ opacity: ctaInView ? 1 : 0, transform: ctaInView ? 'translateX(0)' : 'translateX(30px)', transition: 'opacity 0.8s ease 0.15s, transform 0.8s ease 0.15s' }}>
-                            <div className={`relative rounded-3xl p-8 overflow-hidden ${isDark
+                            <div className={`relative rounded-3xl p-5 sm:p-8 overflow-hidden ${isDark
                                 ? 'glass-card animate-border-glow'
                                 : 'bg-white border border-black/5 shadow-xl'
                             }`}>
@@ -1048,11 +1048,11 @@ export default function LandingPage() {
                                 )}
 
                                 <div className="relative z-10">
-                                    <div className="text-center mb-8">
-                                        <div className="relative inline-block mb-4">
-                                            <Image src="/assets/new_single_logo.png" alt="Logo" width={88} height={88} className="animate-float" />
+                                    <div className="text-center mb-5 sm:mb-8">
+                                        <div className="relative inline-block mb-3 sm:mb-4">
+                                            <Image src="/assets/new_single_logo.png" alt="Logo" width={64} height={64} className="w-14 h-14 sm:w-[88px] sm:h-[88px] animate-float" />
                                         </div>
-                                        <h2 className={`text-2xl font-bold mb-2 ${isDark ? 'text-white' : 'text-black'}`}>
+                                        <h2 className={`text-xl sm:text-2xl font-bold mb-1.5 sm:mb-2 ${isDark ? 'text-white' : 'text-black'}`}>
                                             {isLogin ? t.welcomeBack : t.getStarted}
                                         </h2>
                                         <p className={`text-sm ${isDark ? 'text-white/50' : 'text-black'}`}>
@@ -1062,7 +1062,7 @@ export default function LandingPage() {
 
                                     <div className="space-y-4">
                                         <div>
-                                            <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-white/80' : 'text-black'}`}>{t.email}</label>
+                                            <label className={`block text-sm font-medium mb-1.5 sm:mb-2 ${isDark ? 'text-white/80' : 'text-black'}`}>{t.email}</label>
                                             <div className="relative">
                                                 <Mail className={`absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 ${isDark ? 'text-white/30' : 'text-black'}`} />
                                                 <input
@@ -1073,7 +1073,7 @@ export default function LandingPage() {
                                                     className={`w-full pl-10 pr-4 py-3 rounded-xl transition-all ${isDark
                                                         ? 'bg-white/5 border border-white/10 text-white placeholder-white/30 focus:bg-white/10 focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/20'
                                                         : 'bg-black/[0.02] border border-black/10 text-black placeholder-black/30 focus:bg-white focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/20'
-                                                    } focus:outline-none`}
+                                                    } focus:outline-none sm:py-3 py-2.5`}
                                                     placeholder="your@email.com"
                                                     disabled={authLoading}
                                                 />
@@ -1081,7 +1081,7 @@ export default function LandingPage() {
                                         </div>
 
                                         <div>
-                                            <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-white/80' : 'text-black'}`}>{t.password}</label>
+                                            <label className={`block text-sm font-medium mb-1.5 sm:mb-2 ${isDark ? 'text-white/80' : 'text-black'}`}>{t.password}</label>
                                             <div className="relative">
                                                 <Lock className={`absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 ${isDark ? 'text-white/30' : 'text-black'}`} />
                                                 <input
@@ -1092,7 +1092,7 @@ export default function LandingPage() {
                                                     className={`w-full pl-10 pr-4 py-3 rounded-xl transition-all ${isDark
                                                         ? 'bg-white/5 border border-white/10 text-white placeholder-white/30 focus:bg-white/10 focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/20'
                                                         : 'bg-black/[0.02] border border-black/10 text-black placeholder-black/30 focus:bg-white focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/20'
-                                                    } focus:outline-none`}
+                                                    } focus:outline-none sm:py-3 py-2.5`}
                                                     placeholder="••••••••"
                                                     disabled={authLoading}
                                                 />
@@ -1111,7 +1111,7 @@ export default function LandingPage() {
                                         <button
                                             onClick={handleEmailAuth}
                                             disabled={authLoading}
-                                            className="w-full font-semibold py-3.5 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:shadow-lg hover:shadow-emerald-500/25 hover:scale-[1.02] ripple-effect"
+                                            className="w-full font-semibold py-3 sm:py-3.5 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:shadow-lg hover:shadow-emerald-500/25 hover:scale-[1.02] ripple-effect"
                                         >
                                             {authLoading ? (
                                                 <span className="flex items-center justify-center gap-2">
@@ -1124,7 +1124,7 @@ export default function LandingPage() {
                                         </button>
                                     </div>
 
-                                    <div className="relative my-6">
+                                    <div className="relative my-4 sm:my-6">
                                         <div className="absolute inset-0 flex items-center">
                                             <div className={`w-full border-t ${isDark ? 'border-white/10' : 'border-black/10'}`} />
                                         </div>
@@ -1136,7 +1136,7 @@ export default function LandingPage() {
                                     <button
                                         onClick={handleGoogleSignIn}
                                         disabled={authLoading}
-                                        className={`w-full font-medium py-3.5 rounded-xl disabled:opacity-50 transition-all hover:scale-[1.02] flex items-center justify-center gap-3 ${isDark
+                                        className={`w-full font-medium py-3 sm:py-3.5 rounded-xl disabled:opacity-50 transition-all hover:scale-[1.02] flex items-center justify-center gap-3 ${isDark
                                             ? 'bg-white/5 text-white hover:bg-white/10 border border-white/10'
                                             : 'bg-black/[0.02] text-black hover:bg-black/5 border border-black/10'
                                         }`}
@@ -1145,7 +1145,7 @@ export default function LandingPage() {
                                         {t.continueWithGoogle}
                                     </button>
 
-                                    <p className={`text-center text-sm mt-6 ${isDark ? 'text-white/40' : 'text-black'}`}>
+                                    <p className={`text-center text-sm mt-4 sm:mt-6 ${isDark ? 'text-white/40' : 'text-black'}`}>
                                         {isLogin ? t.dontHaveAccount + ' ' : t.alreadyHaveAccount + ' '}
                                         <button
                                             onClick={() => {
