@@ -229,7 +229,7 @@ const FloatingChatbot = () => {
     if (!isOpen) {
         return (
             <button onClick={() => setIsOpen(true)}
-                className="fixed bottom-6 right-6 z-50 p-4 rounded-2xl shadow-2xl hover:scale-110 transition-all duration-300 bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:shadow-lg hover:shadow-emerald-500/25">
+                className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 p-3.5 sm:p-4 rounded-2xl shadow-2xl hover:scale-110 transition-all duration-300 bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:shadow-lg hover:shadow-emerald-500/25">
                 <MessageSquare className="w-6 h-6" />
             </button>
         );
@@ -237,8 +237,8 @@ const FloatingChatbot = () => {
 
     if (isExpanded) {
         return (
-            <div className={`fixed inset-4 z-50 ${bgColor} ${textColor} border ${borderColor} rounded-3xl shadow-2xl flex flex-col`}>
-                <div className={`flex items-center justify-between p-6 border-b ${borderColor}`}>
+            <div className={`fixed inset-2 sm:inset-4 z-50 ${bgColor} ${textColor} border ${borderColor} rounded-3xl shadow-2xl flex flex-col`}>
+                <div className={`flex items-center justify-between p-4 sm:p-6 border-b ${borderColor}`}>
                     <div className="flex items-center gap-3">
                         <div className={`p-3 rounded-full ${isDark ? 'bg-white/10' : 'bg-black/5'}`}>
                             <Bot className="w-6 h-6" />
@@ -249,7 +249,7 @@ const FloatingChatbot = () => {
                         </div>
                     </div>
                     <div className="flex items-center gap-2">
-                        <button onClick={handleClear} className={`px-4 py-2 rounded-xl ${hoverBg} transition-all flex items-center gap-2 text-sm`}>
+                        <button onClick={handleClear} className={`hidden sm:flex px-4 py-2 rounded-xl ${hoverBg} transition-all items-center gap-2 text-sm`}>
                             <RotateCcw className="w-4 h-4" /> Clear
                         </button>
                         <button onClick={() => setIsExpanded(false)} className={`p-2 rounded-lg ${hoverBg} transition-all`}>
@@ -260,7 +260,7 @@ const FloatingChatbot = () => {
                         </button>
                     </div>
                 </div>
-                <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-6 space-y-4">
+                <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
                     {messages.map((msg, i) => <MessageBubble key={i} message={msg} compact={false} isDark={isDark} msgBubbleBg={msgBubbleBg} />)}
                     {isTyping && (
                         <div className="flex justify-start">
@@ -268,7 +268,7 @@ const FloatingChatbot = () => {
                         </div>
                     )}
                 </div>
-                <div className={`p-6 border-t ${borderColor}`}>
+                <div className={`p-4 sm:p-6 border-t ${borderColor}`}>
                     <InputRow compact={false} {...inputRowProps} />
                 </div>
             </div>
@@ -276,7 +276,7 @@ const FloatingChatbot = () => {
     }
 
     return (
-        <div className={`fixed bottom-6 right-6 z-50 w-96 ${bgColor} ${textColor} border ${borderColor} rounded-3xl shadow-2xl`}>
+        <div className={`fixed bottom-4 right-4 left-4 sm:left-auto sm:bottom-6 sm:right-6 z-50 w-auto sm:w-96 ${bgColor} ${textColor} border ${borderColor} rounded-3xl shadow-2xl`}>
             <div className={`flex items-center justify-between p-4 border-b ${borderColor}`}>
                 <div className="flex items-center gap-3">
                     <div className={`p-2 rounded-full ${isDark ? 'bg-white/10' : 'bg-black/5'}`}>
