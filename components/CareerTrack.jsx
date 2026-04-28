@@ -1170,16 +1170,16 @@ const CareerTrack = () => {
         {/* Features Section */}
         <div id="features" className="mb-10">
           <div
-            className={`rounded-2xl p-8 mb-8 ${
+            className={`rounded-2xl p-4 sm:p-8 mb-8 ${
               isDark
                 ? 'bg-gray-800/80 border border-gray-700'
                 : 'bg-white border border-gray-200 shadow-sm'
             }`}
           >
-            <h2 className={`text-3xl font-bold mb-2 ${isDark ? 'text-white' : 'text-black'}`}>{t.features}</h2>
-            <p className={`mb-6 ${isDark ? 'text-gray-400' : 'text-gray-700'}`}>{t.focusedTools}</p>
+            <h2 className={`text-2xl sm:text-3xl font-bold mb-2 ${isDark ? 'text-white' : 'text-black'}`}>{t.features}</h2>
+            <p className={`mb-4 sm:mb-6 text-sm sm:text-base ${isDark ? 'text-gray-400' : 'text-gray-700'}`}>{t.focusedTools}</p>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
               {features.map((feature) => (
                 <button
                   key={feature.id}
@@ -1194,19 +1194,19 @@ const CareerTrack = () => {
                       showFeature(feature.id);
                     }
                   }}
-                  className={`rounded-2xl p-6 text-left transition-all cursor-pointer group ${
+                  className={`rounded-2xl p-4 sm:p-6 text-left transition-all cursor-pointer group ${
                     isDark
                       ? 'bg-white/5 border border-white/10 hover:bg-white/10'
                       : 'bg-white border border-gray-200 shadow-sm hover:shadow-md hover:border-gray-300'
                   }`}
                 >
-                  <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                    <feature.icon className="w-6 h-6 text-black" />
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-xl flex items-center justify-center mb-3 sm:mb-4 group-hover:scale-110 transition-transform">
+                    <feature.icon className="w-5 h-5 sm:w-6 sm:h-6 text-black" />
                   </div>
-                  <h3 className={`text-xl font-bold mb-4 ${isDark ? 'text-white' : 'text-black'}`}>{feature.title}</h3>
+                  <h3 className={`text-lg sm:text-xl font-bold leading-tight mb-2 sm:mb-4 ${isDark ? 'text-white' : 'text-black'}`}>{feature.title}</h3>
                   <ul className="space-y-2">
                     {feature.items.map((item, i) => (
-                      <li key={i} className={`flex items-start gap-2 text-sm ${isDark ? 'text-white/70' : 'text-gray-700'}`}>
+                      <li key={i} className={`${i > 1 ? 'hidden sm:flex' : 'flex'} items-start gap-2 text-sm ${isDark ? 'text-white/70' : 'text-gray-700'}`}>
                         <span className={`font-bold mt-0.5 ${isDark ? 'text-white' : 'text-emerald-600'}`}>✓</span>
                         <span>{item}</span>
                       </li>
@@ -1219,15 +1219,15 @@ const CareerTrack = () => {
 
           {/* Privacy Section */}
           <div
-            className={`rounded-2xl p-8 text-center ${
+            className={`rounded-2xl p-5 sm:p-8 text-center ${
               isDark
                 ? 'bg-white/5 border border-white/10'
                 : 'bg-white border border-gray-200 shadow-sm'
             }`}
           >
-            <Shield className={`w-12 h-12 mx-auto mb-4 ${isDark ? 'text-white' : 'text-emerald-700'}`} />
-            <h3 className={`text-2xl font-bold mb-2 ${isDark ? 'text-white' : 'text-black'}`}>{t.privacyFirst}</h3>
-            <p className={isDark ? 'text-white/70' : 'text-gray-700'}>
+            <Shield className={`w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-3 sm:mb-4 ${isDark ? 'text-white' : 'text-emerald-700'}`} />
+            <h3 className={`text-xl sm:text-2xl font-bold mb-2 ${isDark ? 'text-white' : 'text-black'}`}>{t.privacyFirst}</h3>
+            <p className={`text-sm sm:text-base ${isDark ? 'text-white/70' : 'text-gray-700'}`}>
               {t.privacyDesc}
             </p>
           </div>

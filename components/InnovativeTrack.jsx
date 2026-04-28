@@ -223,11 +223,11 @@ const InnovativeTrack = ({ user }) => {
       </div>
 
       {/* Features Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
         {features.map((feature, index) => (
           <div
             key={index}
-              className={`group relative rounded-2xl p-6 transition-all duration-300 hover:scale-105 cursor-pointer ${isDark
+              className={`group relative rounded-2xl p-4 sm:p-6 transition-all duration-300 hover:scale-105 cursor-pointer ${isDark
               ? 'bg-white/5 border border-white/10 hover:bg-white/10'
               : 'bg-black/5 border border-black/10 hover:bg-black/10'
               }`}
@@ -236,13 +236,13 @@ const InnovativeTrack = ({ user }) => {
             }}
           >
             <div className="relative z-10">
-              <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform ${isDark ? 'bg-emerald-500/10 border border-emerald-500/20' : 'bg-emerald-100'}`}>
-                <feature.icon className={`w-6 h-6 ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`} />
+              <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center mb-3 sm:mb-4 group-hover:scale-110 transition-transform ${isDark ? 'bg-emerald-500/10 border border-emerald-500/20' : 'bg-emerald-100'}`}>
+                <feature.icon className={`w-5 h-5 sm:w-6 sm:h-6 ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`} />
               </div>
-              <h3 className={`font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+              <h3 className={`font-bold text-sm sm:text-base leading-tight mb-1.5 sm:mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                 {feature.title}
               </h3>
-              <p className={`text-sm ${isDark ? 'text-white/60' : 'text-black/60'}`}>
+              <p className={`text-xs sm:text-sm ${isDark ? 'text-white/60' : 'text-black/60'}`}>
                 {feature.description}
               </p>
             </div>

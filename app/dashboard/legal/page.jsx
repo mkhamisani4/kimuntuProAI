@@ -238,7 +238,7 @@ export default function LegalTrackPage() {
                 </div>
 
                 {/* Service Cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                     {getLegalServices(t).map((service) => {
                         const colors = colorClasses[service.color] || colorClasses.indigo;
                         const Icon = SERVICE_ICONS[service.icon] || Scale;
@@ -247,17 +247,17 @@ export default function LegalTrackPage() {
                             <button
                                 key={service.id}
                                 onClick={() => router.push(service.path)}
-                                className={`${colors.bg} border rounded-2xl p-5 text-left transition-all duration-300 group relative overflow-hidden ${
+                                className={`${colors.bg} border rounded-2xl p-4 sm:p-5 text-left transition-all duration-300 group relative overflow-hidden ${
                                     `cursor-pointer hover:shadow-xl ${colors.glow} hover:-translate-y-1 active:translate-y-0`
                                 }`}
                             >
                                 {/* Top row: icon + badge */}
-                                <div className="flex items-start justify-between mb-4">
-                                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${colors.iconBg} transition-transform duration-300 group-hover:scale-110`}>
-                                        <Icon className={`w-5 h-5 ${colors.icon}`} />
+                                <div className="flex items-start justify-between gap-2 mb-3 sm:mb-4">
+                                    <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shrink-0 ${colors.iconBg} transition-transform duration-300 group-hover:scale-110`}>
+                                        <Icon className={`w-4 h-4 sm:w-5 sm:h-5 ${colors.icon}`} />
                                     </div>
                                     {service.badge && (
-                                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide ${isDark
+                                        <span className={`hidden sm:inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide ${isDark
                                             ? 'bg-white/10 text-white/75 border border-white/10'
                                             : 'bg-white/70 text-gray-700 border border-gray-200'
                                         }`}>
@@ -266,11 +266,11 @@ export default function LegalTrackPage() {
                                     )}
                                 </div>
 
-                                <h3 className={`text-sm font-bold mb-1.5 ${colors.text}`}>
+                                <h3 className={`text-sm font-bold leading-tight mb-1 ${colors.text}`}>
                                     {service.title}
                                 </h3>
 
-                                <p className={`text-xs leading-relaxed mb-4 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                                <p className={`hidden sm:block text-xs leading-relaxed mb-4 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                                     {service.description}
                                 </p>
 
@@ -293,7 +293,7 @@ export default function LegalTrackPage() {
                         <div className={`h-px flex-1 ${isDark ? 'bg-gray-800/80' : 'bg-gray-200'}`} />
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 xl:grid-cols-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-3">
                         {getLegalAssistants(t).map((assistant) => {
                             const borderColor = ASSISTANT_BORDER_CLASSES[assistant.borderColor] || ASSISTANT_BORDER_CLASSES.slate;
 
@@ -308,23 +308,23 @@ export default function LegalTrackPage() {
                                     {/* Vivid gradient accent strip */}
                                     <div className={`h-[3px] bg-gradient-to-r ${assistant.accentFrom} ${assistant.accentTo}`} />
 
-                                    <div className="p-6">
-                                        <div className="flex items-start gap-4">
+                                    <div className="p-4 sm:p-6">
+                                        <div className="flex items-start gap-3 sm:gap-4">
                                             <AssistantAvatar assistantId={assistant.id} />
                                             <div className="flex-1 min-w-0">
                                                 <p className={`text-[11px] font-semibold uppercase tracking-[0.16em] mb-1 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
                                                     {assistant.eyebrow}
                                                 </p>
-                                                <h4 className={`text-base font-bold mb-1.5 leading-snug ${isDark ? 'text-white' : 'text-gray-900'}`}
+                                                <h4 className={`text-sm sm:text-base font-bold mb-1 leading-snug ${isDark ? 'text-white' : 'text-gray-900'}`}
                                                     style={{ fontFamily: 'var(--font-dm-serif, Georgia, serif)' }}>
                                                     {assistant.title}
                                                 </h4>
-                                                <p className={`text-sm leading-relaxed mb-4 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                                                <p className={`hidden sm:block text-sm leading-relaxed mb-4 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                                                     {assistant.description}
                                                 </p>
                                                 <button
                                                     onClick={() => router.push(assistant.path)}
-                                                    className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-white text-sm transition-all duration-200 shadow-lg hover:-translate-y-0.5 active:translate-y-0 ${assistant.buttonBg} ${assistant.buttonShadow}`}
+                                                    className={`inline-flex items-center gap-2 px-3 sm:px-4 py-2 rounded-xl font-semibold text-white text-xs sm:text-sm transition-all duration-200 shadow-lg hover:-translate-y-0.5 active:translate-y-0 whitespace-nowrap ${assistant.buttonBg} ${assistant.buttonShadow}`}
                                                 >
                                                     {t.legal_tryAssistant}
                                                     <ChevronRight className="w-3.5 h-3.5" />
