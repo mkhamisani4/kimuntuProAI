@@ -183,35 +183,35 @@ const InnovativeTrack = ({ user }) => {
   ];
 
   const renderOverview = () => (
-    <div className="space-y-8">
+    <div className="space-y-5 sm:space-y-8">
       {/* Hero Section */}
-      <div className={`relative overflow-hidden rounded-3xl p-8 ${isDark
+      <div className={`relative overflow-hidden rounded-3xl p-4 sm:p-8 ${isDark
         ? 'bg-white/5'
         : 'bg-black/5'
         }`}>
         <div className="relative z-10">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-3 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-500">
-              <Sparkles className="w-8 h-8 text-white" />
+          <div className="flex items-center gap-3 mb-3 sm:mb-4">
+            <div className="p-2.5 sm:p-3 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-500">
+              <Sparkles className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
             </div>
-            <h2 className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+            <h2 className={`text-2xl sm:text-3xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
               {t.innovativeTrack}
             </h2>
           </div>
-          <p className={`text-lg mb-6 ${isDark ? 'text-white/70' : 'text-black/70'}`}>
+          <p className={`text-sm sm:text-lg mb-4 sm:mb-6 ${isDark ? 'text-white/70' : 'text-black/70'}`}>
             {t.innovativeTrackDesc}
           </p>
-          <div className="flex flex-wrap gap-4">
+          <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4">
             <button
               onClick={() => setActiveTab('create')}
-              className="px-6 py-3 font-semibold rounded-xl transition-all shadow-lg flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:from-emerald-600 hover:to-teal-600"
+              className="px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base font-semibold rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:from-emerald-600 hover:to-teal-600"
             >
-              <Plus className="w-5 h-5" />
+              <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
               {t.innovativeStartProject}
             </button>
             <button
               onClick={() => setActiveTab('projects')}
-              className={`px-6 py-3 rounded-xl font-semibold transition-all ${isDark
+              className={`px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base rounded-xl font-semibold transition-all ${isDark
                 ? 'bg-white/10 text-white hover:bg-white/20 border border-white/20'
                 : 'bg-black/10 text-black hover:bg-black/20 border border-black/20'
                 }`}
@@ -251,37 +251,37 @@ const InnovativeTrack = ({ user }) => {
       </div>
 
       {/* Stats Section */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className={`rounded-2xl p-6 ${isDark
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-6">
+        <div className={`rounded-2xl p-4 sm:p-6 ${isDark
           ? 'bg-white/5 border border-white/10'
           : 'bg-black/5 border border-black/10'
           }`}>
-          <div className={`text-3xl font-bold mb-2 ${isDark ? 'text-white' : 'text-black'}`}>
+          <div className={`text-2xl sm:text-3xl font-bold mb-1 sm:mb-2 ${isDark ? 'text-white' : 'text-black'}`}>
             {projects.length}
           </div>
-          <div className={`text-sm ${isDark ? 'text-white/60' : 'text-black/60'}`}>
+          <div className={`text-xs sm:text-sm ${isDark ? 'text-white/60' : 'text-black/60'}`}>
             {t.innovativeActiveProjects}
           </div>
         </div>
-        <div className={`rounded-2xl p-6 ${isDark
+        <div className={`rounded-2xl p-4 sm:p-6 ${isDark
           ? 'bg-white/5 border border-white/10'
           : 'bg-black/5 border border-black/10'
           }`}>
-          <div className={`text-3xl font-bold mb-2 ${isDark ? 'text-white' : 'text-black'}`}>
+          <div className={`text-2xl sm:text-3xl font-bold mb-1 sm:mb-2 ${isDark ? 'text-white' : 'text-black'}`}>
             {projects.filter(p => p.status === 'development').length}
           </div>
-          <div className={`text-sm ${isDark ? 'text-white/60' : 'text-black/60'}`}>
+          <div className={`text-xs sm:text-sm ${isDark ? 'text-white/60' : 'text-black/60'}`}>
             {t.innovativeInDevelopment}
           </div>
         </div>
-        <div className={`rounded-2xl p-6 ${isDark
+        <div className={`rounded-2xl p-4 sm:p-6 ${isDark
           ? 'bg-white/5 border border-white/10'
           : 'bg-black/5 border border-black/10'
           }`}>
-          <div className={`text-3xl font-bold mb-2 ${isDark ? 'text-white' : 'text-black'}`}>
+          <div className={`text-2xl sm:text-3xl font-bold mb-1 sm:mb-2 ${isDark ? 'text-white' : 'text-black'}`}>
             {projects.filter(p => p.status === 'launch').length}
           </div>
-          <div className={`text-sm ${isDark ? 'text-white/60' : 'text-black/60'}`}>
+          <div className={`text-xs sm:text-sm ${isDark ? 'text-white/60' : 'text-black/60'}`}>
             {t.innovativeLaunched}
           </div>
         </div>
@@ -291,22 +291,22 @@ const InnovativeTrack = ({ user }) => {
 
   const renderCreateProject = () => (
     <div className="max-w-4xl mx-auto">
-        <div className={`rounded-2xl p-8 ${isDark
+        <div className={`rounded-2xl p-4 sm:p-8 ${isDark
         ? 'glass-card'
         : 'bg-white border border-gray-200'
         }`}>
-        <div className="flex items-center justify-between mb-6">
-          <h2 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 sm:mb-6">
+          <h2 className={`text-xl sm:text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
             {t.innovativeCreateProject}
           </h2>
           <button
             onClick={() => setShowAIAssistant(true)}
-            className={`flex items-center gap-2 px-4 py-2 font-semibold rounded-xl transition-all shadow-lg ${isDark
+            className={`flex items-center justify-center gap-2 px-4 py-2.5 text-sm sm:text-base font-semibold rounded-xl transition-all shadow-lg ${isDark
               ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:from-emerald-600 hover:to-teal-600'
               : 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:from-emerald-600 hover:to-teal-600'
               }`}
           >
-            <Sparkles className="w-5 h-5" />
+            <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
             {t.innovativeAIAssistant}
           </button>
         </div>
@@ -331,10 +331,10 @@ const InnovativeTrack = ({ user }) => {
           </div>
         )}
 
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {/* Title */}
           <div>
-            <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-white/60' : 'text-gray-700'
+            <label className={`block text-xs sm:text-sm font-medium mb-2 ${isDark ? 'text-white/60' : 'text-gray-700'
               }`}>
               {t.innovativeProjectTitle} *
             </label>
@@ -343,7 +343,7 @@ const InnovativeTrack = ({ user }) => {
               value={newProject.title}
               onChange={(e) => setNewProject({ ...newProject, title: e.target.value })}
               placeholder={t.innovativeProjectTitle}
-              className={`w-full px-4 py-3 rounded-xl transition-all ${isDark
+              className={`w-full px-4 py-2.5 sm:py-3 text-sm rounded-xl transition-all ${isDark
                 ? 'bg-white/5 border border-white/10 text-white placeholder-white/30 focus:bg-white/10 focus:border-emerald-500/50'
                 : 'bg-white border border-gray-300 text-gray-900 placeholder-gray-500 focus:bg-white focus:border-black/50'
                 } focus:outline-none focus:ring-2 ${isDark ? 'focus:ring-white/20' : 'focus:ring-black/20'}`}
@@ -352,7 +352,7 @@ const InnovativeTrack = ({ user }) => {
 
           {/* Description */}
           <div>
-            <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-white/60' : 'text-gray-700'
+            <label className={`block text-xs sm:text-sm font-medium mb-2 ${isDark ? 'text-white/60' : 'text-gray-700'
               }`}>
               {t.innovativeDescription} *
             </label>
@@ -360,8 +360,8 @@ const InnovativeTrack = ({ user }) => {
               value={newProject.description}
               onChange={(e) => setNewProject({ ...newProject, description: e.target.value })}
               placeholder={t.innovativeDescription}
-              rows={4}
-              className={`w-full px-4 py-3 rounded-xl transition-all ${isDark
+              rows={3}
+              className={`w-full px-4 py-2.5 sm:py-3 text-sm rounded-xl transition-all ${isDark
                 ? 'bg-white/5 border border-white/10 text-white placeholder-white/30 focus:bg-white/10 focus:border-emerald-500/50'
                 : 'bg-white border border-gray-300 text-gray-900 placeholder-gray-500 focus:bg-white focus:border-black/50'
                 } focus:outline-none focus:ring-2 ${isDark ? 'focus:ring-white/20' : 'focus:ring-black/20'}`}
@@ -370,16 +370,16 @@ const InnovativeTrack = ({ user }) => {
 
           {/* Category */}
           <div>
-            <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-white/60' : 'text-gray-700'
+            <label className={`block text-xs sm:text-sm font-medium mb-2 ${isDark ? 'text-white/60' : 'text-gray-700'
               }`}>
               {t.innovativeCategory}
             </label>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-2 sm:gap-3">
               {categories.map((cat) => (
                 <button
                   key={cat.value}
                   onClick={() => setNewProject({ ...newProject, category: cat.value })}
-                  className={`p-3 rounded-xl text-sm font-medium transition-all flex items-center gap-2 ${newProject.category === cat.value
+                  className={`p-2.5 sm:p-3 rounded-xl text-xs sm:text-sm font-medium transition-all flex items-center gap-2 ${newProject.category === cat.value
                     ? isDark
                       ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
                       : 'bg-emerald-500 text-white'
@@ -388,7 +388,7 @@ const InnovativeTrack = ({ user }) => {
                       : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
                     }`}
                 >
-                  <cat.icon className="w-4 h-4" />
+                  <cat.icon className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
                   {cat.label}
                 </button>
               ))}
@@ -397,16 +397,16 @@ const InnovativeTrack = ({ user }) => {
 
           {/* Status */}
           <div>
-            <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-white/60' : 'text-gray-700'
+            <label className={`block text-xs sm:text-sm font-medium mb-2 ${isDark ? 'text-white/60' : 'text-gray-700'
               }`}>
               {t.innovativeCurrentStatus}
             </label>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-2 sm:gap-3">
               {statusOptions.map((status) => (
                 <button
                   key={status.value}
                   onClick={() => setNewProject({ ...newProject, status: status.value })}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${newProject.status === status.value
+                  className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all ${newProject.status === status.value
                     ? `${status.color} text-white`
                     : isDark
                       ? 'bg-white/5 border border-white/10 text-white/50 hover:bg-white/10'
@@ -421,7 +421,7 @@ const InnovativeTrack = ({ user }) => {
 
           {/* Goals */}
           <div>
-            <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-white/60' : 'text-gray-700'
+            <label className={`block text-xs sm:text-sm font-medium mb-2 ${isDark ? 'text-white/60' : 'text-gray-700'
               }`}>
               {t.innovativeProjectGoals}
             </label>
@@ -429,8 +429,8 @@ const InnovativeTrack = ({ user }) => {
               value={newProject.goals}
               onChange={(e) => setNewProject({ ...newProject, goals: e.target.value })}
               placeholder={t.innovativeProjectGoals}
-              rows={3}
-              className={`w-full px-4 py-3 rounded-xl transition-all ${isDark
+              rows={2}
+              className={`w-full px-4 py-2.5 sm:py-3 text-sm rounded-xl transition-all ${isDark
                 ? 'bg-white/5 border border-white/10 text-white placeholder-white/30 focus:bg-white/10 focus:border-emerald-500/50'
                 : 'bg-white border border-gray-300 text-gray-900 placeholder-gray-500 focus:bg-white focus:border-black/50'
                 } focus:outline-none focus:ring-2 ${isDark ? 'focus:ring-white/20' : 'focus:ring-black/20'}`}
@@ -439,7 +439,7 @@ const InnovativeTrack = ({ user }) => {
 
           {/* Challenges */}
           <div>
-            <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-white/60' : 'text-gray-700'
+            <label className={`block text-xs sm:text-sm font-medium mb-2 ${isDark ? 'text-white/60' : 'text-gray-700'
               }`}>
               {t.innovativeChallengesRisks}
             </label>
@@ -447,8 +447,8 @@ const InnovativeTrack = ({ user }) => {
               value={newProject.challenges}
               onChange={(e) => setNewProject({ ...newProject, challenges: e.target.value })}
               placeholder={t.innovativeChallengesRisks}
-              rows={3}
-              className={`w-full px-4 py-3 rounded-xl transition-all ${isDark
+              rows={2}
+              className={`w-full px-4 py-2.5 sm:py-3 text-sm rounded-xl transition-all ${isDark
                 ? 'bg-white/5 border border-white/10 text-white placeholder-white/30 focus:bg-white/10 focus:border-emerald-500/50'
                 : 'bg-white border border-gray-300 text-gray-900 placeholder-gray-500 focus:bg-white focus:border-black/50'
                 } focus:outline-none focus:ring-2 ${isDark ? 'focus:ring-white/20' : 'focus:ring-black/20'}`}
@@ -457,7 +457,7 @@ const InnovativeTrack = ({ user }) => {
 
           {/* Resources */}
           <div>
-            <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-white/60' : 'text-gray-700'
+            <label className={`block text-xs sm:text-sm font-medium mb-2 ${isDark ? 'text-white/60' : 'text-gray-700'
               }`}>
               {t.innovativeRequiredResources}
             </label>
@@ -465,8 +465,8 @@ const InnovativeTrack = ({ user }) => {
               value={newProject.resources}
               onChange={(e) => setNewProject({ ...newProject, resources: e.target.value })}
               placeholder={t.innovativeRequiredResources}
-              rows={3}
-              className={`w-full px-4 py-3 rounded-xl transition-all ${isDark
+              rows={2}
+              className={`w-full px-4 py-2.5 sm:py-3 text-sm rounded-xl transition-all ${isDark
                 ? 'bg-white/5 border border-white/10 text-white placeholder-white/30 focus:bg-white/10 focus:border-emerald-500/50'
                 : 'bg-white border border-gray-300 text-gray-900 placeholder-gray-500 focus:bg-white focus:border-black/50'
                 } focus:outline-none focus:ring-2 ${isDark ? 'focus:ring-white/20' : 'focus:ring-black/20'}`}
@@ -474,30 +474,30 @@ const InnovativeTrack = ({ user }) => {
           </div>
 
           {/* Submit Button */}
-          <div className="flex gap-4">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
             <button
               onClick={handleSaveProject}
               disabled={saving}
-              className={`flex-1 px-6 py-3 font-semibold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg flex items-center justify-center gap-2 ${isDark
+              className={`flex-1 px-5 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base font-semibold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg flex items-center justify-center gap-2 ${isDark
                 ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:from-emerald-600 hover:to-teal-600'
                 : 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:from-emerald-600 hover:to-teal-600'
                 }`}
             >
               {saving ? (
                 <>
-                  <Loader className="w-5 h-5 animate-spin" />
+                  <Loader className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
                   {t.innovativeSaving}
                 </>
               ) : (
                 <>
-                  <Save className="w-5 h-5" />
+                  <Save className="w-4 h-4 sm:w-5 sm:h-5" />
                   {t.innovativeSaveProject}
                 </>
               )}
             </button>
             <button
               onClick={() => setActiveTab('overview')}
-              className={`px-6 py-3 rounded-xl font-semibold transition-all ${isDark
+              className={`px-5 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base rounded-xl font-semibold transition-all ${isDark
                 ? 'bg-white/10 text-white hover:bg-white/15 border border-white/10'
                 : 'bg-white text-gray-900 hover:bg-gray-50 border border-gray-300'
                 }`}
@@ -512,13 +512,13 @@ const InnovativeTrack = ({ user }) => {
 
   const renderProjects = () => (
     <div>
-      <div className="flex justify-between items-center mb-6">
-        <h2 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-5 sm:mb-6">
+        <h2 className={`text-xl sm:text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
           {t.innovativeMyProjects}
         </h2>
         <button
           onClick={() => setActiveTab('create')}
-          className={`px-4 py-2 font-semibold rounded-lg transition-all shadow-lg flex items-center gap-2 ${isDark
+          className={`px-4 py-2.5 text-sm sm:text-base font-semibold rounded-lg transition-all shadow-lg flex items-center justify-center gap-2 ${isDark
             ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:from-emerald-600 hover:to-teal-600'
             : 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:from-emerald-600 hover:to-teal-600'
             }`}
@@ -537,13 +537,13 @@ const InnovativeTrack = ({ user }) => {
           ? 'bg-white/5 border border-white/10'
           : 'bg-white/60 border border-gray-200'
           }`}>
-          <Lightbulb className={`w-16 h-16 mx-auto mb-4 ${isDark ? 'text-white/40' : 'text-black/40'}`} />
-          <p className={`text-lg mb-4 ${isDark ? 'text-white/50' : 'text-black/60'}`}>
+          <Lightbulb className={`w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 ${isDark ? 'text-white/40' : 'text-black/40'}`} />
+          <p className={`text-base sm:text-lg mb-4 ${isDark ? 'text-white/50' : 'text-black/60'}`}>
             {t.innovativeNoProjects}
           </p>
           <button
             onClick={() => setActiveTab('create')}
-            className={`px-6 py-3 font-semibold rounded-xl transition-all shadow-lg ${isDark
+            className={`px-5 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base font-semibold rounded-xl transition-all shadow-lg ${isDark
               ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:from-emerald-600 hover:to-teal-600'
               : 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:from-emerald-600 hover:to-teal-600'
               }`}
@@ -552,7 +552,7 @@ const InnovativeTrack = ({ user }) => {
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-6">
           {projects.map((project) => {
             const status = statusOptions.find(s => s.value === project.status);
             const category = categories.find(c => c.value === project.category);
@@ -563,12 +563,12 @@ const InnovativeTrack = ({ user }) => {
                   setSelectedProject(project);
                   setIsEditing(false);
                 }}
-                className={`rounded-2xl p-6 transition-all hover:scale-105 cursor-pointer ${isDark
+                className={`rounded-2xl p-4 sm:p-6 transition-all hover:scale-105 cursor-pointer ${isDark
                   ? 'glass-card hover:bg-white/[0.08]'
                   : 'bg-white border border-gray-200 hover:bg-gray-50'
                   }`}
               >
-                <div className="flex justify-between items-start mb-4">
+                <div className="flex justify-between items-start gap-2 mb-3 sm:mb-4">
                   <div className="flex items-center gap-2">
                     {category && <category.icon className={`w-5 h-5 ${isDark ? 'text-white' : 'text-black'}`} />}
                     <span className={`text-xs px-2 py-1 rounded-full ${isDark
@@ -580,7 +580,7 @@ const InnovativeTrack = ({ user }) => {
                   </div>
                   <div className="flex gap-2">
                     {status && (
-                      <span className={`text-xs px-3 py-1 rounded-full text-white ${status.color}`}>
+                      <span className={`text-[11px] sm:text-xs px-2.5 sm:px-3 py-1 rounded-full text-white ${status.color}`}>
                         {status.label}
                       </span>
                     )}
@@ -598,20 +598,20 @@ const InnovativeTrack = ({ user }) => {
                     </button>
                   </div>
                 </div>
-                <h3 className={`text-xl font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                <h3 className={`text-lg sm:text-xl font-bold mb-1.5 sm:mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                   {project.title}
                 </h3>
-                <p className={`text-sm mb-4 line-clamp-2 ${isDark ? 'text-white/50' : 'text-black/60'}`}>
+                <p className={`text-xs sm:text-sm mb-3 sm:mb-4 line-clamp-2 ${isDark ? 'text-white/50' : 'text-black/60'}`}>
                   {project.description}
                 </p>
                 {project.goals && (
-                    <div className={`text-sm mt-3 pt-3 border-t ${isDark ? 'border-white/10' : 'border-gray-200'
+                    <div className={`text-xs sm:text-sm mt-3 pt-3 border-t ${isDark ? 'border-white/10' : 'border-gray-200'
                     }`}>
                     <span className={`font-medium ${isDark ? 'text-white/60' : 'text-gray-700'}`}>Goals: </span>
                     <span className={isDark ? 'text-white/50' : 'text-black/60'}>{project.goals}</span>
                   </div>
                 )}
-                <div className={`text-xs mt-3 ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
+                <div className={`text-[11px] sm:text-xs mt-3 ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
                   Created: {new Date(project.createdAt?.toDate()).toLocaleDateString()}
                 </div>
               </div>
@@ -635,7 +635,7 @@ const InnovativeTrack = ({ user }) => {
   return (
     <div>
       {/* Tab Navigation */}
-      <div className={`flex gap-2 mb-8 p-2 rounded-2xl ${isDark
+      <div className={`flex gap-1.5 sm:gap-2 mb-5 sm:mb-8 p-1.5 sm:p-2 rounded-2xl ${isDark
         ? 'glass-card'
         : 'bg-white border border-black/5 shadow-sm'
         }`}>
@@ -643,15 +643,15 @@ const InnovativeTrack = ({ user }) => {
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-medium transition-all ${activeTab === tab.id
+            className={`flex-1 flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm font-medium transition-all ${activeTab === tab.id
               ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-lg'
               : isDark
                 ? 'text-white/50 hover:bg-white/10'
                 : 'text-black/50 hover:bg-black/5'
               }`}
           >
-            <tab.icon className="w-5 h-5" />
-            {tab.label}
+            <tab.icon className="w-4 h-4 sm:w-5 sm:h-5" />
+            <span className="truncate">{tab.label}</span>
           </button>
         ))}
       </div>
