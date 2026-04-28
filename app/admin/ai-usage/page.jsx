@@ -126,14 +126,14 @@ function ChartTooltip({ active, payload, label, isDark }) {
 function StatCard({ label, value, sub, icon: Icon, iconBg, iconColor, trend }) {
   const { isDark } = useTheme();
   return (
-    <div className={`rounded-2xl p-5 border ${isDark ? 'bg-white/[0.03] border-white/10' : 'bg-white border-black/5 shadow-sm'}`}>
+    <div className={`rounded-2xl p-4 sm:p-5 border min-w-0 ${isDark ? 'bg-white/[0.03] border-white/10' : 'bg-white border-black/5 shadow-sm'}`}>
       <div className="flex items-center gap-2.5 mb-3">
         <div className={`p-2 rounded-xl ${iconBg}`}>
           <Icon className={`w-4 h-4 ${iconColor}`} />
         </div>
         <span className={`text-sm font-medium ${isDark ? 'text-white/50' : 'text-black/50'}`}>{label}</span>
       </div>
-      <p className={`text-2xl font-bold tracking-tight ${isDark ? 'text-white' : 'text-black'}`}>{value}</p>
+      <p className={`text-xl sm:text-2xl font-bold tracking-tight break-words ${isDark ? 'text-white' : 'text-black'}`}>{value}</p>
       <div className="flex items-center gap-1.5 mt-1">
         <span className="text-xs font-semibold text-emerald-500 flex items-center gap-0.5">
           <TrendingUp className="w-3 h-3" />{trend}
@@ -211,12 +211,12 @@ export default function AIUsagePage() {
 
       {/* ── Header ──────────────────────────────────────────── */}
       <div className={`pb-4 border-b ${isDark ? 'border-white/10' : 'border-black/5'}`}>
-        <div className="flex items-center justify-between">
-          <div>
+        <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3">
+          <div className="min-w-0">
             <h1 className={`text-2xl font-bold ${text}`}>AI Usage</h1>
             <p className={`text-sm mt-0.5 ${muted}`}>Monitor AI request volume, token consumption, and cost breakdown.</p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             {['7d', '30d', '90d', '365d'].map((r) => (
               <button key={r} onClick={() => setRange(r)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
@@ -234,7 +234,7 @@ export default function AIUsagePage() {
       </div>
 
       {/* ── Stat cards ──────────────────────────────────────── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         <StatCard label="Total Requests" value={totalReq.toLocaleString()}
           trend={stats.trends.req}  sub="vs last period" icon={Hash}       iconBg="bg-emerald-500/10" iconColor="text-emerald-500" />
         <StatCard label="Total Cost"     value={`$${(totalCost / 100).toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
@@ -277,8 +277,8 @@ export default function AIUsagePage() {
                 ))}
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke={isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)'} />
-              <XAxis dataKey="label" tick={{ fontSize: 11, fill: isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.3)' }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 11, fill: isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.3)' }} axisLine={false} tickLine={false} tickFormatter={(v) => v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v} />
+              <XAxis dataKey="label" minTickGap={20} tick={{ fontSize: 11, fill: isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.3)' }} axisLine={false} tickLine={false} />
+              <YAxis width={36} tick={{ fontSize: 11, fill: isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.3)' }} axisLine={false} tickLine={false} tickFormatter={(v) => v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v} />
               <Tooltip content={<ChartTooltip isDark={isDark} />} />
               <Area type="monotone" dataKey="requests"  stroke="#10b981" strokeWidth={2} fill="url(#ag)" dot={false} />
               <Area type="monotone" dataKey="costCents" stroke="#f59e0b" strokeWidth={2} fill="url(#ay)" dot={false} />
@@ -324,7 +324,7 @@ export default function AIUsagePage() {
             <BarChart data={assistants} layout="vertical" margin={{ top: 0, right: 8, left: 0, bottom: 0 }} barSize={10}>
               <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke={isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)'} />
               <XAxis type="number" tick={{ fontSize: 10, fill: isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.3)' }} axisLine={false} tickLine={false} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
-              <YAxis type="category" dataKey="assistant" tick={{ fontSize: 10, fill: isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.5)' }} axisLine={false} tickLine={false} width={110} />
+              <YAxis type="category" dataKey="assistant" tick={{ fontSize: 10, fill: isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.5)' }} axisLine={false} tickLine={false} width={84} />
               <Tooltip content={<ChartTooltip isDark={isDark} />} />
               <Bar dataKey="requests" radius={4}>
                 {assistants.map((a, i) => (

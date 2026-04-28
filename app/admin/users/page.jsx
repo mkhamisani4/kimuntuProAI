@@ -566,7 +566,7 @@ export default function AdminUsersPage() {
   }
 
   return (
-    <div className={`grid grid-cols-1 xl:grid-cols-[1fr_320px] gap-6 min-h-screen ${isDark ? 'bg-black' : 'bg-gray-50'}`}>
+    <div className={`grid grid-cols-1 xl:grid-cols-[1fr_320px] gap-6 ${isDark ? 'bg-black' : 'bg-gray-50'}`}>
       <div>
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
@@ -574,12 +574,12 @@ export default function AdminUsersPage() {
             <h1 className={`text-3xl font-bold ${text}`}>Users Management</h1>
             <p className={`mt-1 text-sm ${subtle}`}>View, manage, and support your platform users.</p>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="relative">
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="relative w-full sm:w-auto sm:min-w-[260px]">
               <Search className={`pointer-events-none absolute inset-y-0 left-3 my-auto h-4 w-4 ${subtle}`} />
               <input
                 type="text"
-                className={`block w-72 rounded-xl py-2 pl-9 pr-3 text-sm border focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
+                className={`block w-full sm:w-72 rounded-xl py-2 pl-9 pr-3 text-sm border focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
                   isDark ? 'bg-white/5 border-white/10 text-white placeholder:text-white/30' : 'bg-white border-black/10 text-black placeholder:text-black/30'
                 }`}
                 placeholder="Search users by name, email, or ID..."

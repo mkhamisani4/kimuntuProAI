@@ -192,26 +192,26 @@ function MiniBar({ data, color }) {
 function StatCard({ label, value, change, sub, icon: Icon, iconBg, iconColor, chart, chartColor, barChart }) {
   const { isDark } = useTheme();
   return (
-    <div className={`rounded-2xl p-5 border flex flex-col gap-2 ${
+    <div className={`rounded-2xl p-4 sm:p-5 border flex flex-col gap-2 min-w-0 ${
       isDark ? 'bg-white/[0.03] border-white/10' : 'bg-white border-black/5 shadow-sm'
     }`}>
       <div className="flex items-center gap-2.5">
         <div className={`p-2 rounded-xl ${iconBg}`}>
           <Icon className={`w-4 h-4 ${iconColor}`} />
         </div>
-        <span className={`text-sm font-medium ${isDark ? 'text-white/50' : 'text-black/50'}`}>{label}</span>
+        <span className={`text-sm font-medium min-w-0 truncate ${isDark ? 'text-white/50' : 'text-black/50'}`}>{label}</span>
       </div>
-      <div className="flex items-end justify-between gap-2">
-        <div>
-          <p className={`text-2xl font-bold tracking-tight ${isDark ? 'text-white' : 'text-black'}`}>{value}</p>
-          <div className="flex items-center gap-1.5 mt-1">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-2">
+        <div className="min-w-0">
+          <p className={`text-xl sm:text-2xl font-bold tracking-tight break-words ${isDark ? 'text-white' : 'text-black'}`}>{value}</p>
+          <div className="flex flex-wrap items-center gap-1.5 mt-1">
             <span className="text-xs font-semibold text-emerald-500 flex items-center gap-0.5">
               <TrendingUp className="w-3 h-3" />{change}
             </span>
             <span className={`text-xs ${isDark ? 'text-white/30' : 'text-black/30'}`}>{sub}</span>
           </div>
         </div>
-        <div className="w-24 flex-shrink-0">
+        <div className="w-full sm:w-24 flex-shrink-0">
           {barChart
             ? <MiniBar data={chart} color={chartColor} />
             : <Sparkline data={chart} color={chartColor} />}
@@ -354,7 +354,7 @@ export default function AdminDashboard() {
     <div className="space-y-6">
 
       {/* ── Page header ─────────────────────────────────────── */}
-      <div className={`flex flex-col md:flex-row md:items-start justify-between gap-4 pb-4 border-b ${isDark ? 'border-white/10' : 'border-black/5'}`}>
+      <div className={`flex flex-col xl:flex-row xl:items-start justify-between gap-4 pb-4 border-b ${isDark ? 'border-white/10' : 'border-black/5'}`}>
         <div>
           <div className="flex items-center gap-3 mb-1">
             <h1 className={`text-2xl font-bold ${text}`}>Admin Dashboard</h1>
@@ -365,13 +365,13 @@ export default function AdminDashboard() {
           <p className={`text-sm ${muted}`}>Manage users, monitor platform activity, and optimize AI services.</p>
         </div>
 
-        <div className="flex items-center gap-3 flex-shrink-0">
+        <div className="flex flex-wrap items-stretch gap-2 sm:gap-3 xl:justify-end">
           {/* Search */}
-          <div className="relative">
+          <div className="relative min-w-0 flex-[1_1_220px]">
             <Search className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${muted}`} />
             <input
               placeholder="Search anything..."
-              className={`pl-9 pr-4 py-2 rounded-xl text-sm border w-48 focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
+              className={`pl-9 pr-4 py-2 rounded-xl text-sm border w-full focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
                 isDark ? 'bg-white/5 border-white/10 text-white placeholder:text-white/30' : 'bg-white border-black/10 text-black placeholder:text-black/30'
               }`}
             />
@@ -395,7 +395,7 @@ export default function AdminDashboard() {
             {showDatePicker && (
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setShowDatePicker(false)} />
-                <div className={`absolute right-0 top-full mt-2 z-50 w-72 rounded-2xl border shadow-2xl p-4 space-y-4 ${
+                <div className={`absolute left-0 sm:left-auto sm:right-0 top-full mt-2 z-50 w-[min(18rem,calc(100vw-2rem))] rounded-2xl border shadow-2xl p-4 space-y-4 ${
                   isDark ? 'bg-[#111] border-white/10' : 'bg-white border-black/10'
                 }`}>
                   <p className={`text-xs font-semibold uppercase tracking-widest ${isDark ? 'text-white/40' : 'text-black/40'}`}>
@@ -489,7 +489,7 @@ export default function AdminDashboard() {
           </button>
 
           {/* User chip */}
-          <div className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border ${isDark ? 'bg-white/5 border-white/10' : 'bg-white border-black/10'}`}>
+          <div className={`hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl border ${isDark ? 'bg-white/5 border-white/10' : 'bg-white border-black/10'}`}>
             <div className="w-7 h-7 rounded-full bg-emerald-500/20 flex items-center justify-center text-xs font-bold text-emerald-500">
               {(user?.displayName || user?.email || 'AD').slice(0, 2).toUpperCase()}
             </div>
@@ -503,7 +503,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* ── Stat cards (reactive to date range) ─────────────── */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
         <StatCard label="Total Users"   value={displayStats.users}    change={realStats ? displayStats.newUsers : '12.5%'}  sub={realStats ? 'Firebase Auth users' : `${displayStats.newUsers} this period`}  icon={Users}      iconBg="bg-emerald-500/10" iconColor="text-emerald-500" chart={sparks.users}    chartColor="#10b981" />
         <StatCard label="AI Requests"   value={displayStats.requests} change={realStats ? displayStats.newReq : '18.7%'}  sub={realStats ? 'Requests in selected range' : `${displayStats.newReq} this period`}   icon={TrendingUp} iconBg="bg-blue-500/10"    iconColor="text-blue-500"    chart={sparks.requests} chartColor="#3b82f6" />
         <StatCard label="Monthly Revenue" value={displayStats.revenue}  change={realStats ? displayStats.newRev : '24.3%'}  sub={realStats ? 'Estimated from active plans' : `${displayStats.newRev} this period`}  icon={DollarSign} iconBg="bg-amber-500/10"   iconColor="text-amber-500"   chart={sparks.revenue}  chartColor="#f59e0b" />
@@ -532,7 +532,7 @@ export default function AdminDashboard() {
               {dateLabel}
             </span>
           </div>
-          <ResponsiveContainer width="100%" height={200}>
+          <ResponsiveContainer width="100%" height={220}>
             <AreaChart data={platformData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
               <defs>
                 {[['rg','#10b981'],['rb','#3b82f6'],['ry','#f59e0b']].map(([id, c]) => (
@@ -543,8 +543,8 @@ export default function AdminDashboard() {
                 ))}
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke={isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)'} />
-              <XAxis dataKey="date" tick={{ fontSize: 11, fill: isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.3)' }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 11, fill: isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.3)' }} axisLine={false} tickLine={false} tickFormatter={v => v >= 1000 ? `${(v/1000).toFixed(0)}k` : v} />
+              <XAxis dataKey="date" minTickGap={20} tick={{ fontSize: 11, fill: isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.3)' }} axisLine={false} tickLine={false} />
+              <YAxis width={36} tick={{ fontSize: 11, fill: isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.3)' }} axisLine={false} tickLine={false} tickFormatter={v => v >= 1000 ? `${(v/1000).toFixed(0)}k` : v} />
               <Tooltip content={<PlatformTooltip isDark={isDark} />} />
               <Area type="monotone" dataKey="requests" stroke="#10b981" strokeWidth={2} fill="url(#rg)" dot={false} />
               <Area type="monotone" dataKey="users"    stroke="#3b82f6" strokeWidth={2} fill="url(#rb)" dot={false} />
@@ -621,7 +621,8 @@ export default function AdminDashboard() {
             <h2 className={`font-semibold ${text}`}>Recent Users</h2>
             <Link href="/admin/users" className="text-xs text-emerald-500 font-medium hover:text-emerald-400">View All</Link>
           </div>
-          <table className={`w-full text-sm divide-y ${divider}`}>
+          <div className="overflow-x-auto">
+          <table className={`w-full min-w-[520px] text-sm divide-y ${divider}`}>
             <thead className={thead}>
               <tr>
                 {['User','Plan','Joined','Status'].map(h => (
@@ -656,6 +657,7 @@ export default function AdminDashboard() {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
 
         {/* AI usage by feature */}

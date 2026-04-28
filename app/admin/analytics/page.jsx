@@ -85,7 +85,7 @@ function ChartTooltip({ active, payload, label, isDark }) {
 function StatCard({ label, value, sub, icon: Icon, iconBg, iconColor, live }) {
   const { isDark } = useTheme();
   return (
-    <div className={`rounded-2xl p-5 border ${isDark ? 'bg-white/[0.03] border-white/10' : 'bg-white border-black/5 shadow-sm'}`}>
+    <div className={`rounded-2xl p-4 sm:p-5 border min-w-0 ${isDark ? 'bg-white/[0.03] border-white/10' : 'bg-white border-black/5 shadow-sm'}`}>
       <div className="flex items-center gap-2.5 mb-3">
         <div className={`p-2 rounded-xl ${iconBg}`}>
           <Icon className={`w-4 h-4 ${iconColor}`} />
@@ -95,7 +95,7 @@ function StatCard({ label, value, sub, icon: Icon, iconBg, iconColor, live }) {
           <span className="ml-auto text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500">LIVE</span>
         )}
       </div>
-      <p className={`text-2xl font-bold tracking-tight ${isDark ? 'text-white' : 'text-black'}`}>{value}</p>
+      <p className={`text-xl sm:text-2xl font-bold tracking-tight break-words ${isDark ? 'text-white' : 'text-black'}`}>{value}</p>
       {sub && <p className={`text-xs mt-1 ${isDark ? 'text-white/30' : 'text-black/30'}`}>{sub}</p>}
     </div>
   );
@@ -151,8 +151,8 @@ export default function AnalyticsPage() {
 
       {/* ── Header ──────────────────────────────────────────── */}
       <div className={`pb-4 border-b ${isDark ? 'border-white/10' : 'border-black/5'}`}>
-        <div className="flex items-center justify-between">
-          <div>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="min-w-0">
             <h1 className={`text-2xl font-bold ${text}`}>Analytics</h1>
             <p className={`text-sm mt-0.5 ${muted}`}>
               User metrics from Firestore. Charts marked <span className="opacity-50 font-medium">illustrative</span> require an analytics integration (e.g. GA4).
@@ -166,7 +166,7 @@ export default function AnalyticsPage() {
       </div>
 
       {/* ── Stats row ───────────────────────────────────────── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         <StatCard label="Total Users"      value={loading ? '—' : totalUsers.toLocaleString()} sub="registered accounts"  icon={Users}             iconBg="bg-emerald-500/10" iconColor="text-emerald-500" live />
         <StatCard label="New (last 30d)"   value={loading ? '—' : newLast30.toLocaleString()}  sub="new sign-ups"         icon={TrendingUp}        iconBg="bg-blue-500/10"    iconColor="text-blue-500"    live />
         <StatCard label="Avg Session"      value="—"                                            sub="requires analytics"   icon={Clock}             iconBg="bg-amber-500/10"   iconColor="text-amber-500" />
@@ -201,8 +201,8 @@ export default function AnalyticsPage() {
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke={isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)'} />
-                <XAxis dataKey="month" tick={{ fontSize: 11, fill: isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.3)' }} axisLine={false} tickLine={false} />
-                <YAxis                 tick={{ fontSize: 11, fill: isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.3)' }} axisLine={false} tickLine={false} allowDecimals={false} />
+                <XAxis dataKey="month" minTickGap={20} tick={{ fontSize: 11, fill: isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.3)' }} axisLine={false} tickLine={false} />
+                <YAxis width={36} tick={{ fontSize: 11, fill: isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.3)' }} axisLine={false} tickLine={false} allowDecimals={false} />
                 <Tooltip content={<ChartTooltip isDark={isDark} />} />
                 <Area type="monotone" dataKey="newUsers" stroke="#10b981" strokeWidth={2} fill="url(#ag)" dot={false} name="Sign-ups" />
               </AreaChart>
@@ -274,7 +274,8 @@ export default function AnalyticsPage() {
             <h2 className={`font-semibold ${text}`}>Cohort Retention</h2>
             <IllustrativeBadge muted={muted} />
           </div>
-          <table className={`w-full text-xs divide-y ${divider}`}>
+          <div className="overflow-x-auto">
+          <table className={`w-full min-w-[520px] text-xs divide-y ${divider}`}>
             <thead className={thead}>
               <tr>
                 {['Cohort', 'Size', 'Wk 1', 'Wk 2', 'Wk 4', 'Wk 8'].map((h) => (
@@ -293,6 +294,7 @@ export default function AnalyticsPage() {
               ))}
             </tbody>
           </table>
+          </div>
           <div className={`px-5 py-3 ${isDark ? 'border-t border-white/10' : 'border-t border-black/5'}`}>
             <p className={`text-xs ${muted}`}>Requires event tracking integration to populate.</p>
           </div>
