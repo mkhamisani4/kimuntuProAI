@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useTheme } from '@/components/providers/ThemeProvider';
 import { auth, completeOnboarding } from '@/lib/firebase';
@@ -110,8 +111,10 @@ const Onboarding = () => {
                 <div className={`p-4 sm:p-6 border-b ${isDark ? 'border-emerald-500/10' : 'border-emerald-100'}`}>
                     <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-3">
-                            <Image src="/assets/new_single_logo.png" alt="Kimuntu AI" width={40} height={40} />
-                            <span className={`text-sm font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>Kimuntu AI</span>
+                            <Link href="/" className="flex items-center gap-3 group">
+                                <Image src="/assets/new_single_logo.png" alt="Kimuntu AI" width={40} height={40} />
+                                <span className={`text-sm font-bold transition-colors ${isDark ? 'text-white group-hover:text-emerald-300' : 'text-gray-900 group-hover:text-emerald-700'}`}>Kimuntu AI</span>
+                            </Link>
                         </div>
                         <span className={`text-xs font-medium px-3 py-1 rounded-full ${
                             isDark ? 'bg-emerald-500/10 text-emerald-400' : 'bg-emerald-50 text-emerald-600'
@@ -330,20 +333,33 @@ const Onboarding = () => {
 
                     {/* Navigation */}
                     <div className={`flex justify-between items-center gap-3 mt-6 sm:mt-8 pt-4 sm:pt-6 border-t ${isDark ? 'border-emerald-500/10' : 'border-emerald-100'}`}>
-                        <button
-                            type="button"
-                            onClick={() => setCurrentStep(s => s - 1)}
-                            className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl font-medium text-sm transition-all ${
-                                currentStep === 0
-                                    ? 'opacity-0 pointer-events-none'
-                                    : isDark
+                        <div className="flex items-center gap-3">
+                            <Link
+                                href="/"
+                                className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl font-medium text-sm transition-all ${
+                                    isDark
                                         ? 'bg-white/5 hover:bg-white/10 text-white/70 border border-white/10'
                                         : 'bg-gray-50 hover:bg-gray-100 text-gray-600 border border-gray-200'
-                            }`}
-                        >
-                            <ChevronLeft className="w-4 h-4" />
-                            Back
-                        </button>
+                                }`}
+                            >
+                                <ArrowRight className="w-4 h-4 rotate-180" />
+                                Homepage
+                            </Link>
+                            <button
+                                type="button"
+                                onClick={() => setCurrentStep(s => s - 1)}
+                                className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl font-medium text-sm transition-all ${
+                                    currentStep === 0
+                                        ? 'opacity-0 pointer-events-none'
+                                        : isDark
+                                            ? 'bg-white/5 hover:bg-white/10 text-white/70 border border-white/10'
+                                            : 'bg-gray-50 hover:bg-gray-100 text-gray-600 border border-gray-200'
+                                }`}
+                            >
+                                <ChevronLeft className="w-4 h-4" />
+                                Back
+                            </button>
+                        </div>
 
                         {currentStep < TOTAL_STEPS - 1 ? (
                             <button

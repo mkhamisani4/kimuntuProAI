@@ -1,13 +1,14 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
     Briefcase, Users, Scale, Home, FileText, TrendingUp, HelpCircle,
     Mail, Lock, Chrome, BarChart, Shield, Sun, Moon, Rocket,
     Sparkles, Zap, Brain, Target, ArrowRight, CheckCircle2,
     Globe, Star, ChevronDown, Play, Award, Lightbulb,
-    Building2, GraduationCap, Gavel, LineChart, Bot, Layers,
+    Building2, GraduationCap, Gavel, LineChart, Bot, Layers, Eye, EyeOff,
     Check, RefreshCw, CreditCard, Crown
 } from 'lucide-react';
 import { auth, signInWithEmail, signUpWithEmail, signInWithGoogle, signOutUser, hasCompletedOnboarding } from '@/lib/firebase';
@@ -66,6 +67,7 @@ export default function LandingPage() {
     const [isLogin, setIsLogin] = useState(true);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
     const [authLoading, setAuthLoading] = useState(false);
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
@@ -1049,9 +1051,9 @@ export default function LandingPage() {
 
                                 <div className="relative z-10">
                                     <div className="text-center mb-5 sm:mb-8">
-                                        <div className="relative inline-block mb-3 sm:mb-4">
+                                        <Link href="/" className="relative inline-block mb-3 sm:mb-4">
                                             <Image src="/assets/new_single_logo.png" alt="Logo" width={64} height={64} className="w-14 h-14 sm:w-[88px] sm:h-[88px] animate-float" />
-                                        </div>
+                                        </Link>
                                         <h2 className={`text-xl sm:text-2xl font-bold mb-1.5 sm:mb-2 ${isDark ? 'text-white' : 'text-black'}`}>
                                             {isLogin ? t.welcomeBack : t.getStarted}
                                         </h2>
@@ -1070,7 +1072,7 @@ export default function LandingPage() {
                                                     value={email}
                                                     onChange={(e) => setEmail(e.target.value)}
                                                     onKeyPress={handleKeyPress}
-                                                    className={`w-full pl-10 pr-4 py-3 rounded-xl transition-all ${isDark
+                                                    className={`w-full pl-10 pr-12 py-3 rounded-xl transition-all ${isDark
                                                         ? 'bg-white/5 border border-white/10 text-white placeholder-white/30 focus:bg-white/10 focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/20'
                                                         : 'bg-black/[0.02] border border-black/10 text-black placeholder-black/30 focus:bg-white focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/20'
                                                     } focus:outline-none sm:py-3 py-2.5`}
@@ -1085,7 +1087,7 @@ export default function LandingPage() {
                                             <div className="relative">
                                                 <Lock className={`absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 ${isDark ? 'text-white/30' : 'text-black'}`} />
                                                 <input
-                                                    type="password"
+                                                    type={showPassword ? 'text' : 'password'}
                                                     value={password}
                                                     onChange={(e) => setPassword(e.target.value)}
                                                     onKeyPress={handleKeyPress}
@@ -1096,6 +1098,14 @@ export default function LandingPage() {
                                                     placeholder="••••••••"
                                                     disabled={authLoading}
                                                 />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowPassword((prev) => !prev)}
+                                                    className={`absolute right-3.5 top-1/2 -translate-y-1/2 transition-colors ${isDark ? 'text-white/35 hover:text-white/70' : 'text-black/35 hover:text-black/70'}`}
+                                                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                                                >
+                                                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                                </button>
                                             </div>
                                         </div>
 
