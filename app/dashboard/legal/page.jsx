@@ -212,7 +212,7 @@ export default function LegalTrackPage() {
                         {[
                             { label: t.legal_legalAreas, value: '8' },
                             { label: t.legal_activeAssistants, value: '8' },
-                            { label: t.legal_jurisdictions, value: 'United States + Canada' }
+                            { label: t.legal_jurisdictions, value: '🇺🇸 🇨🇦' }
                         ].map((stat) => (
                             <div key={stat.label} className={`flex items-center gap-3 px-4 py-2.5 rounded-xl ${isDark
                                 ? 'bg-white/6 backdrop-blur-sm border border-white/10'
@@ -224,31 +224,30 @@ export default function LegalTrackPage() {
                         ))}
                     </div>
 
-                    <div className={`mt-6 rounded-2xl p-4 sm:p-5 border ${isDark
+                    <div className={`mt-5 rounded-xl px-4 py-3 border ${isDark
                         ? 'bg-white/6 backdrop-blur-sm border-white/10'
                         : 'bg-white/15 backdrop-blur-sm border-white/25'
                     }`}>
-                        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                            <div className="flex items-start gap-3">
-                                <div className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 ${isDark ? 'bg-indigo-400/12 border border-indigo-300/15' : 'bg-white/20 border border-white/35'}`}>
-                                    <Bot className="w-5 h-5 text-white" />
+                        <div className="flex items-center justify-between gap-4">
+                            <div className="flex items-center gap-3 min-w-0">
+                                <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${isDark ? 'bg-indigo-400/12 border border-indigo-300/15' : 'bg-white/20 border border-white/35'}`}>
+                                    <Bot className="w-4 h-4 text-white" />
                                 </div>
-                                <div>
-                                    <p className={`text-xs font-semibold uppercase tracking-[0.18em] ${isDark ? 'text-indigo-200/65' : 'text-indigo-100/80'}`}>
+                                <div className="min-w-0">
+                                    <p className={`text-[11px] font-semibold uppercase tracking-[0.18em] ${isDark ? 'text-indigo-200/65' : 'text-indigo-100/80'}`}>
                                         AI Avatar Tool
                                     </p>
-                                    <h2 className="mt-1 text-lg font-semibold text-white">Live legal guidance with an on-screen AI avatar</h2>
-                                    <p className={`mt-1 text-sm ${isDark ? 'text-indigo-100/70' : 'text-indigo-50/90'}`}>
-                                        Start with the Legal Document Analyzer to use the legal avatar workflow for document review and question-and-answer support.
+                                    <p className={`mt-0.5 text-sm text-white`}>
+                                        Use the document analyzer for live legal avatar guidance.
                                     </p>
                                 </div>
                             </div>
                             <button
                                 onClick={() => router.push('/dashboard/legal/document-analyzer')}
-                                className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-indigo-900 transition-all hover:translate-y-[-1px] hover:bg-indigo-50"
+                                className="inline-flex items-center justify-center gap-2 rounded-lg bg-white px-3.5 py-2 text-xs font-semibold text-indigo-900 transition-all hover:translate-y-[-1px] hover:bg-indigo-50 shrink-0"
                             >
-                                Open Avatar Tool
-                                <ChevronRight className="w-4 h-4" />
+                                Open
+                                <ChevronRight className="w-3.5 h-3.5" />
                             </button>
                         </div>
                     </div>
