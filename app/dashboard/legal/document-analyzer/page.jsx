@@ -515,12 +515,12 @@ export default function LegalDocumentAnalyzerPage() {
 
   // ─────────────────────────────────────────────────────────────────────────────
   return (
-    <div className={`flex flex-col h-[calc(100vh-2rem)] -m-8 overflow-hidden ${
+    <div className={`flex min-h-[calc(100vh-5rem)] flex-col overflow-hidden rounded-2xl border sm:min-h-[calc(100vh-6rem)] lg:-m-8 lg:h-[calc(100vh-2rem)] lg:rounded-none ${
       isDark ? 'bg-gray-950' : 'bg-[#f5f7fb]'
-    }`}>
+    } ${isDark ? 'border-white/10 lg:border-0' : 'border-gray-200 lg:border-0'}`}>
 
       {/* ── Top bar ── */}
-      <div className={`flex items-center gap-3 px-5 py-3 border-b shrink-0 ${
+      <div className={`flex flex-wrap items-center gap-2 px-3 py-3 sm:gap-3 sm:px-5 border-b shrink-0 ${
         isDark ? 'bg-gray-950 border-white/8' : 'bg-white border-gray-200 shadow-sm'
       }`}>
         <Link
@@ -533,15 +533,15 @@ export default function LegalDocumentAnalyzerPage() {
           Legal Track
         </Link>
         <span className={`${isDark ? 'text-white/20' : 'text-gray-300'}`}>/</span>
-        <div className="flex items-center gap-2">
+        <div className="flex min-w-0 items-center gap-2">
           <div className="w-5 h-5 rounded-md bg-indigo-500/20 flex items-center justify-center">
             <Scale className="w-3 h-3 text-indigo-400" />
           </div>
-          <span className={`text-sm font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+          <span className={`min-w-0 truncate text-sm font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
             Legal Document Analyzer
           </span>
         </div>
-        <div className={`ml-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide ${
+        <div className={`ml-auto rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide sm:ml-1 ${
           isDark ? 'bg-indigo-500/15 text-indigo-400' : 'bg-indigo-100 text-indigo-600'
         }`}>
           AI Lawyer
@@ -579,10 +579,10 @@ export default function LegalDocumentAnalyzerPage() {
       </div>
 
       {/* ── Main 2-column layout ── */}
-      <div className="flex flex-1 min-h-0 overflow-hidden">
+      <div className="flex flex-1 flex-col overflow-y-auto lg:min-h-0 lg:flex-row lg:overflow-hidden">
 
         {/* ── LEFT: Document + Report ── */}
-        <div className={`w-[420px] shrink-0 flex flex-col border-r overflow-y-auto ${
+        <div className={`w-full shrink-0 flex flex-col border-b lg:w-[420px] lg:border-b-0 lg:border-r lg:overflow-y-auto ${
           isDark ? 'border-white/8 bg-gray-950' : 'border-gray-200 bg-[#f5f7fb]'
         }`}>
           <div className="p-4 space-y-4">
@@ -706,10 +706,10 @@ export default function LegalDocumentAnalyzerPage() {
 
         {/* ── RIGHT: Avatar + Chat ── */}
         <div className="flex-1 flex flex-col min-h-0 min-w-0">
-          <div className={`flex-1 flex items-center justify-center p-6 lg:p-10 ${
+          <div className={`flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-10 ${
             isDark ? 'bg-gray-950' : 'bg-[#f5f7fb]'
           }`}>
-            <div className={`w-full max-w-2xl rounded-[28px] border p-8 text-center ${
+            <div className={`w-full max-w-2xl rounded-[24px] border p-5 text-center sm:rounded-[28px] sm:p-8 ${
               isDark
                 ? 'border-white/10 bg-white/[0.03]'
                 : 'border-gray-200 bg-white shadow-sm'
@@ -724,7 +724,7 @@ export default function LegalDocumentAnalyzerPage() {
                 )}
               </div>
 
-              <h2 className={`text-2xl font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+              <h2 className={`text-xl font-semibold sm:text-2xl ${isDark ? 'text-white' : 'text-gray-900'}`}>
                 {!uploadedFile
                   ? 'Upload a legal document'
                   : analyzing || extracting

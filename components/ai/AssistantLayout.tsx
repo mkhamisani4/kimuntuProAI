@@ -28,21 +28,21 @@ export default function AssistantLayout({
   const { t } = useLanguage();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black p-8">
+    <div className="min-h-screen overflow-x-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-black p-4 sm:p-6 lg:p-8">
       {/* Toast Notifications */}
       <Toast />
 
-      <div className="max-w-7xl mx-auto">
+      <div className="mx-auto w-full max-w-7xl">
         {/* Breadcrumb Navigation */}
-        <nav className="mb-6 text-sm text-gray-400" aria-label="Breadcrumb">
-          <ol className="flex items-center space-x-2">
+        <nav className="mb-5 overflow-x-auto pb-1 text-xs text-gray-400 sm:mb-6 sm:text-sm" aria-label="Breadcrumb">
+          <ol className="flex min-w-0 items-center gap-2 whitespace-nowrap">
             <li>
               <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">
                 {t.biz_dashboard}
               </Link>
             </li>
             <li>
-              <span className="mx-2">/</span>
+              <span>/</span>
             </li>
             <li>
               <Link href={backHref} className="hover:text-emerald-400 transition-colors">
@@ -50,30 +50,32 @@ export default function AssistantLayout({
               </Link>
             </li>
             <li>
-              <span className="mx-2">/</span>
+              <span>/</span>
             </li>
             <li>
-              <span className="text-white font-medium">{title}</span>
+              <span className="font-medium text-white">{title}</span>
             </li>
           </ol>
         </nav>
 
         {/* Header with Icon, Title, and Description */}
-        <div className="mb-8">
-          <div className="flex items-start gap-4 mb-4">
-            <div className="text-emerald-400 flex-shrink-0" aria-hidden="true">{icon}</div>
-            <div className="flex-1">
-              <h1 className="text-4xl font-bold text-white mb-2">
+        <div className="mb-6 sm:mb-8">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+            <div className="flex items-start gap-3 sm:flex-1 sm:gap-4">
+              <div className="shrink-0 text-emerald-400 [&>svg]:h-12 [&>svg]:w-12 sm:[&>svg]:h-16 sm:[&>svg]:w-16" aria-hidden="true">{icon}</div>
+              <div className="min-w-0 flex-1">
+                <h1 className="text-3xl font-bold leading-tight text-white sm:text-4xl">
                 {title}
-              </h1>
-              <p className="text-gray-400 text-lg">
-                {description}
-              </p>
+                </h1>
+                <p className="mt-2 max-w-2xl text-sm leading-relaxed text-gray-400 sm:text-lg">
+                  {description}
+                </p>
+              </div>
             </div>
             {/* Back Button */}
             <Link
               href={backHref}
-              className="px-4 py-2 text-gray-400 hover:text-white transition-colors flex items-center gap-2"
+              className="inline-flex w-fit items-center gap-2 rounded-xl px-0 py-2 text-sm text-gray-400 transition-colors hover:text-white sm:px-4"
               aria-label={`${t.biz_back} ${t.biz_businessTrack}`}
             >
               <svg

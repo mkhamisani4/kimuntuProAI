@@ -92,7 +92,7 @@ const Onboarding = () => {
 
             {/* Card */}
             <div
-                className="relative my-0 w-full max-w-3xl rounded-3xl shadow-2xl overflow-hidden sm:my-4"
+                className="relative my-0 w-full max-w-3xl overflow-hidden rounded-2xl shadow-2xl sm:my-4 sm:rounded-3xl"
                 style={{
                     background: isDark
                         ? 'rgba(0, 0, 0, 0.6)'
@@ -144,9 +144,9 @@ const Onboarding = () => {
                                             <div className="absolute inset-0 bg-emerald-500/20 rounded-full blur-2xl animate-pulse" />
                                         </div>
                                     </div>
-                                    <h1 className={`text-3xl sm:text-4xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                                    <h1 className={`text-[1.7rem] font-bold leading-tight sm:text-4xl ${isDark ? 'text-white' : 'text-gray-900'}`}>
                                         Welcome to{' '}
-                                        <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
+                                        <span className="whitespace-nowrap bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
                                             Kimuntu AI
                                         </span>
                                     </h1>
@@ -332,23 +332,24 @@ const Onboarding = () => {
                     </div>
 
                     {/* Navigation */}
-                    <div className={`flex justify-between items-center gap-3 mt-6 sm:mt-8 pt-4 sm:pt-6 border-t ${isDark ? 'border-emerald-500/10' : 'border-emerald-100'}`}>
-                        <div className="flex items-center gap-3">
-                            <Link
-                                href="/"
-                                className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl font-medium text-sm transition-all ${
+                    <div className={`flex flex-col gap-3 mt-6 border-t pt-4 sm:mt-8 sm:flex-row sm:items-center sm:justify-between sm:pt-6 ${isDark ? 'border-emerald-500/10' : 'border-emerald-100'}`}>
+                        <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+                            <button
+                                type="button"
+                                onClick={() => router.push('/')}
+                                className={`flex min-w-0 items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium transition-all sm:px-5 ${
                                     isDark
                                         ? 'bg-white/5 hover:bg-white/10 text-white/70 border border-white/10'
                                         : 'bg-gray-50 hover:bg-gray-100 text-gray-600 border border-gray-200'
                                 }`}
                             >
-                                <ArrowRight className="w-4 h-4 rotate-180" />
-                                Homepage
-                            </Link>
+                                <ArrowRight className="h-4 w-4 shrink-0 rotate-180" />
+                                <span className="truncate">Homepage</span>
+                            </button>
                             <button
                                 type="button"
                                 onClick={() => setCurrentStep(s => s - 1)}
-                                className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl font-medium text-sm transition-all ${
+                                className={`flex min-w-0 items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium transition-all sm:px-5 ${
                                     currentStep === 0
                                         ? 'opacity-0 pointer-events-none'
                                         : isDark
@@ -356,8 +357,8 @@ const Onboarding = () => {
                                             : 'bg-gray-50 hover:bg-gray-100 text-gray-600 border border-gray-200'
                                 }`}
                             >
-                                <ChevronLeft className="w-4 h-4" />
-                                Back
+                                <ChevronLeft className="h-4 w-4 shrink-0" />
+                                <span className="truncate">Back</span>
                             </button>
                         </div>
 
@@ -366,7 +367,7 @@ const Onboarding = () => {
                                 type="button"
                                 onClick={() => setCurrentStep(s => s + 1)}
                                 disabled={!canProceed()}
-                                className={`flex items-center gap-2 px-5 sm:px-6 py-2.5 rounded-xl font-semibold text-sm transition-all ${
+                                className={`flex w-full items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition-all sm:w-auto sm:px-6 ${
                                     canProceed()
                                         ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:shadow-lg hover:shadow-emerald-500/25 hover:scale-[1.02]'
                                         : 'opacity-30 cursor-not-allowed bg-gray-300 text-gray-500'

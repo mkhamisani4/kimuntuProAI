@@ -183,7 +183,7 @@ export default function TaskForm({ onResult, onError, assistant: assistantProp, 
   };
 
   return (
-    <div className="bg-white/5 backdrop-blur border border-gray-800 rounded-2xl p-6">
+    <div className="rounded-2xl border border-gray-800 bg-white/5 p-4 backdrop-blur sm:p-6">
       <form onSubmit={handleSubmit}>
         {/* Task Selector */}
         {!assistantProp ? (
@@ -267,7 +267,7 @@ export default function TaskForm({ onResult, onError, assistant: assistantProp, 
 
             {showAdvanced && (
               <div className="mt-4 p-4 bg-white/5 border border-gray-700 rounded-lg space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div>
                     <label className="block text-xs font-medium text-gray-300 mb-1">
                       {t.biz_arpu}

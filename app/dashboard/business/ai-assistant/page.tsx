@@ -57,16 +57,16 @@ export default function AIAssistantPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen overflow-x-hidden bg-gray-50 p-4 dark:bg-gray-950 sm:p-6 lg:p-8">
+      <div className="mx-auto w-full max-w-6xl">
         {/* Header */}
         <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">
+          <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0">
+              <h1 className="text-2xl font-bold leading-tight text-gray-900 dark:text-white sm:text-3xl">
                 Business Track AI Assistant
               </h1>
-              <p className="mt-2 text-gray-600">
+              <p className="mt-2 text-sm leading-relaxed text-gray-600 dark:text-gray-300 sm:text-base">
                 Generate business plans, financial summaries, and market analysis with AI
               </p>
             </div>
@@ -126,7 +126,7 @@ export default function AIAssistantPage() {
         )}
 
         {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-8">
           {/* Left: Task Form */}
           <div>
             <TaskForm onResult={handleResult} onError={handleError} />
@@ -136,9 +136,9 @@ export default function AIAssistantPage() {
           <div>
             {result && <ResultViewer result={result} />}
             {!result && !error && (
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
-                <div className="text-gray-400 text-lg">
-                  <p className="mb-2 flex items-center gap-2">
+              <div className="rounded-lg border border-gray-200 bg-white p-6 text-center shadow-sm dark:border-white/10 dark:bg-white/[0.04] sm:p-12">
+                <div className="text-base text-gray-400 dark:text-gray-300 sm:text-lg">
+                  <p className="mb-2 flex items-center justify-center gap-2">
                     <ArrowLeft className="w-4 h-4" />
                     Select a task and enter your prompt
                   </p>

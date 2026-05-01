@@ -93,17 +93,17 @@ export default function WizardContainer({
   };
 
   return (
-    <div className="max-w-5xl mx-auto">
+    <div className="mx-auto w-full max-w-5xl">
       {/* Progress Bar */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between">
+      <div className="mb-6 sm:mb-8">
+        <div className="flex items-center justify-between gap-2 sm:gap-0">
           {STEPS.map((step, index) => (
-            <div key={step.id} className="flex items-center flex-1">
+            <div key={step.id} className="flex min-w-0 flex-1 items-center">
               {/* Step Circle */}
               <button
                 onClick={() => goToStep(step.id)}
                 className={`
-                  relative flex items-center justify-center w-10 h-10 rounded-full font-semibold transition-all
+                  relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-semibold transition-all sm:h-10 sm:w-10 sm:text-base
                   ${
                     currentStep === step.id
                       ? 'bg-emerald-500 text-white ring-4 ring-emerald-500/30'
@@ -125,7 +125,7 @@ export default function WizardContainer({
               {index < STEPS.length - 1 && (
                 <div
                   className={`
-                    flex-1 h-1 mx-2 transition-colors
+                    mx-1 h-1 min-w-0 flex-1 transition-colors sm:mx-2
                     ${completedSteps.has(step.id) ? 'bg-emerald-600' : 'bg-gray-700'}
                   `}
                 />
@@ -135,7 +135,7 @@ export default function WizardContainer({
         </div>
 
         {/* Step Labels */}
-        <div className="flex justify-between mt-3">
+        <div className="mt-3 hidden justify-between sm:flex">
           {STEPS.map((step) => (
             <div key={step.id} className="flex-1 text-center px-2">
               <p
@@ -153,7 +153,7 @@ export default function WizardContainer({
       </div>
 
       {/* Step Content */}
-      <div className="bg-white/5 backdrop-blur border border-gray-800 rounded-2xl p-8">
+      <div className="rounded-2xl border border-gray-800 bg-white/5 p-4 backdrop-blur sm:p-6 lg:p-8">
         {renderStep()}
       </div>
     </div>

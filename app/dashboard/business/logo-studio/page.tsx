@@ -178,14 +178,14 @@ export default function LogoStudioPage() {
       )}
 
       {/* Template Quick Start */}
-      <div className="mb-8 bg-gradient-to-r from-emerald-500/10 to-purple-500/10 border border-emerald-500/30 rounded-lg p-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-start gap-4">
-            <div className="p-3 bg-emerald-600 rounded-lg">
+      <div className="mb-6 rounded-lg border border-emerald-500/30 bg-gradient-to-r from-emerald-500/10 to-purple-500/10 p-4 sm:mb-8 sm:p-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex min-w-0 items-start gap-3 sm:gap-4">
+            <div className="shrink-0 rounded-lg bg-emerald-600 p-3">
               <Layout className="w-6 h-6 text-white" />
             </div>
-            <div>
-              <h3 className="text-lg font-semibold text-white mb-1">
+            <div className="min-w-0">
+              <h3 className="mb-1 text-base font-semibold text-white sm:text-lg">
                 Quick Start: Use a Template
               </h3>
               <p className="text-sm text-gray-300">
@@ -196,7 +196,7 @@ export default function LogoStudioPage() {
           <button
             onClick={() => setShowTemplateSelector(true)}
             disabled={isCustomizingTemplate}
-            className="flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-700 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors"
+            className="inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-lg bg-emerald-600 px-5 py-3 font-semibold text-white transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-gray-700 sm:w-auto sm:px-6"
           >
             {isCustomizingTemplate ? (
               <>
