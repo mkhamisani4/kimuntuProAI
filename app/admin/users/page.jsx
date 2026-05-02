@@ -303,6 +303,93 @@ function Select({ isDark, children, ...props }) {
   );
 }
 
+function ProfileModal({ user, isDark, onClose, onEdit, onChangePassword }) {
+  const border = isDark ? 'border-white/10' : 'border-black/5';
+  const bg = isDark ? 'bg-gray-900' : 'bg-white';
+  const text = isDark ? 'text-white' : 'text-black';
+  const subtle = isDark ? 'text-white/60' : 'text-black/50';
+  const plan = planKey(user);
+  const planColor = getPlanColor(plan).bar;
+  const initial = (user.displayName || user.email || '?').trim()[0].toUpperCase();
+  const active = !user.disabled;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+      <div
+        className={`relative w-full max-w-2xl rounded-2xl border shadow-2xl ${bg} ${border}`}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className={`flex items-center justify-between px-6 py-4 border-b ${border}`}>
+          <h2 className={`text-base font-semibold ${text}`}>User Profile</h2>
+          <button onClick={onClose} className={`p-1.5 rounded-lg ${isDark ? 'hover:bg-white/10 text-white/60' : 'hover:bg-black/5 text-black/40'}`}>
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div className="p-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-4">
+              <div
+                className="w-16 h-16 rounded-full flex items-center justify-center text-white text-xl font-semibold"
+                style={{ background: planColor }}
+              >
+                {initial}
+              </div>
+              <div>
+                <div className={`text-xl font-semibold ${text}`}>{user.displayName || '—'}</div>
+                <div className={`text-sm ${subtle}`}>{user.email || 'No email on file'}</div>
+                <div className={`mt-2 inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${planBadgeClasses(plan, isDark)}`}>
+                  {PLAN_LABEL[plan] || plan}
+                </div>
+              </div>
+            </div>
+            <span className={`inline-flex w-fit items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${
+              active
+                ? isDark ? 'bg-emerald-500/15 text-emerald-400' : 'bg-emerald-50 text-emerald-700'
+                : isDark ? 'bg-rose-500/15 text-rose-400' : 'bg-rose-50 text-rose-700'
+            }`}>
+              <span className={`w-1.5 h-1.5 rounded-full ${active ? 'bg-emerald-500' : 'bg-rose-500'}`} />
+              {active ? 'Active' : 'Inactive'}
+            </span>
+          </div>
+
+          <div className={`mt-6 grid gap-3 sm:grid-cols-2 text-sm`}>
+            {[
+              ['User ID', user.uid],
+              ['Role', user.role === 'admin' ? 'Admin' : 'User'],
+              ['Joined', shortDate(user.createdAt)],
+              ['Last Active', relativeTime(user.lastSignIn)],
+              ['AI Requests', (1000 + (hash(user.uid) % 2000)).toLocaleString()],
+              ['Total Spent', `$${(20 + (hash(user.uid) % 80)).toFixed(2)}`],
+            ].map(([label, value]) => (
+              <div key={label} className={`rounded-xl border p-3 ${border} ${isDark ? 'bg-white/5' : 'bg-black/[0.02]'}`}>
+                <div className={`text-xs ${subtle}`}>{label}</div>
+                <div className={`mt-1 break-words font-medium ${text}`}>{value || '—'}</div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+            <button
+              onClick={() => onEdit(user)}
+              className="flex-1 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white py-2.5 text-sm font-medium"
+            >
+              Edit User
+            </button>
+            <button
+              onClick={() => onChangePassword(user)}
+              className={`flex-1 rounded-xl border py-2.5 text-sm font-medium ${border} ${isDark ? 'bg-white/5 text-white hover:bg-white/10' : 'bg-black/[0.03] text-black/70 hover:bg-black/[0.06]'}`}
+            >
+              Change Password
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function AdminUsersPage() {
   const { isDark } = useTheme();
   const [users, setUsers] = useState([]);
@@ -328,6 +415,7 @@ export default function AdminUsersPage() {
   const [pwError, setPwError] = useState('');
   const [showPwNew, setShowPwNew] = useState(false);
   const [showPwConfirm, setShowPwConfirm] = useState(false);
+  const [profileUser, setProfileUser] = useState(null);
   const pageSize = 10;
 
   const waitForCurrentUser = () =>
@@ -422,6 +510,7 @@ export default function AdminUsersPage() {
   };
 
   const openChangePw = (u) => {
+    setProfileUser(null);
     setPwError('');
     setPwForm({ newPassword: '', confirmPassword: '' });
     setShowPwNew(false);
@@ -460,9 +549,16 @@ export default function AdminUsersPage() {
   };
 
   const openEdit = (u) => {
+    setProfileUser(null);
     const [firstName, ...rest] = (u.displayName || '').split(' ');
     setEditForm({ firstName: firstName || '', lastName: rest.join(' '), email: u.email || '', subscriptionTier: planKey(u) });
     setEditUser(u);
+  };
+
+  const openProfile = (u) => {
+    if (!u) return;
+    setSelectedUid(u.uid);
+    setProfileUser(u);
   };
 
   const handleEditUser = async (e) => {
@@ -923,13 +1019,31 @@ export default function AdminUsersPage() {
         </Modal>
       )}
 
+      {/* User Profile Modal */}
+      {profileUser && (
+        <ProfileModal
+          user={profileUser}
+          isDark={isDark}
+          onClose={() => setProfileUser(null)}
+          onEdit={openEdit}
+          onChangePassword={openChangePw}
+        />
+      )}
+
       {/* Right rail */}
       <aside className={`space-y-4 ${isDark ? 'bg-black' : 'bg-gray-50'}`}>
         {/* User Overview */}
         <div className={`rounded-2xl border p-4 ${border} ${cardBg}`}>
           <div className="flex items-center justify-between mb-3">
             <div className={`text-sm font-semibold ${text}`}>User Overview</div>
-            <button className="text-xs text-emerald-600 hover:underline">View Profile</button>
+            <button
+              type="button"
+              disabled={!selected}
+              onClick={() => openProfile(selected)}
+              className="text-xs text-emerald-600 hover:underline disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              View Profile
+            </button>
           </div>
           {selected ? (
             <>
@@ -957,7 +1071,11 @@ export default function AdminUsersPage() {
                 <div className="flex justify-between"><dt className={subtle}>AI Requests</dt><dd className={text}>{(1000 + (hash(selected.uid) % 2000)).toLocaleString()}</dd></div>
                 <div className="flex justify-between"><dt className={subtle}>Total Spent</dt><dd className={text}>${(20 + (hash(selected.uid) % 80)).toFixed(2)}</dd></div>
               </dl>
-              <button className={`mt-4 w-full rounded-xl py-2 text-sm font-medium border ${border} ${isDark ? 'bg-white/5 text-white' : 'bg-emerald-50 text-emerald-700 border-emerald-200'}`}>
+              <button
+                type="button"
+                onClick={() => openProfile(selected)}
+                className={`mt-4 w-full rounded-xl py-2 text-sm font-medium border ${border} ${isDark ? 'bg-white/5 text-white hover:bg-white/10' : 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'}`}
+              >
                 View Full Profile
               </button>
             </>
